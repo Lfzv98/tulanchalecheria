@@ -106,7 +106,7 @@
 
 <!-- ===================== RESERVAR ===================== -->
 <section class="page" data-view="reservar" id="reservar" aria-labelledby="res-t" hidden>
-  <div class="view-hero"><div class="wrap"><span class="eyebrow">Reserva guiada</span><h1 id="res-t">Arma tu salida</h1><p>Cuatro pasos y tu solicitud queda lista para enviar por WhatsApp.</p></div></div>
+  <div class="view-hero"><div class="wrap"><span class="eyebrow">Reserva guiada</span><h1 id="res-t">Arma tu salida</h1><p>Cuatro pasos y reservas aquí mismo, sin salir de la app.</p></div></div>
   <div class="band pt0"><div class="wrap">
     <div class="stepper" id="stepper" role="tablist" aria-label="Pasos de la reserva">
       <button type="button" role="tab" data-go="0" aria-selected="true"><i>1</i><span>Grupo</span></button>
@@ -190,6 +190,7 @@
 <section class="page" data-view="mi-viaje" id="mi-viaje" aria-labelledby="trip-t" hidden>
   <div class="view-hero"><div class="wrap"><span class="eyebrow">Durante y después del paseo</span><h1 id="trip-t">Mi viaje</h1><p>Con el código de tu reserva sigues la lancha en vivo y, al volver, abres el álbum del día. Prueba con el código <b class="mono">TLL-1105</b>.</p></div></div>
   <div class="band pt0"><div class="wrap">
+    <section id="my-trips" class="my-trips" hidden aria-label="Mis reservas"></section>
     <div class="trip">
       <article class="trip-card glass-card"><div class="shot" id="trip-map-thumb"></div><div class="in"><h3><span class="live-dot" aria-hidden="true"></span> Ubicación en vivo</h3><p>Comparte un enlace para que tu familia en tierra vea dónde va la lancha y a qué hora llega. Incluye botón de emergencia.</p>
         <form class="trip-code" data-go="viaje"><input aria-label="Código de reserva" placeholder="Código de reserva" value="TLL-1105" id="code-live" autocomplete="off"><button class="btn btn-sun btn-sm" type="submit">Ver en vivo</button></form></div></article>
@@ -309,7 +310,7 @@
 </div>
 
 <a class="fab" href="https://wa.me/584143083864?text=Hola%20Tu%20Lancha%2C%20quiero%20informaci%C3%B3n%20para%20un%20ch%C3%A1rter" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2a8.2 8.2 0 01-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 01-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 00-.7.3 3 3 0 00-.9 2.2 5.2 5.2 0 001.1 2.7 11.8 11.8 0 004.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.6-.3z"/></svg></a>
-<div class="minibar" id="minibar" aria-hidden="true"><div><span>Total estimado</span><b id="mb-total">$0</b></div><a class="btn btn-wa btn-sm" id="mb-wa" target="_blank" rel="noopener" tabindex="-1">Enviar por WhatsApp</a></div>
+<div class="minibar" id="minibar" aria-hidden="true"><div><span>Total estimado</span><b id="mb-total">$0</b></div><button class="btn btn-sun btn-sm" id="mb-book" type="button" tabindex="-1">Reservar ahora</button></div>
 <button class="btn btn-sun btn-sm install" id="install" type="button" hidden>Instalar app</button>
 <div class="adm" id="adm" hidden></div>
 <dialog id="dlg" aria-labelledby="m-title"></dialog>

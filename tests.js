@@ -63,7 +63,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   // modal
   await tap('[data-open="b2"]'); await p.waitForSelector('#dlg[open]');
   const free = await p.$('#m-cal .cal-g button:not([disabled]):not(.busy)'); await tap(free);
-  const href = await p.getAttribute('#m-wa', 'href'); ok(href.includes('wa.me/584143083864') && decodeURIComponent(href).includes('Arapo 40'), 'Detalle: enlace de reserva con la embarcación');
+  ok(await p.isVisible('#m-book'), 'Detalle: botón "Reservar esta embarcación" dentro de la app');
   const dlgScroll = await p.evaluate(() => { const d = document.querySelector('#dlg'); return d.scrollHeight > d.clientHeight ? getComputedStyle(d).overflowY : 'fits'; }); ok(dlgScroll === 'auto' || dlgScroll === 'fits', 'Detalle se puede desplazar en móvil (' + dlgScroll + ')');
   await tap('#m-build'); await p.waitForTimeout(500); ok(await p.getAttribute('[data-boat="b2"]', 'aria-pressed') === 'true', 'Pasar del detalle al cotizador con la embarcación elegida');
   ok(await p.isVisible('[data-step="2"]'), 'Llega directo al paso Destino y fecha');
@@ -83,6 +83,20 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok(await p.isVisible('#ticket .code-bad'), 'Código inválido muestra mensaje claro');
   await tap('#cur-ves'); ok((await p.textContent('#ticket .total')).includes('Bs'), 'Cambio a bolívares');
   await tap('#cur-usd');
+  // reserva dentro de la app
+  await tap('#t-book'); await p.waitForSelector('#bk-form');
+  ok(await p.isVisible('#bk-form'), 'Reservar ahora abre la confirmación dentro de la app');
+  await tap('#bk-go'); ok(await p.isVisible('#bk-form'), 'Sin nombre no deja confirmar');
+  await p.fill('#bk-name', 'Familia Pérez'); await p.fill('#bk-phone', '0414 555 1234'); await tap('#bk-go'); await p.waitForSelector('#bk-code');
+  const bcode = (await p.textContent('#bk-code')).trim(); ok(/^TLL-\d{4}$/.test(bcode), 'Reserva registrada con código ' + bcode);
+  await tap('#bk-send'); await p.waitForTimeout(500);
+  ok(popups.some(u => decodeURIComponent(u).includes(bcode) && decodeURIComponent(u).includes('Familia Pérez')), 'Un toque avisa a Tu Lancha por WhatsApp con el código y los datos');
+  await tap('#bk-trip'); await p.waitForTimeout(600);
+  ok(await p.isVisible('#my-trips') && (await p.textContent('#my-trips')).includes(bcode) && (await p.textContent('#my-trips')).includes('Enviada'), 'Mi viaje muestra la reserva y su estado');
+  ok(await p.inputValue('#code-live') === bcode, 'Mi viaje usa el código de la reserva');
+  await go('flota'); await tap('[data-book="b3"]'); await p.waitForTimeout(500);
+  ok(await p.evaluate(() => location.hash) === '#reservar' && await p.getAttribute('[data-boat="b3"]', 'aria-pressed') === 'true', 'Botón Reservar de la flota lleva al asistente con esa embarcación');
+  await go('reservar');
   await go('playas');
   // playas → cotizador
   await tap('[data-goroute="r6"]'); await p.waitForTimeout(300); ok(await p.getAttribute('[data-route="r6"]', 'aria-pressed') === 'true', 'Playa → "Ir aquí" la elige en el cotizador');

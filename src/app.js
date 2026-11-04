@@ -190,7 +190,7 @@ function boatCard(b) {
       <div class="meta"><span class="tag">${b.type}</span><span class="tag">${b.ft} pies</span><span class="tag">Hasta ${b.pax} pers.</span>${b.cabin ? '<span class="tag">Pernocta</span>' : ''}</div>
       <div class="row"><span class="price">${money(rateOf(b))} <small>/ día</small></span><span class="rating">Libre ${nf ? fmtDay(nf) : '—'}</span></div>
       <div class="rating">Sale de ${DOCKS[b.dock]}</div>
-      <div class="acts"><button class="btn btn-ghost btn-sm" type="button" data-open="${b.id}">Ver detalles</button><a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${wa(`Hola Tu Lancha 👋 Quiero reservar la ${b.name} (${b.type}, ${b.pax} pers.). ¿Qué fechas tienen libres?`)}">Reservar</a></div>
+      <div class="acts"><button class="btn btn-ghost btn-sm" type="button" data-open="${b.id}">Ver detalles</button><button class="btn btn-sun btn-sm" type="button" data-book="${b.id}">Reservar</button></div>
     </div></article>`;
 }
 function renderBoats() {
@@ -224,7 +224,7 @@ function openBoat(id) {
       <div class="two"><div class="field"><label for="m-route">Rumbo</label><select id="m-route">${ROUTES.map(r => `<option value="${r.id}">${r.name} · ${r.nm} mn${r.extra ? ' · +' + money(r.extra) : ''}</option>`).join('')}</select></div>
         <div class="field"><label for="m-dock">Muelle</label><select id="m-dock">${DOCKS.map((d, i) => `<option value="${i}" ${i === b.dock ? 'selected' : ''}>${d}</option>`).join('')}</select></div></div>
       <div class="cal" id="m-cal"></div>
-      <div class="row" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><div class="rating" id="m-when"></div><div class="price" id="m-total"></div></div><a class="btn btn-wa" id="m-wa" target="_blank" rel="noopener">Reservar por WhatsApp</a></div>
+      <div class="row" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><div class="rating" id="m-when"></div><div class="price" id="m-total"></div></div><button class="btn btn-sun" type="button" id="m-book">Reservar esta embarcación</button></div>
       <button class="btn btn-ghost btn-sm" type="button" id="m-build" style="justify-self:start">Agregar extras en el cotizador</button>
     </div></div>`;
   const upd = () => {
@@ -232,13 +232,14 @@ function openBoat(id) {
     const total = priceOn(b, pick) + r.extra;
     $('#m-when', dlg).textContent = pick ? `${fmtDay(pick)} · ${r.name}` : 'Elige una fecha';
     $('#m-total', dlg).textContent = money(total);
-    $('#m-wa', dlg).href = wa(`Hola Tu Lancha 👋 Quiero reservar:\n⛵ ${b.name} (${b.type}, hasta ${b.pax} pers.)\n📅 ${pick ? fmtDay(pick) : 'fecha por definir'}\n🏝️ ${r.name}\n⚓ Salida: ${dock}\n💵 Total estimado: ${money(total)}`);
+    void total;
   };
   calendar($('#m-cal', dlg), b, { get selected() { return pick; }, onPick: d => { pick = d; upd(); } });
   dlg.onchange = upd;
   dlg.onclick = e => {
     if (e.target === dlg || e.target.closest('.m-close')) return dlg.close();
     const mv = e.target.closest('[data-mv]'); if (mv) { $('#m-shot', dlg).innerHTML = art(mv.dataset.mv, b.hue, b.id); $$('[data-mv]', dlg).forEach(x => x.setAttribute('aria-pressed', x === mv)); }
+    if (e.target.closest('#m-book')) { Q.boat = b.id; Q.route = $('#m-route', dlg).value; Q.dock = +$('#m-dock', dlg).value; if (pick) Q.date = iso(pick); Q.pax = Math.min(Q.pax, b.pax); dlg.close(); renderBuilder(); location.hash = 'reservar'; setTimeout(() => { window.TLL.goStep && window.TLL.goStep(3); window.TLL.openBooking(); }, 60); return; }
     if (e.target.closest('#m-build')) { Q.boat = b.id; Q.route = $('#m-route', dlg).value; Q.dock = +$('#m-dock', dlg).value; if (pick) Q.date = iso(pick); Q.pax = Math.min(Q.pax, b.pax); dlg.close(); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(2), 0); }
   };
   upd(); dlg.showModal();
@@ -259,7 +260,7 @@ function renderBuilder() {
 }
 function renderTicket() {
   const b = BOATS.find(x => x.id === Q.boat), r = ROUTES.find(x => x.id === Q.route);
-  if (!b) { $('#ticket').innerHTML = '<h3>Tu cotización</h3><p class="empty">Para grupos de más de 35 personas armamos una flotilla a la medida. Escríbenos.</p>'; return; }
+  if (!b) { window.TLL_LAST = null; $('#ticket').innerHTML = '<h3>Tu cotización</h3><p class="empty">Para grupos de más de 35 personas armamos una flotilla a la medida. Escríbenos.</p>'; return; }
   const [yy, mm, dd] = Q.date.split('-').map(Number), d = new Date(yy, mm - 1, dd), busy = isBusy(b, d);
   const lines = [[`${b.name} · ${fmtDay(d)}`, priceOn(b, d)]];
   if (r.extra) lines.push([`Combustible a ${r.name}`, r.extra]);
@@ -277,9 +278,10 @@ function renderTicket() {
     <div class="pp">${money(total / Q.pax)} por persona · abono para apartar ${money(total / 2)}</div>
     <form class="code-in" id="code-form"><input id="q-code" placeholder="Código de amigo o de regalo" aria-label="Código de amigo o tarjeta de regalo" value="${Q.code || ''}" autocomplete="off" autocapitalize="characters"><button class="btn btn-ghost on-sea btn-sm" type="submit">Aplicar</button></form>
     ${Q.code ? (code.kind ? `<span class="code-ok">✓ ${code.kind === 'ref' ? 'Descuento de amigo aplicado' : 'Tarjeta de regalo aplicada (' + money(code.value) + ')'}</span>` : `<span class="code-bad">Ese código no es válido. Revisa que esté bien escrito, por ejemplo ANA-7K2 o TLLG-B4XK.</span>`) : ''}
-    <a class="btn btn-wa" target="_blank" rel="noopener" href="${wa(msg)}" id="t-wa">Enviar por WhatsApp</a>
-    <p class="note">${currency === 'VES' ? `Calculado con tasa de referencia de ejemplo: ${RATE_VES} Bs/USD. ` : ''}Precio estimado; se confirma con disponibilidad. Fines de semana +${wkOf(b)}%.</p>`;
-  $('#mb-total').textContent = money(total); $('#mb-wa').href = wa(msg);
+    <button class="btn btn-sun btn-lg" type="button" id="t-book">Reservar ahora</button>
+    <p class="note">${currency === 'VES' ? `Calculado con tasa de referencia de ejemplo: ${RATE_VES} Bs/USD. ` : ''}No pagas nada ahora: te confirmamos disponibilidad y abono. Fines de semana +${wkOf(b)}%.</p>`;
+  $('#mb-total').textContent = money(total);
+  window.TLL_LAST = { boat: b.name, type: b.type, route: r.name, dock: DOCKS[Q.dock], date: fmtDay(d), iso: Q.date, pax: Q.pax, lines, total, busy, promo: code.kind ? code.code : '' };
 }
 const GIFT_VALUES = { A: 180, B: 320, C: 950, D: 1650 };
 const AL = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -358,4 +360,6 @@ if ('serviceWorker' in navigator && location.protocol === 'https:' && !location.
 setCur(currency); renderOwner();
 
 window.TLL = { renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, get currency() { return currency; } };
+document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; Q.pax = Math.min(Q.pax, b.pax); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(2), 0); });
 })();
+

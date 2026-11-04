@@ -43,13 +43,13 @@ function goStep(n) {
   $('#stepper-fill').style.width = ((step + 1) / 4 * 100) + '%';
   $('#st-back').style.visibility = step === 0 ? 'hidden' : 'visible';
   const nx = $('#st-next');
-  if (step === 3) { nx.textContent = 'Ver mi resumen'; } else { nx.textContent = 'Siguiente'; }
+  if (step === 3) { nx.textContent = 'Reservar ahora'; } else { nx.textContent = 'Siguiente'; }
 }
 $('#stepper').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) goStep(+b.dataset.go); });
 $('#st-back').onclick = () => { goStep(step - 1); $('#stepper').scrollIntoView({ block: 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' }); };
 $('#st-next').onclick = () => {
   if (step < 3) { goStep(step + 1); $('#stepper').scrollIntoView({ block: 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' }); }
-  else { $('#ticket').scrollIntoView({ block: 'center', behavior: reduce.matches ? 'auto' : 'smooth' }); $('#t-wa')?.focus({ preventScroll: true }); }
+  else window.TLL.openBooking();
 };
 // al elegir una embarcación o un destino, avanzar solo
 $('#reservar').addEventListener('click', e => {
@@ -65,7 +65,7 @@ let ticketIn = false;
 new IntersectionObserver(es => { ticketIn = es[0].isIntersecting; syncMinibar(); }, { threshold: .25 }).observe($('#ticket'));
 function syncMinibar() {
   const on = current === 'reservar' && !ticketIn && !!BOATS.find(x => x.id === Q.boat);
-  mb.classList.toggle('show', on); mb.setAttribute('aria-hidden', String(!on)); $('#mb-wa').tabIndex = on ? 0 : -1;
+  mb.classList.toggle('show', on); mb.setAttribute('aria-hidden', String(!on)); $('#mb-book').tabIndex = on ? 0 : -1;
 }
 
 /* ---------- menú ---------- */

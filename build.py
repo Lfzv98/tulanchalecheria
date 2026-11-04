@@ -40,7 +40,7 @@ og.save('dist/og.jpg', quality=86, optimize=True)
 
 # ---------- página ----------
 css = open('src/styles.css').read(); body = open('src/body.html').read()
-js = '\n'.join(open(f'src/{n}.js').read() for n in ('app', 'features', 'shell', 'admin'))
+js = '\n'.join(open(f'src/{n}.js').read() for n in ('app', 'features', 'booking', 'shell', 'admin'))
 fonts = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
          '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap">')
 title_txt = 'Tu Lancha Lechería · Paseos en lancha y yates a Mochima'
@@ -54,13 +54,13 @@ ld = {"@context": "https://schema.org", "@type": "TravelAgency", "name": "Tu Lan
       "address": {"@type": "PostalAddress", "addressLocality": "Lechería", "addressRegion": "Anzoátegui", "addressCountry": "VE"},
       "sameAs": ["https://www.instagram.com/tulanchalecheria/", "https://linktr.ee/Tulanchalecheria"]}
 head = f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-{title}<meta name="description" content="{desc}"><meta name="theme-color" content="#0c1024"><meta name="color-scheme" content="dark">
+{title}<meta name="description" content="{desc}"><meta name="theme-color" content="#f4f7fb"><meta name="color-scheme" content="light">
 <link rel="canonical" href="{SITE}/">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Tu Lancha Lechería"><meta property="og:title" content="{title_txt}"><meta property="og:description" content="{desc}">
 <meta property="og:url" content="{SITE}/"><meta property="og:image" content="{SITE}/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="es_VE">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title_txt}"><meta name="twitter:description" content="{desc}"><meta name="twitter:image" content="{SITE}/og.jpg">
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="favicon.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preload" as="image" href="media/poster.jpg" fetchpriority="high">
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
 {fonts}<link rel="stylesheet" href="styles.css"></head><body>'''
@@ -68,7 +68,7 @@ open('dist/index.html', 'w').write(head + body.replace('{{LOGO}}', 'icons/logo-1
 open('dist/styles.css', 'w').write(':root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}\n[hidden]{display:none!important}img{max-width:100%}\n' + css)
 open('dist/app.js', 'w').write(js)
 json.dump({"name": "Tu Lancha Lechería", "short_name": "Tu Lancha", "description": desc, "lang": "es-VE", "start_url": "./", "scope": "./", "display": "standalone",
-           "background_color": "#0c1024", "theme_color": "#0c1024",
+           "background_color": "#f4f7fb", "theme_color": "#f4f7fb",
            "icons": [{"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"}, {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
                      {"src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}],
            "shortcuts": [{"name": "Reservar", "url": "./#reservar"}, {"name": "Ver la flota", "url": "./#flota"}, {"name": "Mi viaje", "url": "./#mi-viaje"}]},
