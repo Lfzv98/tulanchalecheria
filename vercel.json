@@ -1,7 +1,4 @@
 {
- "buildCommand": "",
- "installCommand": "",
- "framework": null,
  "outputDirectory": "dist",
  "cleanUrls": true,
  "headers": [
