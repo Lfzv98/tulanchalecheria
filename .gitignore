@@ -1,0 +1,4 @@
+node_modules/
+video/frames/
+dist/artifact.html
+.DS_Store
