@@ -31,11 +31,11 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
     await m.goto(URL); await m.waitForTimeout(800);
     const src = await m.evaluate(() => document.querySelector('#hero-reel .slide.on img').currentSrc.split('/').pop());
     const hi = await m.evaluate(() => { const i = document.querySelector('#hero-reel .slide.on img'); return i.naturalWidth; });
-    ok(hi >= 1440, `${n}: primera imagen del carrusel en alta resolución (${src}, ${hi}px)`);
-    const s0 = await m.evaluate(() => [...document.querySelectorAll('#hero-reel .slide')].findIndex(x => x.classList.contains('on'))); await m.waitForTimeout(7600);
-    const s1 = await m.evaluate(() => [...document.querySelectorAll('#hero-reel .slide')].findIndex(x => x.classList.contains('on')));
-    const anim = await m.evaluate(() => getComputedStyle(document.querySelector('#hero-reel .slide.on img')).animationName);
-    ok(s1 !== s0 && anim === 'kb', `${n}: el carrusel pasa solo con fundido y Ken Burns (${s0} → ${s1}, ${anim})`);
+    ok(src.startsWith('hero-mochima') && hi > 500, `${n}: foto real de Mochima cargada con su recorte (${src}, ${hi}px)`);
+    const t0 = await m.evaluate(() => getComputedStyle(document.querySelector('#hero-reel img')).transform); await m.waitForTimeout(1500);
+    const t1 = await m.evaluate(() => getComputedStyle(document.querySelector('#hero-reel img')).transform);
+    const anim = await m.evaluate(() => getComputedStyle(document.querySelector('#hero-reel img')).animationName);
+    ok(t0 !== t1 && anim === 'drone', `${n}: la foto se mueve lento, tipo toma de dron (${anim})`);
     await m.evaluate(() => scrollTo(0, 400)); await m.waitForTimeout(400);
     const tr = await m.evaluate(() => ['.hero-media', '.hero-copy'].map(x => document.querySelector(x).style.transform));
     ok(tr.every(t => /translate3d\(0px, -?[1-9]/.test(t)) && tr[0] !== tr[1], `${n}: parallax con capas a distinta velocidad (${tr.join(' / ')})`);
@@ -51,8 +51,8 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   const tap = async sel => { const h = typeof sel === 'string' ? await p.waitForSelector(sel) : sel; await h.evaluate(e => e.scrollIntoView({ block: 'center' })); await p.waitForTimeout(60); await h.tap(); };
   const go = async v => { await p.evaluate(v => { location.hash = v; }, v); await p.waitForTimeout(450); };
   // inicio: video, parallax, menú
-  ok(await p.evaluate(() => document.querySelectorAll('#hero-reel .slide').length === 4 && document.querySelectorAll('#hero-reel .slide.on').length === 1), 'Carrusel del hero: 4 imágenes, una visible');
-  await p.waitForTimeout(7600); ok(await p.evaluate(() => document.querySelector('#hero-reel .slide').classList.contains('on') && document.querySelector('#hero-reel').classList.contains('paused')), 'Movimiento reducido: el carrusel queda quieto en la primera imagen');
+  ok(await p.evaluate(() => document.querySelectorAll('#hero-reel .slide.on').length === 1 && document.querySelector('#hero-reel img').getAttribute('src').includes('hero-mochima')), 'Portada con la foto real de Mochima');
+  ok(await p.evaluate(() => getComputedStyle(document.querySelector('#hero-reel img')).animationName === 'none'), 'Movimiento reducido: la foto queda quieta');
   await p.evaluate(() => scrollTo(0, 400)); await p.waitForTimeout(300);
   ok(!/translate3d\(0px, [1-9]/.test(await p.evaluate(() => document.querySelector('.hero-media').style.transform)), 'Movimiento reducido: parallax desactivado');
   await p.evaluate(() => scrollTo(0, 0));

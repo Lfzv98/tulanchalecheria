@@ -1089,3 +1089,11 @@ footer.site .num{white-space:normal}
   .fact:nth-child(3){grid-column:1/-1}
 }
 @media (max-width:330px){.canales .opts,.exps{grid-template-columns:minmax(0,1fr)}}
+
+/* ===== Portada con foto real: deriva lenta tipo dron ===== */
+.hero-reel.solo .slide img{object-position:55% 50%;transform-origin:52% 55%;animation:drone 28s ease-in-out infinite alternate}
+@keyframes drone{from{transform:scale(1.04) translate3d(1.2%,.6%,0)}to{transform:scale(1.14) translate3d(-1.5%,-1%,0)}}
+@media (prefers-reduced-motion:reduce){.hero-reel.solo img{animation:none;transform:scale(1.04)}}
+.hero-media:has(.hero-reel.solo) .hero-shade{background:linear-gradient(180deg,rgba(8,14,30,.4) 0%,rgba(8,14,30,0) 18%,rgba(8,14,30,0) 50%,rgba(8,14,30,.45) 80%,rgba(8,14,30,.7) 100%),linear-gradient(90deg,rgba(8,14,30,.55),rgba(8,14,30,.12) 50%,transparent 66%)}
+@media (max-width:900px){.hero-media:has(.hero-reel.solo) .hero-shade{background:linear-gradient(180deg,rgba(8,14,30,.45) 0%,rgba(8,14,30,0) 16%,rgba(8,14,30,0) 42%,rgba(8,14,30,.55) 62%,rgba(8,14,30,.82) 100%)}}
+.hero-reel{z-index:0}.hero-shade{z-index:1}

@@ -925,7 +925,7 @@ function syncVideo() {
   if (!reel) return;
   const want = current === 'inicio' && !reduce.matches && !saveData && document.visibilityState === 'visible' && reelSeen;
   reel.classList.toggle('paused', !want);
-  if (want && !reelT) reelT = setInterval(nextSlide, 7000);
+  if (want && !reelT && slides.length > 1) reelT = setInterval(nextSlide, 7000);
   if (!want && reelT) { clearInterval(reelT); reelT = 0; }
 }
 document.addEventListener('visibilitychange', syncVideo);

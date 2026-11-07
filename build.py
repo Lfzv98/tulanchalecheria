@@ -21,10 +21,12 @@ logo_uri = 'data:image/webp;base64,' + base64.b64encode(buf.getvalue()).decode()
 # ---------- video y póster ----------
 for f in ('poster.jpg',):
     shutil.copy(f'video/out/{f}', f'dist/media/{f}')
-# carrusel del hero: horizontal 2560 px (escritorio) y vertical 1440x2560 (celular y tableta en vertical)
-for k in ('mediodia', 'tarde', 'atardecer', 'amanecer'):
-    Image.open(f'video/stills/{k}-land.jpg').convert('RGB').resize((2560, 1440), Image.LANCZOS).save(f'dist/media/hero-{k}-land.webp', 'WEBP', quality=80, method=6)
-    Image.open(f'video/stills/{k}-port.jpg').convert('RGB').resize((1440, 2560), Image.LANCZOS).save(f'dist/media/hero-{k}-port.webp', 'WEBP', quality=78, method=6)
+# portada: foto real de Mochima (dron), horizontal completa y recorte vertical centrado en el yate
+ph = Image.open('video/photos/mochima.webp').convert('RGB')
+ph.save('dist/media/hero-mochima-land.webp', 'WEBP', quality=86, method=6)
+# vertical (celular): se recorta arriba para que el yate quede por encima del titular
+y0 = round(ph.height * .26); pw = round((ph.height - y0) * .7); cx = round(ph.width * .53)
+ph.crop((cx - pw // 2, y0, cx - pw // 2 + pw, ph.height)).save('dist/media/hero-mochima-port.webp', 'WEBP', quality=86, method=6)
 
 # ---------- imagen para compartir (Open Graph 1200x630) ----------
 og = Image.open('video/out/poster.jpg').convert('RGB')
@@ -68,7 +70,7 @@ head = f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title_txt}"><meta name="twitter:description" content="{desc}"><meta name="twitter:image" content="{SITE}/og.jpg">
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="favicon.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="preload" as="image" href="media/hero-mediodia-port.webp" media="(orientation: portrait) and (max-width: 1100px)" fetchpriority="high"><link rel="preload" as="image" href="media/hero-mediodia-land.webp" media="not all and (orientation: portrait) and (max-width: 1100px)" fetchpriority="high">
+<link rel="preload" as="image" href="media/hero-mochima-port.webp" media="(orientation: portrait) and (max-width: 600px)" fetchpriority="high"><link rel="preload" as="image" href="media/hero-mochima-land.webp" media="not all and (orientation: portrait) and (max-width: 600px)" fetchpriority="high">
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
 {fonts}<link rel="stylesheet" href="styles.css?v={VER}"></head><body>'''
 open('dist/index.html', 'w').write(head + body.replace('{{LOGO}}', 'icons/logo-128.png') + f'<script src="app.js?v={VER}" defer></script></body></html>')
