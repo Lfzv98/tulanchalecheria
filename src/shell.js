@@ -2,7 +2,7 @@
 'use strict';
 const { $, $$, Q, renderBuilder, BOATS } = window.TLL;
 const VIEWS = $$('.page').map(v => v.dataset.view);
-const ALIAS = { cotizar: 'reservar', pool: 'propietarios', club: 'regalos', referidos: 'regalos', preguntas: 'nosotros', mar: 'inicio', 'inicio-mas': 'inicio' };
+const ALIAS = { flota: 'embarcaciones', lanchas: 'embarcaciones', canales: 'experiencias', cotizar: 'reservar', pool: 'propietarios', club: 'regalos', referidos: 'regalos', preguntas: 'nosotros', mar: 'inicio', 'inicio-mas': 'inicio' };
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const topbar = $('#topbar');
 let current = null;

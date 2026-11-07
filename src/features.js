@@ -17,7 +17,7 @@ const PLACES = {
   borracha: [372, 150, 'La Borracha'], arapo: [690, 190, 'Isla de Arapo'], puinare: [360, 345, 'Puinare'],
   maritas: [520, 330, 'Las Maritas'], colorada: [740, 300, 'Playa Colorada'], mochima: [770, 240, 'Mochima']
 };
-const ROUTE_PLACE = { r1: 'plata', r2: 'chimana', r3: 'maritas', r4: 'arapo', r5: 'colorada', r6: 'mochima', r7: 'borracha', r8: 'puinare' };
+const ROUTE_PLACE = { r1: 'chimana', r2: 'plata', r3: 'arapo', r4: 'mochima' };
 function mapSvg(dest, withBoat = true) {
   const [tx, ty] = PLACES[dest];
   const isl = (x, y, rx, ry, rot = 0) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${x} ${y})" fill="#e8dcae" stroke="#cdbb7d" stroke-width="2"/><ellipse cx="${x}" cy="${y}" rx="${rx * .7}" ry="${ry * .6}" transform="rotate(${rot} ${x} ${y})" fill="#7fa86a"/>`;
@@ -46,7 +46,7 @@ function openLive(code) {
   const r = rnd(code), route = ROUTES[Math.floor(r() * 3)], dest = ROUTE_PLACE[route.id];
   const start = Date.now() - 9 * 60e3, dur = route.min * 60e3;
   dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="view">
-    <div class="view-h"><div style="display:grid;gap:4px"><span class="eyebrow"><span class="live-dot" aria-hidden="true"></span>&nbsp;En vivo · Reserva ${code}</span><h2 id="m-title" style="font-size:1.6rem">Rumbo a ${route.name}</h2></div>
+    <div class="view-h"><div style="display:grid;gap:4px"><span class="eyebrow"><span class="live-dot" aria-hidden="true"></span>&nbsp;En vivo · Reserva ${code}</span><h2 id="m-title" style="font-size:1.6rem">Rumbo a ${route.beaches[0]}</h2></div>
     <span class="ex">simulación de ejemplo</span></div>
     <div class="live-grid">
       <div class="map" id="lv-map">${mapSvg(dest)}</div>

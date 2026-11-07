@@ -53,25 +53,57 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok(!/translate3d\(0px, [1-9]/.test(await p.evaluate(() => document.querySelector('.hero-media').style.transform)), 'Movimiento reducido: parallax desactivado');
   await p.evaluate(() => scrollTo(0, 0));
   await tap('#menu-open-2'); ok(await p.isVisible('#sheet'), 'Menú "Más" se abre'); await tap('#sheet a[href="#playas"]'); await p.waitForTimeout(400); ok(await p.isVisible('#beaches') && await p.isHidden('#sheet'), 'Menú lleva a Playas y se cierra');
-  await go('flota');
+  // portada: nombres nuevos, sin Bs ni Propietarios ni Linktree
+  ok(await p.$('#cur-ves') === null, 'Sin selector de bolívares');
+  ok((await p.textContent('.press-strip')).includes('Viajando con BIVI') && (await p.textContent('.press-strip')).includes('Canal Viajero'), 'Prensa: Viajando con BIVI y Canal Viajero');
+  ok(await p.$('a[href*="linktr.ee"]') === null && await p.$('#sheet a[href="#propietarios"], footer a[href="#propietarios"]') === null, 'Sin Linktree ni Propietarios en menús');
+  ok((await p.textContent('#own-feature')).includes('Recomendación de la casa'), 'Portada destaca la lancha de la casa');
+  await go('flota'); ok(await p.evaluate(() => location.hash) === '#flota' && await p.isVisible('#boats'), 'Enlace viejo #flota abre Embarcaciones');
+  ok(await p.getAttribute('#boats .boat:first-of-type', 'data-id') === 'b0' && (await p.textContent('#boats .boat:first-of-type')).includes('Recomendación de la casa'), 'La lancha de la casa va primero con su insignia');
+  ok((await p.textContent('#boats')).includes('Otras opciones disponibles'), 'El resto aparece como "Otras opciones disponibles"');
+  ok(!(await p.textContent('#boats')).includes('/ día'), 'El catálogo no muestra precios (solo al reservar)');
   // filtros
   await tap('.pill[data-type="Yate"]'); ok((await p.textContent('#f-count')).startsWith('2 de'), 'Filtro Yates muestra 2');
+  await tap('.pill[data-type="Barco"]'); ok((await p.textContent('#f-count')).startsWith('2 de'), 'Filtro Barcos muestra 2');
+  await tap('.pill[data-type="Mini yate"]'); ok((await p.textContent('#f-count')).startsWith('1 de'), 'Filtro Mini yates muestra 1');
   await tap('.pill[data-type="all"]'); await p.selectOption('#f-pax', '20'); ok((await p.$$('#boats .boat')).length === 2, 'Filtro 20+ personas');
   await p.selectOption('#f-pax', '0');
   // fotos tabs
-  await tap('#boats .boat:first-child [data-v="interior"]'); ok(await p.getAttribute('#boats .boat:first-child [data-v="interior"]', 'aria-pressed') === 'true', 'Cambiar foto a Interior');
-  // modal
+  await tap('#boats .boat:first-of-type [data-v="interior"]'); ok(await p.getAttribute('#boats .boat:first-of-type [data-v="interior"]', 'aria-pressed') === 'true', 'Cambiar foto a Interior');
+  // detalle
   await tap('[data-open="b2"]'); await p.waitForSelector('#dlg[open]');
+  ok((await p.textContent('#dlg')).includes('Equipamiento básico incluido') && (await p.textContent('#dlg')).includes('Agua mineral'), 'Detalle muestra el equipamiento básico incluido');
+  ok((await p.textContent('#dlg')).includes('Parrillera'), 'Detalle muestra los extras de la embarcación');
   const free = await p.$('#m-cal .cal-g button:not([disabled]):not(.busy)'); await tap(free);
-  ok(await p.isVisible('#m-book'), 'Detalle: botón "Reservar esta embarcación" dentro de la app');
   const dlgScroll = await p.evaluate(() => { const d = document.querySelector('#dlg'); return d.scrollHeight > d.clientHeight ? getComputedStyle(d).overflowY : 'fits'; }); ok(dlgScroll === 'auto' || dlgScroll === 'fits', 'Detalle se puede desplazar en móvil (' + dlgScroll + ')');
-  await tap('#m-build'); await p.waitForTimeout(500); ok(await p.getAttribute('[data-boat="b2"]', 'aria-pressed') === 'true', 'Pasar del detalle al cotizador con la embarcación elegida');
-  ok(await p.isVisible('[data-step="2"]'), 'Llega directo al paso Destino y fecha');
+  await tap('#m-book'); await p.waitForTimeout(500); ok(await p.getAttribute('[data-boat="b2"]', 'aria-pressed') === 'true', 'Del detalle al asistente con la embarcación elegida');
+  ok(await p.isVisible('[data-step="2"]'), 'Llega directo al paso Rumbo y muelle');
+  // rumbos y playas (Arapo 40 es barco: hasta 2 playas, no hace Rumbo 4)
+  ok((await p.textContent('#b-beaches')).includes('Puedes elegir hasta 2'), 'Barco: "Puedes elegir hasta 2 playas"');
+  ok(await p.isDisabled('[data-route="r4"]'), 'Rumbo 4 bloqueado en embarcaciones que no lo hacen');
+  await tap('[data-route="r1"]'); await tap('[data-beach="Puinare"]'); await tap('[data-beach="Chimana Segunda"]'); await p.waitForTimeout(200);
+  ok((await p.$$('#b-beaches .bchip[aria-pressed="true"]')).length === 2, 'No deja pasar del límite de playas');
+  await tap('[data-route="r3"]'); ok((await p.textContent('#b-beaches')).includes('Puedes sumar playas del Rumbo 2') && !(await p.textContent('#b-beaches')).includes('Puinare'), 'Rumbo 3 suma playas del Rumbo 2 y no cruza con el Rumbo 1');
+  ok((await p.textContent('#ticket')).includes('por confirmar'), 'Recargo del Rumbo 3 se marca por confirmar');
+  // muelles
+  ok(await p.evaluate(() => [...document.querySelectorAll('#b-dock option')].find(o => o.value === 'cda').disabled), 'Barco no puede recoger en Cayo de Agua (solo lanchas)');
+  ok(await p.evaluate(() => [...document.querySelectorAll('#b-dock option')].find(o => o.value === 'ppa').disabled), 'Punta Palma aparece como no habilitado');
+  await p.selectOption('#b-dock', 'em'); await p.waitForTimeout(200);
+  ok((await p.textContent('#b-dockinfo')).includes('5:30 pm') && (await p.textContent('#ticket')).includes('Recogida en Cerro El Morro'), 'El Morro: recargo y regreso máximo 5:30 pm');
+  await p.selectOption('#b-dock', 'pm'); await p.waitForTimeout(200);
+  ok((await p.textContent('#b-dockinfo')).includes('$30') && (await p.textContent('#b-dockinfo')).includes('video'), 'Plaza Mayor: toque $30 y aviso de ubicación y video');
+  ok((await p.textContent('#b-hours')).includes('10:00 am a 6:00 pm') && await p.$('#hx-p') === null, 'Horario 10 a 6 y sin hora extra si la embarcación no la permite');
   await tap('#st-back'); await tap('#st-back'); ok(await p.isVisible('[data-step="0"]'), 'Botón Atrás vuelve al paso 1');
   await tap('#st-next'); ok(await p.isVisible('[data-step="1"]'), 'Botón Siguiente avanza al paso 2');
+  ok(await p.$('#b-boats .own-row [data-boat="b0"]') !== null || (await p.textContent('#b-boats')).includes('Lancha de la casa'), 'Paso 2: la lancha de la casa primero o aviso si no está libre');
+  await tap('[data-boat="b0"]').catch(() => {}); await p.waitForTimeout(300);
+  await tap('#stepper [data-go="2"]'); await tap('[data-route="r1"]');
+  ok((await p.textContent('#b-beaches')).includes('Puedes elegir hasta 3'), 'Lancha: hasta 3 playas');
+  await tap('#hx-p'); ok((await p.textContent('#ticket')).includes('h extra'), 'Hora extra solo en embarcaciones que la permiten y suma al total');
   await tap('#stepper [data-go="3"]');
-  // cotizador
-  await tap('[data-extra="e1"]'); const t1 = await p.textContent('#ticket .total'); ok(/Total\$[\d.]+/.test(t1.replace(/\s/g, '')), 'Extra suma al total: ' + t1.trim());
+  // extras
+  ok((await p.textContent('#b-extras')).includes('El Mercadillo') && (await p.textContent('#b-extras')).includes('Hielo y agua'), 'Paso de extras: hielo y agua incluidos y El Mercadillo');
+  await tap('[data-acc="mat"]'); const t1 = await p.textContent('#ticket .total'); ok((await p.textContent('#ticket')).includes('Alfombra flotante') && /Total\$[\d.]+/.test(t1.replace(/\s/g, '')), 'Extra con costo suma al total: ' + t1.trim());
   await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(500);
   ok(await p.evaluate(() => document.querySelector('#minibar').classList.contains('show')), 'Barra de total fija visible en el móvil mientras armas el día');
   const refc = await p.evaluate(() => TLL.refCode('Ana'));
@@ -81,25 +113,31 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok((await p.textContent('#ticket')).includes('Tarjeta de regalo'), 'Código de tarjeta de regalo se descuenta');
   await p.fill('#q-code', 'XXXX'); await tap('#code-form button'); await p.waitForTimeout(200);
   ok(await p.isVisible('#ticket .code-bad'), 'Código inválido muestra mensaje claro');
-  await tap('#cur-ves'); ok((await p.textContent('#ticket .total')).includes('Bs'), 'Cambio a bolívares');
-  await tap('#cur-usd');
-  // reserva dentro de la app
+  // reserva dentro de la app, con condiciones
   await tap('#t-book'); await p.waitForSelector('#bk-form');
   ok(await p.isVisible('#bk-form'), 'Reservar ahora abre la confirmación dentro de la app');
+  ok((await p.textContent('#bk-form')).includes('Condiciones principales') && await p.$('#bk-form .bk-policy') !== null, 'Confirmación muestra el resumen de condiciones y el texto completo');
   await tap('#bk-go'); ok(await p.isVisible('#bk-form'), 'Sin nombre no deja confirmar');
-  await p.fill('#bk-name', 'Familia Pérez'); await p.fill('#bk-phone', '0414 555 1234'); await tap('#bk-go'); await p.waitForSelector('#bk-code');
+  await p.fill('#bk-name', 'Familia Pérez'); await p.fill('#bk-phone', '0414 555 1234'); await tap('#bk-go'); await p.waitForTimeout(200);
+  ok(await p.isVisible('#bk-form') && await p.$('#bk-code') === null, 'Sin aceptar las condiciones no deja confirmar');
+  await tap('#bk-ok'); await tap('#bk-go'); await p.waitForSelector('#bk-code');
   const bcode = (await p.textContent('#bk-code')).trim(); ok(/^TLL-\d{4}$/.test(bcode), 'Reserva registrada con código ' + bcode);
   await tap('#bk-send'); await p.waitForTimeout(500);
-  ok(popups.some(u => decodeURIComponent(u).includes(bcode) && decodeURIComponent(u).includes('Familia Pérez')), 'Un toque avisa a Tu Lancha por WhatsApp con el código y los datos');
+  ok(popups.some(u => { const d = decodeURIComponent(u); return d.includes(bcode) && d.includes('Familia Pérez') && d.includes('Acepté las condiciones') && d.includes('Rumbo 1'); }), 'Un toque avisa a Tu Lancha con código, rumbo y condiciones aceptadas');
   await tap('#bk-trip'); await p.waitForTimeout(600);
   ok(await p.isVisible('#my-trips') && (await p.textContent('#my-trips')).includes(bcode) && (await p.textContent('#my-trips')).includes('Enviada'), 'Mi viaje muestra la reserva y su estado');
   ok(await p.inputValue('#code-live') === bcode, 'Mi viaje usa el código de la reserva');
-  await go('flota'); await tap('[data-book="b3"]'); await p.waitForTimeout(500);
-  ok(await p.evaluate(() => location.hash) === '#reservar' && await p.getAttribute('[data-boat="b3"]', 'aria-pressed') === 'true', 'Botón Reservar de la flota lleva al asistente con esa embarcación');
-  await go('reservar');
+  await go('embarcaciones'); await tap('[data-book="b3"]'); await p.waitForTimeout(500);
+  ok(await p.evaluate(() => location.hash) === '#reservar' && await p.getAttribute('[data-boat="b3"]', 'aria-pressed') === 'true', 'Botón Reservar de Embarcaciones lleva al asistente con esa embarcación');
+  await go('experiencias');
+  ok((await p.textContent('#canales')).includes('canales de El Morro') && (await p.textContent('#canales')).includes('Pesca deportiva'), 'Experiencias: canales de El Morro y pesca aparte');
+  await tap('[data-copt="y"]'); ok((await p.textContent('#c-total')).includes('220'), 'Canales en yate: mínimo 10 personas × $22');
+  await tap('#canal-form button[type=submit]'); await p.waitForTimeout(400); ok(popups.some(u => decodeURIComponent(u).includes('canales de El Morro')), 'Solicitar paseo por los canales abre WhatsApp');
+  await go('aliados'); ok((await p.textContent('#allies')).includes('Cervecería Regional') && !(await p.textContent('#allies')).includes('Coco Beach'), 'Aliados: entra Cervecería Regional');
   await go('playas');
+  ok((await p.textContent('#beaches')).includes('Rumbo 4') && (await p.textContent('#beaches')).includes('Playa Ñacleta'), 'Playas agrupadas por rumbo');
   // playas → cotizador
-  await tap('[data-goroute="r6"]'); await p.waitForTimeout(300); ok(await p.getAttribute('[data-route="r6"]', 'aria-pressed') === 'true', 'Playa → "Ir aquí" la elige en el cotizador');
+  await tap('[data-goroute="r2"][data-gobeach="Isla de Plata"]'); await p.waitForTimeout(300); ok(await p.getAttribute('[data-route="r2"]', 'aria-pressed') === 'true' && await p.getAttribute('[data-beach="Isla de Plata"]', 'aria-pressed') === 'true', 'Playa → "Ir aquí" elige rumbo y playa en el asistente');
   await go('regalos');
   // regalos
   await tap('#g-occ .pill:first-child'); await p.fill('#g-to', 'Carla'); await p.waitForTimeout(100);

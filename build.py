@@ -53,6 +53,8 @@ ld = {"@context": "https://schema.org", "@type": "TravelAgency", "name": "Tu Lan
       "telephone": "+584143083864", "areaServed": ["Lechería", "Parque Nacional Mochima", "Anzoátegui"],
       "address": {"@type": "PostalAddress", "addressLocality": "Lechería", "addressRegion": "Anzoátegui", "addressCountry": "VE"},
       "sameAs": ["https://www.instagram.com/tulanchalecheria/", "https://linktr.ee/Tulanchalecheria"]}
+import hashlib
+VER = hashlib.sha1((css + body + js).encode()).hexdigest()[:8]
 head = f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 {title}<meta name="description" content="{desc}"><meta name="theme-color" content="#f4f7fb"><meta name="color-scheme" content="light">
 <link rel="canonical" href="{SITE}/">
@@ -63,8 +65,8 @@ head = f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preload" as="image" href="media/poster.jpg" fetchpriority="high">
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
-{fonts}<link rel="stylesheet" href="styles.css"></head><body>'''
-open('dist/index.html', 'w').write(head + body.replace('{{LOGO}}', 'icons/logo-128.png') + '<script src="app.js" defer></script></body></html>')
+{fonts}<link rel="stylesheet" href="styles.css?v={VER}"></head><body>'''
+open('dist/index.html', 'w').write(head + body.replace('{{LOGO}}', 'icons/logo-128.png') + f'<script src="app.js?v={VER}" defer></script></body></html>')
 open('dist/styles.css', 'w').write(':root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}\n[hidden]{display:none!important}img{max-width:100%}\n' + css)
 open('dist/app.js', 'w').write(js)
 json.dump({"name": "Tu Lancha Lechería", "short_name": "Tu Lancha", "description": desc, "lang": "es-VE", "start_url": "./", "scope": "./", "display": "standalone",
@@ -73,7 +75,7 @@ json.dump({"name": "Tu Lancha Lechería", "short_name": "Tu Lancha", "descriptio
                      {"src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}],
            "shortcuts": [{"name": "Reservar", "url": "./#reservar"}, {"name": "Ver la flota", "url": "./#flota"}, {"name": "Mi viaje", "url": "./#mi-viaje"}]},
           open('dist/manifest.webmanifest', 'w'), ensure_ascii=False, indent=1)
-open('dist/sw.js', 'w').write('''const C='tll-v3',A=['./','index.html','styles.css','app.js','manifest.webmanifest','favicon.png','icons/icon-192.png','icons/logo-128.png','media/poster.jpg'];
+open('dist/sw.js', 'w').write('''const C='tll-''' + VER + '''',A=['./','index.html','styles.css?v=''' + VER + '''','app.js?v=''' + VER + '''','manifest.webmanifest','favicon.png','icons/icon-192.png','icons/logo-128.png','media/poster.jpg'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(A)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
 self.addEventListener('fetch',e=>{const r=e.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==location.origin||u.pathname.includes('/media/hero'))return;
