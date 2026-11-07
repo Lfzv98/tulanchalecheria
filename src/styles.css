@@ -918,3 +918,43 @@ footer.site .num{white-space:normal}
 #vdlg::backdrop{background:rgba(5,8,20,.8)}
 .vrow{flex-wrap:wrap;overflow:visible;justify-self:stretch;min-width:0}
 #vdlg .m-close{position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.92);color:#151a33;font-size:1.5rem;line-height:1;border:0;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+/* Playas: una sección por rumbo, ordenada en escritorio */
+.rumbos-list{display:grid;gap:56px}
+.rumbos-list .vintro{margin-bottom:0;padding:20px;border-radius:22px;background:var(--card);box-shadow:var(--shadow-sm);flex-wrap:nowrap}
+.rumbos-list .vintro .vcard.v{width:170px}
+.rumbo-sec{margin-bottom:0;grid-template-columns:minmax(0,1fr);gap:20px}
+.rumbo-h{align-items:start}
+.rumbo-h>div:first-child{flex:1 1 360px}
+.rumbo-h .rumbo-tags{flex:0 1 auto}
+.rumbo-v .vcard.h{max-width:none;width:100%}
+@media (min-width:900px){
+  .rumbo-sec{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);grid-template-areas:"h v" "b b";align-items:center;column-gap:32px}
+  .rumbo-sec>.rumbo-h{grid-area:h;flex-direction:column;align-items:start}
+  .rumbo-sec>.rumbo-v{grid-area:v}
+  .rumbo-sec>.beaches{grid-area:b}
+  .rumbo-sec:not(:has(.rumbo-v))>.rumbo-h{grid-column:1/-1;flex-direction:row;align-items:end}
+  .rumbos-list .vintro{gap:28px;padding:24px 28px}
+  .rumbos-list .vintro h2{font-size:clamp(1.8rem,3vw,2.6rem)}
+}
+@media (max-width:560px){.rumbos-list .vintro{flex-wrap:wrap}.rumbos-list .vintro .vcard.v{width:140px}}
+.rumbo-sec .beaches{grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr))}
+.rumbo-sec + .parks,.rumbos-list>.parks{margin-top:0}
+@media (min-width:900px){.rumbo-sec>.rumbo-h{justify-content:center;gap:16px}.rumbo-sec:not(:has(.rumbo-v))>.rumbo-h{justify-content:space-between}}
+.beach .in .km{opacity:.85}
+/* ajustes de escritorio */
+.hero h1{overflow-wrap:normal;word-break:normal;font-size:clamp(2.2rem,7.4vw,7.2rem)}
+@media (max-width:380px){.hero h1{font-size:clamp(2rem,10.5vw,2.6rem)}}
+.ally span{white-space:normal;overflow:visible;line-height:1.3}
+.allies{grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr))}
+.ally-v .vcard.v{width:170px}
+.t-route small{color:rgba(244,246,252,.72)}
+@media (min-width:900px){
+  #boats .boat.own{grid-column:1/-1;flex-direction:row}
+  #boats .boat.own .shot{flex:0 0 55%;min-height:320px}
+  #boats .boat.own .body{padding:28px;align-content:center}
+  #boats .boat.own h3{font-size:1.8rem}
+  .canal-f .opts{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (min-width:900px){.rumbo-sec>.rumbo-h{flex-wrap:nowrap;align-self:center}.rumbo-sec:not(:has(.rumbo-v))>.rumbo-h{flex-wrap:wrap}}
+@media (min-width:900px){.rumbo-sec:has(.rumbo-v)>.rumbo-h>div:first-child{flex:none}}
+.rumbo-sec .beach .km{display:none}
