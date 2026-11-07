@@ -28,7 +28,7 @@ function show(name, anchor) {
     if (name === 'reservar') { renderBuilder(); goStep(step); }
     syncMinibar(); syncVideo(); parallax();
   };
-  if (current && current !== name && document.startViewTransition && !reduce.matches) document.startViewTransition(swap); else swap();
+  if (current && current !== name && document.startViewTransition && !reduce.matches) { const vt = document.startViewTransition(swap); [vt.ready, vt.finished, vt.updateCallbackDone].forEach(x => x && x.catch(() => {})); } else swap();
 }
 function route() { const [v, a] = target(); closeSheet(); if (v !== current || a) show(v, a); }
 addEventListener('hashchange', route);

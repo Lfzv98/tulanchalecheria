@@ -185,6 +185,7 @@
 <section class="page" data-view="aliados" id="aliados" aria-labelledby="ali-t" hidden>
   <div class="view-hero"><div class="wrap"><span class="eyebrow">Aliados VIP · 100% recomendados</span><h1 id="ali-t">Haz tu experiencia aún mejor</h1><p>Comida y bebidas, estilo, entretenimiento y estadía. Pídelo con tu reserva.</p></div></div>
   <div class="band pt0"><div class="wrap">
+    <div class="vrow ally-v" id="ally-videos"></div>
     <div class="allies" id="allies"></div>
     <div class="parks"><a class="btn btn-ghost btn-sm" href="https://mercadillo.lovable.app/" target="_blank" rel="noopener">Pedir en El Mercadillo</a></div>
   </div></div>
@@ -228,8 +229,8 @@
   </div></div>
   <div class="band band-deep"><div class="wrap">
     <div class="visit">
-      <div class="glass-card"><span class="eyebrow">Horario</span><h3>Atención y salidas</h3><p>Salidas todos los días de 10:00 am a 6:00 pm (Isletas de Píritu y Playa Blanca, de 9:00 am a 5:00 pm). Otros horarios, por WhatsApp.</p></div>
-      <div class="glass-card"><span class="eyebrow">Ubicación</span><h3>Lechería, Anzoátegui</h3><p>Salimos del C.C. Plaza Mayor, Hotel Maremares y Marina Américo Vespucio, o te buscamos en tu residencia. Al reservar te enviamos la ubicación exacta y un video de cómo llegar.</p><a class="btn btn-ghost btn-sm" href="https://www.google.com/maps/dir/?api=1&amp;destination=Lecher%C3%ADa%2C%20Anzo%C3%A1tegui%2C%20Venezuela" target="_blank" rel="noopener">Cómo llegar en Google Maps</a></div>
+      <div class="glass-card"><span class="eyebrow">Horario</span><h3>Atención y salidas</h3><p>Salidas todos los días de 10:00 am a 6:00 pm (Isletas de Píritu y Playa Blanca, de 9:00 am a 5:00 pm). Otros horarios, por WhatsApp.</p><button type="button" class="vlink" data-vid="horario"><span class="vdot" aria-hidden="true"></span>Ver video del horario</button></div>
+      <div class="glass-card"><span class="eyebrow">Ubicación</span><h3>Lechería, Anzoátegui</h3><p>Salimos del C.C. Plaza Mayor, Hotel Maremares y Marina Américo Vespucio, o te buscamos en tu residencia. Al reservar te enviamos la ubicación exacta y un video de cómo llegar.</p><button type="button" class="vlink" data-vid="muelles"><span class="vdot" aria-hidden="true"></span>Ver video de los muelles</button><a class="btn btn-ghost btn-sm" href="https://www.google.com/maps/dir/?api=1&amp;destination=Lecher%C3%ADa%2C%20Anzo%C3%A1tegui%2C%20Venezuela" target="_blank" rel="noopener">Cómo llegar en Google Maps</a></div>
       <div class="glass-card"><span class="eyebrow">Contacto</span><h3>+58 414 308 3864</h3><p>Llámanos o escríbenos por WhatsApp.</p><div class="row2"><a class="btn btn-ghost btn-sm" href="tel:+584143083864">Llamar</a><a class="btn btn-wa btn-sm" href="https://wa.me/584143083864" target="_blank" rel="noopener">WhatsApp</a></div></div>
     </div>
   </div></div>
@@ -318,4 +319,5 @@
 <button class="btn btn-sun btn-sm install" id="install" type="button" hidden>Instalar app</button>
 <div class="adm" id="adm" hidden></div>
 <dialog id="dlg" aria-labelledby="m-title"></dialog>
+<dialog id="vdlg" aria-label="Video"></dialog>
 <div class="toast" id="toast" role="status"></div>

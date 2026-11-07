@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preload" as="image" href="media/poster.jpg" fetchpriority="high">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TravelAgency", "name": "Tu Lancha Lechería", "url": "https://tulanchalecheria.vercel.app/", "image": "https://tulanchalecheria.vercel.app/og.jpg", "logo": "https://tulanchalecheria.vercel.app/icons/icon-512.png", "telephone": "+584143083864", "areaServed": ["Lechería", "Parque Nacional Mochima", "Anzoátegui"], "address": {"@type": "PostalAddress", "addressLocality": "Lechería", "addressRegion": "Anzoátegui", "addressCountry": "VE"}, "sameAs": ["https://www.instagram.com/tulanchalecheria/", "https://linktr.ee/Tulanchalecheria"]}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="styles.css?v=11adff9e"></head><body><a class="skip" href="#main">Saltar al contenido</a>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="styles.css?v=a4aa5e89"></head><body><a class="skip" href="#main">Saltar al contenido</a>
 <header class="topbar" id="topbar">
   <div class="wrap">
     <a class="brand" href="#inicio" aria-label="Tu Lancha Lechería, inicio"><img src="icons/logo-128.png" alt="" width="40" height="40"><span>Tu Lancha<small>Lechería · Anzoátegui</small></span></a>
@@ -195,6 +195,7 @@
 <section class="page" data-view="aliados" id="aliados" aria-labelledby="ali-t" hidden>
   <div class="view-hero"><div class="wrap"><span class="eyebrow">Aliados VIP · 100% recomendados</span><h1 id="ali-t">Haz tu experiencia aún mejor</h1><p>Comida y bebidas, estilo, entretenimiento y estadía. Pídelo con tu reserva.</p></div></div>
   <div class="band pt0"><div class="wrap">
+    <div class="vrow ally-v" id="ally-videos"></div>
     <div class="allies" id="allies"></div>
     <div class="parks"><a class="btn btn-ghost btn-sm" href="https://mercadillo.lovable.app/" target="_blank" rel="noopener">Pedir en El Mercadillo</a></div>
   </div></div>
@@ -238,8 +239,8 @@
   </div></div>
   <div class="band band-deep"><div class="wrap">
     <div class="visit">
-      <div class="glass-card"><span class="eyebrow">Horario</span><h3>Atención y salidas</h3><p>Salidas todos los días de 10:00 am a 6:00 pm (Isletas de Píritu y Playa Blanca, de 9:00 am a 5:00 pm). Otros horarios, por WhatsApp.</p></div>
-      <div class="glass-card"><span class="eyebrow">Ubicación</span><h3>Lechería, Anzoátegui</h3><p>Salimos del C.C. Plaza Mayor, Hotel Maremares y Marina Américo Vespucio, o te buscamos en tu residencia. Al reservar te enviamos la ubicación exacta y un video de cómo llegar.</p><a class="btn btn-ghost btn-sm" href="https://www.google.com/maps/dir/?api=1&amp;destination=Lecher%C3%ADa%2C%20Anzo%C3%A1tegui%2C%20Venezuela" target="_blank" rel="noopener">Cómo llegar en Google Maps</a></div>
+      <div class="glass-card"><span class="eyebrow">Horario</span><h3>Atención y salidas</h3><p>Salidas todos los días de 10:00 am a 6:00 pm (Isletas de Píritu y Playa Blanca, de 9:00 am a 5:00 pm). Otros horarios, por WhatsApp.</p><button type="button" class="vlink" data-vid="horario"><span class="vdot" aria-hidden="true"></span>Ver video del horario</button></div>
+      <div class="glass-card"><span class="eyebrow">Ubicación</span><h3>Lechería, Anzoátegui</h3><p>Salimos del C.C. Plaza Mayor, Hotel Maremares y Marina Américo Vespucio, o te buscamos en tu residencia. Al reservar te enviamos la ubicación exacta y un video de cómo llegar.</p><button type="button" class="vlink" data-vid="muelles"><span class="vdot" aria-hidden="true"></span>Ver video de los muelles</button><a class="btn btn-ghost btn-sm" href="https://www.google.com/maps/dir/?api=1&amp;destination=Lecher%C3%ADa%2C%20Anzo%C3%A1tegui%2C%20Venezuela" target="_blank" rel="noopener">Cómo llegar en Google Maps</a></div>
       <div class="glass-card"><span class="eyebrow">Contacto</span><h3>+58 414 308 3864</h3><p>Llámanos o escríbenos por WhatsApp.</p><div class="row2"><a class="btn btn-ghost btn-sm" href="tel:+584143083864">Llamar</a><a class="btn btn-wa btn-sm" href="https://wa.me/584143083864" target="_blank" rel="noopener">WhatsApp</a></div></div>
     </div>
   </div></div>
@@ -328,5 +329,6 @@
 <button class="btn btn-sun btn-sm install" id="install" type="button" hidden>Instalar app</button>
 <div class="adm" id="adm" hidden></div>
 <dialog id="dlg" aria-labelledby="m-title"></dialog>
+<dialog id="vdlg" aria-label="Video"></dialog>
 <div class="toast" id="toast" role="status"></div>
-<script src="app.js?v=11adff9e" defer></script></body></html>
+<script src="app.js?v=a4aa5e89" defer></script></body></html>
