@@ -76,18 +76,25 @@ $('#menu-open').onclick = openSheet; $('#menu-open-2').onclick = openSheet; $('#
 sheet.addEventListener('click', e => { if (e.target === sheet || e.target.closest('a')) closeSheet(); });
 addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
 
-/* ---------- video del hero ---------- */
-const video = $('#hero-video');
+/* ---------- carrusel del hero: fundido lento + Ken Burns, como un video ---------- */
+const reel = $('#hero-reel'), slides = $$('#hero-reel .slide');
 const saveData = navigator.connection && navigator.connection.saveData;
-function syncVideo() {
-  if (!video) return;
-  const want = current === 'inicio' && !reduce.matches && !saveData && document.visibilityState === 'visible';
-  if (want) { const p = video.play(); if (p && p.catch) p.catch(() => {}); } else video.pause();
+let slideI = 0, reelT = 0, reelSeen = true;
+function nextSlide() {
+  const a = slides[slideI]; slideI = (slideI + 1) % slides.length; const b = slides[slideI];
+  a.classList.add('out'); a.classList.remove('on'); b.classList.remove('out'); b.classList.add('on');
+  setTimeout(() => { if (!a.classList.contains('on')) a.classList.remove('out'); }, 3200);
 }
-if (saveData) video.removeAttribute('autoplay');
+function syncVideo() {
+  if (!reel) return;
+  const want = current === 'inicio' && !reduce.matches && !saveData && document.visibilityState === 'visible' && reelSeen;
+  reel.classList.toggle('paused', !want);
+  if (want && !reelT) reelT = setInterval(nextSlide, 7000);
+  if (!want && reelT) { clearInterval(reelT); reelT = 0; }
+}
 document.addEventListener('visibilitychange', syncVideo);
 reduce.addEventListener?.('change', syncVideo);
-new IntersectionObserver(es => { if (!es[0].isIntersecting) video.pause(); else syncVideo(); }).observe(video);
+if (reel) new IntersectionObserver(es => { reelSeen = es[0].isIntersecting; syncVideo(); }).observe(reel);
 
 /* ---------- parallax por capas (transform, rAF) ---------- */
 const layers = $$('.px');

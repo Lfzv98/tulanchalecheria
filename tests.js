@@ -25,13 +25,17 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
     await ctx.close();
   }
 
-  console.log('== Video y parallax con movimiento normal ==');
+  console.log('== Carrusel del hero y parallax con movimiento normal ==');
   for (const [n, d] of [['iPhone', devices['iPhone 13']], ['Escritorio', { viewport: { width: 1920, height: 1080 } }]]) {
     const cm = await b.newContext({ ...d, deviceScaleFactor: 1 }); const m = await cm.newPage();
     await m.goto(URL); await m.waitForTimeout(800);
-    const src = await m.evaluate(() => document.querySelector('#hero-video').currentSrc.split('/').pop());
-    const a0 = await m.evaluate(() => document.querySelector('#hero-video').currentTime); await m.waitForTimeout(1500); const a1 = await m.evaluate(() => document.querySelector('#hero-video').currentTime);
-    ok(a1 > a0, `${n}: video reproduciéndose (${src}, ${a0.toFixed(2)}s → ${a1.toFixed(2)}s)`);
+    const src = await m.evaluate(() => document.querySelector('#hero-reel .slide.on img').currentSrc.split('/').pop());
+    const hi = await m.evaluate(() => { const i = document.querySelector('#hero-reel .slide.on img'); return i.naturalWidth; });
+    ok(hi >= 1440, `${n}: primera imagen del carrusel en alta resolución (${src}, ${hi}px)`);
+    const s0 = await m.evaluate(() => [...document.querySelectorAll('#hero-reel .slide')].findIndex(x => x.classList.contains('on'))); await m.waitForTimeout(7600);
+    const s1 = await m.evaluate(() => [...document.querySelectorAll('#hero-reel .slide')].findIndex(x => x.classList.contains('on')));
+    const anim = await m.evaluate(() => getComputedStyle(document.querySelector('#hero-reel .slide.on img')).animationName);
+    ok(s1 !== s0 && anim === 'kb', `${n}: el carrusel pasa solo con fundido y Ken Burns (${s0} → ${s1}, ${anim})`);
     await m.evaluate(() => scrollTo(0, 400)); await m.waitForTimeout(400);
     const tr = await m.evaluate(() => ['.hero-media', '.hero-copy'].map(x => document.querySelector(x).style.transform));
     ok(tr.every(t => /translate3d\(0px, -?[1-9]/.test(t)) && tr[0] !== tr[1], `${n}: parallax con capas a distinta velocidad (${tr.join(' / ')})`);
@@ -47,8 +51,8 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   const tap = async sel => { const h = typeof sel === 'string' ? await p.waitForSelector(sel) : sel; await h.evaluate(e => e.scrollIntoView({ block: 'center' })); await p.waitForTimeout(60); await h.tap(); };
   const go = async v => { await p.evaluate(v => { location.hash = v; }, v); await p.waitForTimeout(450); };
   // inicio: video, parallax, menú
-  ok(await p.evaluate(() => { const v = document.querySelector('#hero-video'); return v.autoplay && v.muted && v.loop && v.hasAttribute('playsinline') && !!v.poster; }), 'Video del hero: autoplay, silencio, bucle, playsinline y póster');
-  ok(await p.evaluate(() => document.querySelector('#hero-video').paused), 'Movimiento reducido: el video queda en pausa (se ve el póster)');
+  ok(await p.evaluate(() => document.querySelectorAll('#hero-reel .slide').length === 4 && document.querySelectorAll('#hero-reel .slide.on').length === 1), 'Carrusel del hero: 4 imágenes, una visible');
+  await p.waitForTimeout(7600); ok(await p.evaluate(() => document.querySelector('#hero-reel .slide').classList.contains('on') && document.querySelector('#hero-reel').classList.contains('paused')), 'Movimiento reducido: el carrusel queda quieto en la primera imagen');
   await p.evaluate(() => scrollTo(0, 400)); await p.waitForTimeout(300);
   ok(!/translate3d\(0px, [1-9]/.test(await p.evaluate(() => document.querySelector('.hero-media').style.transform)), 'Movimiento reducido: parallax desactivado');
   await p.evaluate(() => scrollTo(0, 0));
@@ -66,7 +70,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await tap('.pill[data-type="Yate"]'); ok((await p.textContent('#f-count')).startsWith('2 de'), 'Filtro Yates muestra 2');
   await tap('.pill[data-type="Barco"]'); ok((await p.textContent('#f-count')).startsWith('2 de'), 'Filtro Barcos muestra 2');
   await tap('.pill[data-type="Mini yate"]'); ok((await p.textContent('#f-count')).startsWith('1 de'), 'Filtro Mini yates muestra 1');
-  await tap('.pill[data-type="all"]'); await p.selectOption('#f-pax', '20'); ok((await p.$$('#boats .boat')).length === 2, 'Filtro 20+ personas');
+  await tap('.pill[data-type="all"]'); await p.selectOption('#f-pax', '20'); ok((await p.$$('#boats .boat')).length === 1, 'Filtro grupos grandes: solo el barco de eventos de 30');
   await p.selectOption('#f-pax', '0');
   // fotos tabs
   await tap('#boats .boat:first-of-type [data-v="interior"]'); ok(await p.getAttribute('#boats .boat:first-of-type [data-v="interior"]', 'aria-pressed') === 'true', 'Cambiar foto a Interior');
@@ -94,6 +98,21 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok((await p.textContent('#b-dockinfo')).includes('$30') && (await p.textContent('#b-dockinfo')).includes('video'), 'Plaza Mayor: toque $30 y aviso de ubicación y video');
   ok((await p.textContent('#b-hours')).includes('10:00 am a 6:00 pm') && await p.$('#hx-p') === null, 'Horario 10 a 6 y sin hora extra si la embarcación no la permite');
   await tap('#st-back'); await tap('#st-back'); ok(await p.isVisible('[data-step="0"]'), 'Botón Atrás vuelve al paso 1');
+  // niños de 7 años o menos y grupos de más de 12
+  const keep = await p.evaluate(() => ({ pax: TLL.Q.pax, kids: TLL.Q.kids, boat: TLL.Q.boat }));
+  await p.evaluate(() => { TLL.Q.pax = 4; TLL.Q.kids = 0; TLL.Q.boat = 'b0'; TLL.renderBuilder(); });
+  ok(await p.isVisible('#kids') && (await p.textContent('#kids')).trim() === '0', 'Paso 1: contador de niños de 7 años o menos');
+  await tap('#kid-p'); await tap('#kid-p');
+  ok(await p.evaluate(() => TLL.Q.boat === 'b0'), '4 adultos + 2 niños caben en la lancha de la casa (licencia de 5 + capitán)');
+  ok((await p.textContent('#ticket')).includes('Excepción de niños') && (await p.textContent('#ticket')).includes('4 adultos + 2 niños'), 'El precio cambia con la excepción de niños y el ticket lo muestra');
+  ok(await p.evaluate(() => TLL_LAST.paxTxt.includes('2 niños') && TLL_LAST.pax === 6), 'El mensaje de WhatsApp incluye adultos y niños');
+  await p.evaluate(() => { TLL.Q.pax = 5; TLL.Q.kids = 2; TLL.renderBuilder(); });
+  ok(await p.evaluate(() => TLL.Q.boat !== 'b0'), '5 adultos + 2 niños ya no caben en la lancha de la casa');
+  await p.evaluate(() => { TLL.Q.pax = 12; TLL.Q.kids = 0; TLL.renderBuilder(); }); ok(!(await p.textContent('#big-group')).trim(), '12 adultos: sin aviso de grupo grande');
+  await tap('#pax-p'); const big = await p.textContent('#big-group');
+  ok(big.includes('Nuestros yates tienen una capacidad máxima de 12 personas y lanchas para 10p') && big.includes('quedo atento a la opción que les gustaría'), 'Más de 12 adultos: aparece el mensaje de Eduardo');
+  await tap('#bg-event'); ok(await p.evaluate(() => TLL.Q.boat === 'b8') && await p.isVisible('[data-step="1"]'), 'Botón barco de eventos lleva al paso 2 con el barco de 30');
+  await p.evaluate(k => { Object.assign(TLL.Q, k); TLL.renderBuilder(); TLL.goStep(0); }, keep);
   await tap('#st-next'); ok(await p.isVisible('[data-step="1"]'), 'Botón Siguiente avanza al paso 2');
   ok(await p.$('#b-boats .own-row [data-boat="b0"]') !== null || (await p.textContent('#b-boats')).includes('Lancha de la casa'), 'Paso 2: la lancha de la casa primero o aviso si no está libre');
   await tap('[data-boat="b0"]').catch(() => {}); await p.waitForTimeout(300);

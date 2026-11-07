@@ -1,0 +1,144 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head><body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script src="pal.js"></script>
+<script>
+const G = new URLSearchParams(location.search), S = +(G.get('s') || 1), W = +(G.get('w') || 1920), H = +(G.get('h') || 1080), T = 10, FPS = 30, TAU = Math.PI * 2;
+const c = document.getElementById('c'), x = c.getContext('2d'); c.width = W * S; c.height = H * S;
+const HZ = H * (+G.get('hz') || 0.555);           // horizonte
+const P = window.PAL || {};
+const SUNX = W * (P.sunx ?? 0.68), SUNY = P.suny != null ? H * P.suny : HZ - 26;
+function rng(s) { return () => ((s = Math.imul(s ^ (s >>> 15), 2246822507) + 0x6d2b79f5 >>> 0) / 4294967296); }
+const R = rng(20261104);
+
+// islas (siluetas fijas)
+function ridge(seed, base, amp, n) { const r = rng(seed), pts = []; let h = 0; for (let i = 0; i <= n; i++) { h = h * .6 + (r() - .5) * .8; pts.push(h); } return pts.map((v, i) => [i / n, base - amp * Math.max(0, Math.sin(i / n * Math.PI * (1.2 + r() * .3)) * (.55 + v))]); }
+const islands = [
+  { pts: islandShape(0.02, 0.36, 70, 11), col: (P.isl || [])[0] || 'rgba(122,92,140,0.55)' },
+  { pts: islandShape(0.47, 0.60, 46, 12), col: (P.isl || [])[1] || 'rgba(110,80,128,0.50)' },
+  { pts: islandShape(0.78, 1.02, 92, 13), col: (P.isl || [])[2] || 'rgba(76,58,104,0.78)' },
+  { pts: islandShape(-0.05, 0.16, 120, 14), col: (P.isl || [])[3] || 'rgba(44,38,74,0.92)' }
+];
+function islandShape(a, b, h, seed) { const r = rng(seed), pts = []; const n = 60; for (let i = 0; i <= n; i++) { const u = i / n, X = (a + (b - a) * u) * W; const env = Math.pow(Math.sin(u * Math.PI), .7); const bump = .75 + .25 * Math.sin(u * 9 + r() * .4) + .12 * Math.sin(u * 23); pts.push([X, HZ - h * env * bump]); } return pts; }
+
+// destellos del mar: cada uno se mueve un número entero de "anchos" por ciclo para que el bucle sea perfecto
+const glints = [];
+for (let i = 0; i < 2600; i++) {
+  const d = Math.pow(R(), 1.7);             // 0 = horizonte, 1 = abajo
+  const y = HZ + 4 + d * (H - HZ);
+  glints.push({ x0: R() * W, y, d, len: 6 + d * 60 * R(), ph: R(), f: 1 + Math.floor(R() * 3), v: (R() < .5 ? -1 : 1) * (1 + Math.floor(R() * 2)) });
+}
+const foam = []; for (let i = 0; i < 260; i++) foam.push({ u: R(), off: (R() - .5), s: .5 + R(), ph: R() });
+const birds = [{ o: 0, y: 0.18, s: 1.0, f: 7 }, { o: 0.07, y: 0.22, s: .8, f: 8 }, { o: 0.55, y: 0.14, s: .65, f: 9 }];
+
+function sky() {
+  const g = x.createLinearGradient(0, 0, 0, HZ);
+  (P.sky || ['#1b2142', '#3b3566', '#a35b72', '#f09a5e', '#ffd38a']).forEach((c, i) => g.addColorStop([0, .32, .62, .84, 1][i], c));
+  x.fillStyle = g; x.fillRect(0, 0, W, HZ + 2);
+  const sg = x.createRadialGradient(SUNX, SUNY, 0, SUNX, SUNY, 520);
+  (P.glow || ['rgba(255,240,200,.95)', 'rgba(255,214,140,.75)', 'rgba(255,160,90,.25)', 'rgba(255,140,80,0)']).forEach((c, i) => sg.addColorStop([0, .08, .35, 1][i], c));
+  x.fillStyle = sg; x.fillRect(0, 0, W, HZ + 2);
+  x.beginPath(); x.arc(SUNX, SUNY, P.sunr || 46, 0, TAU); x.fillStyle = P.sun || '#fff4cf'; x.fill();
+}
+function clouds(t) {
+  x.save(); x.filter = `blur(${14 * S}px)`;
+  const cl = [[.12, .20, 520, 26, .5], [.48, .13, 700, 20, .35], [.80, .27, 460, 18, .45], [.30, .33, 380, 14, .4], [.92, .10, 520, 22, .3]];
+  for (const [cx, cy, w, h, a] of cl) { const dx = Math.sin(TAU * t / T) * 12; x.fillStyle = `rgba(${P.cl1 || '255,180,150'},${a})`; x.beginPath(); x.ellipse(cx * W + dx, cy * H, w / 2, h, 0, 0, TAU); x.fill(); x.fillStyle = `rgba(${P.cl2 || '60,44,90'},${a * .6})`; x.beginPath(); x.ellipse(cx * W + dx + 30, cy * H + h * .6, w / 2.4, h * .6, 0, 0, TAU); x.fill(); }
+  x.restore();
+}
+function drawIslands() {
+  for (const is of islands) { x.beginPath(); x.moveTo(is.pts[0][0], HZ + 1); is.pts.forEach(p => x.lineTo(p[0], p[1])); x.lineTo(is.pts[is.pts.length - 1][0], HZ + 1); x.closePath(); x.fillStyle = is.col; x.fill(); }
+}
+function sea(t) {
+  const g = x.createLinearGradient(0, HZ, 0, H);
+  (P.sea || ['#e9a073', '#9c5f74', '#3d3a66', '#1f2443', '#141830']).forEach((c, i) => g.addColorStop([0, .06, .3, .7, 1][i], c));
+  x.fillStyle = g; x.fillRect(0, HZ, W, H - HZ);
+  // reflejo del sol
+  const rg = x.createRadialGradient(SUNX, HZ + 120, 10, SUNX, HZ + 120, 420);
+  rg.addColorStop(0, P.refl || 'rgba(255,190,120,.45)'); rg.addColorStop(1, 'rgba(255,170,110,0)');
+  x.save(); x.translate(SUNX, HZ); x.scale(.55, 1.4); x.translate(-SUNX, -HZ); x.fillStyle = rg; x.fillRect(-W * 2, HZ, W * 5, H); x.restore();
+  // bandas de ola
+  x.lineWidth = 1.5;
+  for (let i = 0; i < 22; i++) {
+    const d = Math.pow(i / 22, 1.8), y = HZ + 6 + d * (H - HZ);
+    x.beginPath();
+    for (let X = 0; X <= W; X += 24) { const yy = y + Math.sin(X / (90 + d * 260) + TAU * t / T * (i % 3 + 1) + i) * (1 + d * 6); X ? x.lineTo(X, yy) : x.moveTo(X, yy); }
+    x.strokeStyle = `rgba(${P.wave || '20,22,48'},${.03 + d * .08})`; x.stroke();
+  }
+  // destellos
+  for (const g2 of glints) {
+    const px = ((g2.x0 + g2.v * W * t / T) % W + W) % W;
+    const near = Math.exp(-Math.pow((px - SUNX) / (90 + g2.d * 520), 2));
+    const fl = .5 + .5 * Math.sin(TAU * (g2.f * t / T + g2.ph));
+    const a = (near * .9 + .035) * fl * (1 - g2.d * .45);
+    if (a < .03) continue;
+    x.strokeStyle = near > .3 ? `rgba(${P.gl1 || '255,226,170'},${a})` : `rgba(${P.gl2 || '190,215,240'},${a * (P.gl2a || .28)})`;
+    x.lineWidth = .8 + g2.d * 2.4;
+    x.beginPath(); x.moveTo(px - g2.len / 2, g2.y); x.lineTo(px + g2.len / 2, g2.y); x.stroke();
+  }
+}
+// lancha estilo logo (proa a la derecha), coordenadas locales: ancho 1000
+function boatPath() {
+  const p = new Path2D();
+  p.moveTo(0, 40); p.lineTo(18, 22); p.lineTo(120, 10); p.bezierCurveTo(420, -8, 760, -40, 1000, -78);
+  p.bezierCurveTo(960, -40, 900, 10, 820, 44); p.bezierCurveTo(600, 70, 300, 76, 40, 74); p.closePath();
+  return p;
+}
+function cabinPath() {
+  const p = new Path2D();
+  p.moveTo(230, 12); p.lineTo(300, -60); p.bezierCurveTo(380, -96, 520, -104, 640, -86); p.lineTo(700, -52); p.lineTo(760, -50); p.lineTo(560, 2); p.closePath();
+  return p;
+}
+function windowPath() { const p = new Path2D(); p.moveTo(330, -40); p.bezierCurveTo(400, -74, 520, -80, 620, -70); p.lineTo(650, -50); p.bezierCurveTo(540, -46, 430, -30, 340, -12); p.closePath(); return p; }
+const HULL = boatPath(), CAB = cabinPath(), WIN = windowPath();
+function boat(t) {
+  const bx = W * (+G.get('bx') || .27), by = H * (+G.get('by') || .76), sc = +(G.get('sc') || .7);
+  const bob = Math.sin(TAU * t / T * 2) * 5 + Math.sin(TAU * t / T * 3 + 1) * 2;
+  const rot = Math.sin(TAU * t / T * 2 + .6) * .009;
+  // estela y espuma detrás
+  for (const f of foam) {
+    const u = (f.u + t / T * 2) % 1;            // avanza 2 veces por ciclo → bucle exacto
+    const fx = bx + 40 * sc - u * 900, fy = by + 34 * sc + f.off * (20 + u * 120) + Math.sin(TAU * (u * 3 + f.ph)) * 3;
+    const a = (1 - u) * (1 - u) * .5 * f.s;
+    x.fillStyle = `rgba(${P.foam || '255,236,214'},${a})`; x.beginPath(); x.ellipse(fx, fy, 10 + u * 40 * f.s, 1.2 + u * 2.2, 0, 0, TAU); x.fill();
+  }
+  x.save(); x.translate(bx, by + bob); x.rotate(rot); x.scale(sc, sc);
+  // reflejo bajo el casco
+  x.save(); x.scale(1, -0.35); x.translate(0, -230); x.globalAlpha = .25; x.fillStyle = P.shadow || '#0d0f22'; x.fill(HULL); x.restore();
+  x.fillStyle = P.hull || '#1a1e3a'; x.fill(HULL);
+  x.fillStyle = P.cab || '#20264a'; x.fill(CAB);
+  x.fillStyle = P.win || 'rgba(255,190,130,.55)'; x.fill(WIN);
+  // borde iluminado por el sol (contraluz)
+  x.strokeStyle = P.rim || 'rgba(255,210,150,.9)'; x.lineWidth = 3.5; x.beginPath(); x.moveTo(120, 10); x.bezierCurveTo(420, -8, 760, -40, 1000, -78); x.stroke();
+  x.strokeStyle = P.rim2 || 'rgba(255,210,150,.6)'; x.lineWidth = 2.5; x.stroke(CAB);
+  // franjas del logo
+  x.strokeStyle = 'rgba(134,205,228,.85)'; x.lineWidth = 6; x.beginPath(); x.moveTo(60, 50); x.bezierCurveTo(400, 46, 700, 30, 900, 8); x.stroke();
+  x.strokeStyle = 'rgba(246,225,60,.85)'; x.lineWidth = 4; x.beginPath(); x.moveTo(80, 60); x.bezierCurveTo(400, 58, 680, 44, 860, 26); x.stroke();
+  // espuma de proa
+  const sp = .6 + .4 * Math.sin(TAU * t / T * 4);
+  x.fillStyle = `rgba(255,240,224,${.28 * sp})`; x.beginPath(); x.ellipse(800, 58, 70, 7, -.06, 0, TAU); x.fill();
+  x.restore();
+}
+function gulls(t) {
+  x.strokeStyle = P.gull || 'rgba(30,26,52,.85)'; x.lineCap = 'round';
+  for (const b of birds) {
+    const u = (t / T + b.o) % 1, bx = -120 + u * (W + 240), by = H * b.y + Math.sin(TAU * u * 2) * 14, s = 22 * b.s;
+    const fl = Math.sin(TAU * (t / T) * b.f) * .6;
+    x.lineWidth = 3 * b.s; x.beginPath(); x.moveTo(bx - s, by - s * fl * .6); x.quadraticCurveTo(bx - s * .4, by - s * .5 - s * fl * .3, bx, by); x.quadraticCurveTo(bx + s * .4, by - s * .5 - s * fl * .3, bx + s, by - s * fl * .6); x.stroke();
+  }
+}
+const grainC = document.createElement('canvas'); grainC.width = 960; grainC.height = 540; const gx = grainC.getContext('2d');
+function post(i) {
+  // neblina cálida sobre el horizonte
+  const hz = x.createLinearGradient(0, HZ - 120, 0, HZ + 60); hz.addColorStop(0, `rgba(${P.haze || '255,200,150'},0)`); hz.addColorStop(.7, `rgba(${P.haze || '255,200,150'},.18)`); hz.addColorStop(1, `rgba(${P.haze || '255,200,150'},0)`);
+  x.fillStyle = hz; x.fillRect(0, HZ - 120, W, 180);
+  // viñeta
+  const VR = Math.max(W, H * 1.78), v = x.createRadialGradient(W / 2, H * .55, VR * .32, W / 2, H * .55, VR * .75); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, `rgba(8,8,24,${P.vig ?? .55})`);
+  x.fillStyle = v; x.fillRect(0, 0, W, H);
+  // grano de película (semilla por cuadro, cíclica)
+  const r = rng(1000 + (i % 24)), id = gx.createImageData(960, 540);
+  for (let k = 0; k < id.data.length; k += 4) { const n = r() * 255; id.data[k] = id.data[k + 1] = id.data[k + 2] = n; id.data[k + 3] = 7; }
+  gx.putImageData(id, 0, 0); x.imageSmoothingEnabled = true; x.drawImage(grainC, 0, 0, W, H);
+}
+window.frame = (i, q = .93) => { const t = (i / FPS) % T; x.setTransform(S, 0, 0, S, 0, 0); x.filter = 'none'; sky(); clouds(t); drawIslands(); sea(t); boat(t); gulls(t); post(i); return c.toDataURL('image/jpeg', q); };
+window.TOTAL = T * FPS;
+</script></body></html>

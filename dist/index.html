@@ -6,9 +6,9 @@
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Tu Lancha Lechería · Paseos en lancha y yates a Mochima"><meta name="twitter:description" content="Chárters, paseos en lancha, yates y catamaranes con capitán desde Lechería a Mochima y las islas de Anzoátegui. Arma tu salida y reserva por WhatsApp."><meta name="twitter:image" content="https://tulanchalecheria.vercel.app/og.jpg">
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="favicon.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="preload" as="image" href="media/poster.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="media/hero-mediodia-port.webp" media="(orientation: portrait) and (max-width: 1100px)" fetchpriority="high"><link rel="preload" as="image" href="media/hero-mediodia-land.webp" media="not all and (orientation: portrait) and (max-width: 1100px)" fetchpriority="high">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TravelAgency", "name": "Tu Lancha Lechería", "url": "https://tulanchalecheria.vercel.app/", "image": "https://tulanchalecheria.vercel.app/og.jpg", "logo": "https://tulanchalecheria.vercel.app/icons/icon-512.png", "telephone": "+584143083864", "areaServed": ["Lechería", "Parque Nacional Mochima", "Anzoátegui"], "address": {"@type": "PostalAddress", "addressLocality": "Lechería", "addressRegion": "Anzoátegui", "addressCountry": "VE"}, "sameAs": ["https://www.instagram.com/tulanchalecheria/", "https://linktr.ee/Tulanchalecheria"]}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="styles.css?v=5b2be670"></head><body><a class="skip" href="#main">Saltar al contenido</a>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="styles.css?v=4156ecac"></head><body><a class="skip" href="#main">Saltar al contenido</a>
 <header class="topbar" id="topbar">
   <div class="wrap">
     <a class="brand" href="#inicio" aria-label="Tu Lancha Lechería, inicio"><img src="icons/logo-128.png" alt="" width="40" height="40"><span>Tu Lancha<small>Lechería · Anzoátegui</small></span></a>
@@ -28,11 +28,7 @@
 <section class="page" data-view="inicio" id="inicio" aria-label="Inicio">
   <div class="hero" id="hero">
     <div class="hero-media px" data-speed="0.35" aria-hidden="true">
-      <video id="hero-video" autoplay muted loop playsinline preload="metadata" poster="media/poster.jpg" disablepictureinpicture>
-        <source src="media/hero-720.mp4" type="video/mp4" media="(max-width: 900px)">
-        <source src="media/hero-1080.webm" type="video/webm">
-        <source src="media/hero-1080.mp4" type="video/mp4">
-      </video>
+      <div class="hero-reel" id="hero-reel"><picture class="slide on"><source media="(orientation: portrait) and (max-width: 1100px)" srcset="media/hero-mediodia-port.webp"><img src="media/hero-mediodia-land.webp" alt="" decoding="async" fetchpriority="high"></picture><picture class="slide"><source media="(orientation: portrait) and (max-width: 1100px)" srcset="media/hero-tarde-port.webp"><img src="media/hero-tarde-land.webp" alt="" decoding="async"></picture><picture class="slide"><source media="(orientation: portrait) and (max-width: 1100px)" srcset="media/hero-atardecer-port.webp"><img src="media/hero-atardecer-land.webp" alt="" decoding="async"></picture><picture class="slide"><source media="(orientation: portrait) and (max-width: 1100px)" srcset="media/hero-amanecer-port.webp"><img src="media/hero-amanecer-land.webp" alt="" decoding="async"></picture></div>
       <div class="hero-shade"></div>
     </div>
     <div class="wrap hero-in">
@@ -106,7 +102,7 @@
   <div class="band pt0"><div class="wrap">
     <div class="filters" id="filters">
       <button type="button" class="pill" data-type="all" aria-pressed="true">Todas</button><button type="button" class="pill" data-type="Lancha" aria-pressed="false">Lanchas</button><button type="button" class="pill" data-type="Barco" aria-pressed="false">Barcos</button><button type="button" class="pill" data-type="Mini yate" aria-pressed="false">Mini yates</button><button type="button" class="pill" data-type="Yate" aria-pressed="false">Yates</button><button type="button" class="pill" data-type="Pernocta" aria-pressed="false">Con pernocta</button>
-      <select id="f-pax" aria-label="Personas"><option value="0">Cualquier grupo</option><option value="8">8+ personas</option><option value="12">12+ personas</option><option value="20">20+ personas</option></select>
+      <select id="f-pax" aria-label="Personas"><option value="0">Cualquier grupo</option><option value="8">8+ personas</option><option value="12">12+ personas</option><option value="20">Grupos grandes (20+)</option></select>
       <select id="f-dock" aria-label="Muelle"><option value="">Todos los muelles</option></select>
       <span class="count" id="f-count"></span>
     </div>
@@ -128,10 +124,14 @@
     </div>
     <div class="builder">
       <div class="steps">
-        <div class="step" data-step="0"><h3>¿Cuántas personas van y qué día?</h3>
-          <div class="qty big"><button type="button" id="pax-m" aria-label="Menos personas">−</button><output id="pax" aria-live="polite">8</output><button type="button" id="pax-p" aria-label="Más personas">+</button></div>
-          <p class="rating">Los niños cuentan como pasajeros. Te mostramos solo las embarcaciones donde cabe tu grupo y que están libres ese día.</p>
-          <div class="field" style="max-width:260px"><label for="b-date">Fecha</label><input type="date" id="b-date"></div>
+        <div class="step" data-step="0"><h3>¿Quiénes van y qué día?</h3>
+          <div class="s1-grid">
+            <div class="cnt"><span class="cnt-l">Adultos<small>y niños mayores de 7</small></span><div class="qty"><button type="button" id="pax-m" aria-label="Menos adultos">−</button><output id="pax" aria-live="polite">4</output><button type="button" id="pax-p" aria-label="Más adultos">+</button></div></div>
+            <div class="cnt"><span class="cnt-l">Niños<small>de 7 años o menos</small></span><div class="qty"><button type="button" id="kid-m" aria-label="Menos niños">−</button><output id="kids" aria-live="polite">0</output><button type="button" id="kid-p" aria-label="Más niños">+</button></div></div>
+            <div class="field cnt-date"><label for="b-date">Fecha</label><input type="date" id="b-date"></div>
+          </div>
+          <p class="rating s1-note">Te mostramos solo las embarcaciones donde cabe tu grupo y que están libres ese día. En algunas, dos niños de 7 años o menos ocupan un solo puesto, con un pequeño recargo.</p>
+          <div id="big-group"></div>
         </div>
         <div class="step" data-step="1" hidden><h3>Elige tu embarcación</h3><div id="b-boats"></div></div>
         <div class="step" data-step="2" hidden><h3>Elige tu rumbo</h3>
@@ -331,4 +331,4 @@
 <dialog id="dlg" aria-labelledby="m-title"></dialog>
 <dialog id="vdlg" aria-label="Video"></dialog>
 <div class="toast" id="toast" role="status"></div>
-<script src="app.js?v=5b2be670" defer></script></body></html>
+<script src="app.js?v=4156ecac" defer></script></body></html>

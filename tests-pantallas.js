@@ -47,7 +47,8 @@ const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 
     await act('#dlg .m-close'); ok(!(await p.evaluate(() => document.querySelector('#dlg').open)), `${name}: cerrar detalle`);
     // reserva completa
     await p.evaluate(() => { localStorage.removeItem('tll:quote2'); location.hash = 'reservar'; }); await p.reload(); await p.waitForTimeout(500);
-    await act('#pax-p'); await act('#pax-p'); ok((await p.textContent('#pax')).trim() === '10', `${name}: cambiar personas`);
+    await act('#pax-p'); await act('#pax-p'); ok((await p.textContent('#pax')).trim() === '6', `${name}: cambiar personas`);
+    await act('#kid-p'); ok((await p.textContent('#kids')).trim() === '1', `${name}: contador de niños`);
     await p.fill('#b-date', await p.evaluate(() => TLL.iso(new Date(TLL.today.getTime() + 12 * 864e5))));
     await p.dispatchEvent('#b-date', 'change'); await over('reserva paso 1');
     await act('#st-next'); await p.waitForTimeout(250); await over('reserva paso 2');
