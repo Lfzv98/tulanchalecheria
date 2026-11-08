@@ -19,10 +19,21 @@ const MAX_BATCH = 400;           // tope de posiciones por envío
 const ID_RE = /^[a-z2-9]{20}$/;  // id aleatorio en base32 sin caracteres ambiguos
 const KEY_RE = /^[A-Za-z0-9_-]{24,64}$/;
 
-const env = () => ({
-  url: process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
-});
+// Acepta los nombres que crea la integración de Vercel, también con prefijo personalizado
+// (p. ej. STORAGE_KV_REST_API_URL), y como último recurso REDIS_URL / KV_URL de Upstash (rediss://default:TOKEN@host).
+function env() {
+  const E = process.env, keys = Object.keys(E);
+  for (const [u, t] of [['KV_REST_API_URL', 'KV_REST_API_TOKEN'], ['UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN']]) {
+    if (E[u] && E[t]) return { url: E[u], token: E[t] };
+    for (const k of keys) if (k.endsWith('_' + u)) { const tk = k.slice(0, -u.length) + t; if (E[k] && E[tk]) return { url: E[k], token: E[tk] }; }
+  }
+  for (const k of keys) if (/(^|_)(REDIS_URL|KV_URL)$/.test(k) && E[k]) {
+    try { const x = new URL(E[k]); if (/upstash\.io$/.test(x.hostname) && x.password) return { url: 'https://' + x.hostname, token: decodeURIComponent(x.password) }; } catch {}
+  }
+  return {};
+}
+// solo los nombres (nunca los valores) de variables relacionadas, para diagnosticar la conexión
+const seenVars = () => Object.keys(process.env).filter(k => /KV|REDIS|UPSTASH/.test(k)).sort();
 async function redis(cmds) {
   const { url, token } = env();
   const r = await fetch(url.replace(/\/$/, '') + '/pipeline', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(cmds) });
@@ -55,7 +66,7 @@ async function readBody(req) {
 
 async function handler(req, res) {
   const { url, token } = env();
-  if (!url || !token) return send(res, 503, { error: 'not_configured' });
+  if (!url || !token) return send(res, 503, { error: 'not_configured', variables: seenVars() });
   try {
     if (req.method === 'GET') {
       const q = new URL(req.url, 'http://x').searchParams, id = q.get('id') || '', after = +q.get('after') || 0;
