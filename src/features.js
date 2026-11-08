@@ -429,7 +429,9 @@ function openFollow(id) {
   followCtl?.abort(); followCtl = new AbortController(); const sig = followCtl.signal;
   const q = s => dlg.querySelector(s);
   let map = null, line = null, boat = null, pts = [], lastT = 0, follow = true, timer = null, data = null, skew = 0, dist = 0;
-  const icon = hdg => window.L.divIcon({ className: 'f-boat', iconSize: [44, 44], iconAnchor: [22, 22], html: `<span class="f-pulse"></span><svg viewBox="-22 -22 44 44" style="transform:rotate(${hdg || 0}deg)"><circle r="14" fill="rgba(127,227,240,.22)"/><path d="M0 -12L8 9L0 4.5L-8 9Z" fill="#fff" stroke="#0b2236" stroke-width="1.6" stroke-linejoin="round"/></svg>` });
+  // marcador estilo "ubicación en tiempo real": disco blanco con el logo, punto exacto debajo, rumbo y nombre con 🚤
+  const pinName = n => String(n || 'Tu Lancha').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const icon = hdg => window.L.divIcon({ className: 'f-boat', iconSize: [56, 70], iconAnchor: [28, 64], html: `<span class="f-pulse"></span><span class="f-hdg" style="transform:rotate(${Math.round(hdg || 0)}deg)"></span><span class="f-disc"><img src="icons/logo-128.png" alt="" width="44" height="44"></span><span class="f-stem"></span><span class="f-dot"></span><span class="f-tag" translate="no">${pinName(data && data.boat)} <span aria-hidden="true">🚤</span></span>` });
   const bearing = (a, b) => { const r = Math.PI / 180, y = Math.sin((b.lng - a.lng) * r) * Math.cos(b.lat * r), x = Math.cos(a.lat * r) * Math.sin(b.lat * r) - Math.sin(a.lat * r) * Math.cos(b.lat * r) * Math.cos((b.lng - a.lng) * r); return (Math.atan2(y, x) / r + 360) % 360; };
   const hm = t => new Date(t).toLocaleTimeString(TLL_I18N.loc(), { hour: '2-digit', minute: '2-digit' });
   const setNote = (cls, txt, badge) => { const n = q('[data-f-note]'); n.className = 'f-note ' + cls; n.textContent = txt; const b = q('[data-f-badge]'); b.className = 'f-badge ' + cls; b.textContent = badge; };

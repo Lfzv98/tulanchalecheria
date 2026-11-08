@@ -38,7 +38,7 @@ const exact = [
 [`Empresa`, `Company`, `Empresa`],
 [`Cómo llegar`, `Directions`, `Como chegar`],
 [`Instagram @tulanchalecheria`, `Instagram @tulanchalecheria`, `Instagram @tulanchalecheria`],
-[`Chárters y paseos en lancha, barco, mini yate y yate a Mochima y las islas desde Lechería.`, `Charters and trips by speedboat, boat, mini yacht and yacht to Mochima and the islands, departing from Lechería.`, `Charters e passeios de lancha, barco, mini iate e iate para Mochima e as ilhas, saindo de Lechería.`],
+[`Chárters y paseos en lancha, barco, mini yate y yate desde Lechería a las islas del Parque Nacional Mochima.`, `Charters and trips by speedboat, boat, mini yacht and yacht from Lechería to the islands of Mochima National Park.`, `Charters e passeios de lancha, barco, mini iate e iate de Lechería para as ilhas do Parque Nacional Mochima.`],
 [`Tu Lancha Lechería · Paseos en lancha y yates a Mochima`, `Tu Lancha Lechería · Boat and yacht trips to Mochima`, `Tu Lancha Lechería · Passeios de lancha e iate para Mochima`],
 [`Paseos en lancha y yates a Mochima`, `Boat and yacht trips to Mochima`, `Passeios de lancha e iate para Mochima`],
 [`Ver más`, `See more`, `Ver mais`],
@@ -47,9 +47,9 @@ const exact = [
 [`10°11′N · 64°41′O · Lechería, Anzoátegui`, `10°11′N · 64°41′W · Lechería, Venezuela`, `10°11′N · 64°41′O · Lechería, Venezuela`],
 [`Tu día en el mar,`, `Your day at sea,`, `Seu dia no mar,`],
 [`sin complicaciones.`, `made effortless.`, `sem complicações.`],
-[`Lanchas, barcos, mini yates y yates con capitán a Mochima y las islas. Arma tu salida en un minuto y resérvala aquí mismo.`, `Speedboats, boats, mini yachts and yachts with a captain to Mochima and the islands. Plan your trip in a minute and book it right here.`, `Lanchas, barcos, mini iates e iates com capitão para Mochima e as ilhas. Monte seu passeio em um minuto e reserve aqui mesmo.`],
+[`Lanchas, barcos, mini yates y yates a las islas del Parque Nacional Mochima. Arma tu salida en un minuto y resérvala aquí mismo.`, `Speedboats, boats, mini yachts and yachts to the islands of Mochima National Park. Plan your trip in a minute and book it right here.`, `Lanchas, barcos, mini iates e iates para as ilhas do Parque Nacional Mochima. Monte seu passeio em um minuto e reserve aqui mesmo.`],
 [`Reservar mi salida`, `Book my trip`, `Reservar meu passeio`],
-[`Conoce nuestra lancha`, `Meet our boat`, `Conheça nossa lancha`],
+[`Conoce nuestra lancha prémium`, `Meet our premium boat`, `Conheça nossa lancha premium`],
 [`chárters realizados`, `charters completed`, `charters realizados`],
 [`clientes`, `clients`, `clientes`],
 [`Nos han reseñado`, `As featured in`, `Destaque na mídia`],
@@ -94,7 +94,14 @@ const exact = [
 [`Recomendación de la casa`, `House pick`, `Recomendação da casa`],
 [`Ver disponibilidad`, `See availability`, `Ver disponibilidade`],
 [`consúltanos`, `ask us`, `consulte-nos`],
-[`Corneta Bose S1 Pro`, `Bose S1 Pro speaker`, `Caixa de som Bose S1 Pro`],
+[`Internet a bordo`, `Onboard internet`, `Internet a bordo`],
+[`Flotadores de lujo`, `Luxury pool floats`, `Boias de luxo`],
+[`Alfombra en el agua`, `Floating water mat`, `Tapete flutuante na água`],
+[`Sonido JL Audio`, `JL Audio sound system`, `Som JL Audio`],
+[`Internet`, `Internet`, `Internet`],
+[`a bordo`, `on board`, `a bordo`],
+[`reseñas en medios`, `media features`, `destaques na mídia`],
+[`y Canal Viajero (IVC)`, `and Canal Viajero (IVC)`, `e Canal Viajero (IVC)`],
 [`Parrillera sin costo`, `Free grill`, `Churrasqueira grátis`],
 [`Toldo`, `Sun canopy`, `Toldo`],
 
@@ -133,10 +140,10 @@ const exact = [
 [`Lancha amplia para recorrer islas y hacer snorkel. Por su tamaño, visita hasta 2 playas por salida.`, `Spacious boat for island hopping and snorkeling. Because of its size, it visits up to 2 beaches per trip.`, `Lancha ampla para percorrer ilhas e fazer snorkel. Pelo tamanho, visita até 2 praias por passeio.`],
 [`La opción práctica para grupos pequeños. Ágil, económica y siempre puntual.`, `The practical choice for small groups. Nimble, affordable and always on time.`, `A opção prática para grupos pequenos. Ágil, econômica e sempre pontual.`],
 [`Bowrider con mucho espacio en proa. Buena relación precio/capacidad para grupos medianos.`, `Bowrider with lots of bow space. Great value for medium-sized groups.`, `Bowrider com muito espaço na proa. Ótimo custo-benefício para grupos médios.`],
-[`Mini yate con camarote y baño. Muy cómodo para familias y para quien quiere pernoctar en la bahía.`, `Mini yacht with cabin and bathroom. Very comfortable for families and for an overnight stay in the bay.`, `Mini iate com cabine e banheiro. Muito confortável para famílias e para quem quer pernoitar na baía.`],
+[`Mini yate con camarote y baño. Muy cómodo para familias y grupos que buscan sombra y privacidad.`, `Mini yacht with cabin and bathroom. Very comfortable for families and groups who want shade and privacy.`, `Mini iate com cabine e banheiro. Muito confortável para famílias e grupos que buscam sombra e privacidade.`],
 [`Barco estable y amplio, perfecto para celebraciones y grupos grandes. Malla de proa para tomar sol sobre el mar.`, `Stable, roomy boat, perfect for celebrations and large groups. Bow trampoline net for sunbathing over the sea.`, `Barco estável e espaçoso, perfeito para celebrações e grupos grandes. Rede de proa para tomar sol sobre o mar.`],
 [`Barco de eventos, el más grande. Pensado para fiestas en el mar con DJ y servicio de barra.`, `Our largest event boat. Designed for parties at sea with a DJ and bar service.`, `Barco de eventos, o maior. Pensado para festas no mar com DJ e serviço de bar.`],
-[`Yate con flybridge y salón climatizado. Para salidas premium, pernoctas y eventos corporativos.`, `Yacht with flybridge and air-conditioned salon. For premium trips, overnight stays and corporate events.`, `Iate com flybridge e salão climatizado. Para passeios premium, pernoites e eventos corporativos.`],
+[`Yate con flybridge y salón climatizado. Para salidas premium y eventos corporativos.`, `Yacht with flybridge and air-conditioned salon. For premium trips and corporate events.`, `Iate com flybridge e salão climatizado. Para passeios premium e eventos corporativos.`],
 [`Yate clásico de crucero con salón amplio y plataforma de baño a nivel del agua.`, `Classic cruising yacht with a large salon and a swim platform at water level.`, `Iate clássico de cruzeiro com salão amplo e plataforma de banho no nível da água.`],
 [`Cava`, `Cooler`, `Caixa térmica`],
 [`Escalera`, `Ladder`, `Escada`],
@@ -984,7 +991,7 @@ const pat = [
 ];
 
 // nombres propios y textos que no se traducen (solo para que las pruebas no los marquen como pendientes)
-const keep = ['Tu Lancha', 'Tu Lancha Lechería', 'TU LANCHA LECHERÍA', 'WhatsApp', 'Instagram', 'Zelle', 'Binance Pay', 'USD', 'USDT', 'VIP', 'IVC', 'Venevisión', 'Viajando con BIVI', 'Canal Viajero', 'Mochima', 'Morrocoy', 'Los Roques', 'Lechería', 'Anzoátegui', 'Margarita', 'Eurobuilding', '@tulanchalecheria', 'tulanchalecheria.vercel.app', 'El Mercadillo', 'El Rincón Marino', 'Cervecería Regional', 'Arena Swim', 'Brisa Deco', 'DJ Oleaje', 'Foto Proa', 'Posada Mochima'];
+const keep = ['Tu Lancha', 'Tu Lancha Lechería', 'TU LANCHA LECHERÍA', 'WhatsApp', 'Instagram', 'Zelle', 'Binance Pay', 'USD', 'USDT', 'VIP', 'IVC', 'Venevisión', 'Viajando con BIVI', 'Canal Viajero', 'Mochima', 'Morrocoy', 'Los Roques', 'Lechería', 'Anzoátegui', 'Anzoátegui – Venezuela', 'Viajando con BIVI (Venevisión)', 'min 7:30', 'Margarita', 'Eurobuilding', '@tulanchalecheria', 'tulanchalecheria.vercel.app', 'El Mercadillo', 'El Rincón Marino', 'Cervecería Regional', 'Arena Swim', 'Brisa Deco', 'DJ Oleaje', 'Foto Proa', 'Posada Mochima'];
 return { exact, pat, keep };
 })();
 
@@ -1248,19 +1255,19 @@ const ACC = { sonido: 'Sonido (integrado o Bluetooth)', mat: 'Alfombra flotante'
    r4: hace el Rumbo 4 · late: hasta qué hora puede quedarse (20 = 8:00 pm) · hx: costo de cada hora extra
    pick: excepciones de recogida por calado ({cda: null} = no llega; {em: 0} = sin recargo) */
 const BOATS = [
-  { id: 'b0', own: true, name: 'Lancha de la casa', type: 'Lancha', ft: 32, pax: 5, kidSeat: .5, kidFee: 15, price: 350, hue: 200, dock: 0, cabin: false, rating: 5.0, trips: 0, r4: true, late: 20, hx: 40, pick: { em: 20 },
-    inc: ['sonido', 'parrilla', 'snorkel', 'flot'], opt: { mat: 25, dron: 60 }, amen: ['Corneta Bose S1 Pro', 'Parrillera sin costo', 'Toldo'], desc: 'La embarcación de Tu Lancha, atendida por nuestra propia tripulación. Es la que más eligen nuestros clientes.' },
+  { id: 'b0', own: true, name: 'Lancha de la casa', type: 'Lancha', ft: 24, pax: 5, kidSeat: .5, kidFee: 15, price: 350, hue: 200, dock: 0, cabin: false, rating: 5.0, trips: 0, r4: true, late: 20, hx: 40, pick: { em: 20 },
+    inc: ['sonido', 'parrilla', 'snorkel', 'flot', 'mat', 'dron'], opt: {}, amen: ['Internet a bordo', 'Flotadores de lujo', 'Alfombra en el agua', 'Parrillera', 'Toldo', 'Sonido JL Audio', 'Dron'], desc: 'La embarcación de Tu Lancha, atendida por nuestra propia tripulación. Es la que más eligen nuestros clientes.' },
   { id: 'b1', name: 'Bravo 32', type: 'Lancha', ft: 32, pax: 10, price: 320, hue: 205, dock: 0, cabin: false, rating: 4.9, trips: 214, inc: ['sonido', 'snorkel'], opt: { parrilla: 20, mat: 25 }, amen: ['Toldo', 'Cava'], desc: 'Lancha deportiva rápida y cómoda, ideal para grupos que quieren llegar primero a la playa. Doble motor fuera de borda.' },
   { id: 'b9', name: 'Promar 34', type: 'Lancha', ft: 34, pax: 10, price: 380, hue: 210, dock: 2, cabin: false, rating: 4.8, trips: 132, maxBeaches: 2, inc: ['sonido', 'snorkel'], opt: { parrilla: 20 }, amen: ['Toldo', 'Escalera'], desc: 'Lancha amplia para recorrer islas y hacer snorkel. Por su tamaño, visita hasta 2 playas por salida.' },
   { id: 'b4', name: 'Morro Sport 27', type: 'Lancha', ft: 27, pax: 8, kidSeat: .5, kidFee: 10, price: 230, hue: 170, dock: 2, cabin: false, rating: 4.8, trips: 305, pick: { cda: null }, inc: ['sonido'], opt: {}, amen: ['Toldo', 'Escalera de baño'], desc: 'La opción práctica para grupos pequeños. Ágil, económica y siempre puntual.' },
   { id: 'b7', name: 'Plata 30', type: 'Lancha', ft: 30, pax: 10, price: 290, hue: 195, dock: 0, cabin: false, rating: 4.7, trips: 241, late: 20, hx: 40, inc: ['sonido', 'flot'], opt: { parrilla: 20, kayak: 30 }, amen: ['Toldo', 'Proa amplia'], desc: 'Bowrider con mucho espacio en proa. Buena relación precio/capacidad para grupos medianos.' },
-  { id: 'b5', name: 'Mochima 36', type: 'Mini yate', ft: 36, pax: 12, price: 450, hue: 215, dock: 1, cabin: true, rating: 4.9, trips: 176, inc: ['sonido', 'snorkel'], opt: { parrilla: 20, paddle: 30 }, amen: ['Camarote de proa', 'Baño'], desc: 'Mini yate con camarote y baño. Muy cómodo para familias y para quien quiere pernoctar en la bahía.' },
+  { id: 'b5', name: 'Mochima 36', type: 'Mini yate', ft: 36, pax: 12, price: 450, hue: 215, dock: 1, cabin: true, rating: 4.9, trips: 176, inc: ['sonido', 'snorkel'], opt: { parrilla: 20, paddle: 30 }, amen: ['Camarote de proa', 'Baño'], desc: 'Mini yate con camarote y baño. Muy cómodo para familias y grupos que buscan sombra y privacidad.' },
   { id: 'b2', name: 'Arapo 40', type: 'Barco', ft: 40, pax: 12, price: 950, hue: 190, dock: 1, cabin: true, rating: 5.0, trips: 98, inc: ['sonido', 'parrilla', 'paddle'], opt: { dron: 60 }, amen: ['Malla de proa', '2 baños', 'Camarotes'], desc: 'Barco estable y amplio, perfecto para celebraciones y grupos grandes. Malla de proa para tomar sol sobre el mar.' },
   { id: 'b8', name: 'Caribe 48', type: 'Barco', ft: 48, pax: 30, price: 1400, hue: 185, dock: 1, cabin: true, rating: 4.9, trips: 57, inc: ['sonido', 'kayak', 'kids'], opt: { dron: 60 }, amen: ['Barra', '4 baños', 'Tobogán'], desc: 'Barco de eventos, el más grande. Pensado para fiestas en el mar con DJ y servicio de barra.' },
-  { id: 'b3', name: 'Chimana 52', type: 'Yate', ft: 52, pax: 12, price: 1650, hue: 225, dock: 0, cabin: true, rating: 4.9, trips: 61, r4: true, late: 20, hx: 80, inc: ['sonido', 'mat', 'snorkel', 'paddle'], opt: { parrilla: 20, dron: 60, cam: 30 }, amen: ['Flybridge', 'Aire acondicionado', '3 camarotes', 'Generador'], desc: 'Yate con flybridge y salón climatizado. Para salidas premium, pernoctas y eventos corporativos.' },
+  { id: 'b3', name: 'Chimana 52', type: 'Yate', ft: 52, pax: 12, price: 1650, hue: 225, dock: 0, cabin: true, rating: 4.9, trips: 61, r4: true, late: 20, hx: 80, inc: ['sonido', 'mat', 'snorkel', 'paddle'], opt: { parrilla: 20, dron: 60, cam: 30 }, amen: ['Flybridge', 'Aire acondicionado', '3 camarotes', 'Generador'], desc: 'Yate con flybridge y salón climatizado. Para salidas premium y eventos corporativos.' },
   { id: 'b6', name: 'Borracha 45', type: 'Yate', ft: 45, pax: 12, price: 1200, hue: 235, dock: 2, cabin: true, rating: 4.8, trips: 83, inc: ['sonido', 'mat'], opt: { parrilla: 20 }, amen: ['Salón', '2 camarotes', 'Aire acondicionado', 'Plataforma de baño'], desc: 'Yate clásico de crucero con salón amplio y plataforma de baño a nivel del agua.' }
 ];
-BOATS.forEach(b => { b.pernocta = b.cabin; b.maxBeaches ??= b.type === 'Lancha' ? 3 : 2; b.opt ??= {}; b.inc ??= []; });
+BOATS.forEach(b => { b.maxBeaches ??= b.type === 'Lancha' ? 3 : 2; b.opt ??= {}; b.inc ??= []; });
 const OWN = BOATS.find(b => b.own);
 
 // Rumbos: nunca se cruzan. extra: null = recargo que se confirma por WhatsApp
@@ -1310,7 +1317,6 @@ const ALLIES = [
 const EXPS = [
   ['Pedida de mano', 'Decoración, fotógrafo escondido y brindis en el mar.', '<path d="M12 21s-7-4.4-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.6-9 9-9 9z"/>'],
   ['Cumpleaños en el mar', 'Torta, decoración y música a bordo.', '<path d="M4 21h16M5 21v-7h14v7M12 14V9M12 6v.01M8 14v-2M16 14v-2"/>'],
-  ['Pernocta en Mochima', 'Duerme anclado en la bahía y amanece en el parque.', '<path d="M20 14A8 8 0 1110 4a6 6 0 0010 10z"/>'],
   ['Corporativo', 'Integraciones de equipo y atención a clientes con factura.', '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/>']
 ];
 const EXTRAS = Object.entries(ACC).map(([id, name]) => ({ id, name }));
@@ -1369,28 +1375,8 @@ function beachArt(b) {
 }
 
 /* ---------------- hero ---------------- */
-/* ---------------- condiciones del mar ---------------- */
 const wday = (d, f = 'short') => { const s = d.toLocaleDateString(TLL_I18N.loc(), { weekday: f }).replace(/\.$/, ''); return s.charAt(0).toUpperCase() + s.slice(1); };
-let seaLast = null;
-function seaLevel(wave, wind) { return wave > 1.4 || wind > 20 ? 'red' : wave > 0.9 || wind > 14 ? 'amber' : 'ok'; }
-function renderSea(days, live) {
-  seaLast = [days, live];
-  const t = days[0], lv = seaLevel(t.wave, t.wind);
-  const txt = { ok: ['Mar en calma', 'Condiciones ideales para todas las rutas, incluida Mochima.'], amber: ['Mar moderado', 'Recomendamos rutas cercanas o salir temprano. Embarcaciones grandes sin problema.'], red: ['Mar picado', 'El capitán puede reprogramar. Te avisamos con tiempo y sin costo.'] }[lv];
-  $('#mar-now').innerHTML = `<span class="flag ${lv === 'ok' ? '' : lv}"><i></i>Hoy</span><div class="verdict">${txt[0]}</div><p>${txt[1]}</p><div class="mono" style="font-size:.9rem">Ola ${t.wave.toFixed(1)} m · Viento ${Math.round(t.wind)} nudos</div>`;
-  $('#mar-days').innerHTML = days.slice(1, 6).map(d => { const l = seaLevel(d.wave, d.wind); return `<div class="day ${l === 'ok' ? '' : l}"><span class="d">${wday(d.date)} ${d.date.getDate()}</span><div class="bar"><i style="width:${Math.min(100, d.wave / 1.8 * 100)}%"></i></div><span class="k">${d.wave.toFixed(1)} m · ${Math.round(d.wind)} kn</span></div>`; }).join('');
-  $('#mar-src').textContent = live ? 'en vivo · Open-Meteo' : 'datos de ejemplo';
-}
 const today = new Date(); today.setHours(0, 0, 0, 0);
-const sample = [0.6, 0.7, 1.0, 0.8, 0.5, 0.6].map((w, i) => ({ date: new Date(today.getTime() + i * 864e5), wave: w, wind: [9, 11, 15, 12, 8, 10][i] }));
-renderSea(sample, false);
-Promise.all([
-  fetch('https://marine-api.open-meteo.com/v1/marine?latitude=10.3&longitude=-64.6&daily=wave_height_max&timezone=America%2FCaracas&forecast_days=6').then(r => r.json()),
-  fetch('https://api.open-meteo.com/v1/forecast?latitude=10.2&longitude=-64.65&daily=wind_speed_10m_max&wind_speed_unit=kn&timezone=America%2FCaracas&forecast_days=6').then(r => r.json())
-]).then(([m, f]) => {
-  const days = m.daily.time.map((d, i) => ({ date: new Date(d + 'T12:00'), wave: m.daily.wave_height_max[i] ?? 0.6, wind: f.daily.wind_speed_10m_max[i] ?? 10 }));
-  if (days.length >= 6) renderSea(days, true);
-}).catch(() => {});
 
 /* ---------------- disponibilidad (propietarios) ---------------- */
 const owner = store.get('owner', {}); // {boatId: {rate, wk, busy:{'2026-11-20':true}}}
@@ -1458,14 +1444,14 @@ function boatCard(b) {
       <div class="tabs">${VIEWS.filter(v => v[0] !== 'camarote' || b.cabin).map((v, i) => `<button type="button" data-v="${v[0]}" aria-pressed="${i === 0}">${v[1]}</button>`).join('')}</div></div>
     <div class="body">
       <div class="row"><h3>${b.name}</h3><span class="rating">${b.own ? '<b>La más vendida</b>' : `<b>${b.rating.toFixed(1)}</b> ★`}</span></div>
-      <div class="meta"><span class="tag">${b.type}</span><span class="tag">${b.ft} pies</span><span class="tag">Hasta ${b.pax} pers.</span>${b.cabin ? '<span class="tag">Pernocta</span>' : ''}</div>
+      <div class="meta"><span class="tag">${b.type}</span><span class="tag">${b.ft} pies</span>${b.own ? '' : `<span class="tag">Hasta ${b.pax} pers.</span>`}</div>
       <div class="rating">Hasta ${b.maxBeaches} playas por salida${b.r4 ? ' · hace el Rumbo 4' : ''}</div>
       <div class="rating">Sale de ${DOCKS[b.dock].name} · libre ${nf ? fmtDay(nf) : '—'}</div>
       <div class="acts"><button class="btn btn-ghost btn-sm" type="button" data-open="${b.id}">Ver detalles</button><button class="btn btn-sun btn-sm" type="button" data-book="${b.id}">Reservar</button></div>
     </div></article>`;
 }
 function renderBoats() {
-  const list = BOATS.filter(b => (filt.type === 'all' || (filt.type === 'Pernocta' ? b.cabin : b.type === filt.type)) && b.pax >= filt.pax && (filt.dock === '' || b.dock === +filt.dock))
+  const list = BOATS.filter(b => (filt.type === 'all' || b.type === filt.type) && b.pax >= filt.pax && (filt.dock === '' || b.dock === +filt.dock))
     .sort((a, b) => (b.own ? 1 : 0) - (a.own ? 1 : 0));
   const own = list.filter(b => b.own), rest = list.filter(b => !b.own);
   $('#boats').innerHTML = (own.map(boatCard).join('') + (rest.length && own.length ? '<h3 class="grid-h">Otras opciones disponibles</h3>' : '') + rest.map(boatCard).join('')) || '<p class="rating">No hay embarcaciones con esos filtros. Prueba con otro muelle o tamaño de grupo.</p>';
@@ -1477,7 +1463,7 @@ function renderOwnFeature() {
   el.innerHTML = `<div class="own-card glass-card">
     <div class="own-shot">${art('exterior', OWN.hue, OWN.id)}<span class="badge own-badge">${OWN_BADGE}</span></div>
     <div class="own-in"><span class="eyebrow">La más vendida</span><h2>${OWN.name}</h2><p>${OWN.desc}</p>
-      <div class="meta"><span class="tag">${OWN.type} · ${OWN.ft} pies</span><span class="tag">Hasta ${OWN.pax} pasajeros + capitán</span>${OWN.amen.map(a => `<span class="tag">${a}</span>`).join('')}</div>
+      <div class="meta"><span class="tag">${OWN.type} · ${OWN.ft} pies</span>${OWN.amen.map(a => `<span class="tag">${a}</span>`).join('')}</div>
       <p class="rating">Próxima fecha libre: <b>${nf ? fmtDay(nf) : 'consúltanos'}</b></p>
       <div class="row2"><button class="btn btn-sun" type="button" data-open="${OWN.id}">Ver disponibilidad</button><button class="btn btn-ghost" type="button" data-book="${OWN.id}">Reservar</button></div></div></div>`;
 }
@@ -1512,7 +1498,7 @@ function openBoat(id) {
       <div class="links-v"><a class="btn btn-ghost on-sea btn-sm" href="https://www.youtube.com/results?search_query=tu+lancha+lecheria" target="_blank" rel="noopener">Ver video</a><a class="btn btn-ghost on-sea btn-sm" href="https://www.instagram.com/tulanchalecheria/" target="_blank" rel="noopener">Fotos en Instagram</a></div></div>
     <div class="m-body">
       <div style="display:grid;gap:6px"><span class="eyebrow">${b.type}${b.own ? ' · La más vendida' : ` · ${b.rating.toFixed(1)} ★`}</span><h2 id="m-title" style="font-size:1.8rem">${b.name}</h2><p style="color:var(--muted)">${b.desc}</p></div>
-      <div class="specs"><div class="spec"><span>Eslora</span><b>${b.ft} ft</b></div><div class="spec"><span>Personas</span><b>${b.pax}</b></div><div class="spec"><span>Playas</span><b>hasta ${b.maxBeaches}</b></div></div>
+      <div class="specs"><div class="spec"><span>Eslora</span><b>${b.ft} ft</b></div>${b.own ? '<div class="spec"><span>Internet</span><b>a bordo</b></div>' : `<div class="spec"><span>Personas</span><b>${b.pax}</b></div>`}<div class="spec"><span>Playas</span><b>hasta ${b.maxBeaches}</b></div></div>
       <div class="amen">${b.amen.map(a => `<span class="tag">${a}</span>`).join('')}</div>
       <details class="pk" open><summary>Equipamiento básico incluido</summary>${basicHtml()}</details>
       <div class="acc">${accHtml(b)}</div>${vlink('accesorios', 'Ver video: accesorios y facilidades')}
@@ -1546,7 +1532,7 @@ Q.pax = Math.min(30, Math.max(1, Math.round(+Q.pax) || 4)); Q.kids = Math.min(10
 const qDate = () => { const [yy, mm, dd] = Q.date.split('-').map(Number); return new Date(yy, mm - 1, dd); };
 function boatOpt(b, d) {
   const busy = isBusy(b, d);
-  return `<button type="button" class="opt${b.own ? ' own' : ''}" data-boat="${b.id}" aria-pressed="${b.id === Q.boat}">${b.own ? `<span class="own-tag">${OWN_BADGE}</span>` : ''}<b>${b.name}</b><span>${b.type} · ${capTxt(b)} · hasta ${b.maxBeaches} playas</span>${busy ? '<span class="busy-t">Ocupada ese día</span>' : ''}<span class="p">${money(priceOn(b, d))} / día</span></button>`;
+  return `<button type="button" class="opt${b.own ? ' own' : ''}" data-boat="${b.id}" aria-pressed="${b.id === Q.boat}">${b.own ? `<span class="own-tag">${OWN_BADGE}</span>` : ''}<b>${b.name}</b><span>${b.type} · ${b.own ? `${b.ft} pies` : capTxt(b)} · hasta ${b.maxBeaches} playas</span>${busy ? '<span class="busy-t">Ocupada ese día</span>' : ''}<span class="p">${money(priceOn(b, d))} / día</span></button>`;
 }
 function renderBuilder() {
   Q.kids = Q.kids || 0;
@@ -1769,7 +1755,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:' && !location.
 
 renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner();
 // al cambiar de idioma: volver a pintar lo que lleva fechas, días y montos con formato local
-addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); if (seaLast) renderSea(...seaLast); window.TLL.renderMine && window.TLL.renderMine(); });
+addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); window.TLL.renderMine && window.TLL.renderMine(); });
 
 window.TLL = { renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
 document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; fitTo(b); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); });
@@ -2206,7 +2192,9 @@ function openFollow(id) {
   followCtl?.abort(); followCtl = new AbortController(); const sig = followCtl.signal;
   const q = s => dlg.querySelector(s);
   let map = null, line = null, boat = null, pts = [], lastT = 0, follow = true, timer = null, data = null, skew = 0, dist = 0;
-  const icon = hdg => window.L.divIcon({ className: 'f-boat', iconSize: [44, 44], iconAnchor: [22, 22], html: `<span class="f-pulse"></span><svg viewBox="-22 -22 44 44" style="transform:rotate(${hdg || 0}deg)"><circle r="14" fill="rgba(127,227,240,.22)"/><path d="M0 -12L8 9L0 4.5L-8 9Z" fill="#fff" stroke="#0b2236" stroke-width="1.6" stroke-linejoin="round"/></svg>` });
+  // marcador estilo "ubicación en tiempo real": disco blanco con el logo, punto exacto debajo, rumbo y nombre con 🚤
+  const pinName = n => String(n || 'Tu Lancha').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const icon = hdg => window.L.divIcon({ className: 'f-boat', iconSize: [56, 70], iconAnchor: [28, 64], html: `<span class="f-pulse"></span><span class="f-hdg" style="transform:rotate(${Math.round(hdg || 0)}deg)"></span><span class="f-disc"><img src="icons/logo-128.png" alt="" width="44" height="44"></span><span class="f-stem"></span><span class="f-dot"></span><span class="f-tag" translate="no">${pinName(data && data.boat)} <span aria-hidden="true">🚤</span></span>` });
   const bearing = (a, b) => { const r = Math.PI / 180, y = Math.sin((b.lng - a.lng) * r) * Math.cos(b.lat * r), x = Math.cos(a.lat * r) * Math.sin(b.lat * r) - Math.sin(a.lat * r) * Math.cos(b.lat * r) * Math.cos((b.lng - a.lng) * r); return (Math.atan2(y, x) / r + 360) % 360; };
   const hm = t => new Date(t).toLocaleTimeString(TLL_I18N.loc(), { hour: '2-digit', minute: '2-digit' });
   const setNote = (cls, txt, badge) => { const n = q('[data-f-note]'); n.className = 'f-note ' + cls; n.textContent = txt; const b = q('[data-f-badge]'); b.className = 'f-badge ' + cls; b.textContent = badge; };

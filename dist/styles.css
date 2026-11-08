@@ -1228,6 +1228,16 @@ footer.site .num{white-space:normal}
 .fmap .leaflet-control-attribution{font-size:10px;background:rgba(5,18,31,.7);color:rgba(238,242,248,.7)}.fmap .leaflet-control-attribution a{color:#f3d58a}
 .f-wait{position:absolute;inset:0;display:grid;place-items:center;color:rgba(238,242,248,.7);font-size:.95rem;padding:20px;text-align:center}
 .f-boat{position:relative}.f-boat svg{position:absolute;inset:0;width:44px;height:44px;transition:transform .6s ease}
+/* marcador del seguimiento en vivo (8 nov): disco con logo + punto exacto + nombre */
+.f-boat{overflow:visible}
+.f-boat .f-disc{position:absolute;left:2px;top:0;width:52px;height:52px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.35),0 0 0 2px rgba(255,255,255,.9);z-index:2}
+.f-boat .f-disc img{width:44px;height:44px;border-radius:50%;object-fit:contain}
+.f-boat .f-stem{position:absolute;left:27px;top:50px;width:2px;height:8px;background:#fff;z-index:1}
+.f-boat .f-dot{position:absolute;left:24px;top:58px;width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid #0b2236;z-index:2}
+.f-boat .f-pulse{left:28px;top:62px}
+.f-boat .f-hdg{position:absolute;left:0;top:-2px;width:56px;height:56px;z-index:3;pointer-events:none;transition:transform .6s ease}
+.f-boat .f-hdg::before{content:"";position:absolute;left:50%;top:-6px;margin-left:-7px;border:7px solid transparent;border-top:0;border-bottom:10px solid #f6e13c;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
+.f-boat .f-tag{position:absolute;left:28px;top:72px;transform:translateX(-50%);white-space:nowrap;background:#fff;color:#0b2236;font:700 .82rem/1 var(--f-body);padding:7px 10px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.28)}
 .f-pulse{position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;border:1.5px solid #7fe3f0;animation:fpulse 2s infinite}
 @keyframes fpulse{from{transform:scale(1);opacity:.9}to{transform:scale(2.6);opacity:0}}
 .f-badge{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--chip);color:var(--muted);white-space:nowrap}
@@ -1347,3 +1357,25 @@ body.has-trip [data-no-trip]{display:none!important}
 @media (max-width:900px){.lang-btn{height:38px;padding:0 10px;gap:6px}.lang-btn i{display:none}}
 @media (max-width:360px){.brand small{display:none}}
 @media (prefers-reduced-motion:reduce){.lang-menu{animation:none}}
+
+/* ===== Cambios de Eduardo, 8 nov ===== */
+/* portada un poco más baja: se asoma lo que sigue */
+.hero{min-height:82vh}
+@supports (min-height:100svh){.hero{min-height:82svh}}
+@media (max-width:600px){.hero{min-height:78vh}@supports (min-height:100svh){.hero{min-height:78svh}}}
+/* nombre corrido: Tu Lancha Lechería, y debajo Anzoátegui – Venezuela */
+.brand span{white-space:nowrap}
+@media (max-width:420px){.brand span{font-size:1.08rem;letter-spacing:.02em}.brand small{font-size:.54rem;letter-spacing:.12em}}
+/* cifras del hero con más contraste */
+.chip-f{background:rgba(10,16,34,.62);border-color:rgba(255,255,255,.28);box-shadow:0 12px 34px rgba(0,0,0,.28)}
+.chip-f b{color:var(--sun);text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.chip-f span{color:#fff;font-weight:600;font-size:.92rem}
+/* "Nos han reseñado" más grande y medios con enlace */
+.press-strip .press-h{font-family:var(--f-display);font-size:1.05rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--fg);flex-basis:100%;text-align:center}
+.press-strip a{font-family:var(--f-display);font-size:1.5rem;text-transform:uppercase;letter-spacing:.04em;color:var(--fg);text-decoration:none;border-bottom:2px solid transparent;transition:border-color .2s,color .2s}
+.press-strip a:hover,.press-strip a:focus-visible{color:#1e7fb8;border-bottom-color:currentColor}
+.press-strip a small{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.1em;vertical-align:middle;opacity:.7;margin-left:4px}
+.fact a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+@media (max-width:600px){.press-strip a,.press-strip strong{font-size:1.15rem}.press-strip .press-h{font-size:.95rem}}
+@media (max-width:600px){.hero .ctas .btn{white-space:normal;line-height:1.15;padding:11px 10px}}
+.topbar:not(.solid):not(.inner) .brand small{color:rgba(255,255,255,.85);text-shadow:0 1px 6px rgba(0,0,0,.45)}

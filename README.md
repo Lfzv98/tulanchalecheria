@@ -5,8 +5,8 @@ App web instalable, de diseño claro, para Tu Lancha Lechería: chárters, paseo
 Sitio: https://tulanchalecheria.vercel.app
 
 ## Secciones (cada una es su propia pantalla)
-- **Inicio:** video cinematográfico del hero (1080p, en bucle, con póster), parallax por capas, cifras (+1.200 chárters, +1.000 clientes), prensa (Guía de Valentina Quintero, IVC, Venevisión), cómo funciona, parte del mar.
-- **Flota:** catálogo con filtros por tipo, grupo, muelle y pernocta.
+- **Inicio:** video cinematográfico del hero (1080p, en bucle, con póster), parallax por capas, cifras (+1.200 chárters, +1.000 clientes), prensa con enlaces (Guía de Valentina Quintero, Viajando con BIVI en el minuto 7:30, IVC) y cómo funciona. El parte del mar se quitó a pedido de Eduardo (8 nov).
+- **Flota:** catálogo con filtros por tipo, grupo y muelle (sin pernocta desde el 8 nov).
 - **Reservar:** asistente de 4 pasos (personas, embarcación, destino y fecha, extras) con total en USD o Bs. La reserva se confirma dentro de la app: el cliente recibe su código TLL-#### y su comprobante, y con un toque se le avisa a Tu Lancha por WhatsApp. Sus reservas quedan en **Mi viaje**.
 - **Playas y rutas**, **Experiencias**, **Regalos y Club** (tarjetas de regalo y referidos), **Aliados**, **Mi viaje** (ubicación en vivo con botón de emergencia y álbum del día), **Nosotros** (teléfono, WhatsApp, indicaciones en Google Maps, preguntas), **Propietarios** (formar parte del pool).
 - **Panel privado de Eduardo:** `#capitan` o 5 toques al logo del pie. Ver la guía del dueño.
