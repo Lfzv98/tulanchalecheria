@@ -39,8 +39,8 @@ function featured() {
   const by = s => l.filter(r => stateOf(r) === s).sort((a, b) => times(a).start - times(b).start);
   return by('today')[0] || by('soon')[0] || by('album').pop() || null;
 }
-const fmtLong = d => d.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Caracas' });
-const fmtHour = d => d.toLocaleTimeString('es-VE', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Caracas' }).replace(/\s?([ap])\.?\s?m\.?/i, (_, x) => ' ' + x.toLowerCase() + 'm');
+const fmtLong = d => d.toLocaleDateString(TLL_I18N.loc(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Caracas' });
+const fmtHour = d => d.toLocaleTimeString(TLL_I18N.loc(), { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Caracas' }).replace(/\s?([ap])\.?\s?m\.?/i, (_, x) => ' ' + x.toLowerCase() + 'm');
 function left(ms) { ms = Math.max(0, ms); return { d: Math.floor(ms / DAY), h: Math.floor(ms / 36e5) % 24, m: Math.floor(ms / 6e4) % 60, s: Math.floor(ms / 1e3) % 60 }; }
 const cdHtml = ms => { const x = left(ms); return [['d', x.d, x.d === 1 ? 'día' : 'días'], ['h', x.h, 'horas'], ['m', x.m, 'min'], ['s', x.s, 'seg']].map(([k, v, l]) => `<span class="cd-u"><b data-cd="${k}">${pad(v)}</b><small>${l}</small></span>`).join('<i aria-hidden="true">:</i>'); };
 function tickCd(root, ms) { const x = left(ms); $$('[data-cd]', root).forEach(b => { const v = pad(x[b.dataset.cd]); if (b.textContent !== v) b.textContent = v; }); }
@@ -62,14 +62,14 @@ const icsEsc = s => String(s ?? '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n')
 const links = r => ({ abordo: `${SITE}/#a-bordo/${r.code}`, album: `${SITE}/#album/${r.code}` });
 function calText(r) {
   const L = links(r);
-  return `Reserva ${r.code} · ${r.boat}\nRumbo: ${r.route}\nMuelle: ${r.dock}${r.hours ? ' · ' + r.hours : ''}\n\nModo a bordo (GPS, SOS y ubicación en vivo): ${L.abordo}\nÁlbum del día (al volver): ${L.album}\n\nWhatsApp Tu Lancha: +58 414 308 3864`;
+  return TLL_I18N.tr(`Reserva ${r.code} · ${r.boat}\nRumbo: ${r.route}\nMuelle: ${r.dock}${r.hours ? ' · ' + r.hours : ''}\n\nModo a bordo (GPS, SOS y ubicación en vivo): ${L.abordo}\nÁlbum del día (al volver): ${L.album}\n\nWhatsApp Tu Lancha: +58 414 308 3864`);
 }
 function ics(r) {
   const t = times(r), L = links(r);
   const ev = ['BEGIN:VEVENT', `UID:${r.code}-${r.iso}@tulanchalecheria`, `DTSTAMP:${utc(new Date())}`, `DTSTART:${utc(t.start)}`, `DTEND:${utc(t.end)}`,
-    `SUMMARY:${icsEsc(`⛵ Paseo Tu Lancha · ${r.boat}`)}`, `LOCATION:${icsEsc(r.dock + ', Lechería, Anzoátegui')}`, `DESCRIPTION:${icsEsc(calText(r))}`, `URL:${L.abordo}`,
-    'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${icsEsc('Mañana zarpas con Tu Lancha. Revisa tu muelle y lleva protector solar.')}`, 'TRIGGER:-P1D', 'END:VALARM',
-    'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${icsEsc('Zarpas en 2 horas. Abre el modo a bordo: ' + L.abordo)}`, 'TRIGGER:-PT2H', 'END:VALARM', 'END:VEVENT'];
+    `SUMMARY:${icsEsc(TLL_I18N.tr(`⛵ Paseo Tu Lancha · ${r.boat}`))}`, `LOCATION:${icsEsc(r.dock + ', Lechería, Anzoátegui')}`, `DESCRIPTION:${icsEsc(calText(r))}`, `URL:${L.abordo}`,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${icsEsc(TLL_I18N.tr('Mañana zarpas con Tu Lancha. Revisa tu muelle y lleva protector solar.'))}`, 'TRIGGER:-P1D', 'END:VALARM',
+    'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${icsEsc(TLL_I18N.tr('Zarpas en 2 horas. Abre el modo a bordo:') + ' ' + L.abordo)}`, 'TRIGGER:-PT2H', 'END:VALARM', 'END:VEVENT'];
   return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Tu Lancha Lecheria//Reservas//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', ...ev, 'END:VCALENDAR']
     .map(l => { const out = []; while (l.length > 74) { out.push(l.slice(0, 74)); l = ' ' + l.slice(74); } out.push(l); return out.join('\r\n'); }).join('\r\n');
 }
@@ -78,15 +78,15 @@ function addToCalendar(r) {
   a.href = u; a.download = `Tu-Lancha-${r.code}.ics`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 60000);
   setPlan(r.code, { cal: true }); toast('Abre el archivo para guardarlo en tu calendario');
 }
-const gcal = r => { const t = times(r); return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('⛵ Paseo Tu Lancha · ' + r.boat)}&dates=${utc(t.start)}/${utc(t.end)}&details=${encodeURIComponent(calText(r))}&location=${encodeURIComponent(r.dock + ', Lechería, Anzoátegui')}`; };
+const gcal = r => { const t = times(r); return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(TLL_I18N.tr('⛵ Paseo Tu Lancha · ' + r.boat))}&dates=${utc(t.start)}/${utc(t.end)}&details=${encodeURIComponent(calText(r))}&location=${encodeURIComponent(r.dock + ', Lechería, Anzoátegui')}`; };
 
 /* ---------- avisos del navegador ---------- */
 const canNotify = () => 'Notification' in window;
 async function show(title, body, tag, hash) {
   if (!canNotify() || Notification.permission !== 'granted') return false;
   const o = { body, tag, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', data: { url: './' + hash } };
-  try { const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration(); if (reg) { await reg.showNotification(title, o); return true; } } catch {}
-  try { new Notification(title, o); return true; } catch { return false; }
+  try { const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration(); if (reg) { title = TLL_I18N.tr(title); o.body = TLL_I18N.tr(body); await reg.showNotification(title, o); return true; } } catch {}
+  try { new Notification(TLL_I18N.tr(title), { ...o, body: TLL_I18N.tr(body) }); return true; } catch { return false; }
 }
 // Donde exista (Chrome con Notification Triggers), los avisos quedan programados aunque la app esté cerrada
 async function scheduleTriggers(r) {
@@ -95,7 +95,7 @@ async function scheduleTriggers(r) {
     const reg = await navigator.serviceWorker.getRegistration(); if (!reg) return; const t = times(r), now = Date.now();
     const plan = [[t.start.getTime() - 2 * 36e5, 'Zarpas en 2 horas ⛵', 'Abre el modo a bordo: GPS, SOS y ubicación en vivo para tu familia.', `#a-bordo/${r.code}`, 'abordo'],
       [t.end.getTime() + 36e5, 'Tu álbum del día 📸', 'Las fotos y videos de tu paseo te esperan en la app.', `#album/${r.code}`, 'album']];
-    for (const [when, title, body, hash, k] of plan) if (when > now) await reg.showNotification(title, { body, tag: `tll-${r.code}-${k}`, icon: 'icons/icon-192.png', data: { url: './' + hash }, showTrigger: new window.TimestampTrigger(when) });
+    for (const [when, title, body, hash, k] of plan) if (when > now) await reg.showNotification(TLL_I18N.tr(title), { body: TLL_I18N.tr(body), tag: `tll-${r.code}-${k}`, icon: 'icons/icon-192.png', data: { url: './' + hash }, showTrigger: new window.TimestampTrigger(when) });
   } catch {}
 }
 /* Web Push: el aviso llega al teléfono aunque la app esté cerrada (lo envía /api/push en la fecha del paseo) */
@@ -291,6 +291,7 @@ addEventListener('hashchange', () => { route(); renderChip(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { render(); notifyDue(); } });
 setInterval(() => { renderChip(); notifyDue(); }, 60000);
 render(); notifyDue(); route();
+addEventListener('tll:lang', render);
 mine().forEach(r => { if (!r.plan || !r.plan.notify) return; scheduleTriggers(r); if (r.plan.push && stateOf(r) === 'soon') pushSub(r, false); });
 Object.assign(window.TLL, { planBlock, wirePlan, renderPlan: render, tripState: stateOf, tripTimes: times, tripIcs: ics });
 })();

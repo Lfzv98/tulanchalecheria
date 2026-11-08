@@ -1,7 +1,7 @@
 const { chromium, devices } = require('playwright');
 (async () => { const b = await chromium.launch(); let f = 0; const ok = (c, m) => { console.log((c ? '✓ ' : '✗ ') + m); if (!c) f++; };
 for (const [n, d] of [['iPhone 13', devices['iPhone 13']], ['Galaxy Fold 280', { viewport: { width: 280, height: 653 }, isMobile: true, hasTouch: true }], ['Pixel 7 apaisado', devices['Pixel 7 landscape']], ['iPad Mini', devices['iPad Mini']], ['Escritorio', { viewport: { width: 1440, height: 900 } }]]) {
-  const c = await b.newContext({ ...d, deviceScaleFactor: 1 }); const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+  const c = await b.newContext({ locale: 'es-VE', ...d, deviceScaleFactor: 1 }); const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   const reqs = []; p.on('request', r => { if (r.url().includes('/media/v/') && r.url().endsWith('.mp4')) reqs.push(r.url()); });
   const act = async h => { await h.evaluate(e => e.scrollIntoView({ block: 'center' })); await p.waitForTimeout(60); d.hasTouch ? await h.tap() : await h.click(); };
   await p.goto('http://127.0.0.1:8765/index.html#playas'); await p.waitForTimeout(800);

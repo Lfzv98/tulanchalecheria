@@ -7,7 +7,7 @@ const SHOTS = process.env.TLL_SHOTS || '';
   const b = await chromium.launch(); let f = 0, n = 0; const ok = (c, m) => { n++; console.log((c ? '✓ ' : '✗ ') + m); if (!c) f++; };
   const DEV = [['iPhone 13', devices['iPhone 13'], true], ['Pixel 7', devices['Pixel 7'], true], ['Galaxy Fold 280', { viewport: { width: 280, height: 653 }, isMobile: true, hasTouch: true }, true], ['Escritorio', { viewport: { width: 1440, height: 900 } }, false]];
   for (const [name, d, share] of DEV) {
-    const c = await b.newContext({ ...d, deviceScaleFactor: 1, acceptDownloads: true });
+    const c = await b.newContext({ locale: 'es-VE', ...d, deviceScaleFactor: 1, acceptDownloads: true });
     await c.route(/open-meteo/, r => r.fulfill({ status: 200, body: '{}' }));
     if (share) await c.addInitScript(() => { window.__shared = null; navigator.canShare = o => !!(o && o.files); navigator.share = async o => { window.__shared = { n: o.files.length, name: o.files[0].name, type: o.files[0].type, size: o.files[0].size, text: o.text }; }; });
     const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));

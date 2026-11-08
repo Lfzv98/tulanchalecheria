@@ -111,7 +111,7 @@ function openLive(code) {
     const ah = path.getPointAtLength(Math.min(L, L * p + 3)), bh = path.getPointAtLength(Math.max(0, L * p - 3));
     boat.setAttribute('transform', `translate(${pt.x} ${pt.y})`); $('.hdg', boat).setAttribute('transform', `rotate(${(Math.atan2(ah.y - bh.y, ah.x - bh.x) * 180 / Math.PI + 90).toFixed(1)})`);
     const eta = new Date(start + dur);
-    $('#lv-eta', dlg).textContent = p >= 1 ? 'Llegó' : eta.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
+    $('#lv-eta', dlg).textContent = p >= 1 ? 'Llegó' : eta.toLocaleTimeString(TLL_I18N.loc(), { hour: '2-digit', minute: '2-digit' });
     $('#lv-spd', dlg).textContent = p >= 1 ? '0 kn' : (17 + Math.round(Math.sin(Date.now() / 4000) * 3)) + ' kn';
     $('#lv-pct', dlg).textContent = Math.round(p * 100) + '%';
   };
@@ -163,13 +163,15 @@ function gpsStart() {
 function gpsStop() { if (GPS.watch !== null) navigator.geolocation.clearWatch(GPS.watch); GPS.watch = null; GPS.live = false; if (GPS.pos) GPS.msg = 'GPS en pausa'; }
 const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'hace segundos' : m < 60 ? `hace ${m} min` : `hace ${Math.round(m / 60)} h`; };
 const fmtPos = p => `${Math.abs(p.lat).toFixed(5)}° ${p.lat >= 0 ? 'N' : 'S'}, ${Math.abs(p.lng).toFixed(5)}° ${p.lng >= 0 ? 'E' : 'O'}`;
-function sosText(ctx) {
+function sosTextEs(ctx) {
   const p = GPS.pos, who = (localStorage.getItem('tll:sosname') || '').trim();
   return ['🆘 SOS · EMERGENCIA EN EL MAR', ctx.code ? `Reserva: ${ctx.code}` : '', ctx.boat ? `Embarcación: ${ctx.boat}` : '', who ? `Quien avisa: ${who}` : '',
     p ? `📍 ${fmtPos(p)} (±${Math.round(p.acc)} m)` : '📍 Ubicación no disponible: activa el GPS',
     p ? `🗺️ https://maps.google.com/?q=${p.lat.toFixed(6)},${p.lng.toFixed(6)}` : '',
-    p ? `🕒 Posición ${GPS.live ? 'en vivo' : 'guardada ' + ago(p.t)} · ${new Date(p.t).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' })}` : `🕒 ${new Date().toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' })}`,
+    p ? `🕒 Posición ${GPS.live ? 'en vivo' : 'guardada ' + ago(p.t)} · ${new Date(p.t).toLocaleTimeString(TLL_I18N.loc(), { hour: '2-digit', minute: '2-digit' })}` : `🕒 ${new Date().toLocaleTimeString(TLL_I18N.loc(), { hour: '2-digit', minute: '2-digit' })}`,
     'Necesitamos ayuda.'].filter(Boolean).join('\n');
+}
+function sosText(ctx) { return TLL_I18N.bi(sosTextEs(ctx));
 }
 const smsHref = (num, text) => `sms:${num}?&body=${encodeURIComponent(text)}`;
 function sosBlock() {
@@ -184,7 +186,7 @@ function sosBlock() {
     <div class="sos-panel" data-sos-panel hidden role="alertdialog" aria-label="Alerta SOS lista">
       <b class="sos-t">🆘 Alerta SOS lista</b>
       <p class="rating" data-sos-note></p>
-      <pre class="sos-msg" data-sos-msg></pre>
+      <pre class="sos-msg" data-sos-msg translate="no"></pre>
       <div class="sos-acts">
         <a class="btn btn-wa" data-sos-wa target="_blank" rel="noopener">Enviar por WhatsApp</a>
         <a class="btn btn-sun" data-sos-sms>Enviar SMS (sin datos)</a>
@@ -268,7 +270,7 @@ function wireSos(root, ctx, signal) {
   q('[data-sos-copy]').addEventListener('click', () => copy(sosText(ctx)), { signal });
   // Confirmación de envío: el SMS o WhatsApp se abren con el texto listo, pero el usuario debe tocar ENVIAR.
   const ack = q('[data-sos-ack]'); let pending = null, askT = 0;
-  const hhmm = () => new Date().toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
+  const hhmm = () => new Date().toLocaleTimeString(TLL_I18N.loc(), { hour: '2-digit', minute: '2-digit' });
   const app = k => k === 'sms' ? 'Mensajes' : 'WhatsApp';
   const showGo = k => { ack.hidden = false; ack.className = 'sos-ack go'; ack.innerHTML = `<b class="ack-big">Toca ENVIAR en ${app(k)} <span aria-hidden="true">↗</span></b><span>Tu alerta ya está escrita${k === 'sms' ? ' con el número de Tu Lancha' : ''}. Solo falta tocar el botón de enviar (la flecha) para que salga.</span>`; ack.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
   const showAsk = k => { ack.hidden = false; ack.className = 'sos-ack ask'; ack.innerHTML = `<b>¿Se envió tu alerta por ${k === 'sms' ? 'SMS' : 'WhatsApp'}?</b><div class="ack-row"><button class="btn btn-sun btn-sm" type="button" data-ack-yes>Sí, se envió</button><button class="btn btn-sos btn-sm" type="button" data-ack-no>No, intentar de nuevo</button></div><span>Si no sale, copia el mensaje o llama a Guardacostas.</span>`; ack.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
@@ -347,8 +349,8 @@ setInterval(() => { if (LS.s && (LS.q.length || LS.state !== 'ok')) lsFlush(); }
 async function lsShareLink() {
   if (!LS.s) return;
   const url = followUrl(LS.s.id), text = `Sigue nuestra lancha en vivo 🚤${LS.s.boat ? ' (' + LS.s.boat + ')' : ''}. Toca el enlace y verás dónde vamos en el mapa, en tiempo real:`;
-  if (navigator.share) { try { await navigator.share({ title: 'Tu Lancha en vivo', text, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
-  const a = document.createElement('a'); a.href = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+  if (navigator.share) { try { await navigator.share({ title: TLL_I18N.tr('Tu Lancha en vivo'), text: TLL_I18N.tr(text), url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  const a = document.createElement('a'); a.href = `https://wa.me/?text=${encodeURIComponent(TLL_I18N.tr(text) + ' ' + url)}`; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
 }
 function lsStart(ctx) {
   if (!LS.s) { LS.s = { id: rid(20), key: rkey(), boat: ctx.boat || '', code: ctx.code || '', started: Date.now() }; LS.q = []; LS.lastQ = null; LS.sentAt = 0; LS.state = 'wait'; }
@@ -429,7 +431,7 @@ function openFollow(id) {
   let map = null, line = null, boat = null, pts = [], lastT = 0, follow = true, timer = null, data = null, skew = 0, dist = 0;
   const icon = hdg => window.L.divIcon({ className: 'f-boat', iconSize: [44, 44], iconAnchor: [22, 22], html: `<span class="f-pulse"></span><svg viewBox="-22 -22 44 44" style="transform:rotate(${hdg || 0}deg)"><circle r="14" fill="rgba(127,227,240,.22)"/><path d="M0 -12L8 9L0 4.5L-8 9Z" fill="#fff" stroke="#0b2236" stroke-width="1.6" stroke-linejoin="round"/></svg>` });
   const bearing = (a, b) => { const r = Math.PI / 180, y = Math.sin((b.lng - a.lng) * r) * Math.cos(b.lat * r), x = Math.cos(a.lat * r) * Math.sin(b.lat * r) - Math.sin(a.lat * r) * Math.cos(b.lat * r) * Math.cos((b.lng - a.lng) * r); return (Math.atan2(y, x) / r + 360) % 360; };
-  const hm = t => new Date(t).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
+  const hm = t => new Date(t).toLocaleTimeString(TLL_I18N.loc(), { hour: '2-digit', minute: '2-digit' });
   const setNote = (cls, txt, badge) => { const n = q('[data-f-note]'); n.className = 'f-note ' + cls; n.textContent = txt; const b = q('[data-f-badge]'); b.className = 'f-badge ' + cls; b.textContent = badge; };
   const paint = () => {
     if (!data || !data.last) return;

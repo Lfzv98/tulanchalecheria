@@ -14,7 +14,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ];
   console.log('== Carga en dispositivos ==');
   for (const [n, d] of DEV) {
-    const ctx = await b.newContext({ ...d, deviceScaleFactor: 1 }); const p = await ctx.newPage(); const errs = [];
+    const ctx = await b.newContext({ locale: 'es-VE', ...d, deviceScaleFactor: 1 }); const p = await ctx.newPage(); const errs = [];
     p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(700);
     const sw = await p.evaluate(w => Math.max(document.documentElement.scrollWidth, innerWidth) - w, (d.viewport||{}).width);
@@ -27,7 +27,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
 
   console.log('== Carrusel del hero y parallax con movimiento normal ==');
   for (const [n, d] of [['iPhone', devices['iPhone 13']], ['Escritorio', { viewport: { width: 1920, height: 1080 } }]]) {
-    const cm = await b.newContext({ ...d, deviceScaleFactor: 1 }); const m = await cm.newPage();
+    const cm = await b.newContext({ locale: 'es-VE', ...d, deviceScaleFactor: 1 }); const m = await cm.newPage();
     await m.goto(URL); await m.waitForTimeout(800);
     const src = await m.evaluate(() => document.querySelector('#hero-reel .slide.on img').currentSrc.split('/').pop());
     const hi = await m.evaluate(() => { const i = document.querySelector('#hero-reel .slide.on img'); return i.naturalWidth; });
@@ -43,7 +43,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   }
 
   console.log('== Flujo cliente en móvil (iPhone) ==');
-  const ctx = await b.newContext({ ...devices['iPhone 13'], deviceScaleFactor: 1, reducedMotion: 'reduce' });
+  const ctx = await b.newContext({ locale: 'es-VE', ...devices['iPhone 13'], deviceScaleFactor: 1, reducedMotion: 'reduce' });
   const popups = [];
   await ctx.route(/wa\.me|instagram|youtube|open-meteo/, r => r.fulfill({ status: 200, body: 'ok' }));
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('popup', async pg => { popups.push(pg.url()); await pg.close().catch(() => {}); });
@@ -205,7 +205,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
 
   console.log('== Panel de Eduardo ==');
   for (const [n, d] of [['Laptop', { viewport: { width: 1366, height: 800 } }], ['Android', devices['Pixel 7']]]) {
-    const c2 = await b.newContext({ ...d, deviceScaleFactor: 1, reducedMotion: 'reduce' }); const q = await c2.newPage(); const e2 = []; q.on('pageerror', e => e2.push(e.message));
+    const c2 = await b.newContext({ locale: 'es-VE', ...d, deviceScaleFactor: 1, reducedMotion: 'reduce' }); const q = await c2.newPage(); const e2 = []; q.on('pageerror', e => e2.push(e.message));
     await q.goto(URL); await q.waitForTimeout(300);
     ok(await q.isHidden('#adm'), n + ': panel oculto por defecto');
     for (let i = 0; i < 5; i++) await q.click('#foot-logo');
