@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const WA = '584143083864';
+let WA = '584143083864';
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const wa = t => `https://wa.me/${WA}?text=${encodeURIComponent(t)}`;
@@ -39,7 +39,7 @@ const ACC = { sonido: 'Sonido (integrado o Bluetooth)', mat: 'Alfombra flotante'
    own: la lancha de Eduardo (va primero y destacada) · maxBeaches: playas por salida (lancha 3; barco, mini yate y yate 2)
    r4: hace el Rumbo 4 · late: hasta qué hora puede quedarse (20 = 8:00 pm) · hx: costo de cada hora extra
    pick: excepciones de recogida por calado ({cda: null} = no llega; {em: 0} = sin recargo) */
-const BOATS = [
+const DEF_BOATS_SRC = [
   { id: 'b0', own: true, name: 'Lancha de la casa', type: 'Lancha', ft: 32, pax: 5, kidSeat: .5, kidFee: 15, price: 350, hue: 200, dock: 0, cabin: false, rating: 5.0, trips: 0, r4: true, late: 20, hx: 40, pick: { em: 20 },
     inc: ['sonido', 'parrilla', 'snorkel', 'flot'], opt: { mat: 25, dron: 60 }, amen: ['Corneta Bose S1 Pro', 'Parrillera sin costo', 'Toldo'], desc: 'La embarcación de Tu Lancha, atendida por nuestra propia tripulación. Es la que más eligen nuestros clientes.' },
   { id: 'b1', name: 'Bravo 32', type: 'Lancha', ft: 32, pax: 10, price: 320, hue: 205, dock: 0, cabin: false, rating: 4.9, trips: 214, inc: ['sonido', 'snorkel'], opt: { parrilla: 20, mat: 25 }, amen: ['Toldo', 'Cava'], desc: 'Lancha deportiva rápida y cómoda, ideal para grupos que quieren llegar primero a la playa. Doble motor fuera de borda.' },
@@ -52,8 +52,9 @@ const BOATS = [
   { id: 'b3', name: 'Chimana 52', type: 'Yate', ft: 52, pax: 12, price: 1650, hue: 225, dock: 0, cabin: true, rating: 4.9, trips: 61, r4: true, late: 20, hx: 80, inc: ['sonido', 'mat', 'snorkel', 'paddle'], opt: { parrilla: 20, dron: 60, cam: 30 }, amen: ['Flybridge', 'Aire acondicionado', '3 camarotes', 'Generador'], desc: 'Yate con flybridge y salón climatizado. Para salidas premium, pernoctas y eventos corporativos.' },
   { id: 'b6', name: 'Borracha 45', type: 'Yate', ft: 45, pax: 12, price: 1200, hue: 235, dock: 2, cabin: true, rating: 4.8, trips: 83, inc: ['sonido', 'mat'], opt: { parrilla: 20 }, amen: ['Salón', '2 camarotes', 'Aire acondicionado', 'Plataforma de baño'], desc: 'Yate clásico de crucero con salón amplio y plataforma de baño a nivel del agua.' }
 ];
-BOATS.forEach(b => { b.pernocta = b.cabin; b.maxBeaches ??= b.type === 'Lancha' ? 3 : 2; b.opt ??= {}; b.inc ??= []; });
-const OWN = BOATS.find(b => b.own);
+const normBoat = b => { b.pernocta = b.cabin; b.maxBeaches ??= b.type === 'Lancha' ? 3 : 2; b.opt ??= {}; b.inc ??= []; b.amen ??= []; b.pick ??= {}; b.rating ??= 5; b.trips ??= 0; b.hue ??= 200; b.dock ??= 0; return b; };
+const BOATS = JSON.parse(JSON.stringify(DEF_BOATS_SRC)).map(normBoat);
+const OWN = BOATS.find(b => b.own) || BOATS[0];
 
 // Rumbos: nunca se cruzan. extra: null = recargo que se confirma por WhatsApp
 const ROUTES = [
@@ -106,6 +107,63 @@ const EXPS = [
   ['Corporativo', 'Integraciones de equipo y atención a clientes con factura.', '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/>']
 ];
 const EXTRAS = Object.entries(ACC).map(([id, name]) => ({ id, name }));
+
+/* ---------------- catálogo editable desde el panel de Eduardo ----------------
+   El panel publica en /api/admin?a=cat los datos reales (embarcaciones, fotos, rumbos, muelles, pagos, aliados).
+   Aquí se aplican sobre los datos de arriba, que quedan como respaldo. Se guarda una copia en el teléfono
+   para que la app abra al instante y luego se actualiza sola. */
+const clone = o => JSON.parse(JSON.stringify(o));
+/* cuentas para el abono: el cliente ve solo la Zelle marcada como principal (zelleOn); Eduardo la cambia desde el panel */
+const DEF_PAY = {
+  zelles: [
+    { name: 'Avantek Solutions LLC', email: 'administracion@avanteksolutions.com' },
+    { name: 'Eduardo Restrepo', email: 'eduardo.escobar@avanteksolutions.com' },
+    { name: 'Diana de Escobar', email: 'rrhh@avanteksolutions.com' },
+    { name: 'Hilda Salazar', email: 'lacati83@hotmail.com' }
+  ],
+  zelleOn: 0,
+  binance: '23928727', binanceUser: 'tradersince2016', binanceMail: 'eduardo.escobar@avanteksolutions.com',
+  binanceLink: 'https://app.binance.com/uni-qr/HvBFHrx1', binanceQR: 'icons/binance-qr.png'
+};
+const DEF = { boats: clone(DEF_BOATS_SRC), routes: clone(ROUTES), docks: clone(DOCKS), allies: clone(ALLIES), basic: clone(BASIC), special: clone(SPECIAL), wa: WA, pay: clone(DEF_PAY) };
+const normPay = p => { p = p && typeof p === 'object' ? clone(p) : {}; const o = { ...clone(DEF_PAY), ...p };
+  if (!Array.isArray(p.zelles)) { o.zelles = clone(DEF_PAY.zelles); if (p.zelle) { o.zelles.unshift({ name: p.zelleName || '', email: p.zelle }); o.zelleOn = 0; } }
+  o.zelles = o.zelles.filter(z => z && z.email); if (!(o.zelleOn >= 0 && o.zelleOn < o.zelles.length)) o.zelleOn = 0;
+  const z = o.zelles[o.zelleOn] || {}; o.zelle = z.email || ''; o.zelleName = z.name || ''; return o; };
+const CAT = { pay: {}, beachPhotos: {}, ig: 'tulanchalecheria' };
+const fill = (arr, items) => { arr.splice(0, arr.length, ...items); };
+function applyCat(c) {
+  c = c && typeof c === 'object' ? c : {};
+  const boats = (Array.isArray(c.boats) && c.boats.length ? clone(c.boats) : clone(DEF.boats)).filter(b => !b.hidden).map(normBoat);
+  if (!boats.length) boats.push(...clone(DEF.boats).map(normBoat));
+  const own = boats.find(b => b.own) || boats[0];
+  Object.keys(OWN).forEach(k => delete OWN[k]); Object.assign(OWN, own, { own: true });
+  fill(BOATS, boats.map(b => b === own ? OWN : b));
+  fill(ROUTES, Array.isArray(c.routes) && c.routes.length ? clone(c.routes) : clone(DEF.routes));
+  fill(DOCKS, Array.isArray(c.docks) && c.docks.length ? clone(c.docks) : clone(DEF.docks));
+  fill(MAIN_DOCKS, DOCKS.filter(d => !d.pickup && !d.off));
+  fill(ALLIES, Array.isArray(c.allies) && c.allies.length ? clone(c.allies) : clone(DEF.allies));
+  fill(BASIC, Array.isArray(c.basic) && c.basic.length ? c.basic.slice() : DEF.basic.slice());
+  fill(SPECIAL, Array.isArray(c.special) && c.special.length ? c.special.slice() : DEF.special.slice());
+  BOATS.forEach(b => { if (!DOCKS[b.dock] || DOCKS[b.dock].pickup) b.dock = 0; });
+  WA = /^\d{10,15}$/.test(c.wa || '') ? c.wa : DEF.wa;
+  CAT.pay = normPay(c.pay);
+  CAT.beachPhotos = c.beachPhotos && typeof c.beachPhotos === 'object' ? c.beachPhotos : {};
+  CAT.ig = c.ig || 'tulanchalecheria';
+  // textos nuevos escritos por Eduardo con su versión en inglés
+  const tr = [];
+  [...BOATS, ...ROUTES].forEach(x => { if (x.desc && x.desc_en) tr.push([x.desc, x.desc_en]); });
+  if (Array.isArray(c.tr)) c.tr.forEach(r => Array.isArray(r) && r[0] && tr.push(r));
+  if (window.TLL_I18N && TLL_I18N.add) TLL_I18N.add(tr);
+}
+applyCat(store.get('cat', null));
+const ph = (u, alt = '') => `<img class="ph" src="${esc(u)}" alt="${esc(alt)}" loading="lazy" decoding="async">`;
+// foto real de la embarcación si Eduardo la subió; si no, la ilustración
+function pic(b, kind) {
+  const P = b.photos || {}, u = P[kind] || (kind === 'exterior' ? P.drone : kind === 'drone' ? P.exterior : '');
+  return u ? ph(u, b.name) : art(kind === 'camarote' && !P.camarote ? 'camarote' : kind, b.hue, b.id);
+}
+const beachPic = (n, hue) => { const u = CAT.beachPhotos[String(n).replace(/\./g, '·')]; return u ? ph(u, n) : beachArt({ id: n, hue }); };
 const REVIEWS = [];
 const NEWS = [];
 void REVIEWS; void NEWS;
@@ -190,7 +248,7 @@ const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')
 function busyDefault(b, d) { const r = rnd(b.id + iso(d)); return r() < .22; }
 function isBusy(b, d) { const o = owner[b.id]?.busy; const k = iso(d); return o && k in o ? o[k] : busyDefault(b, d); }
 function rateOf(b) { return owner[b.id]?.rate ?? b.price; }
-function wkOf(b) { return owner[b.id]?.wk ?? 10; }
+function wkOf(b) { return owner[b.id]?.wk ?? b.wk ?? 10; }
 function priceOn(b, d) { const wkend = d && (d.getDay() === 0 || d.getDay() === 6); return rateOf(b) * (wkend ? 1 + wkOf(b) / 100 : 1); }
 function nextFree(b) { for (let i = 1; i < 60; i++) { const d = new Date(today.getTime() + i * 864e5); if (!isBusy(b, d)) return d; } }
 const fmtDay = d => d.toLocaleDateString(TLL_I18N.loc(), { weekday: 'short', day: 'numeric', month: 'short' });
@@ -246,7 +304,7 @@ const OWN_BADGE = 'Recomendación de la casa';
 function boatCard(b) {
   const nf = nextFree(b);
   return `<article class="boat${b.own ? ' own' : ''}" data-id="${b.id}">
-    <div class="shot"><span class="pic">${art('drone', b.hue, b.id)}</span>${b.own ? `<span class="badge own-badge">${OWN_BADGE}</span>` : ''}
+    <div class="shot"><span class="pic">${pic(b, 'drone')}</span>${b.own ? `<span class="badge own-badge">${OWN_BADGE}</span>` : ''}
       <div class="tabs">${VIEWS.filter(v => v[0] !== 'camarote' || b.cabin).map((v, i) => `<button type="button" data-v="${v[0]}" aria-pressed="${i === 0}">${v[1]}</button>`).join('')}</div></div>
     <div class="body">
       <div class="row"><h3>${b.name}</h3><span class="rating">${b.own ? '<b>La más vendida</b>' : `<b>${b.rating.toFixed(1)}</b> ★`}</span></div>
@@ -267,19 +325,24 @@ function renderOwnFeature() {
   const el = $('#own-feature'); if (!el || !OWN) return;
   const nf = nextFree(OWN);
   el.innerHTML = `<div class="own-card glass-card">
-    <div class="own-shot">${art('exterior', OWN.hue, OWN.id)}<span class="badge own-badge">${OWN_BADGE}</span></div>
+    <div class="own-shot">${pic(OWN, 'exterior')}<span class="badge own-badge">${OWN_BADGE}</span></div>
     <div class="own-in"><span class="eyebrow">La más vendida</span><h2>${OWN.name}</h2><p>${OWN.desc}</p>
       <div class="meta"><span class="tag">${OWN.type} · ${OWN.ft} pies</span><span class="tag">Hasta ${OWN.pax} pasajeros + capitán</span>${OWN.amen.map(a => `<span class="tag">${a}</span>`).join('')}</div>
       <p class="rating">Próxima fecha libre: <b>${nf ? fmtDay(nf) : 'consúltanos'}</b></p>
       <div class="row2"><button class="btn btn-sun" type="button" data-open="${OWN.id}">Ver disponibilidad</button><button class="btn btn-ghost" type="button" data-book="${OWN.id}">Reservar</button></div></div></div>`;
 }
-$('#f-dock').innerHTML += MAIN_DOCKS.map((d, i) => `<option value="${i}">${d.name}</option>`).join('');
+const F_DOCK0 = $('#f-dock').innerHTML;
+function renderDockOpts() {
+  $('#f-dock').innerHTML = F_DOCK0 + MAIN_DOCKS.map(d => `<option value="${DOCKS.indexOf(d)}">${esc(d.name)}</option>`).join('');
+  const pd = $('#p-dock'); if (pd) pd.innerHTML = MAIN_DOCKS.map(d => `<option>${esc(d.name)}</option>`).join('') + '<option>Otro</option>';
+}
+renderDockOpts();
 $('#filters').addEventListener('click', e => { const p = e.target.closest('.pill'); if (!p) return; $$('.pill', $('#filters')).forEach(x => x.setAttribute('aria-pressed', x === p)); filt.type = p.dataset.type; renderBoats(); });
 $('#f-pax').onchange = e => { filt.pax = +e.target.value; renderBoats(); };
 $('#f-dock').onchange = e => { filt.dock = e.target.value; renderBoats(); };
 $('#boats').addEventListener('click', e => {
   const v = e.target.closest('[data-v]');
-  if (v) { const card = v.closest('.boat'), b = BOATS.find(x => x.id === card.dataset.id); $('.pic', card).innerHTML = art(v.dataset.v, b.hue, b.id); $$('[data-v]', card).forEach(x => x.setAttribute('aria-pressed', x === v)); }
+  if (v) { const card = v.closest('.boat'), b = BOATS.find(x => x.id === card.dataset.id); $('.pic', card).innerHTML = pic(b, v.dataset.v); $$('[data-v]', card).forEach(x => x.setAttribute('aria-pressed', x === v)); }
 });
 document.addEventListener('click', e => { const o = e.target.closest('[data-open]'); if (!o || o.closest('dialog')) return; e.preventDefault(); openBoat(o.dataset.open); });
 
@@ -299,8 +362,8 @@ function openBoat(id) {
   const views = VIEWS.filter(v => v[0] !== 'camarote' || b.cabin);
   const hr = hoursFor(b, ROUTES[0], DOCKS[0]);
   dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="m-grid">
-    <div class="m-media"><div class="shot" id="m-shot">${art('drone', b.hue, b.id)}${b.own ? `<span class="badge own-badge">${OWN_BADGE}</span>` : ''}</div>
-      <div class="thumbs">${views.map((v, i) => `<button type="button" data-mv="${v[0]}" aria-pressed="${i === 0}" aria-label="${v[1]}">${art(v[0], b.hue, b.id)}</button>`).join('')}</div>
+    <div class="m-media"><div class="shot" id="m-shot">${pic(b, 'drone')}${b.own ? `<span class="badge own-badge">${OWN_BADGE}</span>` : ''}</div>
+      <div class="thumbs">${views.map((v, i) => `<button type="button" data-mv="${v[0]}" aria-pressed="${i === 0}" aria-label="${v[1]}">${pic(b, v[0])}</button>`).join('')}</div>
       <div class="links-v"><a class="btn btn-ghost on-sea btn-sm" href="https://www.youtube.com/results?search_query=tu+lancha+lecheria" target="_blank" rel="noopener">Ver video</a><a class="btn btn-ghost on-sea btn-sm" href="https://www.instagram.com/tulanchalecheria/" target="_blank" rel="noopener">Fotos en Instagram</a></div></div>
     <div class="m-body">
       <div style="display:grid;gap:6px"><span class="eyebrow">${b.type}${b.own ? ' · La más vendida' : ` · ${b.rating.toFixed(1)} ★`}</span><h2 id="m-title" style="font-size:1.8rem">${b.name}</h2><p style="color:var(--muted)">${b.desc}</p></div>
@@ -317,7 +380,7 @@ function openBoat(id) {
   dlg.onchange = null;
   dlg.onclick = e => {
     if (e.target === dlg || e.target.closest('.m-close')) return dlg.close();
-    const mv = e.target.closest('[data-mv]'); if (mv) { $('#m-shot', dlg).innerHTML = art(mv.dataset.mv, b.hue, b.id) + (b.own ? `<span class="badge own-badge">${OWN_BADGE}</span>` : ''); $$('[data-mv]', dlg).forEach(x => x.setAttribute('aria-pressed', x === mv)); }
+    const mv = e.target.closest('[data-mv]'); if (mv) { $('#m-shot', dlg).innerHTML = pic(b, mv.dataset.mv) + (b.own ? `<span class="badge own-badge">${OWN_BADGE}</span>` : ''); $$('[data-mv]', dlg).forEach(x => x.setAttribute('aria-pressed', x === mv)); }
     if (e.target.closest('#m-book')) { Q.boat = b.id; if (pick) Q.date = iso(pick); fitTo(b); dlg.close(); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(2), 0); }
   };
   upd(); dlg.showModal();
@@ -468,10 +531,13 @@ $('#b-date').onchange = e => { if (e.target.value) { Q.date = e.target.value; re
 $('#b-dock').onchange = e => { Q.dock = e.target.value; renderBuilder(); };
 
 /* ---------------- playas por rumbo ---------------- */
+function renderBeaches() {
 $('#beaches').innerHTML = `<div class="vintro">${vcard('playas', 'Conoce nuestras playas')}<div><h2>Antes de elegir</h2><p>Mira en un minuto cómo son nuestros rumbos y playas. Cada rumbo tiene su video abajo.</p></div></div>` + ROUTES.map(r => `<section class="rumbo-sec"><div class="rumbo-h"><div><span class="eyebrow">${r.name}</span><h2>${r.zone}</h2><p>${r.desc}</p></div><div class="tags rumbo-tags">${r.tags.map(t => `<span class="tag">${t}</span>`).join('')}<span class="tag">~${r.min} min en lancha</span></div></div>${VID['rumbo' + r.id.slice(1)] ? `<div class="rumbo-v">${vcard('rumbo' + r.id.slice(1), 'Video del ' + r.name)}</div>` : ''}
-  <div class="beaches">${r.beaches.map(n => `<article class="beach">${beachArt({ id: n, hue: r.hue })}<div class="in"><span class="km">${r.name.toUpperCase()}</span><h3>${esc(n)}</h3>
+  <div class="beaches">${r.beaches.map(n => `<article class="beach">${beachPic(n, r.hue)}<div class="in"><span class="km">${r.name.toUpperCase()}</span><h3>${esc(n)}</h3>
   <div class="ln"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent('Tu Lancha Lechería ' + n)}" target="_blank" rel="noopener">Video</a><a href="https://www.instagram.com/tulanchalecheria/" target="_blank" rel="noopener">Fotos</a><button type="button" data-goroute="${r.id}" data-gobeach="${esc(n)}" style="all:unset;cursor:pointer;color:var(--on-sea);font-weight:700">Ir aquí →</button></div></div></article>`).join('')}</div></section>`).join('')
   + `<div class="parks"><b>Cotización especial:</b>${SPECIAL.map(s => `<span class="tag">${s}</span>`).join('')}<a class="btn btn-wa btn-sm" href="${wa(`Hola Tu Lancha 👋 Quiero una cotización especial para ${SPECIAL.join(' / ')}.`)}" target="_blank" rel="noopener">Pedir cotización</a></div>`;
+}
+renderBeaches();
 $('#beaches').addEventListener('click', e => { const g = e.target.closest('[data-goroute]'); if (g) { Q.route = g.dataset.goroute; Q.beaches = [g.dataset.gobeach]; renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(2), 0); } });
 
 /* ---------------- experiencias: canales y pesca ---------------- */
@@ -519,10 +585,12 @@ document.addEventListener('submit', e => {
 renderCanales();
 $('#exps').innerHTML = EXPS.map(x => `<div class="exp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${x[2]}</svg></span><h3>${x[0]}</h3><p>${x[1]}</p><a href="${wa(`Hola Tu Lancha 👋 Me interesa la experiencia "${x[0]}". ¿Me dan información?`)}" target="_blank" rel="noopener">Pedir propuesta →</a></div>`).join('');
 $('#ally-videos') && ($('#ally-videos').innerHTML = vcard('mercadillo') + vcard('rincon') + vcard('comidas'));
-$('#allies').innerHTML = ALLIES.map(c => `<div class="cat"><h3>${c.cat}</h3>${c.items.map(([n, d, u, col]) => `<a class="ally" href="${u || wa(`Hola Tu Lancha 👋 Quiero agregar ${n} a mi salida.`)}" target="_blank" rel="noopener"><span class="av" style="background:${col}">${n.split(' ').map(w => w[0]).slice(0, 2).join('')}</span><div><b>${n}</b><span>${d}</span></div><span class="vip">VIP</span></a>`).join('')}</div>`).join('');
+function renderAllies() {
+$('#allies').innerHTML = ALLIES.map(c => `<div class="cat"><h3>${esc(c.cat)}</h3>${c.items.map(([n, d, u, col, logo]) => `<a class="ally" href="${esc(u || wa(`Hola Tu Lancha 👋 Quiero agregar ${n} a mi salida.`))}" target="_blank" rel="noopener"><span class="av${logo ? ' logo' : ''}" style="background:${esc(logo ? '#fff' : col || '#232843')}">${logo ? ph(logo, n) : esc(String(n).split(' ').map(w => w[0]).slice(0, 2).join(''))}</span><div><b>${esc(n)}</b><span>${esc(d)}</span></div><span class="vip">VIP</span></a>`).join('')}</div>`).join('');
+}
+renderAllies();
 
 /* ---------------- pool ---------------- */
-$('#p-dock').innerHTML = MAIN_DOCKS.map(d => `<option>${d.name}</option>`).join('') + '<option>Otro</option>';
 $('#pool-form').addEventListener('submit', e => {
   e.preventDefault();
   const v = id => $('#' + id).value.trim();
@@ -534,7 +602,8 @@ $('#pool-form').addEventListener('submit', e => {
 
 /* ---------------- portal del propietario (demo local) ---------------- */
 let ob = BOATS[0];
-$('#o-boat').innerHTML = BOATS.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+const renderOwnerOpts = () => { $('#o-boat').innerHTML = BOATS.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join(''); };
+renderOwnerOpts();
 function ownerKpis() {
   const y = today.getFullYear(), m = today.getMonth(), n = new Date(y, m + 1, 0).getDate();
   let busy = 0, inc = 0;
@@ -560,9 +629,30 @@ if ('serviceWorker' in navigator && location.protocol === 'https:' && !location.
 }
 
 renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner();
+// catálogo publicado desde el panel: si cambió, se aplica y se vuelve a pintar todo
+function refreshCatalog(c) {
+  applyCat(c);
+  if (!BOATS.some(b => b.id === Q.boat)) Q.boat = OWN.id;
+  if (!ROUTES.some(r => r.id === Q.route)) { Q.route = ROUTES[0].id; Q.beaches = []; }
+  if (!DOCKS.some(d => d.id === Q.dock)) Q.dock = DOCKS[0].id;
+  if (!BOATS.includes(ob)) ob = BOATS[0];
+  renderDockOpts(); renderOwnerOpts(); renderBeaches(); renderAllies();
+  renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner();
+  dispatchEvent(new CustomEvent('tll:cat'));
+}
+function loadCatalog() {
+  if (!/^https?:$/.test(location.protocol)) return;
+  fetch('/api/admin?a=cat', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(c => {
+    if (!c || typeof c !== 'object') return;
+    const s = JSON.stringify(c), old = JSON.stringify(store.get('cat', null) || {});
+    if (s === old) return;
+    store.set('cat', c); refreshCatalog(c);
+  }).catch(() => {});
+}
+loadCatalog();
 // al cambiar de idioma: volver a pintar lo que lleva fechas, días y montos con formato local
 addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); if (seaLast) renderSea(...seaLast); window.TLL.renderMine && window.TLL.renderMine(); });
 
-window.TLL = { renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
+window.TLL = { CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
 document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; fitTo(b); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); });
 })();
