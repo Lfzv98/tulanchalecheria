@@ -3,7 +3,7 @@
   <div class="wrap">
     <a class="brand" href="#inicio" aria-label="Tu Lancha Lechería, inicio"><img src="{{LOGO}}" alt="" width="40" height="40"><span>Tu Lancha<small>Lechería · Anzoátegui</small></span></a>
     <nav class="mainnav" aria-label="Secciones">
-      <a href="#embarcaciones" data-nav="embarcaciones">Embarcaciones</a><a href="#playas" data-nav="playas">Playas</a><a href="#experiencias" data-nav="experiencias">Experiencias</a><a href="#regalos" data-nav="regalos">Regalos y Club</a><a href="#aliados" data-nav="aliados">Aliados</a><a href="#mi-viaje" data-nav="mi-viaje">Mi viaje</a><a href="#nosotros" data-nav="nosotros">Nosotros</a>
+      <a href="#embarcaciones" data-nav="embarcaciones">Embarcaciones</a><a href="#playas" data-nav="playas">Playas</a><a href="#experiencias" data-nav="experiencias">Experiencias</a><a href="#regalos" data-nav="regalos">Regalos y Club</a><a href="#aliados" data-nav="aliados">Aliados</a><a href="#mi-viaje" data-nav="mi-viaje" data-trip-only>Mi viaje</a><a href="#nosotros" data-nav="nosotros">Nosotros</a>
     </nav>
     <div class="top-actions">
       <a class="btn btn-sun btn-sm hide-sm" href="#reservar">Reservar</a>
@@ -68,7 +68,6 @@
         <a class="tile t-playas rv d1" href="#playas"><span class="tile-ic"><svg viewBox="0 0 24 24"><path d="M2 18c3 0 3-2 6-2s3 2 6 2 3-2 6-2M12 3v9M12 3l6 4M12 3L6 7"/></svg></span><b>Playas</b><span>Cuatro rumbos por el Parque Mochima</span></a>
         <a class="tile t-exp rv d2" href="#experiencias"><span class="tile-ic"><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg></span><b>Experiencias</b><span>Canales de El Morro, pesca y celebraciones</span></a>
         <a class="tile t-reg rv" href="#regalos"><span class="tile-ic"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 12h18M12 8v13M12 8s-1-5-4-5-3 5 4 5zM12 8s1-5 4-5 3 5-4 5z"/></svg></span><b>Regalos y Club</b><span>Tarjetas de regalo y referidos</span></a>
-        <a class="tile t-viaje rv d1" href="#mi-viaje"><span class="tile-ic"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><b>Mi viaje</b><span>Ubicación en vivo y álbum</span></a>
         <a class="tile t-ali rv d2" href="#aliados"><span class="tile-ic"><svg viewBox="0 0 24 24"><path d="M7 11a4 4 0 110-8 4 4 0 010 8zM17 11a4 4 0 110-8 4 4 0 010 8zM2 21c0-3 2-5 5-5s5 2 5 5M12 21c0-3 2-5 5-5s5 2 5 5"/></svg></span><b>Aliados VIP</b><span>Comida, estilo, música, estadía</span></a>
       </div>
     </div>
@@ -195,6 +194,7 @@
 <section class="page" data-view="mi-viaje" id="mi-viaje" aria-labelledby="trip-t" hidden>
   <div class="view-hero"><div class="wrap"><span class="eyebrow">Durante y después del paseo</span><h1 id="trip-t">Mi viaje</h1><p>Con el código de tu reserva sigues la lancha en vivo y, al volver, abres el álbum del día. Prueba con el código <b class="mono">TLL-1105</b>.</p></div></div>
   <div class="band pt0"><div class="wrap">
+    <section id="trip-plan" class="trip-plan" hidden aria-label="Tu próximo paseo"></section>
     <section id="my-trips" class="my-trips" hidden aria-label="Mis reservas"></section>
     <div class="abordo-cta"><div><span class="eyebrow">Durante el paseo</span><h3>Modo a bordo: tu GPS y botón SOS</h3><p>Activa tu ubicación al zarpar. Si hay una emergencia, mantén presionado SOS 3 segundos y avisas a Tu Lancha con tus coordenadas, incluso sin datos por SMS.</p></div><button class="btn btn-sos" type="button" data-abordo-open>Abrir modo a bordo</button></div>
     <div class="trip">
@@ -292,16 +292,18 @@
       <p>Chárters y paseos en lancha, barco, mini yate y yate a Mochima y las islas desde Lechería.</p>
     </div>
     <div><h3>Contacto</h3><a href="tel:+584143083864" class="num">+58 414 308 3864</a><a href="https://wa.me/584143083864" target="_blank" rel="noopener">WhatsApp</a><a href="https://www.instagram.com/tulanchalecheria/" target="_blank" rel="noopener">Instagram @tulanchalecheria</a></div>
-    <div><h3>Explora</h3><a href="#embarcaciones">Embarcaciones</a><a href="#reservar">Reservar</a><a href="#playas">Playas</a><a href="#regalos">Regalos y Club</a><a href="#mi-viaje">Mi viaje</a></div>
+    <div><h3>Explora</h3><a href="#embarcaciones">Embarcaciones</a><a href="#reservar">Reservar</a><a href="#playas">Playas</a><a href="#regalos">Regalos y Club</a><a href="#mi-viaje" data-trip-only>Mi viaje</a></div>
     <div><h3>Empresa</h3><a href="#nosotros">Nosotros</a><a href="#aliados">Aliados</a><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Lecher%C3%ADa%2C%20Anzo%C3%A1tegui%2C%20Venezuela" target="_blank" rel="noopener">Cómo llegar</a></div>
   </div>
 </footer>
 
+<div class="trip-chip" id="trip-chip" hidden></div>
 <nav class="tabbar" aria-label="Accesos rápidos">
   <a href="#inicio" data-tab="inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Inicio</a>
   <a href="#embarcaciones" data-tab="embarcaciones"><svg viewBox="0 0 24 24"><path d="M3 17l2 3h14l2-3M5 17V9l7-5 7 5v8M12 4v13"/></svg>Lanchas</a>
   <a href="#reservar" data-tab="reservar" class="tab-main"><span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Reservar</a>
-  <a href="#mi-viaje" data-tab="mi-viaje"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Mi viaje</a>
+  <a href="#playas" data-tab="playas" data-no-trip><svg viewBox="0 0 24 24"><path d="M2 18c3 0 3-2 6-2s3 2 6 2 3-2 6-2M12 3v9M12 3l6 4M12 3L6 7"/></svg>Playas</a>
+  <a href="#mi-viaje" data-tab="mi-viaje" data-trip-only><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Mi viaje</a>
   <button type="button" data-tab="menu" id="menu-open-2" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Más</button>
 </nav>
 
@@ -309,7 +311,7 @@
   <div class="sheet-panel" role="dialog" aria-modal="true" aria-label="Menú">
     <div class="sheet-h"><b>Explora</b><button type="button" class="m-close" id="menu-close" aria-label="Cerrar menú">×</button></div>
     <div class="sheet-grid">
-      <a href="#inicio">Inicio</a><a href="#embarcaciones">Embarcaciones</a><a href="#reservar">Reservar</a><a href="#playas">Playas</a><a href="#experiencias">Experiencias</a><a href="#regalos">Regalos y Club</a><a href="#aliados">Aliados</a><a href="#mi-viaje">Mi viaje</a><a href="#nosotros">Nosotros</a>
+      <a href="#inicio">Inicio</a><a href="#embarcaciones">Embarcaciones</a><a href="#reservar">Reservar</a><a href="#playas">Playas</a><a href="#experiencias">Experiencias</a><a href="#regalos">Regalos y Club</a><a href="#aliados">Aliados</a><a href="#mi-viaje" data-trip-only>Mi viaje</a><a href="#nosotros">Nosotros</a>
     </div>
     <a class="btn btn-wa" href="https://wa.me/584143083864?text=Hola%20Tu%20Lancha%2C%20quiero%20informaci%C3%B3n%20para%20un%20ch%C3%A1rter" target="_blank" rel="noopener">Escribir por WhatsApp</a>
   </div>

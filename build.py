@@ -48,7 +48,7 @@ og.save('dist/og.jpg', quality=86, optimize=True)
 
 # ---------- página ----------
 css = open('src/styles.css').read(); body = open('src/body.html').read()
-js = '\n'.join(open(f'src/{n}.js').read() for n in ('app', 'features', 'booking', 'shell', 'admin'))
+js = '\n'.join(open(f'src/{n}.js').read() for n in ('app', 'features', 'booking', 'plan', 'shell', 'admin'))
 fonts = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
          '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap">')
 title_txt = 'Tu Lancha Lechería · Paseos en lancha y yates a Mochima'
@@ -89,6 +89,10 @@ self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.a
 self.addEventListener('fetch',e=>{const r=e.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==location.origin||u.pathname.includes('/api/')||u.pathname.includes('/media/hero')||u.pathname.includes('/media/v/'))return;
  if(r.mode==='navigate'){e.respondWith(fetch(r).then(n=>{caches.open(C).then(c=>c.put('./',n.clone()));return n}).catch(()=>caches.match('./')));return}
  e.respondWith(caches.match(r).then(h=>{const f=fetch(r).then(n=>{if(n.ok)caches.open(C).then(c=>c.put(r,n.clone()));return n}).catch(()=>h);return h||f}))});
+self.addEventListener('push',e=>{let d={};try{d=e.data.json()}catch{d={title:'Tu Lancha Lechería',body:e.data?e.data.text():''}}
+ e.waitUntil(self.registration.showNotification(d.title||'Tu Lancha Lechería',{body:d.body||'',tag:d.tag,icon:'icons/icon-192.png',badge:'icons/icon-192.png',data:{url:d.url||'./'}}))});
+self.addEventListener('notificationclick',e=>{e.notification.close();const u=new URL((e.notification.data&&e.notification.data.url)||'./',self.registration.scope).href;
+ e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(l=>{for(const w of l){if('focus' in w)return w.navigate(u).then(x=>(x||w).focus()).catch(()=>w.focus())}return clients.openWindow(u)}))});
 ''')
 open('dist/robots.txt', 'w').write(f'User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n')
 open('dist/sitemap.xml', 'w').write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>{SITE}/</loc><changefreq>weekly</changefreq></url></urlset>\n')

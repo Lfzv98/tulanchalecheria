@@ -1241,3 +1241,77 @@ footer.site .num{white-space:normal}
 .sos-dial .btn.off{opacity:.6}
 
 @media (max-width:899px){.fmap{height:min(48vh,420px);min-height:260px}}
+
+/* ---------------- tu día en el mar: modo a bordo y álbum programados ---------------- */
+body:not(.has-trip) [data-trip-only]{display:none!important}
+body.has-trip [data-no-trip]{display:none!important}
+.pl-box{--gold:#d6b66e;margin:6px 0 4px;display:grid;gap:14px;padding:20px;border-radius:22px;background:radial-gradient(120% 90% at 100% 0%,rgba(134,205,228,.22),transparent 55%),linear-gradient(160deg,#1b2147,#11152d 70%);color:var(--on-sea);border:1px solid rgba(214,182,110,.35);box-shadow:0 22px 50px -30px rgba(10,14,36,.9);text-align:left;position:relative;overflow:hidden}
+.pl-box::after{content:"";position:absolute;inset:auto -40px -60px auto;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(246,225,60,.12),transparent 70%);pointer-events:none}
+.pl-box.pop{animation:plpop .7s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes plpop{0%{transform:scale(.98)}50%{transform:scale(1.015)}100%{transform:none}}
+.pl-h{display:grid;gap:4px}.pl-h .eyebrow{color:var(--gold)}
+.pl-h b{font-family:var(--f-display);font-size:1.45rem;text-transform:uppercase;line-height:1}
+.pl-h p{margin:0;color:var(--on-sea-muted);font-size:.9rem}
+.pl-opts{display:grid;gap:10px}
+.pl-opt{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:background .2s,border-color .2s}
+.pl-opt:has(input:checked){background:rgba(255,255,255,.1);border-color:rgba(214,182,110,.45)}
+.pl-opt input{position:absolute;opacity:0;pointer-events:none}
+.pl-opt:has(input:focus-visible){outline:2px solid var(--sun);outline-offset:2px}
+.pl-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center}
+.pl-ic svg,.tp-dot svg,.tc-ic svg,.pl-acts svg,.tp-acts svg,.pl-note svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.pl-ic.sos{background:rgba(255,99,99,.16);color:#ff8f8f}.pl-ic.al{background:rgba(134,205,228,.16);color:var(--reef)}
+.pl-tx{display:grid;gap:2px}.pl-tx b{font-size:1rem}.pl-tx small{color:var(--on-sea-muted);font-size:.8rem;line-height:1.35}
+.pl-sw{width:44px;height:26px;border-radius:99px;background:rgba(255,255,255,.18);position:relative;transition:background .2s;flex:none}
+.pl-sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .22s cubic-bezier(.3,1.4,.5,1);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.pl-opt input:checked ~ .pl-sw{background:#3ccf7a}.pl-opt input:checked ~ .pl-sw::after{transform:translateX(18px)}
+.pl-cd{display:grid;gap:6px;justify-items:center;padding:12px 8px;border-radius:16px;background:rgba(0,0,0,.18)}
+.pl-cd-l,.tp-cd-l{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold,#d6b66e)}
+.cd{display:flex;align-items:flex-start;gap:6px;justify-content:center}
+.cd i{font-style:normal;font-family:var(--f-display);font-size:1.6rem;line-height:1;color:rgba(255,255,255,.35)}
+.cd-u{display:grid;justify-items:center;min-width:52px}
+.cd-u b{font-family:var(--f-display);font-size:2rem;line-height:1;font-variant-numeric:tabular-nums;color:#fff}
+.cd-u small{font-size:.66rem;color:var(--on-sea-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.cd.big .cd-u{min-width:64px}.cd.big .cd-u b{font-size:clamp(2.4rem,9vw,3.4rem)}.cd.big i{font-size:2.4rem}
+.pl-acts{display:grid;gap:10px}
+.pl-acts .pl-go{width:100%;display:inline-flex;gap:8px;justify-content:center;align-items:center}
+.pl-box.on .pl-go{background:#3ccf7a;border-color:#3ccf7a;color:#0d2a1a}
+.pl-cal{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pl-cal .btn{color:var(--on-sea);border-color:rgba(255,255,255,.25);display:inline-flex;gap:6px;justify-content:center;align-items:center;width:100%}
+@media (hover:hover){.pl-cal .btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.45)}}
+.pl-note{margin:0;font-size:.8rem;color:var(--on-sea-muted);display:flex;gap:6px;align-items:flex-start;line-height:1.4}
+.pl-note svg{width:16px;height:16px;flex:none;margin-top:1px;color:var(--sun)}
+/* tarjeta "Tu próximo paseo" en Mi viaje */
+.trip-plan{margin-bottom:18px}
+.tp-card{display:grid;gap:14px;padding:clamp(20px,4vw,30px);border-radius:26px;color:var(--on-sea);background:radial-gradient(90% 120% at 100% 0%,rgba(134,205,228,.25),transparent 55%),radial-gradient(70% 90% at 0% 100%,rgba(240,154,94,.18),transparent 60%),linear-gradient(150deg,#1d2350,#11152d);border:1px solid rgba(214,182,110,.35);box-shadow:0 30px 60px -36px rgba(10,14,36,.9);position:relative;overflow:hidden}
+.tp-today .tp-card{background:radial-gradient(90% 120% at 100% 0%,rgba(255,99,99,.25),transparent 55%),linear-gradient(150deg,#2a1d3f,#11152d)}
+.tp-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.tp-top > div{display:grid;gap:4px}.tp-top .eyebrow{color:#d6b66e}
+.tp-top h2{font-size:clamp(1.8rem,6vw,2.6rem);color:#fff}
+.tp-meta{color:var(--on-sea-muted);font-size:.9rem}.tp-meta::first-letter{text-transform:uppercase}
+.tp-code{font-size:.78rem;padding:5px 10px;border-radius:99px;border:1px solid rgba(214,182,110,.5);color:#f3d58a;white-space:nowrap}
+.tp-card .cd{justify-content:flex-start}
+.tp-live{margin:0;display:flex;gap:10px;align-items:center;font-weight:600}
+.tp-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:relative}
+.tp-steps li{display:grid;gap:8px;align-content:start;padding:12px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+.tp-steps li b{font-size:.92rem}.tp-steps li small{display:block;color:var(--on-sea-muted);font-size:.76rem;line-height:1.35}
+.tp-dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1);color:var(--on-sea-muted)}
+.tp-dot svg{width:16px;height:16px}
+.tp-steps li.now{border-color:rgba(246,225,60,.55);background:rgba(246,225,60,.08)}.tp-steps li.now .tp-dot{background:var(--sun);color:#151a33}
+.tp-steps li.done .tp-dot{background:#3ccf7a;color:#0d2a1a}
+.tp-acts{display:flex;flex-wrap:wrap;gap:10px}
+.tp-acts .btn{display:inline-flex;gap:8px;align-items:center}
+.tp-acts .btn-lg{flex:1 1 260px;justify-content:center}
+.btn-ghost-l{background:transparent;color:var(--on-sea);border:1px solid rgba(255,255,255,.28)}
+@media (hover:hover){.btn-ghost-l:hover{background:rgba(255,255,255,.08)}}
+@media (max-width:560px){.tp-steps{grid-template-columns:1fr}.tp-steps li{grid-template-columns:auto 1fr;align-items:center}.cd-u{min-width:44px}.cd.big .cd-u{min-width:54px}}
+/* aviso flotante (día del paseo, cuenta regresiva y álbum) */
+.trip-chip{position:fixed;z-index:73;left:max(24px,env(safe-area-inset-left,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:2px;padding:6px 6px 6px 8px;border-radius:999px;background:linear-gradient(135deg,#1d2350,#11152d);color:#fff;border:1px solid rgba(214,182,110,.45);box-shadow:0 18px 40px -16px rgba(10,14,36,.75);animation:tcin .5s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes tcin{from{transform:translateY(20px);opacity:0}}
+.tc-go{all:unset;cursor:pointer;display:flex;gap:10px;align-items:center;padding-right:6px}
+.tc-go:focus-visible,.tc-x:focus-visible{outline:2px solid var(--sun);outline-offset:2px;border-radius:99px}
+.tc-ic{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--sun);color:#151a33;flex:none}
+.tc-today .tc-ic{background:#d93636;color:#fff;box-shadow:0 0 0 0 rgba(217,54,54,.6);animation:pulse 1.6s infinite}
+.tc-tx{display:grid;line-height:1.15}.tc-tx b{font-size:.92rem}.tc-tx small{font-size:.76rem;color:var(--on-sea-muted)}
+.tc-x{all:unset;cursor:pointer;width:30px;height:30px;display:grid;place-items:center;border-radius:50%;color:var(--on-sea-muted);font-size:1.2rem}
+@media (max-width:900px){.trip-chip{left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));border-radius:18px;justify-content:space-between}.has-chip .install{bottom:calc(144px + env(safe-area-inset-bottom,0px))}}
+@media (prefers-reduced-motion:reduce){.trip-chip,.pl-box.pop{animation:none}.tc-today .tc-ic{animation:none}}

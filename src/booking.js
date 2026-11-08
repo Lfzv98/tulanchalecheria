@@ -111,9 +111,11 @@ function showDone(r) {
     <div class="bk-pdf" id="bk-pdf"><div class="bk-pdf-doc" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/><path d="M9 13h7M9 17h5"/></svg></div>
       <div class="bk-pdf-t"><b>Comprobante de reserva</b><span id="bk-pdf-st">Preparando tu PDF…</span></div>
       <div class="bk-pdf-acts">${canShareFiles() ? '<button class="btn btn-wa btn-sm" type="button" id="bk-pdf-share">Enviar PDF por WhatsApp</button>' : ''}<button class="btn btn-ghost btn-sm" type="button" id="bk-pdf-dl">Descargar PDF</button></div></div>
+    ${window.TLL.planBlock ? window.TLL.planBlock(r) : ''}
     <a class="btn btn-ghost" href="#mi-viaje" id="bk-trip">Ver en Mi viaje</a>
   </div>`;
   closeOn(dlg);
+  window.TLL.wirePlan && window.TLL.wirePlan(dlg);
   $('#bk-send', dlg).addEventListener('click', () => { markSent(r.code); $('#bk-li-send', dlg).className = 'ok'; $('#bk-send', dlg).textContent = 'Volver a enviar a Tu Lancha'; });
   $('#bk-trip', dlg).addEventListener('click', () => dlg.close());
   // el PDF se prepara apenas se abre esta pantalla, así el toque de "Enviar" conserva el gesto del usuario
@@ -138,13 +140,14 @@ function renderMine() {
   const box = $('#my-trips'); if (!box) return;
   const l = mine();
   box.hidden = !l.length;
-  if (!l.length) { box.innerHTML = ''; return; }
+  if (!l.length) { box.innerHTML = ''; window.TLL.renderPlan && window.TLL.renderPlan(); return; }
   ['#code-live', '#code-album'].forEach(s => { const i = $(s); if (i) i.value = l[0].code; });
   box.innerHTML = `<div class="head"><h2>Mis reservas</h2></div><div class="mytrips">${l.map(r => `<article class="mytrip glass-card">
     <div class="mt-top"><span class="mono mt-code">${r.code}</span><span class="mt-st ${r.sent ? 'ok' : 'warn'}">${r.sent ? 'Enviada a Tu Lancha' : 'Falta avisar'}</span></div>
     <b>${esc(r.boat)}</b><span>${esc(r.date)} · ${r.pax} personas · ${esc(r.route)}</span><strong>${money(r.total)}</strong>
     <div class="row2"><button class="btn btn-sm ${r.sent ? 'btn-ghost' : 'btn-wa'}" type="button" data-mt-open="${r.code}">${r.sent ? 'Ver comprobante' : 'Avisar a Tu Lancha'}</button><button class="btn btn-ghost btn-sm" type="button" data-mt-live="${r.code}">Ver en vivo</button></div>
   </article>`).join('')}</div>`;
+  window.TLL.renderPlan && window.TLL.renderPlan();
 }
 document.addEventListener('click', e => {
   if (e.target.closest('#t-book,#mb-book')) { e.preventDefault(); openBooking(); return; }

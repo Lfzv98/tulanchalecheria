@@ -55,5 +55,15 @@
     }
    ]
   }
+ ],
+ "crons": [
+  {
+   "path": "/api/push?cron=am",
+   "schedule": "0 10 * * *"
+  },
+  {
+   "path": "/api/push?cron=pm",
+   "schedule": "0 23 * * *"
+  }
  ]
 }

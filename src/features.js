@@ -522,7 +522,7 @@ function openAlbum(code) {
   dlg.onchange = null;
   dlg.showModal();
 }
-$('#dlg').addEventListener('close', () => { clearInterval(liveTimer); $('#dlg').className = ''; if (['#viaje', '#album', '#a-bordo'].includes(location.hash) || location.hash.startsWith('#sigue/')) history.replaceState(null, '', '#mi-viaje'); window.dispatchEvent(new HashChangeEvent('hashchange')); });
+$('#dlg').addEventListener('close', () => { clearInterval(liveTimer); $('#dlg').className = ''; if (['#viaje', '#album', '#a-bordo'].includes(location.hash) || /^#(sigue|a-bordo|album)\//.test(location.hash)) history.replaceState(null, '', '#mi-viaje'); window.dispatchEvent(new HashChangeEvent('hashchange')); });
 $$('.trip-code').forEach(f => f.addEventListener('submit', e => {
   e.preventDefault(); const c = $('input', f).value.trim().toUpperCase();
   if (!validTrip(c)) { toast('Escribe el código que te enviamos, por ejemplo TLL-1105'); return; }
@@ -530,6 +530,7 @@ $$('.trip-code').forEach(f => f.addEventListener('submit', e => {
 }));
 function route() { if (location.hash === '#viaje') openLive('TLL-1105'); if (location.hash === '#album') openAlbum('TLL-1105'); if (location.hash === '#a-bordo' && !$('#dlg').open) openAbordo(''); const f = location.hash.match(/^#sigue\/([a-z2-9]{20})$/); if (f && !$('#dlg.follow-dlg[open]')) openFollow(f[1]); }
 addEventListener('hashchange', route); route();
+Object.assign(window.TLL, { openAbordo, openAlbum });
 
 /* ---------------- tarjetas de regalo ---------------- */
 const OCC = ['Cumpleaños', 'Aniversario', 'Día de las Madres', 'Día del Padre', 'Graduación', 'Porque sí'];
