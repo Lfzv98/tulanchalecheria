@@ -37,6 +37,15 @@ const SHOTS = process.env.TLL_SHOTS || '';
     const fit = await p.evaluate(() => { const d = document.querySelector('#dlg'); return d.scrollWidth <= d.clientWidth + 1 && [...d.querySelectorAll('.sos-acts .btn')].every(x => x.getBoundingClientRect().right <= innerWidth + 1); });
     ok(fit, `${name}: la alerta cabe en la pantalla sin desborde`);
     if (SHOTS) await p.screenshot({ path: `${SHOTS}/sos-${name.replace(/\W+/g, '')}.png` });
+    // SMS: indicación de tocar ENVIAR y confirmación al volver
+    await p.evaluate(() => document.addEventListener('click', e => { if (e.target.closest('a[href^="sms:"],a[href*="wa.me"]')) e.preventDefault(); }));
+    await p.click('#dlg [data-sos-sms]'); await p.waitForTimeout(200);
+    ok((await p.textContent('#dlg [data-sos-ack]')).includes('Toca ENVIAR en Mensajes'), `${name}: al tocar SMS indica en grande que falta tocar ENVIAR`);
+    await p.waitForTimeout(6300);
+    ok(await p.isVisible('#dlg [data-ack-yes]') && await p.isVisible('#dlg [data-ack-no]'), `${name}: al volver pregunta si se envió, con opción de reintentar`);
+    await p.click('#dlg [data-ack-no]'); await p.waitForTimeout(150); ok((await p.textContent('#dlg [data-sos-ack]')).includes('Toca ENVIAR'), `${name}: reintentar vuelve a abrir Mensajes`);
+    await p.waitForTimeout(6300); await p.click('#dlg [data-ack-yes]');
+    ok((await p.textContent('#dlg [data-sos-ack]')).includes('Alerta enviada por SMS'), `${name}: confirma la alerta enviada con la hora`);
     // sin datos
     await c.setOffline(true); await p.evaluate(() => dispatchEvent(new Event('offline'))); await p.waitForTimeout(200);
     ok((await p.textContent('#dlg [data-net]')).includes('Sin datos'), `${name}: sin datos se indica en rojo`);

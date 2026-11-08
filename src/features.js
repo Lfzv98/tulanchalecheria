@@ -18,26 +18,74 @@ const PLACES = {
   maritas: [520, 330, 'Las Maritas'], colorada: [740, 300, 'Playa Colorada'], mochima: [770, 240, 'Mochima']
 };
 const ROUTE_PLACE = { r1: 'chimana', r2: 'plata', r3: 'arapo', r4: 'mochima' };
+// Carta náutica nocturna (esquemática, no apta para navegación): costas irregulares, bajos turquesa,
+// isobatas, sondas, cuadrícula dorada, rosa de los vientos y ruta luminosa.
+let mapN = 0;
 function mapSvg(dest, withBoat = true) {
-  const [tx, ty] = PLACES[dest];
-  const isl = (x, y, rx, ry, rot = 0) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${x} ${y})" fill="#e8dcae" stroke="#cdbb7d" stroke-width="2"/><ellipse cx="${x}" cy="${y}" rx="${rx * .7}" ry="${ry * .6}" transform="rotate(${rot} ${x} ${y})" fill="#7fa86a"/>`;
-  return `<svg viewBox="0 0 800 460" role="img" aria-label="Mapa de la ruta desde El Morro hasta ${PLACES[dest][2]}">
-  <defs><pattern id="mgrid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#a9d3e2" stroke-width="1"/></pattern></defs>
-  <rect width="800" height="460" fill="#bfe3ef"/><rect width="800" height="460" fill="url(#mgrid)"/>
-  <path d="M0 360 Q60 340 110 345 Q150 352 170 380 Q240 420 330 400 Q420 385 470 410 L470 460 L0 460Z" fill="#efe4bf" stroke="#cdbb7d" stroke-width="2"/>
-  <path d="M0 375 Q60 360 105 365 Q140 372 160 395 Q240 440 330 425 Q420 410 470 430 L470 460 L0 460Z" fill="#9cc08a"/>
-  <path d="M560 460 Q600 360 700 330 Q760 300 800 290 L800 460Z" fill="#9cc08a" stroke="#cdbb7d" stroke-width="2"/>
-  ${isl(612, 250, 34, 20, -10)}${isl(430, 300, 40, 22, 15)}${isl(372, 150, 46, 30, -20)}${isl(690, 190, 22, 14)}${isl(360, 345, 18, 10)}${isl(520, 330, 24, 12)}${isl(250, 220, 26, 16, 10)}
-  <path id="route" d="M118 330 C ${(118 + tx) / 2} ${Math.min(330, ty) - 70}, ${tx - 60} ${ty + 40}, ${tx} ${ty}" fill="none" stroke="#232843" stroke-width="3" stroke-dasharray="8 7"/>
-  <circle cx="118" cy="330" r="8" fill="#232843"/><circle cx="${tx}" cy="${ty}" r="9" fill="#f6e13c" stroke="#232843" stroke-width="3"/>
-  ${Object.entries(PLACES).map(([k, [x, y, n]]) => `<text x="${x}" y="${y + (k === 'morro' ? 26 : -16)}" text-anchor="middle" font-family="Figtree, sans-serif" font-size="${k === dest || k === 'morro' ? 15 : 12}" font-weight="${k === dest || k === 'morro' ? 700 : 500}" fill="#232843">${n}</text>`).join('')}
-  <g font-family="JetBrains Mono, monospace" font-size="11" fill="#3b6f86"><text x="16" y="24">10°15′N</text><text x="16" y="440">64°40′O</text></g>
-  <g transform="translate(750 60)"><circle r="22" fill="#fff" opacity=".7"/><path d="M0 -16 L6 0 L0 16 L-6 0Z" fill="#232843"/><text y="-26" text-anchor="middle" font-family="Figtree" font-weight="700" font-size="13" fill="#232843">N</text></g>
-  ${withBoat ? '<g id="boat"><circle r="16" fill="#86cde4" opacity=".45"><animate attributeName="r" values="12;22;12" dur="2s" repeatCount="indefinite"/></circle><circle r="9" fill="#232843" stroke="#fff" stroke-width="3"/></g>' : ''}
+  const [tx, ty] = PLACES[dest], u = 'm' + (++mapN);
+  const R = rnd('carta-mochima');
+  // contorno irregular suavizado (Catmull-Rom → Bézier)
+  const blob = (x, y, rx, ry, rot, seed, k = 1, n = 26) => {
+    const r = rnd(seed), a0 = rot * Math.PI / 180, noise = Array.from({ length: n }, () => .82 + r() * .32);
+    const pts = noise.map((m, i) => { const t = i / n * Math.PI * 2, px = Math.cos(t) * rx * m * k, py = Math.sin(t) * ry * m * k; return [x + px * Math.cos(a0) - py * Math.sin(a0), y + px * Math.sin(a0) + py * Math.cos(a0)]; });
+    let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+    for (let i = 0; i < n; i++) { const p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
+      d += `C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(1)} ${(p1[1] + (p2[1] - p0[1]) / 6).toFixed(1)},${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(1)} ${(p2[1] - (p3[1] - p1[1]) / 6).toFixed(1)},${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`; }
+    return d + 'Z';
+  };
+  const ISL = [[612, 250, 34, 20, -10, 'plata'], [430, 300, 40, 22, 15, 'chimana'], [372, 150, 46, 30, -20, 'borracha'], [690, 190, 22, 14, 0, 'arapo'], [360, 345, 18, 10, 0, 'puinare'], [520, 330, 24, 12, 0, 'maritas'], [250, 220, 26, 16, 10, 'otra']];
+  const island = ([x, y, rx, ry, rot, s]) => `
+    <path d="${blob(x, y, rx, ry, rot, s, 2.5)}" fill="none" stroke="rgba(126,206,232,.10)" stroke-width="1"/>
+    <path d="${blob(x, y, rx, ry, rot, s, 1.9)}" fill="none" stroke="rgba(126,206,232,.16)" stroke-width="1" stroke-dasharray="2 4"/>
+    <path d="${blob(x, y, rx, ry, rot, s, 1.45)}" fill="url(#${u}sh)" filter="url(#${u}soft)"/>
+    <path d="${blob(x, y, rx, ry, rot, s, 1.08)}" fill="#cdb98a" opacity=".9"/>
+    <path d="${blob(x, y, rx, ry, rot, s, .96)}" fill="url(#${u}land)"/>
+    <path d="${blob(x - rx * .12, y - ry * .18, rx * .5, ry * .45, rot, s + 'h', 1)}" fill="rgba(255,255,255,.07)"/>`;
+  // costa continental con ruido
+  const coast = (pts, close) => { const r = rnd(close); return pts.map(([x, y], i) => `${i ? 'L' : 'M'}${(x + (r() - .5) * 6).toFixed(1)} ${(y + (r() - .5) * 6).toFixed(1)}`).join('') + close; };
+  const west = [[0, 352], [30, 346], [60, 340], [90, 342], [112, 346], [138, 356], [160, 372], [190, 392], [230, 402], [270, 404], [310, 398], [350, 392], [390, 394], [430, 402], [470, 412], [500, 460], [0, 460]];
+  const east = [[560, 460], [575, 420], [600, 382], [640, 356], [680, 338], [720, 322], [760, 304], [800, 292], [800, 460]];
+  const soundings = Array.from({ length: 26 }, () => { const x = 30 + R() * 740, y = 30 + R() * 300; return `<text x="${x.toFixed(0)}" y="${y.toFixed(0)}">${Math.round(8 + R() * 60)}</text>`; }).join('');
+  const label = (k, [x, y, n]) => { const on = k === dest || k === 'morro'; return `<text x="${x}" y="${y + (k === 'morro' ? 30 : -18)}" text-anchor="middle" class="${on ? 'on' : ''}">${n.toUpperCase()}</text>`; };
+  return `<svg viewBox="0 0 800 460" role="img" aria-label="Carta de la ruta desde El Morro hasta ${PLACES[dest][2]}" class="nchart">
+  <defs>
+    <radialGradient id="${u}sea" cx="55%" cy="40%" r="75%"><stop offset="0" stop-color="#0f3550"/><stop offset=".55" stop-color="#0a2539"/><stop offset="1" stop-color="#05121f"/></radialGradient>
+    <radialGradient id="${u}sh"><stop offset=".55" stop-color="rgba(60,214,214,.55)"/><stop offset="1" stop-color="rgba(40,170,200,0)"/></radialGradient>
+    <radialGradient id="${u}land" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#5d7f4f"/><stop offset=".6" stop-color="#3a5a3b"/><stop offset="1" stop-color="#26402c"/></radialGradient>
+    <linearGradient id="${u}main" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4c6d45"/><stop offset="1" stop-color="#22382a"/></linearGradient>
+    <linearGradient id="${u}rt" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f3d58a"/><stop offset="1" stop-color="#ffffff"/></linearGradient>
+    <filter id="${u}soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+    <filter id="${u}glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <pattern id="${u}grid" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M80 0H0V80" fill="none" stroke="rgba(214,182,110,.13)" stroke-width="1"/><path d="M40 0V80M0 40H80" fill="none" stroke="rgba(214,182,110,.05)" stroke-width="1"/></pattern>
+    <radialGradient id="${u}vig" cx="50%" cy="50%" r="70%"><stop offset=".6" stop-color="rgba(0,0,0,0)"/><stop offset="1" stop-color="rgba(0,6,14,.55)"/></radialGradient>
+  </defs>
+  <rect width="800" height="460" fill="url(#${u}sea)"/>
+  <rect width="800" height="460" fill="url(#${u}grid)"/>
+  <g font-family="JetBrains Mono, monospace" font-size="9" fill="rgba(170,215,235,.28)">${soundings}</g>
+  <path d="${coast(west.map(([x, y]) => [x, y - 22]), 'Z')}" fill="none" stroke="rgba(126,206,232,.12)" stroke-dasharray="2 4"/>
+  <path d="${coast(west.map(([x, y]) => [x, y - 9]), 'Z')}" fill="rgba(60,214,214,.16)" filter="url(#${u}soft)"/>
+  <path d="${coast(west, 'Z')}" fill="#cdb98a" opacity=".85"/><path d="${coast(west.map(([x, y]) => [x, y + 7]), 'Z')}" fill="url(#${u}main)"/>
+  <path d="${coast(east.map(([x, y]) => [x - 8, y - 14]), 'Z')}" fill="rgba(60,214,214,.16)" filter="url(#${u}soft)"/>
+  <path d="${coast(east, 'Z')}" fill="#cdb98a" opacity=".85"/><path d="${coast(east.map(([x, y]) => [x + 6, y + 7]), 'Z')}" fill="url(#${u}main)"/>
+  ${ISL.map(island).join('')}
+  <path d="M118 330 C ${(118 + tx) / 2} ${Math.min(330, ty) - 70}, ${tx - 60} ${ty + 40}, ${tx} ${ty}" fill="none" stroke="rgba(243,213,138,.25)" stroke-width="9" stroke-linecap="round"/>
+  <path id="route" d="M118 330 C ${(118 + tx) / 2} ${Math.min(330, ty) - 70}, ${tx - 60} ${ty + 40}, ${tx} ${ty}" fill="none" stroke="url(#${u}rt)" stroke-width="2.5" stroke-dasharray="1 7" stroke-linecap="round" filter="url(#${u}glow)"/>
+  <g transform="translate(118 330)"><circle r="11" fill="none" stroke="rgba(255,255,255,.5)"/><circle r="5" fill="#fff"/></g>
+  <g transform="translate(${tx} ${ty})"><circle r="8" fill="none" stroke="#f3d58a" stroke-width="1.5"><animate attributeName="r" values="8;22" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="2.4s" repeatCount="indefinite"/></circle><path d="M0 -9L9 0L0 9L-9 0Z" fill="#f3d58a" stroke="#1b1405" stroke-width="1.5"/></g>
+  <g font-family="Figtree, sans-serif" font-size="10.5" font-weight="600" letter-spacing="1.6" fill="rgba(235,242,248,.72)" class="nlab">${Object.entries(PLACES).map(([k, p]) => label(k, p)).join('')}</g>
+  <g font-family="JetBrains Mono, monospace" font-size="10" fill="rgba(214,182,110,.75)" letter-spacing="1"><text x="14" y="22">10°15′N</text><text x="14" y="102">10°12′N</text><text x="88" y="448">64°40′O</text><text x="408" y="448">64°32′O</text></g>
+  <g transform="translate(742 62)" fill="none" stroke="rgba(214,182,110,.8)">
+    <circle r="30" stroke-width="1"/><circle r="24" stroke-width=".6" stroke-dasharray="1.5 3"/>
+    <path d="M0 -28L5 0L0 28L-5 0Z" fill="rgba(214,182,110,.18)"/><path d="M0 -28L5 0H-5Z" fill="#d6b66e" stroke="none"/><path d="M-28 0L0 4L28 0L0 -4Z" fill="rgba(214,182,110,.12)"/>
+    <text y="-36" text-anchor="middle" font-family="Figtree" font-weight="700" font-size="11" fill="#d6b66e" stroke="none">N</text>
+  </g>
+  <g font-family="JetBrains Mono, monospace" font-size="9" fill="rgba(214,182,110,.6)" letter-spacing="1"><line x1="610" y1="436" x2="690" y2="436" stroke="rgba(214,182,110,.6)"/><line x1="610" y1="432" x2="610" y2="440" stroke="rgba(214,182,110,.6)"/><line x1="690" y1="432" x2="690" y2="440" stroke="rgba(214,182,110,.6)"/><text x="650" y="428" text-anchor="middle">2 MN</text></g>
+  <rect width="800" height="460" fill="url(#${u}vig)" pointer-events="none"/>
+  ${withBoat ? `<g id="boat"><circle r="10" fill="none" stroke="#7fe3f0" stroke-width="1.5"><animate attributeName="r" values="10;26" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="2s" repeatCount="indefinite"/></circle><circle r="13" fill="rgba(127,227,240,.18)"/><g class="hdg"><path d="M0 -11L7 8L0 4L-7 8Z" fill="#fff" stroke="#0b2236" stroke-width="1.5" stroke-linejoin="round"/></g></g>` : ''}
   </svg>`;
 }
 $('#trip-map-thumb').innerHTML = mapSvg('plata', false).replace('<svg', '<svg preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"');
-$('#trip-album-thumb').innerHTML = art('exterior', 195, 'album-thumb');
+$('#trip-album-thumb').innerHTML = '<img src="media/hero-mochima-land.webp" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:55% 55%">';
 
 /* ---------------- vista: ubicación en vivo ---------------- */
 let liveTimer;
@@ -60,7 +108,8 @@ function openLive(code) {
   const path = $('#route', dlg), boat = $('#boat', dlg), L = path.getTotalLength();
   const tick = () => {
     const p = Math.min(1, (Date.now() - start) / dur), pt = path.getPointAtLength(L * p);
-    boat.setAttribute('transform', `translate(${pt.x} ${pt.y})`);
+    const ah = path.getPointAtLength(Math.min(L, L * p + 3)), bh = path.getPointAtLength(Math.max(0, L * p - 3));
+    boat.setAttribute('transform', `translate(${pt.x} ${pt.y})`); $('.hdg', boat).setAttribute('transform', `rotate(${(Math.atan2(ah.y - bh.y, ah.x - bh.x) * 180 / Math.PI + 90).toFixed(1)})`);
     const eta = new Date(start + dur);
     $('#lv-eta', dlg).textContent = p >= 1 ? 'Llegó' : eta.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
     $('#lv-spd', dlg).textContent = p >= 1 ? '0 kn' : (17 + Math.round(Math.sin(Date.now() / 4000) * 3)) + ' kn';
@@ -140,6 +189,7 @@ function sosBlock() {
         <div class="sos-calls"><a class="btn btn-ghost btn-sm" href="tel:${SOS_TEL.casa}">Llamar a Tu Lancha</a><a class="btn btn-ghost btn-sm" href="tel:${SOS_TEL.emergencias}">Llamar al 911</a></div>
         <div class="sos-auth">${SOS_AUTH.map(([n, d, t]) => `<div class="sa"><a class="btn btn-sos btn-sm" href="tel:${t[0]}">Llamar a ${n}</a><span>${d} · otros: ${t.slice(1).map(x => `<a href="tel:${x}">${telTxt(x)}</a>`).join(' · ')}</span></div>`).join('')}</div>
       </div>
+      <div class="sos-ack" data-sos-ack hidden role="status" aria-live="assertive"></div>
       <p class="rating">Capitán: socorro por radio VHF, canal 16 (156.8 MHz), escuchado por Guardacostas y Capitanía.</p>
       <button class="btn btn-ghost btn-sm" type="button" data-sos-x>Cerrar alerta</button>
     </div>
@@ -190,7 +240,21 @@ function wireSos(root, ctx, signal) {
   btn.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); start(); } }, { signal });
   btn.addEventListener('keyup', e => { if (e.key === 'Enter' || e.key === ' ') reset(); }, { signal });
   q('[data-sos-copy]').addEventListener('click', () => copy(sosText(ctx)), { signal });
-  q('[data-sos-x]').addEventListener('click', () => { panel.hidden = true; reset(); }, { signal });
+  // Confirmación de envío: el SMS o WhatsApp se abren con el texto listo, pero el usuario debe tocar ENVIAR.
+  const ack = q('[data-sos-ack]'); let pending = null, askT = 0;
+  const hhmm = () => new Date().toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
+  const app = k => k === 'sms' ? 'Mensajes' : 'WhatsApp';
+  const showGo = k => { ack.hidden = false; ack.className = 'sos-ack go'; ack.innerHTML = `<b class="ack-big">Toca ENVIAR en ${app(k)} <span aria-hidden="true">↗</span></b><span>Tu alerta ya está escrita${k === 'sms' ? ' con el número de Tu Lancha' : ''}. Solo falta tocar el botón de enviar (la flecha) para que salga.</span>`; ack.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
+  const showAsk = k => { ack.hidden = false; ack.className = 'sos-ack ask'; ack.innerHTML = `<b>¿Se envió tu alerta por ${k === 'sms' ? 'SMS' : 'WhatsApp'}?</b><div class="ack-row"><button class="btn btn-sun btn-sm" type="button" data-ack-yes>Sí, se envió</button><button class="btn btn-sos btn-sm" type="button" data-ack-no>No, intentar de nuevo</button></div><span>Si no sale, copia el mensaje o llama a Guardacostas.</span>`; ack.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
+  const launch = (k, el) => { pending = k; showGo(k); clearTimeout(askT); askT = setTimeout(() => { if (pending && document.visibilityState === 'visible') showAsk(pending); }, 6000); };
+  q('[data-sos-sms]').addEventListener('click', e => launch('sms', e.currentTarget), { signal });
+  q('[data-sos-wa]').addEventListener('click', e => launch('wa', e.currentTarget), { signal });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && pending) { clearTimeout(askT); showAsk(pending); } }, { signal });
+  ack.addEventListener('click', e => {
+    if (e.target.closest('[data-ack-yes]')) { const k = pending; pending = null; ack.className = 'sos-ack ok'; ack.innerHTML = `<b>✓ Alerta enviada por ${k === 'sms' ? 'SMS' : 'WhatsApp'} a las ${hhmm()}</b><span>Mantén el teléfono contigo. Si en 5 minutos no te responden, llama a Guardacostas o al 911.</span>`; navigator.vibrate?.(80); }
+    if (e.target.closest('[data-ack-no]')) { const k = pending || 'sms'; const a = q(k === 'sms' ? '[data-sos-sms]' : '[data-sos-wa]'); a.click(); }
+  }, { signal });
+  q('[data-sos-x]').addEventListener('click', () => { panel.hidden = true; ack.hidden = true; pending = null; clearTimeout(askT); reset(); }, { signal });
   paint();
 }
 let wakeLock = null;

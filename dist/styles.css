@@ -1137,3 +1137,52 @@ footer.site .num{white-space:normal}
 .abordo,.abordo>*,.sos-panel>*,.sos-acts>*{min-width:0}.abordo{grid-template-columns:minmax(0,1fr)}.sos-panel{grid-template-columns:minmax(0,1fr)}.abordo-dlg .view,#dlg.full .live-side{min-width:0}
 .sos-acts .btn,.abordo-cta .btn{white-space:normal;line-height:1.25;padding-inline:12px;min-height:48px}
 .sos-auth{display:grid;gap:8px}.sos-auth .sa{display:grid;gap:4px}.sos-auth .sa>span{font-size:.76rem;color:var(--muted);line-height:1.4}.sos-auth .sa>span a{color:inherit;font-family:var(--f-mono);white-space:nowrap}.sos-auth .btn{justify-content:center;white-space:normal;min-height:44px}
+
+/* ===== Carta náutica premium en Mi viaje ===== */
+.map{background:#05121f;box-shadow:0 22px 50px rgba(5,18,31,.35),inset 0 0 0 1px rgba(214,182,110,.28)}
+.nchart .nlab text.on{fill:#f3d58a;font-size:12px;font-weight:700}
+#trip-map-thumb{position:relative;background:#05121f}
+#trip-map-thumb::after,#trip-album-thumb::after{position:absolute;left:14px;top:14px;font:600 .66rem/1 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;padding:7px 10px;border-radius:999px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#trip-map-thumb::after{content:"● En vivo · carta náutica";color:#f3d58a;background:rgba(5,18,31,.6);border:1px solid rgba(214,182,110,.35)}
+#trip-album-thumb{position:relative}#trip-album-thumb::after{content:"Álbum privado · dron";color:#fff;background:rgba(5,18,31,.45);border:1px solid rgba(255,255,255,.25)}
+.trip-card .shot{aspect-ratio:16/9}
+
+/* ===== Pago del abono: Zelle, Binance Pay o efectivo ===== */
+.pay{border:0;margin:0;padding:18px;border-radius:20px;display:grid;gap:12px;background:linear-gradient(150deg,#0d1b2e,#14243c 60%,#1a2b44);color:#eef2f8;box-shadow:0 18px 40px rgba(13,27,46,.28),inset 0 0 0 1px rgba(214,182,110,.22)}
+.pay legend{display:contents}
+.pay legend .eyebrow{color:#d6b66e}.pay legend b{display:block;font-size:1.05rem;margin-top:-4px}
+.pay-opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pay-opt{position:relative;display:grid;justify-items:start;gap:10px;padding:14px 12px;border-radius:16px;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);transition:border-color .2s,background .2s,transform .2s;min-width:0}
+.pay-opt:hover{border-color:rgba(214,182,110,.5)}
+.pay-opt input{position:absolute;opacity:0;pointer-events:none}
+.pay-opt:has(input:checked){background:linear-gradient(150deg,rgba(214,182,110,.22),rgba(214,182,110,.06));border-color:#d6b66e;box-shadow:0 0 0 1px #d6b66e,0 10px 24px rgba(214,182,110,.18)}
+.pay-opt:has(input:focus-visible){outline:2px solid #f3d58a;outline-offset:2px}
+.pay-ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.08);color:#f3d58a;flex:none}
+.pay-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
+.pay-txt{display:grid;gap:2px;min-width:0}.pay-txt b{font-size:.95rem}.pay-txt small{font-size:.7rem;color:rgba(238,242,248,.62);letter-spacing:.02em}
+.pay-chk{position:absolute;right:10px;top:10px;width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(255,255,255,.3)}
+.pay-opt:has(input:checked) .pay-chk{background:#d6b66e;border-color:#d6b66e;box-shadow:inset 0 0 0 3px #14243c}
+.pay-info{display:grid;gap:8px;padding:14px;border-radius:14px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);animation:payin .35s ease}
+@keyframes payin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.pay-amt{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:2px 10px}
+.pay-amt span{font-size:.8rem;color:rgba(238,242,248,.7)}.pay-amt b{font-family:var(--f-display);font-size:1.6rem;color:#f3d58a;grid-row:span 2}
+.pay-amt small{font-size:.72rem;color:rgba(238,242,248,.55)}
+.pay-info p{margin:0;font-size:.86rem;line-height:1.45;color:rgba(238,242,248,.85)}
+.pay-acct{font-size:.9rem;color:#fff}
+.pay-secure{display:flex;gap:8px;align-items:flex-start;margin:0;font-size:.78rem;line-height:1.4;color:rgba(238,242,248,.7)}
+.pay-secure svg{width:18px;height:18px;flex:none;fill:none;stroke:#7fe3b0;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+.pay-done{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:14px 16px;border-radius:18px;background:linear-gradient(150deg,#0d1b2e,#1a2b44);color:#eef2f8;box-shadow:inset 0 0 0 1px rgba(214,182,110,.25)}
+.pay-done div{display:grid}.pay-done div span{font-size:.74rem;color:rgba(238,242,248,.6)}.pay-done b{font-size:1.05rem}
+.pay-done strong{font-family:var(--f-display);font-size:1.4rem;color:#f3d58a;display:grid;justify-items:end;line-height:1}.pay-done strong small{font:500 .68rem var(--f-body,inherit);color:rgba(238,242,248,.6)}
+@media (max-width:380px){.pay{padding:14px}.pay-opts{grid-template-columns:minmax(0,1fr)}.pay-opt{grid-template-columns:auto 1fr;align-items:center}}
+
+/* SOS: confirmar que el mensaje se envió */
+.sos-ack{display:grid;gap:8px;padding:14px;border-radius:14px;font-size:.86rem;line-height:1.45}
+.sos-ack.go{background:#1b2a44;color:#fff;box-shadow:0 0 0 3px rgba(243,213,138,.6);animation:ackpulse 1.4s ease-in-out infinite}
+.sos-ack .ack-big{font-family:var(--f-display);font-size:1.5rem;letter-spacing:.02em;text-transform:uppercase;color:#f3d58a;line-height:1.1}
+.sos-ack.ask{background:#fff;border:2px solid #d93636}.sos-ack.ask b{font-size:1.05rem}
+.sos-ack.ok{background:#e3f6ec;border:1px solid #a8e0c4;color:#0d5a37}
+.ack-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.ack-row .btn{justify-content:center;white-space:normal}
+@keyframes ackpulse{50%{box-shadow:0 0 0 6px rgba(243,213,138,.25)}}
+@media (prefers-reduced-motion:reduce){.sos-ack.go{animation:none}}
+.live-grid{align-items:start}.live-grid>.map{align-self:start;position:sticky;top:0}

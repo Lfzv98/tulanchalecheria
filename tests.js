@@ -136,13 +136,17 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await tap('#t-book'); await p.waitForSelector('#bk-form');
   ok(await p.isVisible('#bk-form'), 'Reservar ahora abre la confirmación dentro de la app');
   ok((await p.textContent('#bk-form')).includes('Condiciones principales') && await p.$('#bk-form .bk-policy') !== null, 'Confirmación muestra el resumen de condiciones y el texto completo');
+  ok((await p.$$('#bk-form .pay-opt')).length === 3 && (await p.textContent('#bk-form .pay')).includes('Zelle') && (await p.textContent('#bk-form .pay')).includes('Binance Pay') && (await p.textContent('#bk-form .pay')).includes('Efectivo'), 'Pago: Zelle, Binance Pay o efectivo');
+  ok(await p.isChecked('input[name="bk-pay"][value="zelle"]'), 'Pago: Zelle elegido por defecto');
+  await tap('.pay-opt[data-pay="binance"]'); await p.waitForTimeout(150);
+  ok(await p.isChecked('input[name="bk-pay"][value="binance"]') && (await p.textContent('#bk-payinfo')).includes('Binance Pay') && (await p.textContent('#bk-payinfo')).includes('Abono para apartar'), 'Pago: al elegir Binance cambian las instrucciones y el abono');
   await tap('#bk-go'); ok(await p.isVisible('#bk-form'), 'Sin nombre no deja confirmar');
   await p.fill('#bk-name', 'Familia Pérez'); await p.fill('#bk-phone', '0414 555 1234'); await tap('#bk-go'); await p.waitForTimeout(200);
   ok(await p.isVisible('#bk-form') && await p.$('#bk-code') === null, 'Sin aceptar las condiciones no deja confirmar');
   await tap('#bk-ok'); await tap('#bk-go'); await p.waitForSelector('#bk-code');
   const bcode = (await p.textContent('#bk-code')).trim(); ok(/^TLL-\d{4}$/.test(bcode), 'Reserva registrada con código ' + bcode);
   await tap('#bk-send'); await p.waitForTimeout(500);
-  ok(popups.some(u => { const d = decodeURIComponent(u); return d.includes(bcode) && d.includes('Familia Pérez') && d.includes('Acepté las condiciones') && d.includes('Rumbo 1'); }), 'Un toque avisa a Tu Lancha con código, rumbo y condiciones aceptadas');
+  ok(popups.some(u => { const d = decodeURIComponent(u); return d.includes(bcode) && d.includes('Familia Pérez') && d.includes('Acepté las condiciones') && d.includes('Rumbo 1') && d.includes('Pago: Binance Pay'); }), 'Un toque avisa a Tu Lancha con código, rumbo, condiciones aceptadas y método de pago');
   await tap('#bk-trip'); await p.waitForTimeout(600);
   ok(await p.isVisible('#my-trips') && (await p.textContent('#my-trips')).includes(bcode) && (await p.textContent('#my-trips')).includes('Enviada'), 'Mi viaje muestra la reserva y su estado');
   ok(await p.inputValue('#code-live') === bcode, 'Mi viaje usa el código de la reserva');
