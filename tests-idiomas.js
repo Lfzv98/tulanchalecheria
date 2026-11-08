@@ -1,4 +1,4 @@
-// Pruebas del selector de idiomas (español, inglés, portugués) en celulares, tablet y escritorio
+// Pruebas del botón de idioma (español siempre por defecto, cambio a inglés de EE. UU.) en celulares, tablet y escritorio
 const { chromium, devices } = require('playwright');
 const URL = process.env.TLL_URL || 'http://127.0.0.1:8765/index.html';
 let fails = 0, n = 0;
@@ -12,12 +12,12 @@ const DEV = [
 const ES_LEFT = ['Reservar mi salida', 'Embarcaciones y tarifas', 'Arma tu salida', 'Siguiente', 'Tu cotización', 'por persona', 'Preguntas frecuentes', 'Quiénes somos', 'Elige tu'];
 (async () => {
   const b = await chromium.launch();
-  // 1) detección del idioma del navegador la primera vez
-  for (const [loc, want] of [['es-VE', 'es'], ['en-US', 'en'], ['pt-BR', 'pt'], ['pt-PT', 'pt'], ['fr-FR', 'es']]) {
+  // 1) siempre abre en español, sin importar el idioma del teléfono; el botón ofrece EN
+  for (const loc of ['es-VE', 'en-US', 'pt-BR', 'fr-FR']) {
     const c = await b.newContext({ locale: loc }); await c.route(/open-meteo/, r => r.fulfill({ status: 200, body: '{}' }));
     const p = await c.newPage(); await p.goto(URL); await p.waitForTimeout(400);
-    const got = await p.evaluate(() => [TLL_I18N.lang, document.documentElement.lang, document.querySelector('#lang-btn b').textContent]);
-    ok(got[0] === want && got[2] === want.toUpperCase(), `navegador ${loc} → ${want} (${got.join(' ')})`);
+    const got = await p.evaluate(() => [TLL_I18N.lang, document.documentElement.lang, document.querySelector('#lang-btn b').textContent, TLL_I18N.CODES.join(',')]);
+    ok(got[0] === 'es' && got[1] === 'es' && got[2] === 'EN' && got[3] === 'es,en', `navegador ${loc} → abre en español, botón EN (${got.join(' ')})`);
     await c.close();
   }
   for (const [name, d] of DEV) {
@@ -30,12 +30,9 @@ const ES_LEFT = ['Reservar mi salida', 'Embarcaciones y tarifas', 'Arma tu salid
     // 2) el botón está en la barra superior, visible y sin desbordar
     const box = await p.evaluate(() => { const r = document.querySelector('#lang-btn').getBoundingClientRect(), t = document.querySelector('#topbar').getBoundingClientRect(); return { inBar: r.top >= t.top && r.bottom <= t.bottom, right: r.right, W: document.documentElement.clientWidth, sw: document.documentElement.scrollWidth, overlap: (() => { const b = document.querySelector('.topbar .brand').getBoundingClientRect(); return b.right > r.left; })() }; });
     ok(box.inBar && box.right <= box.W && box.sw <= box.W && !box.overlap, `${name}: botón de idioma en la barra superior, sin tapar el logo ni desbordar`);
-    // 3) abrir el menú y elegir inglés
-    await tap('#lang-btn'); ok(await p.isVisible('#lang-menu'), `${name}: se abre el menú de idiomas`);
-    const mb = await p.evaluate(() => { const r = document.querySelector('#lang-menu').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; });
-    ok(mb, `${name}: el menú cabe en la pantalla`);
-    await tap('[data-lang="en"]'); await p.waitForTimeout(300);
-    ok(!(await p.isVisible('#lang-menu')), `${name}: el menú se cierra al elegir`);
+    // 3) un toque cambia a inglés y el botón pasa a ofrecer ES
+    await tap('#lang-btn'); await p.waitForTimeout(300);
+    ok((await p.textContent('#lang-btn b')) === 'ES', `${name}: un toque cambia a inglés y el botón ofrece volver a ES`);
     const home = await p.evaluate(() => ({ h1: document.querySelector('.hero h1').textContent, lang: document.documentElement.lang, cta: document.querySelector('.hero .ctas a').textContent }));
     ok(home.h1.includes('Your day at sea') && home.cta === 'Book my trip' && home.lang === 'en', `${name}: portada en inglés (${home.h1})`);
     // 4) recorrido por las vistas sin restos en español
@@ -81,18 +78,13 @@ const ES_LEFT = ['Reservar mi salida', 'Embarcaciones y tarifas', 'Arma tu salid
       ok(decodeURIComponent(sms).includes('EMERGENCIA EN EL MAR') && decodeURIComponent(sms).includes('EMERGENCY AT SEA'), `${name}: SMS del SOS bilingüe`);
       await p.evaluate(() => document.querySelector('#dlg').close());
     }
-    // 7) portugués y vuelta al español sin recargar
-    await tap('#lang-btn'); await tap('[data-lang="pt"]');
-    ok((await p.textContent('.hero h1')).includes('Seu dia no mar'), `${name}: portada en portugués`);
+    // 7) vuelta al español sin recargar
     await p.evaluate(() => location.hash = 'reservar'); await p.waitForTimeout(250);
-    ok((await p.textContent('#ticket')).includes('Seu orçamento'), `${name}: cotización en portugués`);
-    await tap('#lang-btn'); await tap('[data-lang="es"]');
+    await tap('#lang-btn');
     ok((await p.textContent('#ticket')).includes('Tu cotización') && (await p.textContent('.hero h1')).includes('Tu día en el mar'), `${name}: vuelve al español`);
     // 8) se recuerda la elección
-    await tap('#lang-btn'); await tap('[data-lang="en"]'); await p.reload(); await p.waitForTimeout(500);
+    await tap('#lang-btn'); await p.reload(); await p.waitForTimeout(500);
     ok(await p.evaluate(() => TLL_I18N.lang === 'en' && document.querySelector('.hero h1').textContent.includes('Your day at sea')), `${name}: recuerda el inglés al volver a abrir`);
-    // teclado: Esc cierra el menú
-    if (!d.hasTouch) { await p.click('#lang-btn'); await p.keyboard.press('ArrowDown'); await p.keyboard.press('Escape'); ok(!(await p.isVisible('#lang-menu')), `${name}: Esc cierra el menú`); }
     ok(!errs.length, `${name}: sin errores de JavaScript (${errs.join(' | ')})`);
     await c.close();
   }

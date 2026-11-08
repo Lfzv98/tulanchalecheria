@@ -21,7 +21,13 @@ const PAY = {
 };
 const payCard = (k, sel, total) => { const m = PAY[k]; return `<label class="pay-opt" data-pay="${k}"><input type="radio" name="bk-pay" value="${k}"${k === sel ? ' checked' : ''}>
   <span class="pay-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${m.ic}</svg></span><span class="pay-txt"><b>${m.name}</b><small>${m.tag}</small></span><span class="pay-chk" aria-hidden="true"></span></label>`; };
-const payInfo = (k, total) => { const m = PAY[k]; return `<div class="pay-info"><div class="pay-amt"><span>Abono para apartar</span><b>${money(total / 2)}</b><small>50% · el resto en el muelle antes de zarpar</small></div><p>${m.how}</p>${m.acct ? `<p class="pay-acct mono">${esc(m.acct)}</p>` : ''}</div>`; };
+// cuentas que Eduardo carga en su panel (correo Zelle, titular, ID de Binance Pay)
+const acctOf = k => { const P = (window.TLL.CAT && window.TLL.CAT.pay) || {}; return k === 'zelle' ? [P.zelle, P.zelleName] : k === 'binance' ? [P.binance, P.binanceUser] : ['', '']; };
+const HOW_ACCT = { zelle: 'Paga el abono a este Zelle y mándanos la captura por WhatsApp.', binance: 'Paga el abono en USDT a este ID de Binance Pay y mándanos la captura por WhatsApp.' };
+const payInfo = (k, total) => { const m = PAY[k], [ac, holder] = acctOf(k), P = (window.TLL.CAT && window.TLL.CAT.pay) || {};
+  const bn = k === 'binance' && ac;
+  return `<div class="pay-info"><div class="pay-amt"><span>Abono para apartar</span><b>${money(total / 2)}</b><small>50% · el resto en el muelle antes de zarpar</small></div><p>${ac ? HOW_ACCT[k] : m.how}</p>${ac ? `<p class="pay-acct mono" translate="no">${bn ? "ID " : ""}${esc(ac).replace("@", "@<wbr>")}</p>${holder ? `<p class="rating">${bn ? 'Usuario:' : 'Titular:'} <b translate="no">${esc(holder)}</b></p>` : ''}` : ''}
+  ${bn && (P.binanceQR || P.binanceLink) ? `<div class="pay-qr">${P.binanceQR ? `<img src="${esc(P.binanceQR)}" alt="QR de Binance Pay" width="120" height="120" loading="lazy">` : ''}${P.binanceLink ? `<a class="btn btn-sun btn-sm" href="${esc(P.binanceLink)}" target="_blank" rel="noopener">Abrir en Binance</a>` : ''}</div>` : ''}</div>`; };
 
 const waText = r => `Hola Tu Lancha 👋 Hice una reserva en la app.\n🔖 Código: ${r.code}\n👤 ${r.name}${r.phone ? ' · ' + r.phone : ''}\n👥 ${r.paxTxt || r.pax + ' personas'}\n⛵ ${r.boat}\n📅 ${r.date}${r.hours ? ' · ' + r.hours : ''}\n🏝️ ${r.route}\n⚓ ${r.dock}\n${r.lines.slice(1).map(l => (l[1] < 0 ? '🎁 ' : '➕ ') + l[0] + (l[2] === 'tbd' ? ' (por confirmar)' : '')).join('\n')}${r.lines.length > 1 ? '\n' : ''}💵 Total estimado: ${money(r.total)}${r.pay && PAY[r.pay] ? `\n💳 Pago: ${PAY[r.pay].name} · abono ${money(r.total / 2)}` : ''}${r.note ? '\n📝 ' + r.note : ''}${r.accepted ? '\n✅ Acepté las condiciones de alquiler (' + POLICY_REV + ')' : ''}\n¿Me confirman disponibilidad y el abono?`;
 /* Condiciones y Política de Alquiler (Rev. 01 · sep. 2026). No se publica en la web:
@@ -92,6 +98,8 @@ function openBooking() {
     store.set('me', { name, phone, pay: payNow() });
     const r = { ...q, code: newCode(), name, phone, pay: payNow(), note: $('#bk-note', dlg).value.trim(), created: Date.now(), accepted: Date.now(), sent: false };
     saveMine([r, ...mine()].slice(0, 20));
+    // aviso al panel de Eduardo (si no hay conexión, no pasa nada: la reserva sigue en el teléfono y en WhatsApp)
+    try { fetch('/api/admin?a=book', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: r.code, created: r.created, iso: r.iso, date: r.date, boat: r.boat, route: r.route, dock: r.dock, hours: r.hours, pax: r.pax, kids: r.kids, total: r.total, pay: r.pay, name: r.name, phone: r.phone, note: r.note, lang: (window.TLL_I18N && TLL_I18N.lang) || 'es' }) }).catch(() => {}); } catch {}
     showDone(r); renderMine();
   };
   dlg.showModal();

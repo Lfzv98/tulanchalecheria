@@ -1,70 +1,63 @@
 (() => {
 'use strict';
-/* Panel privado de Eduardo.
-   - Acceso oculto: dirección #capitan, o tocar 5 veces el logo del pie de página.
-   - La contraseña nunca se guarda: se verifica con PBKDF2-SHA256 (600.000 iteraciones).
-   - Los datos del negocio se guardan cifrados (AES-GCM 256) con una llave que sale de la contraseña.
-     Sin la contraseña no se pueden leer, ni siquiera mirando el código o el almacenamiento del navegador. */
-const { $, $$, wa, money, store, toast, BOATS, ROUTES, rnd, iso, today } = window.TLL;
-const DEFAULT_CRED = { user: 'eduardo', verifier: '481cf7fbcace05941ef51f98b1c651a6a00a2b17709e2a8551264242993b3f68', iter: 600000 };
-const SALT = 'tll-panel-v1:';
-const IDLE_MS = 15 * 60e3;
-const CHANNELS = ['Instagram', 'WhatsApp directo', 'Web · cotizador', 'Referido', 'Tarjeta de regalo', 'Cliente recurrente'];
-const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+/* ================= Panel de control de Eduardo =================
+   Acceso oculto: dirección #capitan, o tocar 5 veces seguidas el logo del pie de página.
+   Usuario y contraseña se verifican en el servidor (api/admin.js); la sesión dura 12 horas.
+   Desde aquí Eduardo edita lo que ve el cliente (embarcaciones, fotos, precios, rumbos, playas, muelles,
+   pagos y aliados), sigue las reservas que llegan de la app y ve sus números.
+   Los cambios se preparan en borrador y se publican con un botón; se guardan las últimas 15 versiones. */
+const T = window.TLL;
+const { $, $$, money, store, toast, iso, today, ACC, DEF, art } = T;
+const API = '/api/admin';
 const adm = $('#adm');
-let KEY = null, DB = null, idleT, period = 'mes';
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const TYPES = ['Lancha', 'Barco', 'Mini yate', 'Yate'];
+const CHANNELS = ['WhatsApp directo', 'Instagram', 'Web · app', 'Referido', 'Tarjeta de regalo', 'Cliente recurrente', 'Aliado'];
+const LANG_N = { es: 'Español', en: 'Inglés', pt: 'Portugués' };   // pt: reservas viejas
+const ST = { nueva: ['nue', 'Nueva'], confirmada: ['ok', 'Confirmada'], cancelada: ['can', 'Cancelada'] };
+const LATE = [[0, 'No permite hora extra'], [19, 'Hasta las 7:00 pm'], [20, 'Hasta las 8:00 pm'], [21, 'Hasta las 9:00 pm'], [22, 'Hasta las 10:00 pm']];
+/* medidas de cada tipo de foto: se recortan y comprimen solas en el teléfono antes de subirlas */
+const IMG = {
+  boat: { w: 1600, h: 1000, min: 1000, fit: 'cover', label: 'horizontal 16:10', size: '1600 × 1000 px' },
+  beach: { w: 1200, h: 1200, min: 800, fit: 'cover', label: 'cuadrada 1:1', size: '1200 × 1200 px' },
+  logo: { w: 512, h: 512, min: 200, fit: 'contain', label: 'cuadrada, logo completo', size: '512 × 512 px' },
+  qr: { w: 600, h: 600, min: 250, fit: 'contain', label: 'cuadrada, QR completo', size: '600 × 600 px', png: true }   // PNG sin pérdida para que el QR se pueda escanear
+};
+const VIEWS = [['drone', 'Dron · principal'], ['exterior', 'Exterior'], ['interior', 'Interior'], ['camarote', 'Camarote']];
 
-const enc = new TextEncoder(), dec = new TextDecoder();
-const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
-const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
-const esc = v => String(v ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let TOK = null, W = null, PUB = '', BK = [], tab = 'inicio', period = 'mes', demo = false, idleT, bkFilter = 'proximas', bkQuery = '';
 
-async function derive(user, pass, iter) {
-  const base = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveBits']);
-  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: enc.encode(SALT + user.toLowerCase()), iterations: iter }, base, 512);
-  const keyBytes = bits.slice(0, 32), check = bits.slice(32);
-  const verifier = hex(await crypto.subtle.digest('SHA-256', check));
-  const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['encrypt', 'decrypt']);
-  return { key, verifier };
+/* ---------------- sesión ---------------- */
+const SKEY = 'tll:adm-s';
+function loadTok() { try { const s = JSON.parse(sessionStorage.getItem(SKEY) || localStorage.getItem(SKEY) || 'null'); return s && s.exp > Date.now() ? s : null; } catch { return null; } }
+function saveTok(s, remember) { try { (remember ? localStorage : sessionStorage).setItem(SKEY, JSON.stringify(s)); } catch {} }
+function dropTok() { try { sessionStorage.removeItem(SKEY); localStorage.removeItem(SKEY); } catch {} TOK = null; }
+async function api(a, body, get) {
+  const opt = { method: get ? 'GET' : 'POST', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' };
+  if (TOK) opt.headers.Authorization = 'Bearer ' + TOK.t;
+  if (!get) opt.body = JSON.stringify(body || {});
+  let r;
+  try { r = await fetch(`${API}?a=${a}${get ? '&_=' + Date.now() : ''}`, opt); } catch { throw Object.assign(new Error('net'), { code: 'net' }); }
+  let j = {}; try { j = await r.json(); } catch {}
+  if (r.status === 401 && j.error === 'session') { dropTok(); showLogin('Tu sesión terminó. Entra de nuevo.'); throw Object.assign(new Error('session'), { code: 'session' }); }
+  if (!r.ok) throw Object.assign(new Error(j.error || 'http'), { code: j.error || 'http', status: r.status, data: j });
+  return j;
 }
-async function seal(obj, key = KEY) { const iv = crypto.getRandomValues(new Uint8Array(12)); const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(obj))); return { v: 1, iv: b64(iv), ct: b64(ct) }; }
-async function open(box, key = KEY) { const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(box.iv) }, key, unb64(box.ct)); return JSON.parse(dec.decode(pt)); }
-async function save() { store.set('ledger', await seal(DB)); }
-
-/* ---------------- datos de ejemplo (marcados) ---------------- */
-function sampleData() {
-  const r = rnd('ledger-demo'), list = [];
-  const season = [1.4, 1.3, 1.0, 1.3, .8, .8, 1.3, 1.4, .8, .8, .9, 1.6];
-  const names = ['María G.', 'José P.', 'Andreína M.', 'Carlos R.', 'Daniela V.', 'Luis A.', 'Gabriela S.', 'Pedro C.', 'Valentina H.', 'Ricardo T.', 'Empresa Andina', 'Mariana L.'];
-  for (let m = -13; m <= 1; m++) {
-    const first = new Date(today.getFullYear(), today.getMonth() + m, 1), days = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
-    const n = Math.round((7 + r() * 5) * season[first.getMonth()] * (m === 1 ? .35 : 1));
-    for (let i = 0; i < n; i++) {
-      const d = new Date(first.getFullYear(), first.getMonth(), 1 + Math.floor(r() * days));
-      const b = BOATS[Math.floor(Math.pow(r(), 1.4) * BOATS.length)], rt = ROUTES[Math.floor(r() * ROUTES.length)];
-      const wk = d.getDay() === 0 || d.getDay() === 6;
-      const extras = r() < .55 ? Math.round(40 + r() * 220) : 0;
-      const total = Math.round(b.price * (wk ? 1.1 : 1) + rt.extra + extras);
-      const future = d > today;
-      const paid = future ? (r() < .6 ? Math.round(total / 2) : 0) : total;
-      list.push({ id: 'd' + list.length, date: iso(d), boat: b.name, route: rt.name, pax: Math.max(2, Math.round(b.pax * (.5 + r() * .5))), total, paid, channel: CHANNELS[Math.floor(r() * CHANNELS.length)], client: names[Math.floor(r() * names.length)], phone: '', demo: true });
-    }
-  }
-  return { v: 1, comm: 20, demo: true, bookings: list.sort((a, b) => a.date < b.date ? 1 : -1) };
-}
+const errMsg = e => ({ net: 'No hay conexión con el servidor. Revisa tu internet e intenta de nuevo.', not_configured: 'El servidor aún no tiene la base de datos conectada (Upstash en Vercel).', storage: 'El servidor no pudo guardar. Intenta de nuevo en un momento.', too_big: 'El archivo es demasiado grande.' }[e.code] || 'Algo salió mal. Intenta de nuevo.');
 
 /* ---------------- login ---------------- */
-function cred() { return store.get('cred', DEFAULT_CRED); }
-function lockInfo() { return store.get('lock', { fails: 0, until: 0 }); }
+function lockScroll(on) { document.documentElement.style.overflow = on ? 'hidden' : ''; }
 function showLogin(msg = '') {
-  const d = $('#dlg'); if (d.open) d.close();
-  adm.hidden = false; document.documentElement.style.overflow = 'hidden';
+  const d = $('#dlg'); if (d && d.open) d.close();
+  adm.hidden = false; lockScroll(true);
   adm.innerHTML = `<div class="adm-login"><form id="lg" autocomplete="on">
     <img src="${$('.brand img').src}" alt="" width="72" height="72">
-    <div style="text-align:center;display:grid;gap:4px"><h2 style="font-size:1.4rem">Panel privado</h2><span class="rating">Acceso exclusivo para la administración</span></div>
+    <div style="text-align:center;display:grid;gap:4px"><h2 style="font-size:1.4rem">Panel de control</h2><span class="rating">Acceso exclusivo para la administración de Tu Lancha</span></div>
     <div class="field"><label for="lg-u">Usuario</label><input id="lg-u" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
     <div class="field"><label for="lg-p">Contraseña</label><div style="display:flex;gap:6px"><input id="lg-p" name="password" type="password" autocomplete="current-password" required style="flex:1;min-width:0"><button type="button" class="icon-btn" id="lg-eye" aria-label="Mostrar contraseña">Ver</button></div></div>
+    <label class="ad-check"><input type="checkbox" id="lg-rem"> Mantener la sesión abierta en este dispositivo</label>
     <p class="err" id="lg-err" role="alert">${esc(msg)}</p>
     <button class="btn btn-sun" type="submit" id="lg-go">Entrar</button>
     <button class="btn btn-ghost btn-sm" type="button" id="lg-x">Volver a la web</button></form></div>`;
@@ -72,172 +65,479 @@ function showLogin(msg = '') {
   $('#lg-x').onclick = closeAdm;
   $('#lg').onsubmit = async e => {
     e.preventDefault();
-    const L = lockInfo();
-    if (Date.now() < L.until) { $('#lg-err').textContent = `Demasiados intentos. Espera ${Math.ceil((L.until - Date.now()) / 1000)} segundos.`; return; }
-    $('#lg-go').disabled = true; $('#lg-go').textContent = 'Verificando…';
-    const u = $('#lg-u').value.trim().toLowerCase(), p = $('#lg-p').value, c = cred();
+    const go = $('#lg-go'); go.disabled = true; go.textContent = 'Verificando…'; $('#lg-err').textContent = '';
     try {
-      const { key, verifier } = await derive(u, p, c.iter);
-      if (u !== c.user || verifier !== c.verifier) throw new Error('bad');
-      store.set('lock', { fails: 0, until: 0 });
-      KEY = key;
-      const box = store.get('ledger', null);
-      DB = box ? await open(box) : sampleData();
-      if (!box) await save();
-      dashboard();
+      const j = await api('login', { user: $('#lg-u').value.trim(), pass: $('#lg-p').value });
+      TOK = { t: j.token, exp: j.expires }; saveTok(TOK, $('#lg-rem').checked);
+      await boot();
     } catch (err) {
-      const f = L.fails + 1; store.set('lock', { fails: f, until: f >= 5 ? Date.now() + 60e3 * Math.min(30, 2 ** (f - 5)) : 0 });
-      $('#lg-err').textContent = f >= 5 ? 'Usuario o contraseña incorrectos. Por seguridad, espera un minuto antes de intentar de nuevo.' : 'Usuario o contraseña incorrectos.';
-      $('#lg-go').disabled = false; $('#lg-go').textContent = 'Entrar'; $('#lg-p').select();
+      $('#lg-err').textContent = err.code === 'bad_login' ? `Usuario o contraseña incorrectos.${err.data && err.data.left <= 3 ? ` Te quedan ${err.data.left} intentos antes de un bloqueo de 15 minutos.` : ''}`
+        : err.code === 'locked' ? 'Demasiados intentos. Por seguridad, espera 15 minutos antes de intentar de nuevo.' : errMsg(err);
+      go.disabled = false; go.textContent = 'Entrar'; $('#lg-p').select();
     }
   };
   setTimeout(() => $('#lg-u').focus(), 50);
 }
-function closeAdm() { KEY = null; DB = null; adm.hidden = true; adm.innerHTML = ''; document.documentElement.style.overflow = ''; if (location.hash === '#capitan') history.replaceState(null, '', location.pathname + location.search); }
-function bump() { clearTimeout(idleT); idleT = setTimeout(() => { if (KEY) { KEY = null; DB = null; showLogin('Sesión cerrada por inactividad.'); } }, IDLE_MS); }
-['pointerdown', 'keydown', 'scroll'].forEach(ev => adm.addEventListener(ev, bump, { passive: true }));
+function closeAdm() {
+  if (dirty() && !confirm('Tienes cambios sin publicar. ¿Salir de todas formas? Los cambios se pierden.')) return;
+  adm.hidden = true; adm.innerHTML = ''; lockScroll(false); W = null;
+  if (location.hash === '#capitan') history.replaceState(null, '', location.pathname + location.search);
+}
+async function logout() { try { await api('logout'); } catch {} dropTok(); W = null; adm.hidden = true; adm.innerHTML = ''; lockScroll(false); toast('Sesión cerrada'); if (location.hash === '#capitan') history.replaceState(null, '', location.pathname); }
+function bump() { clearTimeout(idleT); idleT = setTimeout(() => { if (TOK && !dirty()) { dropTok(); showLogin('Sesión cerrada por inactividad.'); } }, 30 * 60e3); }
+['pointerdown', 'keydown'].forEach(ev => adm.addEventListener(ev, bump, { passive: true }));
 
-/* ---------------- cálculos ---------------- */
+/* ---------------- datos de trabajo ---------------- */
+function fromCat(c) {
+  c = c && typeof c === 'object' ? clone(c) : {};
+  return {
+    boats: Array.isArray(c.boats) && c.boats.length ? c.boats : clone(DEF.boats),
+    routes: Array.isArray(c.routes) && c.routes.length ? c.routes : clone(DEF.routes),
+    docks: Array.isArray(c.docks) && c.docks.length ? c.docks : clone(DEF.docks),
+    allies: Array.isArray(c.allies) && c.allies.length ? c.allies : clone(DEF.allies),
+    basic: Array.isArray(c.basic) && c.basic.length ? c.basic : clone(DEF.basic),
+    special: Array.isArray(c.special) && c.special.length ? c.special : clone(DEF.special),
+    pay: T.normPay(c.pay),
+    beachPhotos: c.beachPhotos || {},
+    tr: c.tr || []
+  };
+}
+const snap = () => JSON.stringify(W);
+const dirty = () => !!W && snap() !== PUB;
+async function boot() {
+  adm.innerHTML = '<div class="adm-login"><p class="rating" style="color:#fff">Cargando tu panel…</p></div>';
+  try {
+    const [c, b] = await Promise.all([api('cat', null, true), api('books', null, true)]);
+    W = fromCat(c); PUB = snap(); BK = b.list || [];
+  } catch (e) { if (e.code !== 'session') showLogin(errMsg(e)); return; }
+  render();
+  if (!store.get('adm-welcome', false)) help('bienvenida');
+}
+
+/* ---------------- utilidades de interfaz ---------------- */
+const getPath = (o, p) => p.split('.').reduce((x, k) => x == null ? x : x[k], o);
+function setPath(o, p, v) { const ks = p.split('.'), last = ks.pop(); const t = ks.reduce((x, k) => x[k], o); if (v === undefined) delete t[last]; else t[last] = v; }
+const inp = (k, label, o = {}) => { const v = getPath(W, k); const id = 'i-' + k.replace(/\./g, '-');
+  if (o.area) return `<div class="field${o.cls ? ' ' + o.cls : ''}"><label for="${id}">${label}</label><textarea id="${id}" data-k="${k}" rows="${o.rows || 3}" placeholder="${esc(o.ph || '')}">${esc(v ?? '')}</textarea>${o.hint ? `<small class="hint">${o.hint}</small>` : ''}</div>`;
+  if (o.sel) return `<div class="field${o.cls ? ' ' + o.cls : ''}"><label for="${id}">${label}</label><select id="${id}" data-k="${k}" data-t="${o.t || ''}">${o.sel.map(([val, l]) => `<option value="${esc(val)}"${String(val) === String(v ?? o.def ?? '') ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>${o.hint ? `<small class="hint">${o.hint}</small>` : ''}</div>`;
+  if (o.t === 'bool') return `<label class="ad-check${o.cls ? ' ' + o.cls : ''}"><input type="checkbox" data-k="${k}" data-t="bool"${v ? ' checked' : ''}> ${label}</label>`;
+  const val = o.t === 'list' ? (v || []).join(', ') : v ?? '';
+  return `<div class="field${o.cls ? ' ' + o.cls : ''}"><label for="${id}">${label}</label><input id="${id}" data-k="${k}" data-t="${o.t || ''}" value="${esc(val)}"${o.t === 'num' || o.t === 'numn' ? ` type="number" inputmode="decimal" min="${o.min ?? 0}" step="${o.step ?? 1}"` : ''}${o.ph ? ` placeholder="${esc(o.ph)}"` : ''}${o.type ? ` type="${o.type}"` : ''}>${o.hint ? `<small class="hint">${o.hint}</small>` : ''}</div>`;
+};
+function readVal(el) {
+  const t = el.dataset.t;
+  if (t === 'bool') return el.checked || undefined;
+  if (t === 'num') return el.value === '' ? 0 : +el.value;
+  if (t === 'numn') return el.value === '' ? null : +el.value;    // vacío = se confirma por WhatsApp
+  if (t === 'list') return el.value.split(',').map(x => x.trim()).filter(Boolean);
+  if (t === 'int') return +el.value;
+  return el.value;
+}
+const helpBtn = (k, txt = 'Cómo funciona') => `<button type="button" class="ad-help" data-help="${k}"><span aria-hidden="true">?</span>${txt}</button>`;
+const photoSlot = (path, kind, label, small) => { const u = getPath(W, path);
+  return `<div class="ad-photo k-${kind}${small ? ' sm' : ''}"><div class="ad-ph-img">${u ? `<img src="${esc(u)}" alt="">` : `<span class="ad-ph-empty">Sin foto</span>`}</div>
+    <div class="ad-ph-b"><b>${label}</b><div class="adm-tools"><button type="button" class="icon-btn" data-up="${path}" data-kind="${kind}">${u ? 'Cambiar' : 'Subir foto'}</button>${u ? `<button type="button" class="icon-btn" data-rmph="${path}">Quitar</button>` : ''}</div></div></div>`; };
+
+/* ---------------- estructura del panel ---------------- */
+const TABS = [['inicio', 'Resumen'], ['reservas', 'Reservas'], ['flota', 'Embarcaciones'], ['rumbos', 'Rumbos y playas'], ['muelles', 'Muelles'], ['pagos', 'Pagos'], ['aliados', 'Aliados'], ['ajustes', 'Ajustes']];
+function render() {
+  bump(); adm.hidden = false; lockScroll(true);
+  const nNew = BK.filter(b => b.status === 'nueva').length;
+  const sc = adm.scrollTop;
+  adm.innerHTML = `<div class="ad">
+    <header class="adm-bar"><div class="wrap"><img src="${$('.brand img').src}" alt="" width="34" height="34" class="ad-logo"><b>Panel de control</b>
+      <div class="sp"><a class="btn btn-ghost on-sea btn-sm" href="./" target="_blank" rel="noopener">Ver la web</a><button class="btn btn-ghost on-sea btn-sm" type="button" data-help="bienvenida">Ayuda</button><button class="btn btn-sun btn-sm" type="button" id="a-out">Salir</button></div></div>
+      <nav class="ad-tabs wrap" aria-label="Secciones del panel">${TABS.map(([k, l]) => `<button type="button" data-adtab="${k}" aria-current="${k === tab ? 'page' : 'false'}">${l}${k === 'reservas' && nNew ? ` <i>${nNew}</i>` : ''}</button>`).join('')}</nav></header>
+    <main class="wrap adm-main ad-body" id="ad-main">${VIEW[tab]()}</main>
+    <div class="ad-save" ${dirty() ? '' : 'hidden'}><div class="wrap"><span><b>Tienes cambios sin publicar.</b> Los clientes verán los cambios cuando los publiques.</span><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" id="a-discard">Descartar</button><button class="btn btn-sun btn-sm" type="button" id="a-pub">Publicar cambios</button></div></div></div>
+  </div>`;
+  adm.scrollTop = sc;
+  if (tab === 'inicio') wireChart();
+}
+function refreshSaveBar() { const s = $('.ad-save', adm); if (s) s.hidden = !dirty(); }
+
+/* ---------------- resumen ---------------- */
+function sample() {
+  const r = T.rnd('adm-demo'), list = [], names = ['María G.', 'José P.', 'Andreína M.', 'Carlos R.', 'Daniela V.', 'Luis A.', 'Gabriela S.', 'Pedro C.', 'Valentina H.', 'Ricardo T.'];
+  const boats = W.boats.filter(b => !b.hidden), season = [1.4, 1.3, 1, 1.3, .8, .8, 1.3, 1.4, .8, .8, .9, 1.6];
+  for (let m = -11; m <= 1; m++) {
+    const f = new Date(today.getFullYear(), today.getMonth() + m, 1), days = new Date(f.getFullYear(), f.getMonth() + 1, 0).getDate();
+    const n = Math.round((7 + r() * 5) * season[f.getMonth()] * (m === 1 ? .35 : 1));
+    for (let i = 0; i < n; i++) {
+      const d = new Date(f.getFullYear(), f.getMonth(), 1 + Math.floor(r() * days)), b = boats[Math.floor(Math.pow(r(), 1.4) * boats.length)], rt = W.routes[Math.floor(r() * W.routes.length)];
+      const total = Math.round(b.price * (d.getDay() % 6 ? 1 : 1.1) + (r() < .5 ? 40 + r() * 180 : 0)), fut = d > today;
+      list.push({ code: 'D-' + i + m, iso: iso(d), boat: b.name, route: rt.name, pax: Math.max(2, Math.round(b.pax * (.5 + r() * .5))), total, paid: fut ? (r() < .6 ? Math.round(total / 2) : 0) : total, channel: CHANNELS[Math.floor(r() * CHANNELS.length)], name: names[Math.floor(r() * names.length)], lang: r() < .75 ? 'es' : 'en', status: fut ? (r() < .5 ? 'nueva' : 'confirmada') : 'confirmada' });
+    }
+  }
+  return list;
+}
+const BKS = () => (demo ? sample() : BK).filter(b => b.status !== 'cancelada');
 function range(p) {
   const y = today.getFullYear(), m = today.getMonth();
   if (p === 'mes') return [new Date(y, m, 1), new Date(y, m + 1, 1), new Date(y, m - 1, 1)];
   if (p === '3m') return [new Date(y, m - 2, 1), new Date(y, m + 1, 1), new Date(y, m - 5, 1)];
   return [new Date(y, m - 11, 1), new Date(y, m + 1, 1), new Date(y, m - 23, 1)];
 }
-const inR = (b, a, z) => { const d = b.date; return d >= iso(a) && d < iso(z); };
-function stats(list) {
-  const rev = list.reduce((s, b) => s + b.total, 0), paid = list.reduce((s, b) => s + b.paid, 0);
-  const counts = {}; list.forEach(b => counts[b.client] = (counts[b.client] || 0) + 1);
-  const clients = Object.keys(counts).length, rep = Object.values(counts).filter(n => n > 1).length;
-  return { n: list.length, rev, paid, due: rev - paid, avg: list.length ? rev / list.length : 0, comm: rev * DB.comm / 100, pax: list.reduce((s, b) => s + (+b.pax || 0), 0), clients, rep };
-}
+const dOf = b => b.iso || (b.created ? iso(new Date(b.created)) : '');
+const inR = (b, a, z) => { const d = dOf(b); return d >= iso(a) && d < iso(z); };
+const comm = () => store.get('adm-comm', 20);
+function stats(l) { const rev = l.reduce((s, b) => s + (+b.total || 0), 0), paid = l.reduce((s, b) => s + Math.min(+b.paid || 0, +b.total || 0), 0); return { n: l.length, rev, paid, due: rev - paid, avg: l.length ? rev / l.length : 0, pax: l.reduce((s, b) => s + (+b.pax || 0), 0) }; }
 function delta(a, b) { if (!b) return ''; const d = (a - b) / b * 100; return `<small class="${d >= 0 ? 'up' : 'dn'}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d).toFixed(0)}% vs. período anterior</small>`; }
-function group(list, key) { const m = {}; list.forEach(b => m[b[key]] = (m[b[key]] || 0) + b.total); return Object.entries(m).sort((a, b) => b[1] - a[1]); }
-function hbars(rows, fmt = money) { const max = Math.max(1, ...rows.map(r => r[1])); return `<div class="hbars">${rows.slice(0, 7).map(([k, v]) => `<div class="hb" title="${esc(k)}: ${fmt(v)}"><span class="lbl">${esc(k)}</span><span class="tr"><i style="width:${v / max * 100}%"></i></span><span class="v">${fmt(v)}</span></div>`).join('') || '<p class="rating">Sin datos en este período.</p>'}</div>`; }
-function monthChart() {
+function group(l, f, val = b => +b.total || 0) { const m = {}; l.forEach(b => { const k = f(b) || '—'; m[k] = (m[k] || 0) + val(b); }); return Object.entries(m).sort((a, b) => b[1] - a[1]); }
+function hbars(rows, fmt = money) { const max = Math.max(1, ...rows.map(r => r[1])); return rows.length ? `<div class="hbars">${rows.slice(0, 7).map(([k, v]) => `<div class="hb"><span class="lbl">${esc(k)}</span><span class="tr"><i style="width:${(v / max * 100).toFixed(1)}%"></i></span><b>${fmt(v)}</b></div>`).join('')}</div>` : '<p class="rating">Sin datos en este período.</p>'; }
+function monthChart(all) {
   const y = today.getFullYear(), m = today.getMonth(), months = [];
-  for (let i = 11; i >= 0; i--) { const a = new Date(y, m - i, 1), z = new Date(y, m - i + 1, 1); const l = DB.bookings.filter(b => inR(b, a, z)); months.push({ lbl: MES[a.getMonth()], full: a.toLocaleDateString('es-VE', { month: 'long', year: 'numeric' }), v: l.reduce((s, b) => s + b.total, 0), n: l.length }); }
-  const W = 640, H = 220, pl = 48, pb = 24, pt = 10, max = Math.max(100, ...months.map(x => x.v));
-  const step = Math.pow(10, Math.floor(Math.log10(max))) * (max / Math.pow(10, Math.floor(Math.log10(max))) > 5 ? 2 : 1);
-  const top = Math.ceil(max / step) * step, ys = v => pt + (H - pt - pb) * (1 - v / top), bw = (W - pl) / 12;
-  let g = ''; for (let v = 0; v <= top; v += step) g += `<line class="gl" x1="${pl}" x2="${W}" y1="${ys(v)}" y2="${ys(v)}"/><text x="${pl - 8}" y="${ys(v) + 4}" text-anchor="end">${v >= 1000 ? '$' + (v / 1000) + 'k' : '$' + v}</text>`;
-  const bars = months.map((x, i) => { const x0 = pl + i * bw + bw * .2, w = bw * .6, y0 = ys(x.v), h = Math.max(0, H - pb - y0); const r = Math.min(4, w / 2, h);
-    return `<g data-tip="${esc(x.full)}: ${money(x.v)} · ${x.n} chárters"><rect class="hit" x="${pl + i * bw}" y="${pt}" width="${bw}" height="${H - pt - pb}"/><path class="bar ${i === 11 ? 'hi' : ''}" d="M${x0} ${H - pb} V${y0 + r} Q${x0} ${y0} ${x0 + r} ${y0} H${x0 + w - r} Q${x0 + w} ${y0} ${x0 + w} ${y0 + r} V${H - pb} Z"/><text x="${x0 + w / 2}" y="${H - 6}" text-anchor="middle">${x.lbl}</text></g>`; }).join('');
-  return `<div class="chart" id="mchart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ingresos por mes, últimos 12 meses">${g}${bars}</svg><div class="tip" id="mtip"></div></div>
-    <details><summary class="rating" style="cursor:pointer">Ver como tabla</summary><div class="tbl-wrap"><table class="tbl" style="min-width:0"><thead><tr><th>Mes</th><th class="n">Chárters</th><th class="n">Ingresos</th></tr></thead><tbody>${months.map(x => `<tr><td>${x.full}</td><td class="n">${x.n}</td><td class="n">${money(x.v)}</td></tr>`).join('')}</tbody></table></div></details>`;
+  for (let i = 11; i >= 0; i--) { const a = new Date(y, m - i, 1), z = new Date(y, m - i + 1, 1), l = all.filter(b => inR(b, a, z)); months.push({ lbl: MES[a.getMonth()], full: a.toLocaleDateString('es-VE', { month: 'long', year: 'numeric' }), v: l.reduce((s, b) => s + (+b.total || 0), 0), n: l.length }); }
+  const W_ = 640, H = 220, pl = 48, pb = 24, pt = 10, max = Math.max(100, ...months.map(x => x.v));
+  const step = Math.pow(10, Math.floor(Math.log10(max))) * (max / Math.pow(10, Math.floor(Math.log10(max))) > 5 ? 2 : 1), top = Math.ceil(max / step) * step, ys = v => pt + (H - pt - pb) * (1 - v / top), bw = (W_ - pl) / 12;
+  let g = ''; for (let v = 0; v <= top; v += step) g += `<line class="gl" x1="${pl}" x2="${W_}" y1="${ys(v)}" y2="${ys(v)}"/><text x="${pl - 8}" y="${ys(v) + 4}" text-anchor="end">${v >= 1000 ? '$' + (v / 1000) + 'k' : '$' + v}</text>`;
+  const bars = months.map((x, i) => { const x0 = pl + i * bw + bw * .2, w = bw * .6, y0 = ys(x.v), h = Math.max(0, H - pb - y0), r = Math.min(4, w / 2, h);
+    return `<g data-tip="${esc(x.full)}: ${money(x.v)} · ${x.n} reservas"><rect class="hit" x="${pl + i * bw}" y="${pt}" width="${bw}" height="${H - pt - pb}"/><path class="bar ${i === 11 ? 'hi' : ''}" d="M${x0} ${H - pb} V${y0 + r} Q${x0} ${y0} ${x0 + r} ${y0} H${x0 + w - r} Q${x0 + w} ${y0} ${x0 + w} ${y0 + r} V${H - pb}Z"/><text x="${pl + i * bw + bw / 2}" y="${H - 6}" text-anchor="middle">${x.lbl}</text></g>`; }).join('');
+  return `<div class="chart" id="mchart"><svg viewBox="0 0 ${W_} ${H}" role="img" aria-label="Ingresos por mes, últimos 12 meses">${g}${bars}</svg><div class="tip" id="mtip"></div></div>`;
 }
-const status = b => b.paid >= b.total ? ['pag', 'Pagado'] : b.paid > 0 ? ['abo', 'Abono'] : ['pen', 'Pendiente'];
-
-/* ---------------- panel ---------------- */
-function dashboard() {
-  bump(); adm.hidden = false; document.documentElement.style.overflow = 'hidden';
-  const [a, z, pa] = range(period), cur = DB.bookings.filter(b => inR(b, a, z)), prev = DB.bookings.filter(b => inR(b, pa, a));
-  const S = stats(cur), P = stats(prev);
-  const upcoming = DB.bookings.filter(b => b.date >= iso(today)).sort((x, y) => x.date < y.date ? -1 : 1);
-  const plbl = { mes: 'Este mes', '3m': 'Últimos 3 meses', '12m': 'Últimos 12 meses' }[period];
-  adm.innerHTML = `<div class="adm-bar"><div class="wrap"><b>Panel de Eduardo</b>
-    <div class="seg" role="group" aria-label="Período">${[['mes', 'Mes'], ['3m', '3 meses'], ['12m', '12 meses']].map(([k, l]) => `<button type="button" data-p="${k}" aria-pressed="${k === period}">${l}</button>`).join('')}</div>
-    <div class="sp"><button class="btn btn-ghost on-sea btn-sm" type="button" id="a-new">+ Registrar chárter</button><button class="btn btn-sun btn-sm" type="button" id="a-out">Salir</button></div></div></div>
-  <div class="wrap adm-main">
-    ${DB.demo ? `<div class="panel" style="border-color:var(--sun)"><b>Estás viendo datos de ejemplo.</b><span class="rating">Sirven para conocer el panel. Cuando quieras, bórralos y empieza a registrar tus chárters reales.</span><div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" id="a-clear">Borrar ejemplos y empezar</button></div></div>` : ''}
-    <div class="adm-kpis">
-      <div class="akpi"><span>Ingresos · ${plbl}</span><b>${money(S.rev)}</b>${delta(S.rev, P.rev)}</div>
-      <div class="akpi"><span>Tu comisión (${DB.comm}%)</span><b>${money(S.comm)}</b>${delta(S.comm, P.comm)}</div>
-      <div class="akpi"><span>Chárters</span><b>${S.n}</b>${delta(S.n, P.n)}</div>
-      <div class="akpi"><span>Ticket promedio</span><b>${money(S.avg)}</b>${delta(S.avg, P.avg)}</div>
-      <div class="akpi"><span>Por cobrar</span><b>${money(S.due)}</b><small>${cur.filter(b => b.paid < b.total).length} reservas con saldo</small></div>
-      <div class="akpi"><span>Pasajeros</span><b>${S.pax}</b><small>${S.clients} clientes · ${S.clients ? Math.round(S.rep / S.clients * 100) : 0}% repiten</small></div>
-    </div>
-    <div class="panel"><h3>Ingresos por mes <small>últimos 12 meses · toca una barra para ver el detalle</small></h3>${monthChart()}</div>
-    <div class="adm-3">
-      <div class="panel"><h3>Por embarcación <small>${plbl}</small></h3>${hbars(group(cur, 'boat'))}</div>
-      <div class="panel"><h3>Cómo llegan los clientes <small>${plbl}</small></h3>${hbars(group(cur, 'channel'))}</div>
-      <div class="panel"><h3>Playas más pedidas <small>${plbl}</small></h3>${hbars(group(cur, 'route'))}</div>
-    </div>
-    <div class="adm-2">
-      <div class="panel"><h3>Próximas salidas <small>${upcoming.length} agendadas</small></h3>${upcoming.length ? `<div class="hbars">${upcoming.slice(0, 6).map(b => `<div class="hb" style="grid-template-columns:auto 1fr auto"><span class="mono">${new Date(b.date + 'T12:00').toLocaleDateString('es-VE', { day: 'numeric', month: 'short' })}</span><span class="lbl">${esc(b.boat)} · ${esc(b.client)}</span><span class="st ${status(b)[0]}">${status(b)[1]}</span></div>`).join('')}</div>` : '<p class="rating">No hay salidas agendadas.</p>'}</div>
-      <div class="panel"><h3>Liquidación a propietarios <small>${plbl}</small></h3><div class="tbl-wrap"><table class="tbl" style="min-width:420px"><thead><tr><th>Embarcación</th><th class="n">Bruto</th><th class="n">Propietario</th><th class="n">Comisión</th></tr></thead><tbody>${group(cur, 'boat').map(([k, v]) => `<tr><td>${esc(k)}</td><td class="n">${money(v)}</td><td class="n">${money(v * (100 - DB.comm) / 100)}</td><td class="n">${money(v * DB.comm / 100)}</td></tr>`).join('') || '<tr><td colspan="4" class="rating">Sin datos</td></tr>'}</tbody></table></div></div>
-    </div>
-    <div class="panel" id="a-form-wrap" hidden><h3>Registrar chárter</h3>
-      <form class="adm-form" id="a-form">
-        <div class="field"><label for="f-date">Fecha</label><input type="date" id="f-date" required value="${iso(today)}"></div>
-        <div class="field"><label for="f-boat">Embarcación</label><select id="f-boat">${BOATS.map(b => `<option>${b.name}</option>`).join('')}<option>Otra</option></select></div>
-        <div class="field"><label for="f-route">Playa</label><select id="f-route">${ROUTES.map(r => `<option>${r.name}</option>`).join('')}<option>Otra</option></select></div>
-        <div class="field"><label for="f-client">Cliente</label><input id="f-client" required placeholder="Nombre"></div>
-        <div class="field"><label for="f-phone">WhatsApp del cliente</label><input id="f-phone" inputmode="tel" placeholder="+58 4xx…"></div>
-        <div class="field"><label for="f-pax">Personas</label><input id="f-pax" type="number" min="1" value="8" inputmode="numeric"></div>
-        <div class="field"><label for="f-total">Total (USD)</label><input id="f-total" type="number" min="0" step="1" required inputmode="decimal"></div>
-        <div class="field"><label for="f-paid">Pagado (USD)</label><input id="f-paid" type="number" min="0" step="1" value="0" inputmode="decimal"></div>
-        <div class="field"><label for="f-ch">Canal</label><select id="f-ch">${CHANNELS.map(c => `<option>${c}</option>`).join('')}</select></div>
-        <div class="adm-tools"><button class="btn btn-sun btn-sm" type="submit">Guardar</button><button class="btn btn-ghost btn-sm" type="button" id="f-cancel">Cancelar</button></div>
-      </form></div>
-    <div class="panel"><h3>Reservas del período <small>${cur.length} en total</small></h3>
-      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Fecha</th><th>Cliente</th><th>Embarcación</th><th>Playa</th><th class="n">Pers.</th><th class="n">Total</th><th class="n">Pagado</th><th>Estado</th><th>Canal</th><th></th></tr></thead>
-      <tbody>${cur.slice(0, 60).map(b => `<tr data-id="${b.id}"><td class="mono">${b.date}</td><td>${esc(b.client)}</td><td>${esc(b.boat)}</td><td>${esc(b.route)}</td><td class="n">${b.pax}</td><td class="n">${money(b.total)}</td><td class="n">${money(b.paid)}</td><td><span class="st ${status(b)[0]}">${status(b)[1]}</span></td><td>${esc(b.channel)}</td>
-        <td><div class="adm-tools" style="flex-wrap:nowrap">${b.paid < b.total ? '<button class="icon-btn" data-act="pay" type="button">Marcar pagado</button>' : ''}<button class="icon-btn" data-act="album" type="button">Enviar álbum</button><button class="icon-btn" data-act="del" type="button" aria-label="Borrar reserva">Borrar</button></div></td></tr>`).join('') || '<tr><td colspan="10" class="rating">Aún no hay reservas en este período. Usa "Registrar chárter".</td></tr>'}</tbody></table></div></div>
-    <div class="panel"><h3>Ajustes y respaldo</h3>
-      <div class="adm-form">
-        <div class="field"><label for="s-comm">Comisión por chárter (%)</label><input id="s-comm" type="number" min="0" max="100" value="${DB.comm}"></div>
-        <div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" id="s-csv">Copiar datos (CSV)</button><button class="btn btn-ghost btn-sm" type="button" id="s-dl">Descargar respaldo</button></div>
-      </div>
-      <form class="adm-form" id="pw-form" style="margin-top:8px"><div class="field"><label for="pw-old">Contraseña actual</label><input id="pw-old" type="password" autocomplete="current-password" required></div><div class="field"><label for="pw-new">Nueva contraseña</label><input id="pw-new" type="password" autocomplete="new-password" minlength="10" required></div><div class="field"><label for="pw-new2">Repite la nueva</label><input id="pw-new2" type="password" autocomplete="new-password" minlength="10" required></div><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="submit">Cambiar contraseña</button></div></form>
-      <p class="err" id="pw-err" role="alert"></p>
-      <p class="rating">Tus datos se guardan cifrados en este dispositivo. Descarga un respaldo cada semana. La versión con servidor los sincroniza entre tu teléfono y tu computadora.</p>
-    </div>
-  </div>`;
-  wire();
-}
-function wire() {
-  $$('[data-p]', adm).forEach(b => b.onclick = () => { period = b.dataset.p; dashboard(); });
-  $('#a-out', adm).onclick = () => { closeAdm(); toast('Sesión cerrada'); };
-  $('#a-new', adm).onclick = () => { const w = $('#a-form-wrap', adm); w.hidden = false; w.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('#f-client', adm).focus(), 300); };
-  $('#f-cancel', adm).onclick = () => { $('#a-form-wrap', adm).hidden = true; };
-  $('#f-boat', adm).onchange = () => { const b = BOATS.find(x => x.name === $('#f-boat', adm).value); if (b && !$('#f-total', adm).value) $('#f-total', adm).value = b.price; };
-  $('#a-form', adm).onsubmit = async e => {
-    e.preventDefault(); const v = id => $('#' + id, adm).value;
-    const total = Math.max(0, +v('f-total')), paid = Math.min(total, Math.max(0, +v('f-paid')));
-    DB.bookings.unshift({ id: 'b' + Date.now(), date: v('f-date'), boat: v('f-boat'), route: v('f-route'), pax: +v('f-pax') || 1, total, paid, channel: v('f-ch'), client: v('f-client').trim(), phone: v('f-phone').trim() });
-    DB.bookings.sort((a, b) => a.date < b.date ? 1 : -1); await save(); toast('Chárter guardado'); dashboard();
-  };
-  const clr = $('#a-clear', adm); if (clr) clr.onclick = async () => {
-    if (clr.dataset.sure !== '1') { clr.dataset.sure = '1'; clr.textContent = 'Toca otra vez para confirmar'; return; }
-    DB = { v: 1, comm: DB.comm, demo: false, bookings: [] }; await save(); toast('Listo: panel vacío para tus datos reales'); dashboard();
-  };
-  $('tbody', $('.tbl:not([style])', adm) || adm)?.addEventListener('click', async e => {
-    const btn = e.target.closest('[data-act]'); if (!btn) return; const id = btn.closest('tr').dataset.id, b = DB.bookings.find(x => x.id === id);
-    if (btn.dataset.act === 'pay') { b.paid = b.total; await save(); toast('Marcado como pagado'); dashboard(); }
-    if (btn.dataset.act === 'del') { if (btn.dataset.sure !== '1') { btn.dataset.sure = '1'; btn.textContent = '¿Seguro?'; return; } DB.bookings = DB.bookings.filter(x => x !== b); await save(); toast('Reserva borrada'); dashboard(); }
-    if (btn.dataset.act === 'album') {
-      const num = (b.phone || '').replace(/\D/g, ''), txt = `¡Hola ${b.client}! 📸 Ya está listo el álbum de tu paseo a ${b.route}. Ábrelo aquí con tu código de reserva: ${location.href.split('#')[0]}#mi-viaje\nSi lo compartes en redes, etiquétanos @tulanchalecheria 🚤`;
-      const a = document.createElement('a'); a.href = `https://wa.me/${num}?text=${encodeURIComponent(txt)}`; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
-    }
-  });
-  $('#s-comm', adm).onchange = async e => { DB.comm = Math.min(100, Math.max(0, +e.target.value || 0)); await save(); dashboard(); };
-  const csv = () => ['fecha,cliente,telefono,embarcacion,playa,personas,total,pagado,canal'].concat(DB.bookings.map(b => [b.date, b.client, b.phone, b.boat, b.route, b.pax, b.total, b.paid, b.channel].map(x => `"${String(x ?? '').replace(/"/g, '""')}"`).join(','))).join('\n');
-  $('#s-csv', adm).onclick = async () => { try { await navigator.clipboard.writeText(csv()); toast('Datos copiados: pégalos en Excel o Google Sheets'); } catch { toast('No se pudo copiar en este navegador'); } };
-  let framed = true; try { framed = window.top !== window.self; } catch {}
-  if (framed) $('#s-dl', adm).hidden = true;
-  $('#s-dl', adm).onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv()], { type: 'text/csv' })); a.download = `tulancha-respaldo-${iso(today)}.csv`; document.body.appendChild(a); a.click(); a.remove(); toast('Respaldo descargado'); };
-  $('#pw-form', adm).onsubmit = async e => {
-    e.preventDefault(); const err = $('#pw-err', adm); err.textContent = '';
-    const c = cred(), o = $('#pw-old', adm).value, n1 = $('#pw-new', adm).value, n2 = $('#pw-new2', adm).value;
-    if (n1 !== n2) { err.textContent = 'Las contraseñas nuevas no coinciden.'; return; }
-    if (n1.length < 10) { err.textContent = 'Usa al menos 10 caracteres.'; return; }
-    const chk = await derive(c.user, o, c.iter); if (chk.verifier !== c.verifier) { err.textContent = 'La contraseña actual no es correcta.'; return; }
-    const nk = await derive(c.user, n1, c.iter); KEY = nk.key; store.set('cred', { user: c.user, verifier: nk.verifier, iter: c.iter }); await save();
-    e.target.reset(); toast('Contraseña cambiada en este dispositivo');
-  };
-  const ch = $('#mchart', adm), tip = $('#mtip', adm);
-  const showTip = g => { const r = g.getBoundingClientRect(), cr = ch.getBoundingClientRect(); tip.textContent = g.dataset.tip; const hw = tip.offsetWidth / 2 + 4; tip.style.left = Math.min(cr.width - hw, Math.max(hw, r.left - cr.left + r.width / 2)) + 'px'; tip.style.top = (g.querySelector('.bar').getBoundingClientRect().top - cr.top) + 'px'; tip.classList.add('on'); };
-  ch.addEventListener('pointerover', e => { const g = e.target.closest('[data-tip]'); if (g) showTip(g); });
-  ch.addEventListener('pointerdown', e => { const g = e.target.closest('[data-tip]'); if (g) showTip(g); });
+function wireChart() {
+  const ch = $('#mchart', adm), tip = $('#mtip', adm); if (!ch) return;
+  const show = g => { const r = g.getBoundingClientRect(), cr = ch.getBoundingClientRect(); tip.textContent = g.dataset.tip; const hw = tip.offsetWidth / 2 + 4; tip.style.left = Math.min(cr.width - hw, Math.max(hw, r.left - cr.left + r.width / 2)) + 'px'; tip.classList.add('on'); };
+  ch.addEventListener('pointerover', e => { const g = e.target.closest('[data-tip]'); if (g) show(g); });
+  ch.addEventListener('pointerdown', e => { const g = e.target.closest('[data-tip]'); if (g) show(g); });
   ch.addEventListener('pointerleave', () => tip.classList.remove('on'));
 }
+const VIEW = {};
+VIEW.inicio = () => {
+  const all = BKS(), [a, z, pa] = range(period), cur = all.filter(b => inR(b, a, z)), prev = all.filter(b => inR(b, pa, a)), S = stats(cur), P = stats(prev);
+  const up = all.filter(b => dOf(b) >= iso(today)).sort((x, y) => dOf(x) < dOf(y) ? -1 : 1);
+  const plbl = { mes: 'Este mes', '3m': 'Últimos 3 meses', '12m': 'Últimos 12 meses' }[period], c = comm();
+  const nNew = BK.filter(b => b.status === 'nueva').length;
+  return `<div class="ad-head"><div><h2>Hola, Eduardo 👋</h2><p class="rating">${demo ? 'Estás viendo <b>datos de ejemplo</b> para conocer el panel.' : BK.length ? `Tienes ${BK.length} reservas registradas${nNew ? ` y <b>${nNew} nuevas por revisar</b>` : ''}.` : 'Aún no hay reservas registradas. Las que hagan tus clientes en la app aparecerán aquí solas.'}</p></div>
+    <div class="adm-tools"><div class="seg light" role="group" aria-label="Período">${[['mes', 'Mes'], ['3m', '3 meses'], ['12m', '12 meses']].map(([k, l]) => `<button type="button" data-p="${k}" aria-pressed="${k === period}">${l}</button>`).join('')}</div>${helpBtn('inicio')}</div></div>
+    ${!BK.length || demo ? `<div class="panel ad-note"><b>${demo ? 'Datos de ejemplo activados' : '¿Quieres ver cómo se verá con datos?'}</b><span class="rating">${demo ? 'Nada de esto es real ni se guarda. Desactívalo para ver tus números.' : 'Activa los datos de ejemplo para conocer las gráficas. No se guardan ni afectan nada.'}</span><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" id="a-demo">${demo ? 'Ver mis datos reales' : 'Ver con datos de ejemplo'}</button></div></div>` : ''}
+    ${nNew && !demo ? `<button type="button" class="panel ad-alert" data-adtab="reservas"><b>${nNew} reserva${nNew > 1 ? 's' : ''} nueva${nNew > 1 ? 's' : ''} por confirmar</b><span>Revísalas y confírmalas en Reservas →</span></button>` : ''}
+    <div class="adm-kpis">
+      <div class="akpi"><span>Ventas · ${plbl}</span><b>${money(S.rev)}</b>${delta(S.rev, P.rev)}</div>
+      <div class="akpi"><span>Cobrado</span><b>${money(S.paid)}</b><small>${S.rev ? Math.round(S.paid / S.rev * 100) : 0}% de las ventas</small></div>
+      <div class="akpi"><span>Por cobrar</span><b>${money(S.due)}</b><small>${cur.filter(b => (+b.paid || 0) < (+b.total || 0)).length} reservas con saldo</small></div>
+      <div class="akpi"><span>Reservas</span><b>${S.n}</b>${delta(S.n, P.n)}</div>
+      <div class="akpi"><span>Ticket promedio</span><b>${money(S.avg)}</b>${delta(S.avg, P.avg)}</div>
+      <div class="akpi"><span>Tu comisión (${c}%)</span><b>${money(S.rev * c / 100)}</b><small>${S.pax} pasajeros</small></div>
+    </div>
+    <div class="panel"><h3>Ventas por mes <small>últimos 12 meses · toca una barra</small></h3>${monthChart(all)}</div>
+    <div class="adm-3">
+      <div class="panel"><h3>Por embarcación <small>${plbl}</small></h3>${hbars(group(cur, b => b.boat))}</div>
+      <div class="panel"><h3>Rumbos más pedidos <small>${plbl}</small></h3>${hbars(group(cur, b => String(b.route || '').split(':')[0].split(' · ')[0]))}</div>
+      <div class="panel"><h3>Cómo llegan <small>${plbl}</small></h3>${hbars(group(cur, b => b.channel), v => v ? money(v) : '$0')}</div>
+    </div>
+    <div class="adm-2">
+      <div class="panel"><h3>Próximas salidas <small>${up.length} agendadas</small></h3>${up.length ? `<div class="ad-list">${up.slice(0, 7).map(b => `<div class="ad-li"><span class="mono">${esc(fmtD(dOf(b)))}</span><span><b>${esc(b.name)}</b><small>${esc(b.boat)} · ${b.pax} pers.</small></span><span class="st ${ST[b.status || 'nueva'][0]}">${ST[b.status || 'nueva'][1]}</span></div>`).join('')}</div>` : '<p class="rating">No hay salidas agendadas.</p>'}</div>
+      <div class="panel"><h3>Idioma de tus clientes <small>${plbl}</small></h3>${hbars(group(cur, b => LANG_N[b.lang || 'es'], () => 1), v => v + (v === 1 ? ' reserva' : ' reservas'))}<p class="rating">La web abre en español; el cliente puede cambiarla a inglés con el botón EN. Te escribe por WhatsApp en ese idioma.</p></div>
+    </div>`;
+};
+const fmtD = s => { if (!s) return '—'; const d = new Date(s + 'T12:00'); return d.toLocaleDateString('es-VE', { weekday: 'short', day: 'numeric', month: 'short' }); };
+
+/* ---------------- reservas ---------------- */
+VIEW.reservas = () => {
+  const t = iso(today), q = bkQuery.toLowerCase();
+  const F = { proximas: b => dOf(b) >= t && b.status !== 'cancelada', nuevas: b => b.status === 'nueva', pasadas: b => dOf(b) < t, todas: () => true, canceladas: b => b.status === 'cancelada' };
+  const l = BK.filter(F[bkFilter]).filter(b => !q || [b.name, b.code, b.phone, b.boat].join(' ').toLowerCase().includes(q)).sort((a, b) => bkFilter === 'pasadas' || bkFilter === 'todas' ? (dOf(a) < dOf(b) ? 1 : -1) : (dOf(a) < dOf(b) ? -1 : 1));
+  return `<div class="ad-head"><div><h2>Reservas</h2><p class="rating">Las reservas hechas en la app llegan aquí solas. Las de WhatsApp las puedes registrar tú.</p></div><div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-bk-new>+ Registrar reserva</button>${helpBtn('reservas')}</div></div>
+    <div class="ad-filters"><div class="seg light">${[['proximas', 'Próximas'], ['nuevas', 'Nuevas'], ['pasadas', 'Pasadas'], ['canceladas', 'Canceladas'], ['todas', 'Todas']].map(([k, l2]) => `<button type="button" data-bkf="${k}" aria-pressed="${k === bkFilter}">${l2}</button>`).join('')}</div>
+      <input type="search" id="bk-q" placeholder="Buscar por nombre, código o teléfono" value="${esc(bkQuery)}" aria-label="Buscar reservas"></div>
+    ${l.length ? `<div class="ad-bks">${l.map(bkCard).join('')}</div>` : `<div class="panel"><p class="rating">${BK.length ? 'No hay reservas con este filtro.' : 'Todavía no hay reservas. Cuando un cliente confirme en la app, aparecerá aquí con su código, sus datos y el total.'}</p></div>`}
+    <div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" id="bk-csv">Descargar reservas (Excel)</button></div>`;
+};
+function bkCard(b) {
+  const s = ST[b.status || 'nueva'], due = Math.max(0, (+b.total || 0) - (+b.paid || 0));
+  return `<article class="ad-bk" data-code="${esc(b.code)}"><div class="ad-bk-h"><span class="mono">${esc(b.code)}</span><span class="st ${s[0]}">${s[1]}</span>${b.src === 'web' ? '<span class="tag">App</span>' : '<span class="tag">Manual</span>'}${b.lang && b.lang !== 'es' ? `<span class="tag">${LANG_N[b.lang]}</span>` : ''}</div>
+    <h4>${esc(b.name || 'Sin nombre')}</h4>
+    <p>${esc(fmtD(dOf(b)))}${b.hours ? ' · ' + esc(b.hours) : ''}</p>
+    <p class="rating">${esc(b.boat)} · ${b.pax || '—'} pers.${b.dock ? ' · ' + esc(b.dock) : ''}</p>
+    ${b.route ? `<p class="rating">${esc(b.route)}</p>` : ''}${b.note ? `<p class="rating">📝 ${esc(b.note)}</p>` : ''}
+    <div class="ad-bk-m"><span>Total <b>${money(+b.total || 0)}</b></span><span>Pagado <b>${money(+b.paid || 0)}</b></span><span class="${due ? 'due' : 'ok'}">${due ? 'Falta ' + money(due) : 'Pagado ✓'}</span></div>
+    <div class="adm-tools">${b.status !== 'confirmada' && b.status !== 'cancelada' ? '<button class="icon-btn pri" type="button" data-bka="ok">Confirmar</button>' : ''}${due ? `<button class="icon-btn" type="button" data-bka="half">Abono 50%</button><button class="icon-btn" type="button" data-bka="paid">Marcar pagado</button>` : ''}${b.phone ? '<button class="icon-btn" type="button" data-bka="wa">WhatsApp</button>' : ''}<button class="icon-btn" type="button" data-bka="edit">Editar</button>${b.status !== 'cancelada' ? '<button class="icon-btn" type="button" data-bka="cancel">Cancelar</button>' : '<button class="icon-btn" type="button" data-bka="del">Borrar</button>'}</div></article>`;
+}
+async function saveBk(x) { const j = await api('bk', { booking: x }); const i = BK.findIndex(b => b.code === j.booking.code); if (i >= 0) BK[i] = j.booking; else BK.push(j.booking); return j.booking; }
+function bkForm(b) {
+  b = b || { iso: iso(new Date(today.getTime() + 864e5)), pax: 6, total: 0, paid: 0, channel: 'WhatsApp directo', status: 'confirmada', boat: (W.boats.find(x => x.own) || W.boats[0]).name, route: W.routes[0].name, dock: W.docks[0].name };
+  sheet(`<h3>${b.code ? 'Editar reserva ' + esc(b.code) : 'Registrar reserva'}</h3><form class="adm-form" id="bk-f">
+    <div class="field"><label for="bf-name">Cliente</label><input id="bf-name" required value="${esc(b.name || '')}"></div>
+    <div class="field"><label for="bf-phone">WhatsApp</label><input id="bf-phone" inputmode="tel" placeholder="+58 4xx xxx xxxx" value="${esc(b.phone || '')}"></div>
+    <div class="field"><label for="bf-iso">Fecha del paseo</label><input id="bf-iso" type="date" required value="${esc(b.iso || '')}"></div>
+    <div class="field"><label for="bf-boat">Embarcación</label><select id="bf-boat">${[...new Set([...W.boats.map(x => x.name), b.boat])].map(n => `<option${n === b.boat ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></div>
+    <div class="field"><label for="bf-route">Rumbo</label><select id="bf-route">${[...new Set([...W.routes.map(x => x.name), b.route].filter(Boolean))].map(n => `<option${n === b.route ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></div>
+    <div class="field"><label for="bf-dock">Muelle</label><select id="bf-dock">${[...new Set([...W.docks.map(x => x.name), b.dock].filter(Boolean))].map(n => `<option${n === b.dock ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></div>
+    <div class="field"><label for="bf-pax">Personas</label><input id="bf-pax" type="number" min="1" inputmode="numeric" value="${+b.pax || 1}"></div>
+    <div class="field"><label for="bf-total">Total (USD)</label><input id="bf-total" type="number" min="0" inputmode="decimal" value="${+b.total || 0}"></div>
+    <div class="field"><label for="bf-paid">Pagado (USD)</label><input id="bf-paid" type="number" min="0" inputmode="decimal" value="${+b.paid || 0}"></div>
+    <div class="field"><label for="bf-ch">Cómo llegó</label><select id="bf-ch">${[...new Set([...CHANNELS, b.channel].filter(Boolean))].map(c => `<option${c === b.channel ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></div>
+    <div class="field"><label for="bf-st">Estado</label><select id="bf-st">${Object.entries(ST).map(([k, v]) => `<option value="${k}"${k === (b.status || 'nueva') ? ' selected' : ''}>${v[1]}</option>`).join('')}</select></div>
+    <div class="field ad-wide"><label for="bf-note">Nota</label><input id="bf-note" value="${esc(b.note || '')}"></div>
+    <div class="adm-tools ad-wide"><button class="btn btn-sun btn-sm" type="submit">Guardar</button><button class="btn btn-ghost btn-sm" type="button" data-close>Cancelar</button></div></form>`);
+  $('#bk-f').onsubmit = async e => {
+    e.preventDefault(); const v = id => $('#' + id).value;
+    const x = { ...(b.code ? { code: b.code } : {}), name: v('bf-name').trim(), phone: v('bf-phone').trim(), iso: v('bf-iso'), boat: v('bf-boat'), route: v('bf-route'), dock: v('bf-dock'), pax: +v('bf-pax'), total: +v('bf-total'), paid: Math.min(+v('bf-paid'), +v('bf-total')), channel: v('bf-ch'), status: v('bf-st'), note: v('bf-note').trim() };
+    try { await saveBk(x); closeSheet(); toast('Reserva guardada'); render(); } catch (err) { toast(errMsg(err)); }
+  };
+}
+
+/* ---------------- embarcaciones ---------------- */
+const thumb = b => { const u = b.photos && (b.photos.drone || b.photos.exterior); return u ? `<img src="${esc(u)}" alt="">` : art('drone', b.hue || 200, b.id); };
+VIEW.flota = () => `<div class="ad-head"><div><h2>Embarcaciones</h2><p class="rating">${W.boats.length} en total · ${W.boats.filter(b => !b.hidden).length} visibles en la web. La primera de la lista es la que destacas como “Recomendación de la casa”.</p></div><div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-boat-new>+ Agregar embarcación</button>${helpBtn('flota')}</div></div>
+  <div class="ad-boats">${W.boats.map((b, i) => `<article class="ad-boat${b.hidden ? ' off' : ''}" data-i="${i}"><div class="ad-boat-ph">${thumb(b)}${b.own ? '<span class="badge own-badge">De la casa</span>' : ''}${b.hidden ? '<span class="badge">Oculta</span>' : ''}</div>
+    <div class="ad-boat-b"><h4>${esc(b.name)}</h4><p class="rating">${esc(b.type)} · ${b.ft} pies · ${b.pax} pers.</p><p><b>${money(+b.price || 0)}</b> <span class="rating">por día</span></p>
+    <p class="rating">${Object.values(b.photos || {}).filter(Boolean).length} de 4 fotos</p>
+    <div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-boat-edit="${i}">Editar</button><button class="icon-btn" type="button" data-boat-up="${i}" aria-label="Subir en la lista" ${i ? '' : 'disabled'}>↑</button><button class="icon-btn" type="button" data-boat-down="${i}" aria-label="Bajar en la lista" ${i < W.boats.length - 1 ? '' : 'disabled'}>↓</button></div></div></article>`).join('')}</div>`;
+function boatEditor(i) {
+  const b = W.boats[i]; if (!b) return; const p = 'boats.' + i;
+  b.photos ??= {}; b.inc ??= []; b.opt ??= {}; b.amen ??= []; b.pick ??= {};
+  const pickups = W.docks.filter(d => d.pickup && !d.off);
+  const accRow = ([k, name]) => { const st = b.inc.includes(k) ? 'inc' : k in b.opt ? 'opt' : 'no';
+    return `<div class="ad-acc"><span>${esc(name)}</span><select data-acc="${k}" aria-label="${esc(name)}"><option value="no"${st === 'no' ? ' selected' : ''}>No tiene</option><option value="inc"${st === 'inc' ? ' selected' : ''}>Incluido</option><option value="opt"${st === 'opt' ? ' selected' : ''}>Con costo</option></select><input type="number" min="0" inputmode="decimal" data-accp="${k}" value="${st === 'opt' ? +b.opt[k] || 0 : ''}" placeholder="$" aria-label="Precio de ${esc(name)}" ${st === 'opt' ? '' : 'hidden'}></div>`; };
+  sheet(`<div class="ad-sheet-h"><h3>${esc(b.name || 'Nueva embarcación')}</h3>${helpBtn('barco', 'Ayuda')}</div>
+    <section><h4>Fotos ${helpBtn('fotos', 'Qué fotos subir')}</h4><div class="ad-photos">${VIEWS.map(([k, l]) => photoSlot(`${p}.photos.${k}`, 'boat', l)).join('')}</div><p class="hint">La de dron es la principal: sale en el catálogo y en la reserva. Si falta alguna, se muestra una ilustración.</p></section>
+    <section><h4>Datos</h4><div class="adm-form">${inp(p + '.name', 'Nombre')}${inp(p + '.type', 'Tipo', { sel: TYPES.map(t => [t, t]) })}${inp(p + '.ft', 'Pies', { t: 'num' })}${inp(p + '.pax', 'Capacidad (personas)', { t: 'num', min: 1, hint: 'Los niños cuentan como pasajeros.' })}${inp(p + '.rating', 'Valoración (1 a 5)', { t: 'num', step: .1, min: 1 })}${inp(p + '.trips', 'Paseos realizados', { t: 'num' })}</div>
+      <div class="ad-checks">${inp(p + '.cabin', 'Tiene camarote (permite pernocta)', { t: 'bool' })}<label class="ad-check"><input type="checkbox" data-own="${i}"${b.own ? ' checked' : ''}> Es la lancha de la casa (sale destacada)</label>${inp(p + '.hidden', 'Ocultar de la web (no se puede reservar)', { t: 'bool' })}</div></section>
+    <section><h4>Precio y horario</h4><div class="adm-form">${inp(p + '.price', 'Tarifa por día (USD)', { t: 'num' })}${inp(p + '.wk', 'Recargo fin de semana (%)', { t: 'num', ph: '10', hint: 'Se suma sábados y domingos. Vacío = 10%.' })}${inp(p + '.late', 'Hora extra', { sel: LATE, t: 'int', def: 0 })}${inp(p + '.hx', 'Costo de cada hora extra (USD)', { t: 'num', hint: 'Se paga en efectivo a bordo.' })}</div></section>
+    <section><h4>Rumbos y muelle</h4><div class="adm-form">${inp(p + '.maxBeaches', 'Playas por salida', { sel: [[1, '1 playa'], [2, '2 playas'], [3, '3 playas'], [4, '4 playas']], t: 'int', def: b.type === 'Lancha' ? 3 : 2 })}${inp(p + '.dock', 'Muelle base', { sel: W.docks.map((d, j) => [j, d.name]).filter(([j]) => !W.docks[j].pickup && !W.docks[j].off), t: 'int' })}</div>
+      <div class="ad-checks">${inp(p + '.r4', 'Hace el Rumbo 4 (Manare y Playa Blanca)', { t: 'bool' })}</div>
+      ${pickups.length ? `<h5>Recogidas en residencias</h5><div class="ad-picks">${pickups.map(d => { const v = b.pick[d.id]; const st = v === null ? 'no' : v === 0 ? 'free' : 'std';
+        return `<div class="ad-acc"><span>${esc(d.name)}</span><select data-pick="${esc(d.id)}" aria-label="${esc(d.name)}"><option value="std"${st === 'std' ? ' selected' : ''}>Con recargo normal</option><option value="free"${st === 'free' ? ' selected' : ''}>Sin recargo</option><option value="no"${st === 'no' ? ' selected' : ''}>No llega (calado)</option></select></div>`; }).join('')}</div>` : ''}</section>
+    <section><h4>Accesorios ${helpBtn('accesorios', 'Ayuda')}</h4><div class="ad-accs">${Object.entries(ACC).map(accRow).join('')}</div>
+      <div class="adm-form" style="margin-top:10px">${inp(p + '.amen', 'Lo que la distingue (separado por comas)', { t: 'list', ph: 'Toldo, Baño, Aire acondicionado', cls: 'ad-wide' })}</div></section>
+    <section><h4>Descripción ${helpBtn('textos', 'Idiomas')}</h4><div class="adm-form">${inp(p + '.desc', 'En español', { area: 1, cls: 'ad-wide' })}${inp(p + '.desc_en', 'En inglés (opcional)', { area: 1, cls: 'ad-wide' })}</div></section>
+    <div class="ad-sheet-f"><button class="btn btn-sun" type="button" data-close>Listo</button><button class="btn btn-ghost btn-sm" type="button" data-boat-dup="${i}">Duplicar</button><button class="btn btn-ghost btn-sm ad-danger" type="button" data-boat-del="${i}">Eliminar</button></div>`, 'boat');
+}
+
+/* ---------------- rumbos y playas ---------------- */
+VIEW.rumbos = () => `<div class="ad-head"><div><h2>Rumbos y playas</h2><p class="rating">Los rumbos nunca se cruzan: el cliente elige uno y sus playas.</p></div><div class="adm-tools">${helpBtn('rumbos')}</div></div>
+  ${W.routes.map((r, i) => { const p = 'routes.' + i; return `<section class="panel ad-route"><h3>${esc(r.name)} <small>${r.beaches.length} playas</small></h3>
+    <div class="adm-form">${inp(p + '.name', 'Nombre')}${inp(p + '.zone', 'Zona')}${inp(p + '.min', 'Minutos de navegación', { t: 'num' })}${inp(p + '.extra', 'Recargo (USD)', { t: 'numn', ph: 'Por WhatsApp', hint: 'Vacío = se confirma por WhatsApp. 0 = sin recargo.' })}
+    ${inp(p + '.tags', 'Etiquetas (separadas por comas)', { t: 'list', cls: 'ad-wide' })}${inp(p + '.desc', 'Descripción', { area: 1, rows: 2, cls: 'ad-wide' })}${inp(p + '.desc_en', 'Descripción en inglés (opcional)', { area: 1, rows: 2, cls: 'ad-wide' })}</div>
+    <h4>Playas ${helpBtn('playas', 'Fotos de playas')}</h4>
+    <div class="ad-beaches">${r.beaches.map((n, j) => `<div class="ad-beach">${photoSlot('beachPhotos.' + n.replace(/\./g, '·'), 'beach', '', true)}<div class="field"><label for="bn-${i}-${j}">Nombre</label><input id="bn-${i}-${j}" data-beach="${i}.${j}" value="${esc(n)}"></div><button type="button" class="icon-btn ad-danger" data-beach-del="${i}.${j}">Quitar playa</button></div>`).join('')}
+      <button type="button" class="ad-add" data-beach-add="${i}">+ Agregar playa</button></div></section>`; }).join('')}
+  <section class="panel"><h3>Cotización especial</h3><div class="adm-form">${inp('special', 'Destinos que van por WhatsApp (separados por comas)', { t: 'list', cls: 'ad-wide' })}</div></section>`;
+
+/* ---------------- muelles ---------------- */
+VIEW.muelles = () => `<div class="ad-head"><div><h2>Muelles y recogidas</h2><p class="rating">Los muelles sugeridos y las residencias donde buscas al cliente.</p></div><div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-dock-new>+ Agregar</button>${helpBtn('muelles')}</div></div>
+  <div class="ad-docks">${W.docks.map((d, i) => { const p = 'docks.' + i; return `<section class="panel${d.off ? ' off' : ''}"><h3>${esc(d.name)} <small>${d.pickup ? 'Recogida en residencia' : 'Muelle sugerido'}${d.off ? ' · no habilitado' : ''}</small></h3>
+    <div class="adm-form">${inp(p + '.name', 'Nombre')}
+    ${d.pickup ? `${inp(p + '.lancha', 'Recargo en lancha (USD)', { t: 'num' })}${d.lanchaOnly ? '' : inp(p + '.other', 'Recargo en barco o yate (USD)', { t: 'num' })}${inp(p + '.back', 'Regreso máximo', { ph: '5:30 pm', hint: 'Vacío = horario normal.' })}` : `${inp(p + '.fee', 'Toque de muelle', { ph: '$30', hint: 'Lo cobra el establecimiento.' })}${inp(p + '.park', 'Estacionamiento', { cls: 'ad-wide' })}`}</div>
+    <div class="ad-checks">${d.pickup ? inp(p + '.lanchaOnly', 'Solo lanchas (por baja profundidad)', { t: 'bool' }) : ''}${inp(p + '.off', 'No habilitado por ahora', { t: 'bool' })}</div></section>`; }).join('')}</div>`;
+
+/* ---------------- pagos ---------------- */
+VIEW.pagos = () => { const P = W.pay; return `<div class="ad-head"><div><h2>Pagos</h2><p class="rating">Lo que ve el cliente al confirmar, para pagar el abono del 50%.</p></div><div class="adm-tools">${helpBtn('pagos')}</div></div>
+  <section class="panel"><h3>Zelle <small>el cliente ve solo la principal</small></h3>
+    <div class="ad-zelles">${P.zelles.map((z, i) => `<div class="ad-zelle${i === P.zelleOn ? ' on' : ''}"><label class="ad-zon"><input type="radio" name="z-on" data-zon="${i}"${i === P.zelleOn ? ' checked' : ''}> <span>${i === P.zelleOn ? '<b>Principal</b> · la ve el cliente' : 'Usar como principal'}</span></label>
+      <div class="adm-form">${inp(`pay.zelles.${i}.name`, 'Titular', { ph: 'Como aparece en Zelle' })}${inp(`pay.zelles.${i}.email`, 'Correo o teléfono', { ph: 'pagos@ejemplo.com' })}</div>
+      <button type="button" class="icon-btn ad-danger" data-zdel="${i}">Quitar</button></div>`).join('')}
+    <button type="button" class="ad-add" data-zadd>+ Agregar cuenta Zelle</button></div></section>
+  <section class="panel"><h3>Binance Pay</h3><div class="ad-ally">${photoSlot('pay.binanceQR', 'qr', 'Código QR', true)}<div class="adm-form">${inp('pay.binance', 'ID de Binance Pay', { ph: '123456789' })}${inp('pay.binanceUser', 'Usuario', { ph: 'tu_usuario' })}${inp('pay.binanceMail', 'Correo de Binance', { cls: 'ad-wide' })}${inp('pay.binanceLink', 'Enlace de pago (el del QR)', { ph: 'https://app.binance.com/…', cls: 'ad-wide', hint: 'En el teléfono el cliente toca “Abrir en Binance” y paga directo.' })}</div></div></section>
+  <section class="panel"><h3>Así lo verá el cliente</h3><div class="ad-preview">${payPreview()}</div><p class="hint">El efectivo siempre se acuerda por WhatsApp.</p></section>`; };
+const payPreview = () => { const P = W.pay, z = P.zelles[P.zelleOn] || {};
+  const box = (title, how, acct, extra) => `<div class="pay-info"><div class="pay-amt"><span>${title} · abono para apartar</span><b>$175</b><small>50% · el resto en el muelle antes de zarpar</small></div><p>${acct ? how : 'Sin datos: la app le dice que se los envías por WhatsApp.'}</p>${acct ? `<p class="pay-acct mono">${esc(acct)}</p>${extra}` : ''}</div>`;
+  return box('Zelle', 'Paga el abono a este Zelle y mándanos la captura por WhatsApp.', z.email, z.name ? `<p class="rating">Titular: <b>${esc(z.name)}</b></p>` : '')
+    + box('Binance Pay', 'Paga el abono en USDT a este ID de Binance Pay y mándanos la captura por WhatsApp.', P.binance ? 'ID ' + P.binance : '', `${P.binanceUser ? `<p class="rating">Usuario: <b>${esc(P.binanceUser)}</b></p>` : ''}${P.binanceQR || P.binanceLink ? `<div class="pay-qr">${P.binanceQR ? `<img src="${esc(P.binanceQR)}" alt="" width="120" height="120">` : ''}${P.binanceLink ? '<span class="btn btn-sun btn-sm">Abrir en Binance</span>' : ''}</div>` : ''}`); };
+
+/* ---------------- aliados ---------------- */
+VIEW.aliados = () => `<div class="ad-head"><div><h2>Aliados</h2><p class="rating">Marcas y servicios que recomiendas. Aparecen en la sección Aliados de la web.</p></div><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" data-cat-new>+ Nueva categoría</button>${helpBtn('aliados')}</div></div>
+  ${W.allies.map((c, i) => `<section class="panel"><div class="adm-form">${inp(`allies.${i}.cat`, 'Categoría')}</div>
+    <div class="ad-allies">${c.items.map((it, j) => { const p = `allies.${i}.items.${j}`; return `<div class="ad-ally">${photoSlot(p + '.4', 'logo', 'Logo', true)}<div class="adm-form">${inp(p + '.0', 'Nombre')}${inp(p + '.1', 'Descripción', { cls: 'ad-wide' })}${inp(p + '.2', 'Enlace (web o Instagram)', { ph: 'https://…', cls: 'ad-wide', hint: 'Vacío = abre WhatsApp para pedirlo.' })}<div class="field"><label>Color si no hay logo</label><input type="color" data-k="${p}.3" value="${esc(it[3] || '#232843')}"></div></div><button type="button" class="icon-btn ad-danger" data-ally-del="${i}.${j}">Quitar</button></div>`; }).join('')}</div>
+    <div class="adm-tools"><button type="button" class="ad-add" data-ally-add="${i}">+ Agregar aliado</button>${c.items.length ? '' : `<button type="button" class="icon-btn ad-danger" data-cat-del="${i}">Quitar categoría</button>`}</div></section>`).join('')}`;
+
+/* ---------------- ajustes ---------------- */
+VIEW.ajustes = () => `<div class="ad-head"><div><h2>Ajustes</h2></div><div class="adm-tools">${helpBtn('ajustes')}</div></div>
+  <section class="panel"><h3>Incluido en todas las embarcaciones</h3><p class="rating">Una línea por cada cosa. Se muestra en el detalle de cada embarcación.</p><div class="field"><textarea id="basic-ta" rows="8" aria-label="Incluido en todas">${esc(W.basic.join('\n'))}</textarea></div></section>
+  <section class="panel"><h3>Versiones publicadas</h3><p class="rating">Si algo salió mal, vuelve a una versión anterior. Se guardan las últimas 15.</p><div id="hist"><button class="btn btn-ghost btn-sm" type="button" id="hist-load">Ver versiones</button></div></section>
+  <section class="panel"><h3>Comisión</h3><div class="adm-form"><div class="field"><label for="s-comm">Tu comisión por reserva (%)</label><input id="s-comm" type="number" min="0" max="100" value="${comm()}"><small class="hint">Solo para calcular tu ganancia en el Resumen. Se guarda en este dispositivo.</small></div></div></section>
+  <section class="panel"><h3>Usuario y contraseña</h3><form class="adm-form" id="pw-form"><div class="field"><label for="pw-u">Usuario</label><input id="pw-u" autocomplete="username" value="tulanchalecheria" autocapitalize="none"></div><div class="field"><label for="pw-old">Contraseña actual</label><input id="pw-old" type="password" autocomplete="current-password" required></div><div class="field"><label for="pw-new">Nueva contraseña</label><input id="pw-new" type="password" autocomplete="new-password" minlength="8" required></div><div class="field"><label for="pw-new2">Repite la nueva</label><input id="pw-new2" type="password" autocomplete="new-password" required></div><div class="adm-tools"><button class="btn btn-sun btn-sm" type="submit">Cambiar</button></div></form><p class="err" id="pw-err" role="alert"></p></section>
+  <section class="panel"><h3>Respaldo</h3><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" id="bk-json">Descargar respaldo del catálogo</button><button class="btn btn-ghost btn-sm" type="button" id="bk-csv">Descargar reservas (Excel)</button></div></section>`;
+
+/* ---------------- ventanas emergentes ---------------- */
+/* las ventanas se apilan: la ayuda o el recorte de una foto se abren encima del editor sin cerrarlo */
+function sheet(html, kind = '') {
+  const o = document.createElement('div'); o.className = 'ad-ov';
+  o.innerHTML = `<div class="ad-sheet${kind ? ' k-' + kind : ''}" role="dialog" aria-modal="true"><button type="button" class="m-close" data-close aria-label="Cerrar">×</button>${html}</div>`;
+  adm.appendChild(o); requestAnimationFrame(() => o.classList.add('on'));
+  const f = $('input,select,textarea,button:not(.m-close)', o); if (f && kind !== 'help') setTimeout(() => f.focus({ preventScroll: true }), 60);
+}
+function closeSheet() { const l = $$('.ad-ov', adm); if (l.length) l[l.length - 1].remove(); }
+function closeTop() { closeSheet(); if (!$('.ad-ov', adm) && editing != null) { editing = null; render(); } }
+const HELP = {
+  bienvenida: ['Bienvenido a tu panel', `<p>Desde aquí controlas tu app. Todo lo que cambies se guarda primero como <b>borrador</b> y los clientes lo ven cuando tocas <b>Publicar cambios</b> (la barra amarilla de abajo).</p>
+    <ol class="ad-steps"><li><b>Resumen:</b> tus ventas, lo cobrado, lo que falta por cobrar y las próximas salidas.</li><li><b>Reservas:</b> llegan solas desde la app. Confírmalas, marca los pagos y escribe al cliente.</li><li><b>Embarcaciones:</b> fotos, precios, capacidad, accesorios, hora extra y recogidas de cada una.</li><li><b>Rumbos y playas:</b> playas de cada rumbo, recargos y fotos.</li><li><b>Muelles:</b> toques de muelle y recargos de recogida.</li><li><b>Pagos:</b> tu Zelle y Binance para que el cliente pague el abono.</li><li><b>Aliados:</b> marcas que recomiendas, con su logo y enlace.</li><li><b>Ajustes:</b> contraseña, versiones anteriores y respaldo.</li></ol>
+    <p class="hint">En cada sección hay un botón <b>?</b> con instrucciones. Si te equivocas, en Ajustes puedes volver a una versión anterior.</p>`],
+  inicio: ['El resumen', `<p>Muestra tus números con las reservas registradas (las canceladas no cuentan).</p><ul><li><b>Ventas:</b> suma del total de las reservas del período.</li><li><b>Cobrado:</b> lo que marcaste como pagado.</li><li><b>Por cobrar:</b> la diferencia.</li><li><b>Tu comisión:</b> se calcula con el % que pones en Ajustes.</li></ul><p>Cambia el período arriba (mes, 3 meses o 12 meses). Las flechas comparan con el período anterior.</p>`],
+  reservas: ['Las reservas', `<p>Cuando un cliente confirma en la app, la reserva llega aquí con estado <b>Nueva</b>, y a ti te escribe por WhatsApp con el mismo código.</p><ol class="ad-steps"><li>Verifica la disponibilidad y el pago del abono.</li><li>Toca <b>Confirmar</b> y luego <b>Abono 50%</b> o <b>Marcar pagado</b>.</li><li>Si no se da, toca <b>Cancelar</b>: deja de contar en tus números.</li></ol><p>Las reservas que cierras por WhatsApp o Instagram regístralas con <b>+ Registrar reserva</b> para que tus números estén completos.</p>`],
+  flota: ['Tus embarcaciones', `<ul><li>Toca <b>Editar</b> para cambiar fotos, precio, capacidad, accesorios, horario y recogidas.</li><li>Con las flechas <b>↑ ↓</b> cambias el orden en que aparecen en la web.</li><li>La marcada como <b>De la casa</b> sale destacada en la portada y primero en la reserva.</li><li>Si una embarcación no está disponible por un tiempo, márcala como <b>Ocultar de la web</b> en vez de eliminarla.</li></ul><p class="hint">Recuerda tocar Publicar cambios al terminar.</p>`],
+  barco: ['Editar una embarcación', `<p>Cada cambio queda en el borrador al momento. Toca <b>Listo</b> para volver y luego <b>Publicar cambios</b>.</p><ul><li><b>Tarifa por día:</b> el precio base en dólares. El recargo de fin de semana se suma solo.</li><li><b>Hora extra:</b> hasta qué hora puede quedarse y cuánto cuesta cada hora. Si no permite, el cliente no la puede pedir.</li><li><b>Playas por salida:</b> cuántas playas puede elegir el cliente.</li><li><b>Recogidas:</b> si por su calado no llega a una residencia, elige “No llega”; si la tienes cerca y no cobras, “Sin recargo”.</li></ul>`],
+  fotos: ['Qué fotos subir', `<p>Puedes subirlas directo desde la galería del teléfono. El panel las recorta y las optimiza solo para que la app cargue rápido.</p><ul><li><b>Formato:</b> JPG, PNG o WebP. En iPhone también sirven las fotos normales de la cámara.</li><li><b>Orientación:</b> horizontal (acostada).</li><li><b>Medida ideal:</b> ${IMG.boat.size} (proporción 16:10). Mínimo ${IMG.boat.min} px de ancho para que no se vea borrosa.</li><li><b>Peso:</b> no importa, el panel la reduce a unos 200 a 400 KB.</li></ul><ol class="ad-steps"><li><b>Dron:</b> la principal. La embarcación completa desde arriba, en el agua.</li><li><b>Exterior:</b> de lado, navegando o fondeada.</li><li><b>Interior:</b> la cubierta o el salón, con buena luz.</li><li><b>Camarote:</b> solo si tiene.</li></ol><p class="hint">Consejos: luz de día, sin textos ni marcas de agua, la embarcación centrada. Al subirla verás una vista previa y podrás mover el encuadre.</p>`],
+  playas: ['Fotos de las playas', `<ul><li><b>Medida ideal:</b> ${IMG.beach.size}, cuadrada. Mínimo ${IMG.beach.min} px.</li><li>Una captura nítida del video de dron sirve perfecto.</li><li>Lo importante al centro: el texto de la tarjeta va abajo.</li></ul><p>Si cambias el nombre de una playa, vuelve a subir su foto.</p>`],
+  accesorios: ['Accesorios', `<p>Para cada accesorio elige:</p><ul><li><b>No tiene.</b></li><li><b>Incluido:</b> va en el precio.</li><li><b>Con costo:</b> escribe el precio. El cliente lo puede sumar en la reserva y se agrega al total (por ejemplo, parrillera +$20).</li></ul><p>Lo que es igual en todas (tripulación, chalecos, ducha, botiquín) se edita en Ajustes.</p>`],
+  textos: ['Texto en inglés', `<p>La web abre siempre en español y tiene un botón para verla en inglés. Los textos que ya existen están traducidos. Si escribes una descripción nueva, agrega su versión en inglés para que los turistas la lean en su idioma. Si la dejas vacía, verán el texto en español.</p>`],
+  rumbos: ['Rumbos y playas', `<ul><li><b>Recargo:</b> se suma al precio de la embarcación. Si lo dejas vacío, la app dice que se confirma por WhatsApp.</li><li><b>Playas:</b> agrega, quita o cambia nombres. El cliente elige entre las playas del rumbo, según el límite de cada embarcación.</li><li><b>Cotización especial:</b> destinos que no se reservan en la app (Píritu, La Tortuga…).</li></ul>`],
+  muelles: ['Muelles y recogidas', `<ul><li><b>Muelle sugerido:</b> el toque de muelle lo cobra el establecimiento; escríbelo como quieres que se vea (ej. “$11,6 a tasa BCV”).</li><li><b>Recogida en residencia:</b> recargo de Tu Lancha por buscar al cliente. Puede ser distinto para lancha y para barco o yate.</li><li><b>Solo lanchas:</b> los yates no pueden llegar por la profundidad.</li><li><b>No habilitado:</b> aparece como no disponible.</li></ul><p class="hint">Por embarcación puedes decir que no llega o que no cobra recargo (en Embarcaciones › Editar).</p>`],
+  pagos: ['Datos de pago', `<p>Cuando el cliente confirma su reserva y elige Zelle o Binance, la app le muestra estos datos para pagar el abono del 50% y le pide mandarte la captura por WhatsApp.</p><ul><li><b>Zelle:</b> puedes tener varias cuentas guardadas, pero el cliente ve <b>solo la principal</b>. Para cambiarla, marca otra como principal y toca Publicar cambios.</li><li><b>Binance:</b> el cliente ve tu ID, tu usuario, el código QR y un botón para abrir Binance desde el teléfono.</li><li><b>Código QR:</b> sube la imagen del QR que te da Binance (una captura de pantalla sirve). Se guarda en PNG para que se pueda escanear.</li></ul><p class="hint">Si dejas los datos vacíos, la app le dice al cliente que se los envías por WhatsApp.</p>`],
+  aliados: ['Aliados', `<ul><li><b>Logo:</b> cuadrado, ${IMG.logo.size}, en PNG con fondo blanco o transparente.</li><li><b>Enlace:</b> su web, Instagram o menú. Si lo dejas vacío, el botón abre tu WhatsApp para pedir ese servicio.</li></ul>`],
+  ajustes: ['Ajustes', `<ul><li><b>Versiones:</b> cada vez que publicas se guarda la versión anterior. Puedes volver a cualquiera de las últimas 15.</li><li><b>Contraseña:</b> cámbiala la primera vez que entres y no la compartas.</li><li><b>Respaldo:</b> descarga una copia del catálogo y de tus reservas cuando quieras.</li></ul>`]
+};
+function help(k) { const h = HELP[k]; if (!h) return; sheet(`<h3>${h[0]}</h3><div class="ad-help-b">${h[1]}</div><div class="ad-sheet-f"><button class="btn btn-sun" type="button" data-close>Entendido</button></div>`, 'help'); if (k === 'bienvenida') store.set('adm-welcome', true); }
+
+/* ---------------- fotos: recorte, compresión y subida ---------------- */
+function loadImg(file) { return new Promise((ok, no) => { const u = URL.createObjectURL(file), im = new Image(); im.onload = () => ok({ im, u }); im.onerror = () => { URL.revokeObjectURL(u); no(new Error('decode')); }; im.src = u; }); }
+function drawTo(im, spec, pos) {
+  const c = document.createElement('canvas'); c.width = spec.w; c.height = spec.h; const x = c.getContext('2d');
+  const iw = im.naturalWidth, ih = im.naturalHeight;
+  if (spec.fit === 'contain') { x.fillStyle = '#ffffff'; x.fillRect(0, 0, spec.w, spec.h); const s = Math.min(spec.w / iw, spec.h / ih) * .9, w = iw * s, h = ih * s; x.drawImage(im, (spec.w - w) / 2, (spec.h - h) / 2, w, h); return c; }
+  const s = Math.max(spec.w / iw, spec.h / ih), w = spec.w / s, h = spec.h / s;
+  const sx = (iw - w) * pos, sy = (ih - h) * pos;
+  x.imageSmoothingQuality = 'high'; x.drawImage(im, iw > w ? sx : 0, ih > h ? sy : 0, w, h, 0, 0, spec.w, spec.h); return c;
+}
+const toBlob = (c, type, q) => new Promise(r => c.toBlob(r, type, q));
+async function encode(c, spec = {}) {
+  if (spec.png) return toBlob(c, 'image/png');
+  let q = .82, b = await toBlob(c, 'image/webp', q);
+  if (!b || b.type !== 'image/webp') { q = .85; b = await toBlob(c, 'image/jpeg', q); }
+  while (b && b.size > 650000 && q > .5) { q -= .1; b = await toBlob(c, b.type, q); }
+  return b;
+}
+const b64 = blob => new Promise(r => { const f = new FileReader(); f.onload = () => r(String(f.result).split(',')[1]); f.readAsDataURL(blob); });
+function pickPhoto(path, kind) {
+  const spec = IMG[kind], f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
+  f.onchange = async () => {
+    const file = f.files && f.files[0]; if (!file) return;
+    let L; try { L = await loadImg(file); } catch { toast('No se pudo abrir esa imagen. Prueba con una foto JPG o PNG.'); return; }
+    const { im } = L, small = Math.max(im.naturalWidth, im.naturalHeight) < spec.min;
+    const wide = im.naturalWidth / im.naturalHeight, target = spec.w / spec.h, axis = wide > target ? 'horizontal' : 'vertical';
+    let pos = .5;
+    sheet(`<h3>Vista previa</h3><p class="rating">Así se verá en la app (${spec.label}). ${spec.fit === 'cover' ? `Mueve el encuadre si hace falta.` : ''}</p>
+      <div class="ad-crop k-${kind}"><canvas id="crop-c"></canvas></div>
+      ${spec.fit === 'cover' && Math.abs(wide - target) > .02 ? `<div class="field"><label for="crop-r">Encuadre ${axis === 'horizontal' ? '(izquierda ↔ derecha)' : '(arriba ↕ abajo)'}</label><input type="range" id="crop-r" min="0" max="100" value="50"></div>` : ''}
+      ${small ? `<p class="ad-warn">⚠️ Esta foto es pequeña (${im.naturalWidth} × ${im.naturalHeight} px) y puede verse borrosa. Lo ideal es ${spec.size}.</p>` : ''}
+      ${kind === 'boat' && wide < 1 ? '<p class="ad-warn">⚠️ La foto está vertical. Se ve mejor una foto horizontal.</p>' : ''}
+      <div class="ad-sheet-f"><button class="btn btn-sun" type="button" id="crop-ok">Usar esta foto</button><button class="btn btn-ghost btn-sm" type="button" data-close>Cancelar</button></div>`, 'crop');
+    const cv = $('#crop-c'), paint = () => { const c = drawTo(im, spec, pos); cv.width = c.width; cv.height = c.height; cv.getContext('2d').drawImage(c, 0, 0); };
+    paint();
+    const rg = $('#crop-r'); if (rg) rg.oninput = () => { pos = rg.value / 100; paint(); };
+    $('#crop-ok').onclick = async () => {
+      const btn = $('#crop-ok'); btn.disabled = true; btn.textContent = 'Subiendo…';
+      try {
+        const blob = await encode(drawTo(im, spec, pos), spec);
+        const j = await api('upload', { mime: blob.type, data: await b64(blob) });
+        setPath(W, path, j.url); URL.revokeObjectURL(L.u);
+        toast('Foto lista. Publica los cambios para que la vean tus clientes.');
+        reopen();
+      } catch (e) { btn.disabled = false; btn.textContent = 'Usar esta foto'; toast(errMsg(e)); }
+    };
+  };
+  f.click();
+}
+let editing = null;   // embarcación abierta en el editor, para volver a ella después de subir una foto
+function reopen() { const s = $('.ad-sheet.k-boat', adm), st = s ? s.scrollTop : 0; render(); if (editing != null) { boatEditor(editing); const n = $('.ad-sheet.k-boat', adm); if (n) n.scrollTop = st; } }
+
+/* ---------------- eventos ---------------- */
+adm.addEventListener('input', e => {
+  const el = e.target;
+  if (el.id === 'bk-q') { bkQuery = el.value; const pos = el.selectionStart; render(); const n = $('#bk-q', adm); n.focus(); n.setSelectionRange(pos, pos); return; }
+  if (el.dataset.k && W) { setPath(W, el.dataset.k, readVal(el)); refreshSaveBar(); if (el.dataset.k.startsWith('pay.')) { const pv = $('.ad-preview', adm); if (pv) pv.innerHTML = payPreview(); } if (el.dataset.k.endsWith('.name')) { const h = el.closest('.ad-sheet,.panel'); const t = h && $('h3', h); if (t && el.closest('.ad-sheet')) t.textContent = el.value; } return; }
+  if (el.dataset.beach) { const [i, j] = el.dataset.beach.split('.').map(Number), r = W.routes[i], old = r.beaches[j], nw = el.value; r.beaches[j] = nw; const ko = old.replace(/\./g, '·'), kn = nw.replace(/\./g, '·'); if (W.beachPhotos[ko] && ko !== kn) { W.beachPhotos[kn] = W.beachPhotos[ko]; delete W.beachPhotos[ko]; } refreshSaveBar(); return; }
+  if (el.dataset.accp) { const b = W.boats[editing]; b.opt[el.dataset.accp] = +el.value || 0; refreshSaveBar(); return; }
+  if (el.id === 'basic-ta') { W.basic = el.value.split('\n').map(x => x.trim()).filter(Boolean); refreshSaveBar(); return; }
+  if (el.id === 's-comm') { store.set('adm-comm', Math.min(100, Math.max(0, +el.value || 0))); }
+});
+adm.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.k && W && (el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'color')) { setPath(W, el.dataset.k, readVal(el)); refreshSaveBar(); if (el.closest('.ad-sheet') && el.dataset.k.endsWith('.hidden')) render() || boatEditor(editing); return; }
+  if (el.dataset.acc) { const b = W.boats[editing], k = el.dataset.acc, v = el.value; b.inc = b.inc.filter(x => x !== k); delete b.opt[k]; if (v === 'inc') b.inc.push(k); if (v === 'opt') b.opt[k] = 0; const p = $(`[data-accp="${k}"]`, adm); p.hidden = v !== 'opt'; if (v === 'opt') p.focus(); refreshSaveBar(); return; }
+  if (el.dataset.zon != null) { W.pay.zelleOn = +el.dataset.zon; refreshSaveBar(); render(); return; }
+  if (el.dataset.pick) { const b = W.boats[editing], k = el.dataset.pick; if (el.value === 'std') delete b.pick[k]; else b.pick[k] = el.value === 'no' ? null : 0; refreshSaveBar(); return; }
+  if (el.dataset.own != null) { W.boats.forEach((b, j) => { if (el.checked ? j !== +el.dataset.own : false) delete b.own; }); if (el.checked) { W.boats[+el.dataset.own].own = true; const [b] = W.boats.splice(+el.dataset.own, 1); W.boats.unshift(b); editing = 0; } else delete W.boats[+el.dataset.own].own; refreshSaveBar(); render(); boatEditor(editing); }
+});
+adm.addEventListener('click', async e => {
+  const t = e.target.closest('button,[data-adtab]'); if (!t) { if (e.target.classList.contains('ad-ov')) closeTop(); return; }
+  const d = t.dataset;
+  if (d.close != null) { closeTop(); return; }
+  if (d.adtab) { tab = d.adtab; editing = null; render(); adm.scrollTop = 0; return; }
+  if (d.help) return help(d.help);
+  if (d.p) { period = d.p; render(); return; }
+  if (t.id === 'a-out') { if (dirty() && !confirm('Tienes cambios sin publicar. ¿Salir de todas formas?')) return; return logout(); }
+  if (t.id === 'a-demo') { demo = !demo; render(); return; }
+  if (t.id === 'a-discard') { if (!confirm('¿Descartar todos los cambios sin publicar?')) return; W = fromCat(JSON.parse(PUB)); render(); toast('Cambios descartados'); return; }
+  if (t.id === 'a-pub') {
+    t.disabled = true; t.textContent = 'Publicando…';
+    try { await api('save', { cat: W, note: 'Publicado desde el panel' }); PUB = snap(); store.set('cat', JSON.parse(PUB)); T.refreshCatalog(JSON.parse(PUB)); toast('¡Publicado! Tus clientes ya ven los cambios.'); render(); }
+    catch (err) { t.disabled = false; t.textContent = 'Publicar cambios'; toast(errMsg(err)); }
+    return;
+  }
+  if (d.up) return pickPhoto(d.up, d.kind);
+  if (d.rmph) { setPath(W, d.rmph, /^(allies|pay)\./.test(d.rmph) ? '' : undefined); refreshSaveBar(); reopen(); return; }
+  // reservas
+  if (d.bkf) { bkFilter = d.bkf; render(); return; }
+  if (d.bkNew != null) return bkForm();
+  if (d.bka) {
+    const code = t.closest('[data-code]').dataset.code, b = BK.find(x => x.code === code); if (!b) return;
+    if (d.bka === 'edit') return bkForm(b);
+    if (d.bka === 'wa') { const n = String(b.phone).replace(/\D/g, '').replace(/^0/, '58'); window.open(`https://wa.me/${n}?text=${encodeURIComponent(`¡Hola ${b.name}! Te escribo de Tu Lancha Lechería por tu reserva ${b.code}.`)}`, '_blank', 'noopener'); return; }
+    if (d.bka === 'del') { if (!confirm(`¿Borrar la reserva ${code}? No se puede deshacer.`)) return; try { await api('bk', { del: code }); BK = BK.filter(x => x !== b); toast('Reserva borrada'); render(); } catch (err) { toast(errMsg(err)); } return; }
+    if (d.bka === 'cancel' && !confirm(`¿Cancelar la reserva ${code}?`)) return;
+    const patch = { ok: { status: 'confirmada' }, half: { paid: Math.round((+b.total || 0) / 2) }, paid: { paid: +b.total || 0, status: b.status === 'cancelada' ? b.status : 'confirmada' }, cancel: { status: 'cancelada' } }[d.bka];
+    try { await saveBk({ code, ...patch }); toast({ ok: 'Reserva confirmada', half: 'Abono registrado', paid: 'Marcada como pagada', cancel: 'Reserva cancelada' }[d.bka]); render(); } catch (err) { toast(errMsg(err)); }
+    return;
+  }
+  if (t.id === 'bk-csv') {
+    const rows = [['codigo', 'fecha', 'cliente', 'telefono', 'embarcacion', 'rumbo', 'muelle', 'personas', 'total', 'pagado', 'estado', 'canal', 'idioma', 'nota']].concat(BK.map(b => [b.code, dOf(b), b.name, b.phone, b.boat, b.route, b.dock, b.pax, b.total, b.paid, b.status, b.channel, b.lang, b.note]));
+    dl(`tulancha-reservas-${iso(today)}.csv`, '﻿' + rows.map(r => r.map(x => `"${String(x ?? '').replace(/"/g, '""')}"`).join(',')).join('\n'), 'text/csv'); return;
+  }
+  if (t.id === 'bk-json') { dl(`tulancha-catalogo-${iso(today)}.json`, JSON.stringify(W, null, 1), 'application/json'); return; }
+  // embarcaciones
+  if (d.boatEdit != null) { editing = +d.boatEdit; return boatEditor(editing); }
+  if (d.boatNew != null) { W.boats.push({ id: 'b' + Date.now().toString(36), name: 'Nueva embarcación', type: 'Lancha', ft: 30, pax: 8, price: 300, hue: 200, dock: 0, cabin: false, rating: 5, trips: 0, inc: [], opt: {}, amen: [], desc: '', photos: {}, pick: {}, hidden: true }); editing = W.boats.length - 1; refreshSaveBar(); render(); boatEditor(editing); toast('Queda oculta hasta que desmarques “Ocultar de la web”.'); return; }
+  if (d.boatUp != null || d.boatDown != null) { const i = +(d.boatUp ?? d.boatDown), j = d.boatUp != null ? i - 1 : i + 1; if (j < 0 || j >= W.boats.length) return; [W.boats[i], W.boats[j]] = [W.boats[j], W.boats[i]]; render(); return; }
+  if (d.boatDup != null) { const b = clone(W.boats[+d.boatDup]); b.id = 'b' + Date.now().toString(36); b.name += ' (copia)'; delete b.own; b.hidden = true; W.boats.splice(+d.boatDup + 1, 0, b); editing = +d.boatDup + 1; render(); boatEditor(editing); toast('Copia creada (oculta)'); return; }
+  if (d.boatDel != null) { const b = W.boats[+d.boatDel]; if (W.boats.length < 2) return toast('Debe quedar al menos una embarcación'); if (!confirm(`¿Eliminar ${b.name}? Si solo no está disponible por un tiempo, mejor ocúltala.`)) return; W.boats.splice(+d.boatDel, 1); if (b.own) W.boats[0].own = true; editing = null; closeSheet(); render(); return; }
+  // rumbos
+  if (d.beachAdd != null) { W.routes[+d.beachAdd].beaches.push('Nueva playa'); render(); const ins = $$(`[data-beach^="${d.beachAdd}."]`, adm); const l = ins[ins.length - 1]; if (l) { l.focus(); l.select(); } return; }
+  if (d.beachDel != null) { const [i, j] = d.beachDel.split('.').map(Number), r = W.routes[i]; if (r.beaches.length < 2) return toast('Cada rumbo necesita al menos una playa'); if (!confirm(`¿Quitar ${r.beaches[j]} del ${r.name}?`)) return; r.beaches.splice(j, 1); render(); return; }
+  // muelles
+  if (d.dockNew != null) {
+    sheet(`<h3>Agregar</h3><p class="rating">¿Qué quieres agregar?</p><div class="ad-sheet-f"><button class="btn btn-sun" type="button" data-dock-add="m">Muelle sugerido</button><button class="btn btn-ghost" type="button" data-dock-add="p">Recogida en residencia</button></div>`, 'help'); return;
+  }
+  if (d.dockAdd) { closeSheet(); W.docks.push(d.dockAdd === 'm' ? { id: 'd' + Date.now().toString(36), name: 'Nuevo muelle', fee: '', park: '' } : { id: 'd' + Date.now().toString(36), name: 'Nueva residencia', pickup: true, lancha: 20, other: 30 }); closeSheet(); render(); const ins = $$('[data-k$=".name"]', adm); ins[ins.length - 1].focus(); return; }
+  // pagos
+  if (d.zadd != null) { W.pay.zelles.push({ name: '', email: '' }); render(); const ins = $$('[data-k$=".name"]', adm); const l = ins[ins.length - 1]; if (l) l.focus(); return; }
+  if (d.zdel != null) { const i = +d.zdel, z = W.pay.zelles[i]; if (!confirm(`¿Quitar la cuenta Zelle${z.name ? ' de ' + z.name : ''}?`)) return; W.pay.zelles.splice(i, 1); if (W.pay.zelleOn > i) W.pay.zelleOn--; if (W.pay.zelleOn >= W.pay.zelles.length) W.pay.zelleOn = 0; render(); return; }
+  // aliados
+  if (d.allyAdd != null) { W.allies[+d.allyAdd].items.push(['Nuevo aliado', '', '', '#232843', '']); render(); return; }
+  if (d.allyDel != null) { const [i, j] = d.allyDel.split('.').map(Number); if (!confirm(`¿Quitar ${W.allies[i].items[j][0]}?`)) return; W.allies[i].items.splice(j, 1); render(); return; }
+  if (d.catNew != null) { W.allies.push({ cat: 'Nueva categoría', items: [['Nuevo aliado', '', '', '#232843', '']] }); render(); return; }
+  if (d.catDel != null) { W.allies.splice(+d.catDel, 1); render(); return; }
+  // ajustes
+  if (t.id === 'hist-load') {
+    try { const j = await api('hist', null, true); $('#hist', adm).innerHTML = j.list.length ? `<div class="ad-list">${j.list.map(h => `<div class="ad-li"><span class="mono">${new Date(h.t).toLocaleString('es-VE', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</span><span>${esc(h.note || 'Versión anterior')}</span><button class="icon-btn" type="button" data-undo="${h.i}">Restaurar</button></div>`).join('')}</div>` : '<p class="rating">Todavía no hay versiones anteriores.</p>'; } catch (err) { toast(errMsg(err)); }
+    return;
+  }
+  if (d.undo != null) { if (!confirm('¿Volver a esta versión? Se publica de inmediato para tus clientes.')) return; try { const j = await api('undo', { i: +d.undo }); W = fromCat(j.cat); PUB = snap(); store.set('cat', j.cat); T.refreshCatalog(j.cat); toast('Versión restaurada y publicada'); render(); } catch (err) { toast(errMsg(err)); } return; }
+});
+adm.addEventListener('submit', async e => {
+  if (e.target.id !== 'pw-form') return;
+  e.preventDefault(); const err = $('#pw-err', adm); err.textContent = '';
+  const u = $('#pw-u', adm).value.trim(), o = $('#pw-old', adm).value, n1 = $('#pw-new', adm).value, n2 = $('#pw-new2', adm).value;
+  if (n1 !== n2) { err.textContent = 'Las contraseñas nuevas no coinciden.'; return; }
+  if (n1.length < 8) { err.textContent = 'Usa al menos 8 caracteres.'; return; }
+  try { await api('pw', { user: u, old: o, new: n1 }); e.target.reset(); $('#pw-u', adm).value = u; toast('Listo: usuario y contraseña actualizados'); }
+  catch (x) { err.textContent = x.code === 'bad_password' ? 'La contraseña actual no es correcta.' : errMsg(x); }
+});
+function dl(name, text, type) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+addEventListener('beforeunload', e => { if (!adm.hidden && dirty()) { e.preventDefault(); e.returnValue = ''; } });
 
 /* ---------------- acceso oculto ---------------- */
-function maybeOpen() { if (location.hash === '#capitan' && adm.hidden) showLogin(); }
+async function enter() {
+  if (!adm.hidden) return;
+  TOK = loadTok();
+  if (!TOK) return showLogin();
+  try { await api('me', null, true); await boot(); } catch (e) { if (e.code !== 'session') showLogin(e.code === 'net' ? errMsg(e) : ''); }
+}
+function maybeOpen() { if (location.hash === '#capitan') enter(); }
 addEventListener('hashchange', maybeOpen); maybeOpen();
 let taps = 0, tapT;
-$('#foot-logo').addEventListener('click', e => { taps++; clearTimeout(tapT); tapT = setTimeout(() => taps = 0, 1500); if (taps >= 5) { e.preventDefault(); taps = 0; showLogin(); } });
-addEventListener('keydown', e => { if (e.key === 'Escape' && !adm.hidden && !KEY) closeAdm(); });
+$('#foot-logo').addEventListener('click', e => { taps++; clearTimeout(tapT); tapT = setTimeout(() => taps = 0, 1500); if (taps >= 5) { e.preventDefault(); taps = 0; enter(); } });
+addEventListener('keydown', e => { if (e.key !== 'Escape' || adm.hidden) return; if ($('.ad-ov', adm)) closeTop(); else if (!W) closeAdm(); });
 })();

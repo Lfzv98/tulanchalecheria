@@ -1,7 +1,6 @@
 const { chromium, devices } = require('playwright');
 const OUT = '/tmp/claude-0/-home-claude/3fa885c8-0f9b-52c7-9e02-20ad3b09982d/scratchpad/';
 const URL = 'http://127.0.0.1:8765/index.html';
-const PASS = process.env.TLL_PASS; if (!PASS) { console.error('Define TLL_PASS con la contraseña del panel para correr las pruebas.'); process.exit(1); }
 let fails = 0;
 const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails++; };
 
@@ -203,38 +202,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await p.goto(URL + '#viaje'); await p.waitForTimeout(400); ok(await p.isVisible('#dlg[open] #lv-map'), 'Enlace directo #viaje abre la ubicación en vivo');
   await ctx.close();
 
-  console.log('== Panel de Eduardo ==');
-  for (const [n, d] of [['Laptop', { viewport: { width: 1366, height: 800 } }], ['Android', devices['Pixel 7']]]) {
-    const c2 = await b.newContext({ locale: 'es-VE', ...d, deviceScaleFactor: 1, reducedMotion: 'reduce' }); const q = await c2.newPage(); const e2 = []; q.on('pageerror', e => e2.push(e.message));
-    await q.goto(URL); await q.waitForTimeout(300);
-    ok(await q.isHidden('#adm'), n + ': panel oculto por defecto');
-    for (let i = 0; i < 5; i++) await q.click('#foot-logo');
-    ok(await q.isVisible('#lg'), n + ': 5 toques al logo del pie abren el acceso');
-    await q.fill('#lg-u', 'eduardo'); await q.fill('#lg-p', 'incorrecta'); await q.click('#lg-go'); await q.waitForTimeout(1500);
-    ok((await q.textContent('#lg-err')).includes('incorrectos'), n + ': contraseña incorrecta rechazada');
-    await q.fill('#lg-u', 'Eduardo'); await q.fill('#lg-p', PASS); await q.click('#lg-go'); await q.waitForSelector('.adm-kpis', { timeout: 8000 });
-    ok(true, n + ': entra con usuario y contraseña');
-    const stored = await q.evaluate(() => localStorage.getItem('tll:ledger'));
-    ok(stored && !stored.includes('Arapo') && stored.includes('"ct"'), n + ': datos guardados cifrados (no se leen sin contraseña)');
-    await q.click('[data-p="12m"]'); ok((await q.textContent('.akpi b')).startsWith('$'), n + ': cambiar período a 12 meses');
-    await q.screenshot({ path: OUT + 'adm-' + n + '.png', fullPage: false });
-    await q.hover('#mchart g:nth-of-type(12) .hit').catch(() => {});
-    if (n === 'Laptop') {
-      await q.click('#a-clear'); await q.click('#a-clear'); await q.waitForTimeout(300);
-      ok((await q.textContent('.adm-kpis')).includes('$0'), 'Borrar ejemplos deja el panel vacío');
-      await q.click('#a-new'); await q.fill('#f-client', 'Familia Pérez'); await q.fill('#f-total', '450'); await q.fill('#f-paid', '200'); await q.click('#a-form button[type=submit]'); await q.waitForTimeout(400);
-      ok((await q.textContent('.adm-main')).includes('Familia Pérez') && (await q.textContent('.adm-kpis')).includes('$450'), 'Registrar chárter actualiza ingresos y tabla');
-      await q.click('[data-act="pay"]'); await q.waitForTimeout(300); ok((await q.textContent('.tbl:not([style]) tbody')).includes('Pagado'), 'Marcar pagado');
-      await q.fill('#pw-old', PASS); await q.fill('#pw-new', 'NuevaClave-2026'); await q.fill('#pw-new2', 'NuevaClave-2026'); await q.click('#pw-form button'); await q.waitForTimeout(1500);
-      await q.click('#a-out'); ok(await q.isHidden('#adm'), 'Salir cierra el panel');
-      await q.goto(URL + '#capitan'); await q.waitForSelector('#lg');
-      await q.fill('#lg-u', 'eduardo'); await q.fill('#lg-p', 'NuevaClave-2026'); await q.click('#lg-go'); await q.waitForSelector('.adm-kpis', { timeout: 8000 });
-      ok((await q.textContent('.adm-main')).includes('Familia Pérez'), 'Con la contraseña nueva entra y conserva sus datos');
-    }
-    ok(!e2.length, n + ': sin errores de JavaScript ' + e2.join('|'));
-    const sw = await q.evaluate(w => Math.max(innerWidth, document.querySelector('#adm').scrollWidth) - w, (d.viewport||{}).width); ok(sw <= 0, n + ': panel sin desborde horizontal (' + sw + 'px)');
-    await c2.close();
-  }
+  // El panel de control se prueba en tests-panel.js (necesita el servidor local con la API).
   await b.close();
   console.log(fails ? `\n${fails} FALLAS` : '\nTODO OK');
 })();
