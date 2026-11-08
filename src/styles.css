@@ -1134,3 +1134,4 @@ footer.site .num{white-space:normal}
 .ab-tip{margin-top:12px}
 .abordo,.abordo>*,.sos-panel>*,.sos-acts>*{min-width:0}.abordo{grid-template-columns:minmax(0,1fr)}.sos-panel{grid-template-columns:minmax(0,1fr)}.abordo-dlg .view,#dlg.full .live-side{min-width:0}
 .sos-acts .btn,.abordo-cta .btn{white-space:normal;line-height:1.25;padding-inline:12px;min-height:48px}
+.sos-auth{display:grid;gap:8px}.sos-auth .sa{display:grid;gap:4px}.sos-auth .sa>span{font-size:.76rem;color:var(--muted);line-height:1.4}.sos-auth .sa>span a{color:inherit;font-family:var(--f-mono);white-space:nowrap}.sos-auth .btn{justify-content:center;white-space:normal;min-height:44px}

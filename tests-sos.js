@@ -33,6 +33,7 @@ const SHOTS = process.env.TLL_SHOTS || '';
     ok(waHref.startsWith('https://wa.me/584143083864?text=') && decodeURIComponent(waHref).includes('maps.google.com'), `${name}: WhatsApp va directo a Tu Lancha`);
     ok((await p.getAttribute('#dlg [data-sos-sms]', 'href')).startsWith('sms:+584143083864?&body='), `${name}: SMS a Tu Lancha como respaldo`);
     ok(await p.$('#dlg a[href="tel:911"]') !== null && await p.$('#dlg a[href="tel:+584143083864"]') !== null, `${name}: llamar al 911 y a Tu Lancha`);
+    ok(await p.$('#dlg a[href="tel:+582814180257"]') !== null && await p.$('#dlg a[href="tel:+582812683844"]') !== null && await p.$('#dlg a[href="tel:+582812677452"]') !== null && (await p.textContent('#dlg .sos-auth')).includes('0281-2683844'), `${name}: llamar a Guardacostas Guanta y Capitanía de Puerto La Cruz`);
     const fit = await p.evaluate(() => { const d = document.querySelector('#dlg'); return d.scrollWidth <= d.clientWidth + 1 && [...d.querySelectorAll('.sos-acts .btn')].every(x => x.getBoundingClientRect().right <= innerWidth + 1); });
     ok(fit, `${name}: la alerta cabe en la pantalla sin desborde`);
     if (SHOTS) await p.screenshot({ path: `${SHOTS}/sos-${name.replace(/\W+/g, '')}.png` });

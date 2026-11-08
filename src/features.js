@@ -82,7 +82,13 @@ function openLive(code) {
    - El SOS se activa manteniendo presionado 3 s; se cancela al soltar, al salir del botón o si el sistema cancela el toque.
    - Con datos: WhatsApp a Tu Lancha. Sin datos: SMS (usa la red celular, no internet) y copiar el mensaje. */
 const SOS_HOLD = 3000;
-const SOS_TEL = { casa: '+584143083864', emergencias: '911', guardacostas: null }; // guardacostas: número por confirmar con Eduardo
+const SOS_TEL = { casa: '+584143083864', emergencias: '911' };
+// Autoridades de la zona norte de Anzoátegui (Lechería, Puerto La Cruz, Guanta y Mochima), datos enviados por Luis
+const SOS_AUTH = [
+  ['Guardacostas Guanta', 'Búsqueda y salvamento', ['+582814180257', '+582812683844', '+582812682188']],
+  ['Capitanía de Puerto La Cruz', 'Tráfico acuático y zarpes', ['+582812677452', '+582812677932']]
+];
+const telTxt = n => n.replace(/^\+58(\d{3})(\d{7})$/, '0$1-$2');
 const GPS = { watch: null, pos: null, live: false, msg: 'GPS apagado', subs: new Set() };
 try { GPS.pos = JSON.parse(localStorage.getItem('tll:lastpos') || 'null'); } catch { GPS.pos = null; }
 const gpsNotify = () => GPS.subs.forEach(f => f());
@@ -131,9 +137,10 @@ function sosBlock() {
         <a class="btn btn-wa" data-sos-wa target="_blank" rel="noopener">WhatsApp a Tu Lancha</a>
         <a class="btn btn-sun" data-sos-sms>SMS a Tu Lancha (sin datos)</a>
         <button class="btn btn-ghost" type="button" data-sos-copy>Copiar mensaje</button>
-        <div class="sos-calls"><a class="btn btn-ghost btn-sm" href="tel:${SOS_TEL.casa}">Llamar a Tu Lancha</a><a class="btn btn-ghost btn-sm" href="tel:${SOS_TEL.emergencias}">Llamar al 911</a>${SOS_TEL.guardacostas ? `<a class="btn btn-ghost btn-sm" href="tel:${SOS_TEL.guardacostas}">Guardacostas</a>` : ''}</div>
+        <div class="sos-calls"><a class="btn btn-ghost btn-sm" href="tel:${SOS_TEL.casa}">Llamar a Tu Lancha</a><a class="btn btn-ghost btn-sm" href="tel:${SOS_TEL.emergencias}">Llamar al 911</a></div>
+        <div class="sos-auth">${SOS_AUTH.map(([n, d, t]) => `<div class="sa"><a class="btn btn-sos btn-sm" href="tel:${t[0]}">Llamar a ${n}</a><span>${d} · otros: ${t.slice(1).map(x => `<a href="tel:${x}">${telTxt(x)}</a>`).join(' · ')}</span></div>`).join('')}</div>
       </div>
-      <p class="rating">Capitán: socorro por radio VHF, canal 16.</p>
+      <p class="rating">Capitán: socorro por radio VHF, canal 16 (156.8 MHz), escuchado por Guardacostas y Capitanía.</p>
       <button class="btn btn-ghost btn-sm" type="button" data-sos-x>Cerrar alerta</button>
     </div>
   </div>`;
@@ -156,7 +163,7 @@ function wireSos(root, ctx, signal) {
     const t = sosText(ctx), on = navigator.onLine;
     q('[data-sos-msg]').textContent = t;
     q('[data-sos-wa]').href = wa(t); q('[data-sos-sms]').href = smsHref(SOS_TEL.casa, t);
-    q('[data-sos-note]').textContent = on ? 'Envíala por WhatsApp a Tu Lancha. Si es grave, llama también al 911.' : 'Estás sin datos: envía el SMS (usa la señal celular) o copia el mensaje. Si es grave, llama al 911.';
+    q('[data-sos-note]').textContent = on ? 'Envíala por WhatsApp a Tu Lancha. Si es grave, llama también a Guardacostas o al 911.' : 'Estás sin datos: envía el SMS (usa la señal celular) o copia el mensaje. Si es grave, llama a Guardacostas o al 911.';
   };
   GPS.subs.add(paint); signal.addEventListener('abort', () => GPS.subs.delete(paint));
   addEventListener('online', paint, { signal }); addEventListener('offline', paint, { signal });
