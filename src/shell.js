@@ -12,7 +12,7 @@ function target() {
   const h = decodeURIComponent(location.hash.slice(1));
   if (VIEWS.includes(h)) return [h, null];
   if (ALIAS[h]) return [ALIAS[h], h];
-  if (h === 'viaje' || h === 'album') return ['mi-viaje', null];
+  if (h === 'viaje' || h === 'album' || h.startsWith('sigue/')) return ['mi-viaje', null];
   return [current || 'inicio', null];
 }
 function show(name, anchor) {

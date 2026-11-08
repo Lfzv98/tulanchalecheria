@@ -101,7 +101,7 @@ function openLive(code) {
       <div class="live-side">
         <div class="specs" style="grid-template-columns:1fr 1fr"><div class="spec"><span>Llega aprox.</span><b id="lv-eta">--:--</b></div><div class="spec"><span>Velocidad</span><b id="lv-spd">-- kn</b></div><div class="spec"><span>Recorrido</span><b id="lv-pct">0%</b></div><div class="spec"><span>Actualizado</span><b id="lv-upd">ahora</b></div></div>
         <div class="field"><label>Embarcación y capitán</label><div style="font-size:.95rem"><b>Bravo 32</b> · Capitán Luis R. · 9 a bordo</div></div>
-        <button class="btn btn-ghost" type="button" id="lv-share">Compartir con mi familia</button>
+        <button class="btn btn-ghost" type="button" id="lv-share">Compartir mi ubicación real</button>
         ${sosBlock()}
       </div>
     </div></div>`;
@@ -116,7 +116,7 @@ function openLive(code) {
     $('#lv-pct', dlg).textContent = Math.round(p * 100) + '%';
   };
   tick(); clearInterval(liveTimer); liveTimer = setInterval(tick, 1000);
-  $('#lv-share', dlg).onclick = () => openWa(`Sigue nuestra lancha en vivo 🚤 Reserva ${code}: ${location.href.split('#')[0]}#mi-viaje (código ${code})`);
+  $('#lv-share', dlg).onclick = () => { if (LS.s) { lsShareLink(); return; } dlg.close(); openAbordo(code); setTimeout(() => { const b = $('#dlg [data-lshare]'); if (b) { b.scrollIntoView({ block: 'center', behavior: 'smooth' }); b.classList.add('flash'); } }, 250); toast('Toca "Compartir en vivo": usa el GPS de tu teléfono y lo envías a quien quieras'); };
   sosCtl?.abort(); sosCtl = new AbortController();
   wireSos($('[data-abordo]', dlg), { code, boat: 'Bravo 32' }, sosCtl.signal);
   dlg.onclick = e => { if (e.target.closest('.m-close')) dlg.close(); };
@@ -146,8 +146,10 @@ function gpsStart() {
   if (!('geolocation' in navigator)) { GPS.msg = 'Este teléfono no tiene GPS disponible para la app'; gpsNotify(); return; }
   GPS.msg = 'Buscando satélites…'; gpsNotify();
   GPS.watch = navigator.geolocation.watchPosition(p => {
-    const { latitude: lat, longitude: lng, accuracy: acc } = p.coords;
+    const { latitude: lat, longitude: lng, accuracy: acc, speed, heading } = p.coords;
     GPS.pos = { lat, lng, acc, t: p.timestamp || Date.now() }; GPS.live = true;
+    if (typeof speed === 'number' && speed >= 0) GPS.pos.spd = speed;
+    if (typeof heading === 'number' && !Number.isNaN(heading)) GPS.pos.hdg = heading;
     GPS.msg = `GPS activo · precisión ${Math.round(acc)} m`;
     try { localStorage.setItem('tll:lastpos', JSON.stringify(GPS.pos)); } catch {}
     gpsNotify();
@@ -178,6 +180,7 @@ function sosBlock() {
     <div class="ab-pos"><span class="ab-gps" data-gps role="status" aria-live="polite"></span><b class="mono" data-coords>Sin posición todavía</b><small data-age></small></div>
     <button class="btn btn-ghost btn-sm" type="button" data-gps-on>Activar mi GPS</button>
     <label class="ab-name"><span>Tu nombre (va en la alerta)</span><input data-sos-name autocomplete="name" placeholder="Opcional"></label>
+    <label class="ab-name"><span>Contacto de emergencia (a quien quieras llamar)</span><input data-sos-contact type="tel" inputmode="tel" autocomplete="tel" placeholder="Opcional · ej. 0414 123 4567"></label>
     <div class="sos-panel" data-sos-panel hidden role="alertdialog" aria-label="Alerta SOS lista">
       <b class="sos-t">🆘 Alerta SOS lista</b>
       <p class="rating" data-sos-note></p>
@@ -186,7 +189,7 @@ function sosBlock() {
         <a class="btn btn-wa" data-sos-wa target="_blank" rel="noopener">WhatsApp a Tu Lancha</a>
         <a class="btn btn-sun" data-sos-sms>SMS a Tu Lancha (sin datos)</a>
         <button class="btn btn-ghost" type="button" data-sos-copy>Copiar mensaje</button>
-        <div class="sos-calls"><a class="btn btn-ghost btn-sm" href="tel:${SOS_TEL.casa}">Llamar a Tu Lancha</a><a class="btn btn-ghost btn-sm" href="tel:${SOS_TEL.emergencias}">Llamar al 911</a></div>
+        <div class="sos-calls"><a class="btn btn-sos btn-sm" href="tel:${SOS_TEL.emergencias}">Llamar al 911</a><a class="btn btn-ghost btn-sm" data-sos-call href="tel:">Llamar a alguien</a></div>
         <div class="sos-auth">${SOS_AUTH.map(([n, d, t]) => `<div class="sa"><a class="btn btn-sos btn-sm" href="tel:${t[0]}">Llamar a ${n}</a><span>${d} · otros: ${t.slice(1).map(x => `<a href="tel:${x}">${telTxt(x)}</a>`).join(' · ')}</span></div>`).join('')}</div>
       </div>
       <div class="sos-ack" data-sos-ack hidden role="status" aria-live="assertive"></div>
@@ -199,6 +202,12 @@ function wireSos(root, ctx, signal) {
   const q = s => root.querySelector(s), btn = q('[data-sos]'), bar = q('[data-sos] i'), lbl = q('[data-sos-l]'), panel = q('[data-sos-panel]'), name = q('[data-sos-name]');
   name.value = localStorage.getItem('tll:sosname') || '';
   name.addEventListener('input', () => { try { localStorage.setItem('tll:sosname', name.value); } catch {} }, { signal });
+  // llamar a cualquier persona: el contacto guardado, o el marcador del teléfono vacío para escribir el número
+  const ct = q('[data-sos-contact]'), call = q('[data-sos-call]');
+  const telOf = v => { const d = String(v || '').replace(/[^\d+]/g, ''); if (!d) return ''; if (d.startsWith('+')) return d; if (d.startsWith('00')) return '+' + d.slice(2); if (/^0\d{10}$/.test(d)) return '+58' + d.slice(1); return d; };
+  const syncCall = () => { const t = telOf(ct.value); call.href = 'tel:' + t; call.textContent = t ? `Llamar a mi contacto (${ct.value.trim()})` : 'Llamar a alguien'; };
+  ct.value = localStorage.getItem('tll:sosc') || ''; syncCall();
+  ct.addEventListener('input', () => { try { localStorage.setItem('tll:sosc', ct.value); } catch {} syncCall(); }, { signal });
   const paint = () => {
     const on = navigator.onLine;
     q('[data-net]').className = 'net ' + (on ? 'on' : 'off'); q('[data-net]').textContent = on ? 'Con datos' : 'Sin datos';
@@ -265,14 +274,212 @@ function openAbordo(code) {
   dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="view">
     <div class="view-h"><div style="display:grid;gap:4px"><span class="eyebrow">Modo a bordo${code ? ' · Reserva ' + code : ''}</span><h2 id="m-title" style="font-size:1.6rem">Tu GPS y botón SOS</h2></div></div>
     ${sosBlock()}
+    ${lsBlock()}
     <p class="rating ab-tip">Deja esta pantalla abierta durante el paseo: guardamos tu última posición por si se pierde la señal en Mochima.</p></div>`;
   sosCtl?.abort(); sosCtl = new AbortController();
   wireSos($('[data-abordo]', dlg), { code }, sosCtl.signal);
+  wireShare($('[data-lshare]', dlg), { code }, sosCtl.signal);
   // solo se cierra con la X: un toque fuera durante una emergencia no debe cerrar la pantalla
   dlg.onclick = e => { if (e.target.closest('.m-close')) dlg.close(); };
   dlg.showModal(); gpsStart(); keepAwake(true);
 }
-$('#dlg').addEventListener('close', () => { if (sosCtl) { sosCtl.abort(); sosCtl = null; gpsStop(); keepAwake(false); } });
+$('#dlg').addEventListener('close', () => { followCtl?.abort(); followCtl = null; if (sosCtl) { sosCtl.abort(); sosCtl = null; if (!LS.s) { gpsStop(); keepAwake(false); } } });
+/* ---------------- seguimiento en vivo REAL ----------------
+   El teléfono a bordo publica su GPS en /api/live; quien abre el enlace #sigue/<id> ve la lancha moverse.
+   - El enlace usa un id aleatorio por viaje (no el código de reserva) y una clave que solo tiene ese teléfono.
+   - Sin datos, las posiciones se guardan en el teléfono y se envían todas al volver la señal (se dibuja el tramo).
+   - Al reconectar (evento online, volver a la app o reintentos), se envía al instante y el mapa salta a la posición actual. */
+const LIVE_API = 'api/live';
+const LS = { s: null, q: [], busy: false, state: 'off', sentAt: 0, backoff: 4000, retry: null, subs: new Set(), lastQ: null };
+try { const s = JSON.parse(localStorage.getItem('tll:share') || 'null'); if (s && Date.now() - s.started < 24 * 3600e3) LS.s = s; LS.q = LS.s ? JSON.parse(localStorage.getItem('tll:shareq') || '[]') : []; } catch { LS.s = null; LS.q = []; }
+const lsNotify = () => LS.subs.forEach(f => f());
+const lsSave = () => { try { if (LS.s) { localStorage.setItem('tll:share', JSON.stringify(LS.s)); localStorage.setItem('tll:shareq', JSON.stringify(LS.q.slice(-3000))); } else { localStorage.removeItem('tll:share'); localStorage.removeItem('tll:shareq'); } } catch {} };
+const rid = n => { const A = 'abcdefghijkmnpqrstuvwxyz23456789', b = crypto.getRandomValues(new Uint8Array(n)); return [...b].map(x => A[x % 32]).join(''); };
+const rkey = () => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const followUrl = id => `${location.origin}${location.pathname}#sigue/${id}`;
+const distM = (a, b) => { const R = 6371e3, r = Math.PI / 180, dl = (b.lat - a.lat) * r, dn = (b.lng - a.lng) * r, x = Math.sin(dl / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dn / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
+// cada nueva posición del GPS entra a la cola (como mucho una cada 4 s, o antes si se movió 25 m)
+GPS.subs.add(() => {
+  if (!LS.s || !GPS.live || !GPS.pos) return;
+  const p = GPS.pos, l = LS.lastQ;
+  if (l && (p.t - l.t < 4000 && distM(l, p) < 25 || p.t <= l.t)) return;
+  const pt = { t: p.t, lat: p.lat, lng: p.lng, acc: p.acc }; if (typeof p.spd === 'number') pt.spd = p.spd; if (typeof p.hdg === 'number' && !Number.isNaN(p.hdg)) pt.hdg = p.hdg;
+  LS.lastQ = pt; LS.q.push(pt); if (LS.q.length > 3000) LS.q.splice(0, LS.q.length - 3000); lsSave(); lsFlush();
+});
+async function lsFlush() {
+  if (!LS.s || LS.busy) return;
+  clearTimeout(LS.retry); LS.retry = null;
+  if (!navigator.onLine) { LS.state = 'offline'; lsNotify(); return; }
+  if (!LS.q.length && LS.sentAt) { if (LS.state !== 'ok') { LS.state = 'ok'; lsNotify(); } return; }
+  LS.busy = true; const batch = LS.q.slice(0, 400);
+  try {
+    const r = await fetch(LIVE_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: LS.s.id, key: LS.s.key, boat: LS.s.boat || '', pts: batch }), cache: 'no-store' });
+    if (r.status === 503) { LS.state = 'nocfg'; return; }
+    if (r.status === 403 || r.status === 400) { LS.state = 'error'; return; }
+    if (!r.ok) throw new Error(r.status);
+    LS.q.splice(0, batch.length); lsSave(); LS.sentAt = Date.now(); LS.state = 'ok'; LS.backoff = 4000;
+  } catch { LS.state = navigator.onLine ? 'retry' : 'offline'; LS.retry = setTimeout(lsFlush, LS.backoff); LS.backoff = Math.min(LS.backoff * 2, 60000); }
+  finally { LS.busy = false; lsNotify(); }
+  if (LS.state === 'ok' && LS.q.length) lsFlush();
+}
+// reanudar solo: al volver la señal, al volver a la app y cada 15 s por si acaso
+addEventListener('online', () => { LS.backoff = 4000; lsFlush(); });
+addEventListener('offline', () => { if (LS.s) { LS.state = 'offline'; lsNotify(); } });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && LS.s) { gpsStart(); keepAwake(true); lsFlush(); } });
+setInterval(() => { if (LS.s && (LS.q.length || LS.state !== 'ok')) lsFlush(); }, 15000);
+async function lsShareLink() {
+  if (!LS.s) return;
+  const url = followUrl(LS.s.id), text = `Sigue nuestra lancha en vivo 🚤${LS.s.boat ? ' (' + LS.s.boat + ')' : ''}. Toca el enlace y verás dónde vamos en el mapa, en tiempo real:`;
+  if (navigator.share) { try { await navigator.share({ title: 'Tu Lancha en vivo', text, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  const a = document.createElement('a'); a.href = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+}
+function lsStart(ctx) {
+  if (!LS.s) { LS.s = { id: rid(20), key: rkey(), boat: ctx.boat || '', code: ctx.code || '', started: Date.now() }; LS.q = []; LS.lastQ = null; LS.sentAt = 0; LS.state = 'wait'; }
+  gpsStart(); keepAwake(true);
+  if (GPS.live && GPS.pos) { const p = GPS.pos; LS.lastQ = { t: p.t, lat: p.lat, lng: p.lng, acc: p.acc }; LS.q.push(LS.lastQ); }
+  lsSave(); lsNotify(); lsFlush(); return lsShareLink();
+}
+function lsStop() {
+  if (!LS.s) return;
+  const s = LS.s; LS.s = null; LS.q = []; LS.state = 'off'; LS.sentAt = 0; clearTimeout(LS.retry); lsSave(); lsNotify();
+  try { fetch(LIVE_API, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: s.id, key: s.key }), keepalive: true }).catch(() => {}); } catch {}
+  if (!$('#dlg').open || !sosCtl) { gpsStop(); keepAwake(false); }
+  toast('Dejaste de compartir tu ubicación');
+}
+if (LS.s) { LS.state = 'wait'; gpsStart(); setTimeout(lsFlush, 500); }
+
+const lsBlock = () => `<section class="lshare" data-lshare aria-labelledby="ls-t">
+  <div class="ls-h"><span class="live-dot" aria-hidden="true"></span><b id="ls-t">Compartir mi ubicación en vivo</b></div>
+  <p class="rating">Quien abra el enlace ve la lancha moverse en el mapa en tiempo real. Lo envías a quien quieras: familia, amigos o Tu Lancha.</p>
+  <div class="ls-st" data-ls-st role="status" aria-live="polite"></div>
+  <button class="btn btn-wa" type="button" data-ls-start>Compartir en vivo</button>
+  <div class="ls-on" data-ls-on hidden>
+    <button class="btn btn-wa" type="button" data-ls-send>Enviar el enlace a alguien</button>
+    <div class="ls-row"><button class="btn btn-ghost btn-sm" type="button" data-ls-copy>Copiar enlace</button><button class="btn btn-ghost btn-sm" type="button" data-ls-stop>Dejar de compartir</button></div>
+  </div>
+  <p class="rating ls-fine">Deja esta pantalla abierta y el teléfono desbloqueado: en iPhone el navegador pausa el GPS si bloqueas la pantalla o cambias de app. Si no hay datos, guardamos el recorrido y lo enviamos solo cuando vuelva la señal.</p>
+</section>`;
+function wireShare(root, ctx, signal) {
+  const q = s => root.querySelector(s), st = q('[data-ls-st]');
+  const render = () => {
+    if (!root.isConnected) return;
+    const on = !!LS.s; q('[data-ls-start]').hidden = on; q('[data-ls-on]').hidden = !on;
+    const n = LS.q.length, since = LS.sentAt ? Math.round((Date.now() - LS.sentAt) / 1000) : null;
+    const [cls, txt] = !on ? ['', ''] :
+      LS.state === 'nocfg' ? ['bad', 'El servidor de seguimiento aún no está activado. Mientras tanto, comparte tu posición desde el SOS o por WhatsApp.'] :
+      LS.state === 'error' ? ['bad', 'No se pudo publicar. Toca "Dejar de compartir" y vuelve a empezar.'] :
+      LS.state === 'offline' ? ['warn', `Sin datos · ${n} posici${n === 1 ? 'ón guardada' : 'ones guardadas'}. Se envían solas al volver la señal.`] :
+      LS.state === 'retry' ? ['warn', `Reconectando… ${n ? n + ' posiciones en espera' : ''}`] :
+      !GPS.live ? ['warn', GPS.msg] :
+      LS.state === 'ok' ? ['ok', `En vivo · enviado ${since < 5 ? 'ahora' : `hace ${since < 60 ? since + ' s' : Math.round(since / 60) + ' min'}`}`] : ['warn', 'Conectando…'];
+    st.className = 'ls-st ' + cls; st.textContent = txt; st.hidden = !on;
+  };
+  LS.subs.add(render); GPS.subs.add(render); const iv = setInterval(render, 2000);
+  signal.addEventListener('abort', () => { LS.subs.delete(render); GPS.subs.delete(render); clearInterval(iv); });
+  root.addEventListener('click', e => {
+    if (e.target.closest('[data-ls-start]')) lsStart(ctx);
+    else if (e.target.closest('[data-ls-send]')) lsShareLink();
+    else if (e.target.closest('[data-ls-copy]') && LS.s) copy(followUrl(LS.s.id));
+    else if (e.target.closest('[data-ls-stop]')) lsStop();
+  }, { signal });
+  render();
+}
+
+/* ---- vista de quien sigue el enlace ---- */
+let lfP = null;
+const loadLeaflet = () => lfP || (lfP = new Promise((ok, no) => {
+  if (window.L) return ok(window.L);
+  const c = document.createElement('link'); c.rel = 'stylesheet'; c.href = 'vendor/leaflet.css'; document.head.appendChild(c);
+  const s = document.createElement('script'); s.src = 'vendor/leaflet.js'; s.onload = () => ok(window.L); s.onerror = () => { lfP = null; no(new Error('leaflet')); }; document.head.appendChild(s);
+}));
+let followCtl = null;
+function openFollow(id) {
+  const dlg = $('#dlg'); if (dlg.open) dlg.close();
+  dlg.className = 'full follow-dlg';
+  dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="view">
+    <div class="view-h"><div style="display:grid;gap:4px"><span class="eyebrow"><span class="live-dot" aria-hidden="true"></span>&nbsp;En vivo · GPS real</span><h2 id="m-title" style="font-size:1.6rem" data-f-title>Sigue la lancha</h2></div><span class="f-badge" data-f-badge>Conectando…</span></div>
+    <div class="live-grid"><div class="map fmap" data-f-map><div class="f-wait">Buscando la lancha…</div></div>
+      <div class="live-side">
+        <div class="specs" style="grid-template-columns:1fr 1fr"><div class="spec"><span>Velocidad</span><b data-f-spd>-- kn</b></div><div class="spec"><span>Actualizado</span><b data-f-age>--</b></div><div class="spec"><span>Recorrido</span><b data-f-dist>0,0 MN</b></div><div class="spec"><span>Precisión</span><b data-f-acc>--</b></div></div>
+        <p class="f-note" data-f-note role="status" aria-live="polite">Conectando con el teléfono a bordo…</p>
+        <div class="f-pos"><span>Posición</span><b class="mono" data-f-pos>--</b></div>
+        <button class="btn btn-sun" type="button" data-f-center>Centrar en la lancha</button>
+        <a class="btn btn-ghost" data-f-gmaps target="_blank" rel="noopener" hidden>Abrir en Google Maps</a>
+        <p class="rating">La posición llega directo del GPS del teléfono que comparte. Si se queda sin señal en el mar, verás su última posición y la hora; al volver la señal, el mapa salta solo a donde está.</p>
+      </div></div></div>`;
+  followCtl?.abort(); followCtl = new AbortController(); const sig = followCtl.signal;
+  const q = s => dlg.querySelector(s);
+  let map = null, line = null, boat = null, pts = [], lastT = 0, follow = true, timer = null, data = null, skew = 0, dist = 0;
+  const icon = hdg => window.L.divIcon({ className: 'f-boat', iconSize: [44, 44], iconAnchor: [22, 22], html: `<span class="f-pulse"></span><svg viewBox="-22 -22 44 44" style="transform:rotate(${hdg || 0}deg)"><circle r="14" fill="rgba(127,227,240,.22)"/><path d="M0 -12L8 9L0 4.5L-8 9Z" fill="#fff" stroke="#0b2236" stroke-width="1.6" stroke-linejoin="round"/></svg>` });
+  const bearing = (a, b) => { const r = Math.PI / 180, y = Math.sin((b.lng - a.lng) * r) * Math.cos(b.lat * r), x = Math.cos(a.lat * r) * Math.sin(b.lat * r) - Math.sin(a.lat * r) * Math.cos(b.lat * r) * Math.cos((b.lng - a.lng) * r); return (Math.atan2(y, x) / r + 360) % 360; };
+  const hm = t => new Date(t).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
+  const setNote = (cls, txt, badge) => { const n = q('[data-f-note]'); n.className = 'f-note ' + cls; n.textContent = txt; const b = q('[data-f-badge]'); b.className = 'f-badge ' + cls; b.textContent = badge; };
+  const paint = () => {
+    if (!data || !data.last) return;
+    const L = data.last, age = Math.max(0, Date.now() + skew - L.t), s = Math.round(age / 1000);
+    q('[data-f-age]').textContent = s < 5 ? 'ahora' : s < 60 ? `hace ${s} s` : s < 3600 ? `hace ${Math.round(s / 60)} min` : hm(L.t);
+    if (data.ended) setNote('', `El viaje terminó. Última posición a las ${hm(L.t)}.`, 'Terminado');
+    else if (!navigator.onLine) setNote('warn', 'Tu teléfono está sin conexión. El mapa se actualiza solo cuando vuelvas a tener datos.', 'Sin conexión');
+    else if (age > 90e3) setNote('warn', `Sin señal desde las ${hm(L.t)}. Es normal en algunas zonas de Mochima: cuando vuelva la señal, el mapa salta solo a la posición actual.`, 'Sin señal');
+    else setNote('ok', 'Recibiendo la posición en tiempo real.', 'En vivo');
+  };
+  const apply = d => {
+    data = d; skew = d.now - Date.now();
+    if (d.boat) q('[data-f-title]').textContent = `Sigue a ${d.boat}`;
+    const add = (d.pts || []).filter(p => p.t > lastT);
+    if (add.length) {
+      add.forEach(p => { if (pts.length) dist += distM(pts[pts.length - 1], p); pts.push(p); });
+      lastT = pts[pts.length - 1].t;
+      const L = pts[pts.length - 1], prev = pts.length > 1 ? pts[pts.length - 2] : null, hdg = typeof L.hdg === 'number' ? L.hdg : prev ? bearing(prev, L) : 0;
+      if (map) {
+        const ll = pts.map(p => [p.lat, p.lng]); line.setLatLngs(ll); boat.setLatLng([L.lat, L.lng]).setIcon(icon(hdg));
+        if (!map.hasLayer(boat)) boat.addTo(map);
+        if (follow) map.setView([L.lat, L.lng], Math.max(map.getZoom(), 14), { animate: true });
+      }
+      q('[data-f-spd]').textContent = typeof L.spd === 'number' ? `${(L.spd * 1.94384).toFixed(1).replace('.', ',')} kn` : prev && L.t > prev.t && distM(prev, L) / ((L.t - prev.t) / 1000) < 35 ? `${(distM(prev, L) / ((L.t - prev.t) / 1000) * 1.94384).toFixed(1).replace('.', ',')} kn` : '-- kn';
+      q('[data-f-dist]').textContent = `${(dist / 1852).toFixed(1).replace('.', ',')} MN`;
+      q('[data-f-acc]').textContent = typeof L.acc === 'number' ? `±${L.acc} m` : '--';
+      q('[data-f-pos]').textContent = fmtPos(L);
+      const g = q('[data-f-gmaps]'); g.href = `https://maps.google.com/?q=${L.lat.toFixed(6)},${L.lng.toFixed(6)}`; g.hidden = false;
+      const w = q('.f-wait'); if (w) w.remove();
+    } else if (!d.last) { setNote('warn', 'El enlace está activo, pero el teléfono a bordo todavía no envía su primera posición.', 'Esperando GPS'); return; }
+    paint();
+  };
+  const poll = async () => {
+    clearTimeout(timer); if (sig.aborted) return;
+    if (!navigator.onLine) { paint(); if (!data) setNote('warn', 'Sin conexión. Cuando vuelvas a tener datos, el mapa carga solo.', 'Sin conexión'); return; }
+    try {
+      const r = await fetch(`${LIVE_API}?id=${id}&after=${lastT}`, { cache: 'no-store', signal: sig });
+      if (r.status === 404) { setNote('bad', 'Este enlace ya no está activo: el viaje terminó hace más de 24 horas o el enlace está incompleto.', 'Inactivo'); return; }
+      if (r.status === 503) { setNote('bad', 'El seguimiento en vivo aún no está activado en el servidor de Tu Lancha.', 'No disponible'); return; }
+      if (!r.ok) throw new Error(r.status);
+      apply(await r.json());
+      timer = setTimeout(poll, data && data.ended ? 60000 : 4000);
+    } catch (e) { if (sig.aborted) return; paint(); if (!data) setNote('warn', 'Reconectando…', 'Reconectando'); timer = setTimeout(poll, 8000); }
+  };
+  addEventListener('online', () => { poll(); }, { signal: sig });
+  addEventListener('offline', () => paint(), { signal: sig });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') poll(); }, { signal: sig });
+  const tickIv = setInterval(paint, 1000); sig.addEventListener('abort', () => { clearInterval(tickIv); clearTimeout(timer); if (map) map.remove(); });
+  q('[data-f-center]').addEventListener('click', () => { follow = true; const L = pts[pts.length - 1]; if (map && L) map.setView([L.lat, L.lng], Math.max(map.getZoom(), 14)); });
+  dlg.onclick = e => { if (e.target.closest('.m-close')) dlg.close(); };
+  dlg.onchange = null;
+  dlg.showModal();
+  loadLeaflet().then(L => {
+    if (sig.aborted) return;
+    const el = q('[data-f-map]');
+    map = L.map(el, { zoomControl: true, attributionControl: true }).setView([10.24, -64.62], 11);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(map);
+    map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+    line = L.polyline([], { color: '#f3d58a', weight: 3, opacity: .9, dashArray: '2 8', lineCap: 'round' }).addTo(map);
+    boat = L.marker([10.24, -64.62], { icon: icon(0), keyboard: false, zIndexOffset: 1000 });
+    map.on('dragstart', () => { follow = false; });
+    if (pts.length) { const Lp = pts[pts.length - 1]; line.setLatLngs(pts.map(p => [p.lat, p.lng])); boat.setLatLng([Lp.lat, Lp.lng]).addTo(map); map.setView([Lp.lat, Lp.lng], 14); }
+    setTimeout(() => map && map.invalidateSize(), 200);
+  }).catch(() => { const w = q('.f-wait'); if (w) w.textContent = 'No se pudo cargar el mapa. La posición y el enlace a Google Maps siguen funcionando.'; });
+  poll();
+}
+
 document.addEventListener('click', e => { const b = e.target.closest('[data-abordo-open]'); if (!b) return; const c = ($('#code-live')?.value || '').trim().toUpperCase(); openAbordo(validTrip(c) ? c : ''); });
 
 /* ---------------- vista: álbum del día ---------------- */
@@ -297,13 +504,13 @@ function openAlbum(code) {
   dlg.onchange = null;
   dlg.showModal();
 }
-$('#dlg').addEventListener('close', () => { clearInterval(liveTimer); $('#dlg').className = ''; if (['#viaje', '#album', '#a-bordo'].includes(location.hash)) history.replaceState(null, '', '#mi-viaje'); window.dispatchEvent(new HashChangeEvent('hashchange')); });
+$('#dlg').addEventListener('close', () => { clearInterval(liveTimer); $('#dlg').className = ''; if (['#viaje', '#album', '#a-bordo'].includes(location.hash) || location.hash.startsWith('#sigue/')) history.replaceState(null, '', '#mi-viaje'); window.dispatchEvent(new HashChangeEvent('hashchange')); });
 $$('.trip-code').forEach(f => f.addEventListener('submit', e => {
   e.preventDefault(); const c = $('input', f).value.trim().toUpperCase();
   if (!validTrip(c)) { toast('Escribe el código que te enviamos, por ejemplo TLL-1105'); return; }
   f.dataset.go === 'viaje' ? openLive(c) : openAlbum(c);
 }));
-function route() { if (location.hash === '#viaje') openLive('TLL-1105'); if (location.hash === '#album') openAlbum('TLL-1105'); if (location.hash === '#a-bordo' && !$('#dlg').open) openAbordo(''); }
+function route() { if (location.hash === '#viaje') openLive('TLL-1105'); if (location.hash === '#album') openAlbum('TLL-1105'); if (location.hash === '#a-bordo' && !$('#dlg').open) openAbordo(''); const f = location.hash.match(/^#sigue\/([a-z2-9]{20})$/); if (f && !$('#dlg.follow-dlg[open]')) openFollow(f[1]); }
 addEventListener('hashchange', route); route();
 
 /* ---------------- tarjetas de regalo ---------------- */
