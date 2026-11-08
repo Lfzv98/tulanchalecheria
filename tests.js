@@ -174,11 +174,11 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await p.fill('#code-live', 'tll-1105'); await tap('form[data-go="viaje"] button'); await p.waitForSelector('#dlg[open] #lv-map');
   const pos1 = await p.getAttribute('#boat', 'transform'); await p.waitForTimeout(1200); const pos2 = await p.getAttribute('#boat', 'transform');
   ok(pos1 && pos2 && pos1 !== pos2, 'Ubicación en vivo: la lancha se mueve en el mapa');
-  const sos = await p.$('#lv-sos'); const bx = await sos.boundingBox();
+  const sos = await p.$('#dlg [data-sos]'); await sos.scrollIntoViewIfNeeded(); const bx = await sos.boundingBox();
   await p.mouse.move(bx.x + 20, bx.y + 20); await p.mouse.down(); await p.waitForTimeout(300); await p.mouse.up();
-  ok(!(await p.isVisible('#sos-panel')), 'Emergencia: un toque corto no dispara la alerta');
-  await p.mouse.move(bx.x + 20, bx.y + 20); await p.mouse.down(); await p.waitForTimeout(1700); await p.mouse.up();
-  ok(await p.isVisible('#sos-panel') && (await p.getAttribute('#sos-wa', 'href')).includes('EMERGENCIA'), 'Emergencia: mantener presionado muestra alerta con posición');
+  ok(!(await p.isVisible('#dlg [data-sos-panel]')), 'Emergencia: un toque corto no dispara la alerta');
+  await p.mouse.move(bx.x + 20, bx.y + 20); await p.mouse.down(); await p.waitForTimeout(3300); await p.mouse.up();
+  ok(await p.isVisible('#dlg [data-sos-panel]') && (await p.getAttribute('#dlg [data-sos-wa]', 'href')).includes('SOS'), 'Emergencia: mantener presionado 3 s muestra la alerta SOS');
   await p.screenshot({ path: OUT + 'f-live.png' });
   await tap('#dlg .m-close');
   // álbum

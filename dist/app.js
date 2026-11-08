@@ -619,13 +619,7 @@ function openLive(code) {
         <div class="specs" style="grid-template-columns:1fr 1fr"><div class="spec"><span>Llega aprox.</span><b id="lv-eta">--:--</b></div><div class="spec"><span>Velocidad</span><b id="lv-spd">-- kn</b></div><div class="spec"><span>Recorrido</span><b id="lv-pct">0%</b></div><div class="spec"><span>Actualizado</span><b id="lv-upd">ahora</b></div></div>
         <div class="field"><label>Embarcación y capitán</label><div style="font-size:.95rem"><b>Bravo 32</b> · Capitán Luis R. · 9 a bordo</div></div>
         <button class="btn btn-ghost" type="button" id="lv-share">Compartir con mi familia</button>
-        <button class="sos" type="button" id="lv-sos"><i></i><span>Mantén presionado para emergencia</span></button>
-        <div class="sos-panel" id="sos-panel" hidden>
-          <b>Alerta de emergencia</b>
-          <p style="font-size:.9rem;color:var(--muted)">Avisa a Tu Lancha con tu ubicación. Si es grave, llama también a los números de abajo.</p>
-          <a class="btn btn-wa" id="sos-wa" target="_blank" rel="noopener">Enviar alerta por WhatsApp</a>
-          <div style="display:grid;gap:4px;font-size:.9rem"><span>Emergencias Venezuela: <span class="num">911</span></span><span>Tu Lancha (24 h): <span class="num">+58 414 308 3864</span></span><span>Posición: <span class="num" id="sos-pos"></span></span></div>
-        </div>
+        ${sosBlock()}
       </div>
     </div></div>`;
   const path = $('#route', dlg), boat = $('#boat', dlg), L = path.getTotalLength();
@@ -636,23 +630,144 @@ function openLive(code) {
     $('#lv-eta', dlg).textContent = p >= 1 ? 'Llegó' : eta.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
     $('#lv-spd', dlg).textContent = p >= 1 ? '0 kn' : (17 + Math.round(Math.sin(Date.now() / 4000) * 3)) + ' kn';
     $('#lv-pct', dlg).textContent = Math.round(p * 100) + '%';
-    const lat = (10.205 + p * .07).toFixed(4), lon = (64.69 - p * .12).toFixed(4);
-    $('#sos-pos', dlg).textContent = `${lat}° N, ${lon}° O`;
-    $('#sos-wa', dlg).href = wa(`🆘 EMERGENCIA · Reserva ${code}\nNecesitamos ayuda a bordo.\nPosición: ${lat}° N, ${lon}° O\nhttps://maps.google.com/?q=${lat},-${lon}`);
   };
   tick(); clearInterval(liveTimer); liveTimer = setInterval(tick, 1000);
   $('#lv-share', dlg).onclick = () => openWa(`Sigue nuestra lancha en vivo 🚤 Reserva ${code}: ${location.href.split('#')[0]}#mi-viaje (código ${code})`);
-  // mantener presionado 1,5 s para evitar toques accidentales
-  const sos = $('#lv-sos', dlg), bar = $('i', sos); let t0, raf;
-  const reset = () => { cancelAnimationFrame(raf); bar.style.width = '0'; };
-  const step = () => { const p = Math.min(1, (performance.now() - t0) / 1500); bar.style.width = p * 100 + '%'; if (p < 1) raf = requestAnimationFrame(step); else { reset(); $('#sos-panel', dlg).hidden = false; $('span', sos).textContent = 'Alerta lista: elige cómo avisar'; navigator.vibrate?.(200); } };
-  sos.addEventListener('pointerdown', e => { e.preventDefault(); t0 = performance.now(); step(); });
-  ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => sos.addEventListener(ev, reset));
-  sos.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#sos-panel', dlg).hidden = false; } });
-  dlg.onclick = e => { if (e.target === dlg || e.target.closest('.m-close')) dlg.close(); };
+  sosCtl?.abort(); sosCtl = new AbortController();
+  wireSos($('[data-abordo]', dlg), { code, boat: 'Bravo 32' }, sosCtl.signal);
+  dlg.onclick = e => { if (e.target.closest('.m-close')) dlg.close(); };
   dlg.onchange = null;
   dlg.showModal();
 }
+
+
+/* ---------------- a bordo: GPS real del teléfono + botón SOS ----------------
+   - El GPS se enciende solo cuando el usuario toca (iOS exige un gesto para pedir el permiso).
+   - La última posición se guarda en el teléfono para usarla en zonas sin cobertura (Mochima).
+   - El SOS se activa manteniendo presionado 3 s; se cancela al soltar, al salir del botón o si el sistema cancela el toque.
+   - Con datos: WhatsApp a Tu Lancha. Sin datos: SMS (usa la red celular, no internet) y copiar el mensaje. */
+const SOS_HOLD = 3000;
+const SOS_TEL = { casa: '+584143083864', emergencias: '911', guardacostas: null }; // guardacostas: número por confirmar con Eduardo
+const GPS = { watch: null, pos: null, live: false, msg: 'GPS apagado', subs: new Set() };
+try { GPS.pos = JSON.parse(localStorage.getItem('tll:lastpos') || 'null'); } catch { GPS.pos = null; }
+const gpsNotify = () => GPS.subs.forEach(f => f());
+function gpsStart() {
+  if (GPS.watch !== null) return;
+  if (!('geolocation' in navigator)) { GPS.msg = 'Este teléfono no tiene GPS disponible para la app'; gpsNotify(); return; }
+  GPS.msg = 'Buscando satélites…'; gpsNotify();
+  GPS.watch = navigator.geolocation.watchPosition(p => {
+    const { latitude: lat, longitude: lng, accuracy: acc } = p.coords;
+    GPS.pos = { lat, lng, acc, t: p.timestamp || Date.now() }; GPS.live = true;
+    GPS.msg = `GPS activo · precisión ${Math.round(acc)} m`;
+    try { localStorage.setItem('tll:lastpos', JSON.stringify(GPS.pos)); } catch {}
+    gpsNotify();
+  }, err => {
+    GPS.live = false;
+    if (err.code === 1) { GPS.msg = 'Permiso de ubicación negado. Actívalo en Ajustes › Privacidad › Ubicación'; if (GPS.watch !== null) navigator.geolocation.clearWatch(GPS.watch); GPS.watch = null; }
+    else GPS.msg = GPS.pos ? 'Señal GPS débil · usamos tu última posición' : 'Señal GPS débil · sigue buscando';
+    gpsNotify();
+  }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+}
+function gpsStop() { if (GPS.watch !== null) navigator.geolocation.clearWatch(GPS.watch); GPS.watch = null; GPS.live = false; if (GPS.pos) GPS.msg = 'GPS en pausa'; }
+const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'hace segundos' : m < 60 ? `hace ${m} min` : `hace ${Math.round(m / 60)} h`; };
+const fmtPos = p => `${Math.abs(p.lat).toFixed(5)}° ${p.lat >= 0 ? 'N' : 'S'}, ${Math.abs(p.lng).toFixed(5)}° ${p.lng >= 0 ? 'E' : 'O'}`;
+function sosText(ctx) {
+  const p = GPS.pos, who = (localStorage.getItem('tll:sosname') || '').trim();
+  return ['🆘 SOS · EMERGENCIA EN EL MAR', ctx.code ? `Reserva: ${ctx.code}` : '', ctx.boat ? `Embarcación: ${ctx.boat}` : '', who ? `Quien avisa: ${who}` : '',
+    p ? `📍 ${fmtPos(p)} (±${Math.round(p.acc)} m)` : '📍 Ubicación no disponible: activa el GPS',
+    p ? `🗺️ https://maps.google.com/?q=${p.lat.toFixed(6)},${p.lng.toFixed(6)}` : '',
+    p ? `🕒 Posición ${GPS.live ? 'en vivo' : 'guardada ' + ago(p.t)} · ${new Date(p.t).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' })}` : `🕒 ${new Date().toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' })}`,
+    'Necesitamos ayuda.'].filter(Boolean).join('\n');
+}
+const smsHref = (num, text) => `sms:${num}?&body=${encodeURIComponent(text)}`;
+function sosBlock() {
+  return `<div class="abordo" data-abordo>
+    <div class="ab-top"><span class="net" data-net></span></div>
+    <button class="sos" type="button" data-sos aria-describedby="sos-help"><i></i><span data-sos-l>SOS · mantén presionado 3 segundos</span></button>
+    <p class="rating" id="sos-help">Suelta antes de 3 segundos para cancelar. Funciona también sin datos: te damos SMS y el mensaje para copiar.</p>
+    <div class="ab-pos"><span class="ab-gps" data-gps role="status" aria-live="polite"></span><b class="mono" data-coords>Sin posición todavía</b><small data-age></small></div>
+    <button class="btn btn-ghost btn-sm" type="button" data-gps-on>Activar mi GPS</button>
+    <label class="ab-name"><span>Tu nombre (va en la alerta)</span><input data-sos-name autocomplete="name" placeholder="Opcional"></label>
+    <div class="sos-panel" data-sos-panel hidden role="alertdialog" aria-label="Alerta SOS lista">
+      <b class="sos-t">🆘 Alerta SOS lista</b>
+      <p class="rating" data-sos-note></p>
+      <pre class="sos-msg" data-sos-msg></pre>
+      <div class="sos-acts">
+        <a class="btn btn-wa" data-sos-wa target="_blank" rel="noopener">WhatsApp a Tu Lancha</a>
+        <a class="btn btn-sun" data-sos-sms>SMS a Tu Lancha (sin datos)</a>
+        <button class="btn btn-ghost" type="button" data-sos-copy>Copiar mensaje</button>
+        <div class="sos-calls"><a class="btn btn-ghost btn-sm" href="tel:${SOS_TEL.casa}">Llamar a Tu Lancha</a><a class="btn btn-ghost btn-sm" href="tel:${SOS_TEL.emergencias}">Llamar al 911</a>${SOS_TEL.guardacostas ? `<a class="btn btn-ghost btn-sm" href="tel:${SOS_TEL.guardacostas}">Guardacostas</a>` : ''}</div>
+      </div>
+      <p class="rating">Capitán: socorro por radio VHF, canal 16.</p>
+      <button class="btn btn-ghost btn-sm" type="button" data-sos-x>Cerrar alerta</button>
+    </div>
+  </div>`;
+}
+function wireSos(root, ctx, signal) {
+  const q = s => root.querySelector(s), btn = q('[data-sos]'), bar = q('[data-sos] i'), lbl = q('[data-sos-l]'), panel = q('[data-sos-panel]'), name = q('[data-sos-name]');
+  name.value = localStorage.getItem('tll:sosname') || '';
+  name.addEventListener('input', () => { try { localStorage.setItem('tll:sosname', name.value); } catch {} }, { signal });
+  const paint = () => {
+    const on = navigator.onLine;
+    q('[data-net]').className = 'net ' + (on ? 'on' : 'off'); q('[data-net]').textContent = on ? 'Con datos' : 'Sin datos';
+    q('[data-gps]').textContent = GPS.msg;
+    q('[data-coords]').textContent = GPS.pos ? fmtPos(GPS.pos) : 'Sin posición todavía';
+    q('[data-age]').textContent = GPS.pos ? `±${Math.round(GPS.pos.acc)} m · ${GPS.live ? 'en vivo' : 'guardada ' + ago(GPS.pos.t)}` : '';
+    const g = q('[data-gps-on]'); g.disabled = GPS.watch !== null; g.textContent = GPS.watch !== null ? 'GPS encendido' : 'Activar mi GPS'; // sin ocultarlo: nada se mueve bajo el dedo
+    root.classList.toggle('offline', !on);
+    if (!panel.hidden) fill();
+  };
+  const fill = () => {
+    const t = sosText(ctx), on = navigator.onLine;
+    q('[data-sos-msg]').textContent = t;
+    q('[data-sos-wa]').href = wa(t); q('[data-sos-sms]').href = smsHref(SOS_TEL.casa, t);
+    q('[data-sos-note]').textContent = on ? 'Envíala por WhatsApp a Tu Lancha. Si es grave, llama también al 911.' : 'Estás sin datos: envía el SMS (usa la señal celular) o copia el mensaje. Si es grave, llama al 911.';
+  };
+  GPS.subs.add(paint); signal.addEventListener('abort', () => GPS.subs.delete(paint));
+  addEventListener('online', paint, { signal }); addEventListener('offline', paint, { signal });
+  q('[data-gps-on]').addEventListener('click', gpsStart, { signal });
+  let t0 = 0, raf = 0, holding = false;
+  const reset = () => { holding = false; cancelAnimationFrame(raf); bar.style.width = '0'; btn.classList.remove('holding'); if (panel.hidden) lbl.textContent = 'SOS · mantén presionado 3 segundos'; };
+  const fire = () => {
+    reset(); fill(); panel.hidden = false; lbl.textContent = 'Alerta lista · elige cómo avisar';
+    navigator.vibrate?.([500, 250, 500, 250, 500]);
+    if (!navigator.onLine) navigator.clipboard?.writeText(sosText(ctx)).then(() => toast('Mensaje copiado'), () => {});
+    panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    q(navigator.onLine ? '[data-sos-wa]' : '[data-sos-sms]').focus({ preventScroll: true });
+  };
+  const step = () => {
+    if (!holding) return;
+    const p = Math.min(1, (performance.now() - t0) / SOS_HOLD);
+    bar.style.width = p * 100 + '%'; lbl.textContent = `Suelta para cancelar · ${Math.ceil((1 - p) * SOS_HOLD / 1000)} s`;
+    if (p < 1) raf = requestAnimationFrame(step); else fire();
+  };
+  const start = () => { if (holding) return; holding = true; gpsStart(); t0 = performance.now(); btn.classList.add('holding'); navigator.vibrate?.(30); step(); };
+  btn.addEventListener('pointerdown', e => { if (e.button > 0) return; e.preventDefault(); start(); }, { signal });
+  ['pointerup', 'pointerleave', 'pointercancel', 'blur'].forEach(ev => btn.addEventListener(ev, () => { if (holding) reset(); }, { signal }));
+  btn.addEventListener('contextmenu', e => e.preventDefault(), { signal });
+  btn.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); start(); } }, { signal });
+  btn.addEventListener('keyup', e => { if (e.key === 'Enter' || e.key === ' ') reset(); }, { signal });
+  q('[data-sos-copy]').addEventListener('click', () => copy(sosText(ctx)), { signal });
+  q('[data-sos-x]').addEventListener('click', () => { panel.hidden = true; reset(); }, { signal });
+  paint();
+}
+let wakeLock = null;
+async function keepAwake(on) { try { if (on && 'wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; } } catch {} }
+let sosCtl = null;
+function openAbordo(code) {
+  const dlg = $('#dlg'); dlg.className = 'full abordo-dlg';
+  dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="view">
+    <div class="view-h"><div style="display:grid;gap:4px"><span class="eyebrow">Modo a bordo${code ? ' · Reserva ' + code : ''}</span><h2 id="m-title" style="font-size:1.6rem">Tu GPS y botón SOS</h2></div></div>
+    ${sosBlock()}
+    <p class="rating ab-tip">Deja esta pantalla abierta durante el paseo: guardamos tu última posición por si se pierde la señal en Mochima.</p></div>`;
+  sosCtl?.abort(); sosCtl = new AbortController();
+  wireSos($('[data-abordo]', dlg), { code }, sosCtl.signal);
+  // solo se cierra con la X: un toque fuera durante una emergencia no debe cerrar la pantalla
+  dlg.onclick = e => { if (e.target.closest('.m-close')) dlg.close(); };
+  dlg.showModal(); gpsStart(); keepAwake(true);
+}
+$('#dlg').addEventListener('close', () => { if (sosCtl) { sosCtl.abort(); sosCtl = null; gpsStop(); keepAwake(false); } });
+document.addEventListener('click', e => { const b = e.target.closest('[data-abordo-open]'); if (!b) return; const c = ($('#code-live')?.value || '').trim().toUpperCase(); openAbordo(validTrip(c) ? c : ''); });
 
 /* ---------------- vista: álbum del día ---------------- */
 function openAlbum(code) {
@@ -676,13 +791,13 @@ function openAlbum(code) {
   dlg.onchange = null;
   dlg.showModal();
 }
-$('#dlg').addEventListener('close', () => { clearInterval(liveTimer); $('#dlg').className = ''; if (['#viaje', '#album'].includes(location.hash)) history.replaceState(null, '', '#mi-viaje'); window.dispatchEvent(new HashChangeEvent('hashchange')); });
+$('#dlg').addEventListener('close', () => { clearInterval(liveTimer); $('#dlg').className = ''; if (['#viaje', '#album', '#a-bordo'].includes(location.hash)) history.replaceState(null, '', '#mi-viaje'); window.dispatchEvent(new HashChangeEvent('hashchange')); });
 $$('.trip-code').forEach(f => f.addEventListener('submit', e => {
   e.preventDefault(); const c = $('input', f).value.trim().toUpperCase();
   if (!validTrip(c)) { toast('Escribe el código que te enviamos, por ejemplo TLL-1105'); return; }
   f.dataset.go === 'viaje' ? openLive(c) : openAlbum(c);
 }));
-function route() { if (location.hash === '#viaje') openLive('TLL-1105'); if (location.hash === '#album') openAlbum('TLL-1105'); }
+function route() { if (location.hash === '#viaje') openLive('TLL-1105'); if (location.hash === '#album') openAlbum('TLL-1105'); if (location.hash === '#a-bordo' && !$('#dlg').open) openAbordo(''); }
 addEventListener('hashchange', route); route();
 
 /* ---------------- tarjetas de regalo ---------------- */
