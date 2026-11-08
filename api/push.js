@@ -92,12 +92,28 @@ function cleanSub(s) {
 }
 // fecha de hoy en Venezuela (UTC-4, sin horario de verano)
 const vetIso = (offsetDays = 0) => new Date(Date.now() - 4 * 36e5 + offsetDays * 864e5).toISOString().slice(0, 10);
-const hourTxt = ms => new Date(ms).toLocaleTimeString('es-VE', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Caracas' });
 
+const LOC = { es: 'es-VE', en: 'en-US', pt: 'pt-BR' };
+const TXT = {
+  es: { eve: ['Mañana zarpas ⛵', t => `${t.boat} · ${t.h} desde ${t.dock}. Protector solar, lentes y traje de baño. ¡Nos vemos en el muelle!`],
+        today: ['Hoy zarpas ⛵', t => `Abre el modo a bordo antes de salir: GPS, botón SOS y ubicación en vivo para tu familia. Salida ${t.h} desde ${t.dock}.`],
+        album: ['Tu álbum del día 📸', () => 'Gracias por navegar con Tu Lancha. Las fotos y videos de tu paseo te esperan en la app.'],
+        ok: ['Avisos activados ⚓', d => `Te avisaremos el día antes y la mañana de tu paseo (${d}).`] },
+  en: { eve: ['Tomorrow you set sail ⛵', t => `${t.boat} · ${t.h} from ${t.dock}. Bring sunscreen, sunglasses and swimwear. See you at the dock!`],
+        today: ['Today you set sail ⛵', t => `Open on-board mode before you leave: GPS, SOS button and live location for your family. Departure ${t.h} from ${t.dock}.`],
+        album: ['Your album of the day 📸', () => 'Thanks for sailing with Tu Lancha. The photos and videos of your trip are waiting for you in the app.'],
+        ok: ['Notifications on ⚓', d => `We will remind you the day before and the morning of your trip (${d}).`] },
+  pt: { eve: ['Amanhã você zarpa ⛵', t => `${t.boat} · ${t.h} saindo de ${t.dock}. Protetor solar, óculos de sol e roupa de banho. Nos vemos no píer!`],
+        today: ['Hoje você zarpa ⛵', t => `Abra o modo a bordo antes de sair: GPS, botão SOS e localização ao vivo para sua família. Saída ${t.h} de ${t.dock}.`],
+        album: ['Seu álbum do dia 📸', () => 'Obrigado por navegar com a Tu Lancha. As fotos e vídeos do seu passeio esperam por você no app.'],
+        ok: ['Avisos ativados ⚓', d => `Vamos avisar no dia anterior e na manhã do seu passeio (${d}).`] }
+};
+const langOf = l => (TXT[l] ? l : 'es');
 function message(kind, t) {
-  if (kind === 'eve') return { title: 'Mañana zarpas ⛵', body: `${t.boat} · ${hourTxt(t.start)} desde ${t.dock}. Protector solar, lentes y traje de baño. ¡Nos vemos en el muelle!`, url: './#mi-viaje', tag: `tll-${t.code}-eve` };
-  if (kind === 'today') return { title: 'Hoy zarpas ⛵', body: `Abre el modo a bordo antes de salir: GPS, botón SOS y ubicación en vivo para tu familia. Salida ${hourTxt(t.start)} desde ${t.dock}.`, url: `./#a-bordo/${t.code}`, tag: `tll-${t.code}-today` };
-  return { title: 'Tu álbum del día 📸', body: 'Gracias por navegar con Tu Lancha. Las fotos y videos de tu paseo te esperan en la app.', url: `./#album/${t.code}`, tag: `tll-${t.code}-album` };
+  const L = langOf(t.lang), h = new Date(t.start).toLocaleTimeString(LOC[L], { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Caracas' });
+  const [title, body] = TXT[L][kind];
+  const url = kind === 'today' ? `./#a-bordo/${t.code}` : kind === 'album' ? `./#album/${t.code}` : './#mi-viaje';
+  return { title, body: body({ ...t, h }), url, tag: `tll-${t.code}-${kind}` };
 }
 
 async function runCron(slot, priv) {
@@ -145,11 +161,11 @@ async function handler(req, res) {
     if (!sub || !CODE_RE.test(t.code || '') || !ISO_RE.test(t.iso || '') || !Number.isFinite(t.start)) return send(res, 400, { error: 'bad_request' });
     const until = Date.parse(t.iso + 'T00:00:00-04:00');
     if (!(until > Date.now() - 2 * 864e5 && until < Date.now() + 400 * 864e5)) return send(res, 400, { error: 'bad_date' });
-    const row = { sub, code: t.code, iso: t.iso, start: t.start, boat: txt(t.boat, 60), dock: txt(t.dock, 60), abordo: t.abordo !== false, album: t.album !== false };
+    const row = { sub, code: t.code, iso: t.iso, start: t.start, boat: txt(t.boat, 60), dock: txt(t.dock, 60), abordo: t.abordo !== false, album: t.album !== false, lang: langOf(t.lang) };
     await redis([['HSET', `push:d:${t.iso}`, sha(sub.endpoint) + ':' + t.code, JSON.stringify(row)], ['EXPIRE', `push:d:${t.iso}`, KEEP]]);
     let test = 0;
-    if (b.confirm) { const day = new Date(until).toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Caracas' });
-      try { test = await push(sub, { title: 'Avisos activados ⚓', body: `Te avisaremos el día antes y la mañana de tu paseo (${day}).`, url: './#mi-viaje', tag: `tll-${t.code}-ok` }, priv); } catch {} }
+    if (b.confirm) { const L = row.lang, day = new Date(until + 12 * 36e5).toLocaleDateString(LOC[L], { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Caracas' });
+      try { test = await push(sub, { title: TXT[L].ok[0], body: TXT[L].ok[1](day), url: './#mi-viaje', tag: `tll-${t.code}-ok` }, priv); } catch {} }
     return send(res, 200, { ok: true, test });
   } catch (e) {
     return send(res, 502, { error: 'push' });

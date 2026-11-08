@@ -1506,7 +1506,7 @@ async function pushSub(r, confirm) {
     const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(VAPID) });
     const t = times(r), p = r.plan || {};
     const res = await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirm, sub: sub.toJSON(),
-      trip: { code: r.code, iso: r.iso, start: t.start.getTime(), boat: r.boat, dock: r.dock, abordo: p.abordo !== false, album: p.album !== false } }) });
+      trip: { code: r.code, iso: r.iso, start: t.start.getTime(), boat: r.boat, dock: r.dock, abordo: p.abordo !== false, album: p.album !== false, lang: (window.TLL_I18N && window.TLL_I18N.lang) || 'es' } }) });
     if (!res.ok) return false;
     setPlan(r.code, { push: true }); return true;
   } catch { return false; }
