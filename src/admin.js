@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 /* ================= Panel de control de Eduardo =================
-   Acceso oculto: dirección #capitan, o tocar 5 veces seguidas el logo del pie de página.
+   Acceso oculto: dirección #capitan, o tocar 6 veces seguidas el logo del pie de página.
    Usuario y contraseña se verifican en el servidor (api/admin.js); la sesión dura 12 horas.
    Desde aquí Eduardo edita lo que ve el cliente (embarcaciones, fotos, precios, rumbos, playas, muelles,
    pagos y aliados), sigue las reservas que llegan de la app y ve sus números.
@@ -538,6 +538,6 @@ async function enter() {
 function maybeOpen() { if (location.hash === '#capitan') enter(); }
 addEventListener('hashchange', maybeOpen); maybeOpen();
 let taps = 0, tapT;
-$('#foot-logo').addEventListener('click', e => { taps++; clearTimeout(tapT); tapT = setTimeout(() => taps = 0, 1500); if (taps >= 5) { e.preventDefault(); taps = 0; enter(); } });
+$('#foot-logo').addEventListener('click', e => { taps++; clearTimeout(tapT); tapT = setTimeout(() => taps = 0, 1500); if (taps >= 6) { e.preventDefault(); taps = 0; enter(); } });
 addEventListener('keydown', e => { if (e.key !== 'Escape' || adm.hidden) return; if ($('.ad-ov', adm)) closeTop(); else if (!W) closeAdm(); });
 })();

@@ -1521,3 +1521,4 @@ h4 .ad-help,h3 .ad-help{margin-left:8px;padding:3px 10px 3px 3px;font-size:.75re
 .pay-info .rating{color:rgba(238,242,248,.75)}.pay-info .rating b{color:#fff}
 .pay-acct{overflow-wrap:anywhere}
 fieldset.pay{min-width:0;max-width:100%}
+#foot-logo{cursor:default;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
