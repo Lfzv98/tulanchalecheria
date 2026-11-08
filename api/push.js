@@ -7,7 +7,7 @@
    Funciona con la app cerrada en Android, computadoras y iPhone (iOS 16.4+ con la app agregada a la pantalla de inicio).
 
    Variables de entorno:
-     VAPID_PRIVATE_KEY   clave privada de los avisos (la pareja de VAPID_PUBLIC de abajo). Obligatoria.
+     VAPID_PUBLIC_KEY y VAPID_PRIVATE_KEY   la pareja de claves de los avisos (se generan en https://vapidkeys.com). Obligatorias.
      KV_REST_API_URL / KV_REST_API_TOKEN (o equivalentes de Upstash): las mismas del seguimiento en vivo.
      CRON_SECRET          opcional: si existe, solo Vercel puede disparar los envíos programados.
 
@@ -17,7 +17,7 @@
    DELETE /api/push { endpoint, code, iso } quita la suscripción de ese paseo */
 const crypto = require('crypto');
 
-const VAPID_PUBLIC = 'BET47N4sj6vo2yQg3xzRNTBfE9GpS-uRJQ1b2qk6IFsNPIdWTLaOsHGJi6jVlb-vuHI1LHojChRJn2ipmXjPRJc';
+const VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY || 'BET47N4sj6vo2yQg3xzRNTBfE9GpS-uRJQ1b2qk6IFsNPIdWTLaOsHGJi6jVlb-vuHI1LHojChRJn2ipmXjPRJc';
 const SUBJECT = 'https://tulanchalecheria.vercel.app';
 const KEEP = 40 * 24 * 3600;
 const CODE_RE = /^TLL-\d{4}$/, ISO_RE = /^\d{4}-\d{2}-\d{2}$/;

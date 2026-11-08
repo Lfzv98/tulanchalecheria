@@ -1503,7 +1503,12 @@ async function pushSub(r, confirm) {
   if (!canPush() || Notification.permission !== 'granted') return false;
   try {
     const reg = await navigator.serviceWorker.ready;
-    const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(VAPID) });
+    const cfg = await fetch('/api/push').then(x => x.json()).catch(() => ({}));
+    if (!cfg.ready) return false;
+    const key = cfg.key || VAPID; let sub = await reg.pushManager.getSubscription();
+    // si cambió la clave del servidor, la suscripción vieja ya no sirve
+    if (sub && sub.options && sub.options.applicationServerKey && btoa(String.fromCharCode(...new Uint8Array(sub.options.applicationServerKey))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') !== key) { await sub.unsubscribe(); sub = null; }
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(key) });
     const t = times(r), p = r.plan || {};
     const res = await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirm, sub: sub.toJSON(),
       trip: { code: r.code, iso: r.iso, start: t.start.getTime(), boat: r.boat, dock: r.dock, abordo: p.abordo !== false, album: p.album !== false, lang: (window.TLL_I18N && window.TLL_I18N.lang) || 'es' } }) });
