@@ -1234,3 +1234,7 @@ footer.site .num{white-space:normal}
 .f-note{margin:0;padding:10px 12px;border-radius:12px;font-size:.88rem;background:var(--bg);border:1px solid var(--line)}
 .f-note.ok{border-color:rgba(37,211,102,.35)}.f-note.warn{border-color:rgba(214,182,110,.6);background:#fdf8ec}.f-note.bad{border-color:rgba(255,77,77,.4);background:#fff4f4}
 .f-pos{display:grid;gap:2px}.f-pos span{font-size:.78rem;color:var(--muted)}.f-pos b{overflow-wrap:anywhere}
+
+.sos-dial{display:grid;gap:8px;padding:12px;border-radius:14px;background:#fff;border:1px solid rgba(214,52,52,.3);min-width:0}
+.sos-dial label{display:grid;gap:4px;font-size:.8rem;color:var(--muted)}.sos-dial input{font:inherit;font-size:1.15rem;padding:12px;border-radius:12px;border:1px solid var(--line);min-width:0}
+.sos-dial .btn.off{opacity:.6}

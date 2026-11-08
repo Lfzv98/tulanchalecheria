@@ -190,6 +190,7 @@ function sosBlock() {
         <a class="btn btn-sun" data-sos-sms>Enviar SMS (sin datos)</a>
         <button class="btn btn-ghost" type="button" data-sos-copy>Copiar mensaje</button>
         <div class="sos-calls"><a class="btn btn-sos btn-sm" href="tel:${SOS_TEL.emergencias}">Llamar al 911</a><a class="btn btn-ghost btn-sm" data-sos-call href="tel:">Llamar</a></div>
+        <div class="sos-dial" data-call-box hidden><label><span>¿A quién llamas? Escribe el número</span><input data-call-num type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej. 0414 123 4567"></label><a class="btn btn-sos" data-call-go href="tel:">Llamar</a></div>
         <div class="sos-auth">${SOS_AUTH.map(([n, d, t]) => `<div class="sa"><a class="btn btn-sos btn-sm" href="tel:${t[0]}">Llamar a ${n}</a><span>${d} · otros: ${t.slice(1).map(x => `<a href="tel:${x}">${telTxt(x)}</a>`).join(' · ')}</span></div>`).join('')}</div>
       </div>
       <div class="sos-ack" data-sos-ack hidden role="status" aria-live="assertive"></div>
@@ -206,6 +207,20 @@ function wireSos(root, ctx, signal) {
   const ct = q('[data-sos-contact]'), call = q('[data-sos-call]');
   const telOf = v => { const d = String(v || '').replace(/[^\d+]/g, ''); if (!d) return ''; if (d.startsWith('+')) return d; if (d.startsWith('00')) return '+' + d.slice(2); if (/^0\d{10}$/.test(d)) return '+58' + d.slice(1); return d; };
   const syncCall = () => { const t = telOf(ct.value); call.href = 'tel:' + t; call.textContent = 'Llamar'; if (!panel.hidden) fill(); };
+  // "Llamar": con contacto de emergencia guardado, marca directo. Si no, en Android abre la agenda (Contact Picker)
+  // y en iPhone (que no deja abrir el marcador vacío desde la web) muestra un campo para escribir el número.
+  const box = q('[data-call-box]'), num = q('[data-call-num]'), go = q('[data-call-go]');
+  const dialTo = v => { const t = telOf(v); go.href = 'tel:' + t; go.classList.toggle('off', !t); return t; };
+  num.addEventListener('input', () => dialTo(num.value), { signal });
+  go.addEventListener('click', e => { if (!dialTo(num.value)) { e.preventDefault(); num.focus(); toast('Escribe el número al que quieres llamar'); } }, { signal });
+  call.addEventListener('click', async e => {
+    if (telOf(ct.value)) return;
+    e.preventDefault();
+    if ('contacts' in navigator && navigator.contacts.select) {
+      try { const [c] = await navigator.contacts.select(['tel', 'name'], { multiple: false }); const t = c && c.tel && telOf(c.tel[0]); if (t) { location.href = 'tel:' + t; return; } } catch {}
+    }
+    box.hidden = false; dialTo(num.value); num.focus();
+  }, { signal });
   ct.value = localStorage.getItem('tll:sosc') || ''; syncCall();
   ct.addEventListener('input', () => { try { localStorage.setItem('tll:sosc', ct.value); } catch {} syncCall(); }, { signal });
   const paint = () => {
