@@ -128,7 +128,7 @@ function showDone(r) {
   if (sh) sh.addEventListener('click', async () => {
     try {
       const file = new File([await getBlob()], pdfName(r), { type: 'application/pdf' });
-      await navigator.share({ files: [file], title: `Comprobante ${r.code}`, text: `Reserva ${r.code} · Tu Lancha Lechería. Elige WhatsApp y envíalo a Tu Lancha (+58 414 308 3864).` });
+      await navigator.share({ files: [file], title: TLL_I18N.tr(`Comprobante ${r.code}`), text: TLL_I18N.tr(`Reserva ${r.code} · Tu Lancha Lechería. Elige WhatsApp y envíalo a Tu Lancha (+58 414 308 3864).`) });
       markSent(r.code); $('#bk-li-send', dlg).className = 'ok';
     } catch (e) { if (e && e.name === 'AbortError') return; saveBlob(await getBlob(), pdfName(r)); toast('Descargamos el PDF: adjúntalo en el chat de WhatsApp'); }
   });
@@ -181,17 +181,17 @@ async function boatImage(r) {
 const clean = s => String(s ?? '').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim();
 async function makePdf(r) {
   const [{ jsPDF }, head, boatPic] = await Promise.all([loadJsPdf(), headerImage(), boatImage(r)]);
-  const d = new jsPDF({ unit: 'mm', format: 'a4', compress: true }), W = 210, M = 16;
+  const d = new jsPDF({ unit: 'mm', format: 'a4', compress: true }), W = 210, M = 16; TLL_I18N.pdf(d);
   const NAVY = [13, 27, 46], INK = [21, 26, 51], MUT = [104, 112, 133], GOLD = [196, 160, 82], LINE = [226, 230, 238], SOFT = [245, 247, 251];
   const col = c => d.setTextColor(...c), fill = c => d.setFillColor(...c), draw = c => d.setDrawColor(...c);
-  d.setProperties({ title: `Comprobante de reserva ${r.code}`, author: 'Tu Lancha Lechería', subject: 'Comprobante de reserva', creator: 'Tu Lancha Lechería' });
+  d.setProperties({ title: TLL_I18N.tr(`Comprobante de reserva ${r.code}`), author: 'Tu Lancha Lechería', subject: TLL_I18N.tr('Comprobante de reserva'), creator: 'Tu Lancha Lechería' });
   // cabecera
   d.addImage(head, 'JPEG', 0, 0, W, 70);
   col(GOLD); d.setFont('helvetica', 'bold'); d.setFontSize(8); d.setCharSpace(1.2); d.text('COMPROBANTE DE RESERVA', 44, 20); d.setCharSpace(0);
   col([255, 255, 255]); d.setFontSize(22); d.text('Tu Lancha Lechería', 44, 30);
   d.setFont('helvetica', 'normal'); d.setFontSize(9.5); col([220, 226, 236]); d.text('Chárters y paseos a Mochima y las islas · Lechería, Anzoátegui', 44, 37);
   fill([255, 255, 255]); d.roundedRect(W - M - 52, 48, 52, 15, 3, 3, 'F'); col(MUT); d.setFontSize(7); d.text('CÓDIGO DE RESERVA', W - M - 26, 53.5, { align: 'center' }); col(NAVY); d.setFont('courier', 'bold'); d.setFontSize(13); d.text(r.code, W - M - 26, 60, { align: 'center' });
-  d.setFont('helvetica', 'normal'); d.setFontSize(8.5); col([210, 216, 228]); d.text(`Emitido: ${new Date(r.created || Date.now()).toLocaleString('es-VE', { dateStyle: 'long', timeStyle: 'short' })}`, M, 62);
+  d.setFont('helvetica', 'normal'); d.setFontSize(8.5); col([210, 216, 228]); d.text(`Emitido: ${new Date(r.created || Date.now()).toLocaleString(TLL_I18N.loc(), { dateStyle: 'long', timeStyle: 'short' })}`, M, 62);
   let y = 82;
   // cliente y viaje
   const kv = (k, v, x0, yy, w) => { col(MUT); d.setFont('helvetica', 'normal'); d.setFontSize(7.5); d.text(k.toUpperCase(), x0, yy); col(INK); d.setFont('helvetica', 'bold'); d.setFontSize(10.5); const lines = d.splitTextToSize(clean(v) || '-', w); d.text(lines, x0, yy + 5); return 5 + lines.length * 4.6; };

@@ -25,6 +25,13 @@ En el modo a bordo, "Compartir en vivo" crea un enlace `#sigue/<id>` que se pued
 ## Comprobante de reserva
 Al confirmar, la app genera en el teléfono un PDF con el resumen, el checklist, el total y el abono (jsPDF, en `src/vendor/`). En el celular se envía como archivo con la hoja de compartir (WhatsApp u otra app); en computadora se descarga para adjuntarlo. Es un comprobante de reserva, no una factura fiscal.
 
+## Idiomas (español, inglés y portugués)
+- Botón de idioma en la barra superior (ES · EN · PT). La primera vez se usa el idioma del navegador (español si no es inglés ni portugués) y luego se recuerda la elección. También se puede forzar con `?lang=en` o `?lang=pt`.
+- El español es el texto original. `src/i18n-dict.js` tiene las traducciones como filas `[español, inglés, portugués]` y patrones para frases con datos (fechas, montos, personas). `src/i18n.js` traduce la página en vivo, los mensajes de WhatsApp al tocarlos, el comprobante PDF y los títulos.
+- Nombres propios (playas, islas, muelles, embarcaciones, Zelle, Binance) y teléfonos no se traducen. La alerta SOS va siempre en español primero (911, Guardacostas, Capitanía) y debajo en el idioma del cliente.
+- Para sumar otro idioma: agregarlo en `LANGS` (`src/i18n.js`), en la lista del script del `<head>` (`build.py`) y una columna más en cada fila del diccionario.
+- `tests-idiomas.js`: detección del idioma, selector en todos los tamaños de pantalla, recorrido sin restos en español, WhatsApp, PDF y SOS bilingüe.
+
 ## Datos de ejemplo
 Las embarcaciones, tarifas y muelles del catálogo son de ejemplo y así se indica en la app, hasta cargar los datos reales. El video del hero es una animación generada por código; se puede reemplazar por tomas reales de dron en `dist/media/`.
 

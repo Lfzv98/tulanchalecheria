@@ -9,7 +9,7 @@ const SHOTS = process.env.TLL_SHOTS || '';
   for (const [name, devA, devB] of [['iPhone → Android', devices['iPhone 13'], devices['Pixel 7']], ['Android → Escritorio', devices['Pixel 7'], { viewport: { width: 1440, height: 900 } }]]) {
     await (await fetch(BASE + '__reset')).text();
     // A: teléfono a bordo que comparte
-    const A = await b.newContext({ ...devA, deviceScaleFactor: 1, permissions: ['geolocation'], geolocation: { latitude: 10.2100, longitude: -64.6800, accuracy: 6 } });
+    const A = await b.newContext({ locale: 'es-VE', ...devA, deviceScaleFactor: 1, permissions: ['geolocation'], geolocation: { latitude: 10.2100, longitude: -64.6800, accuracy: 6 } });
     await A.route(/open-meteo/, r => r.fulfill({ status: 200, body: '{}' })); await A.route(/tile\.openstreetmap/, tile);
     await A.addInitScript(() => { window.__sh = []; navigator.share = async o => { window.__sh.push(o); }; });
     const a = await A.newPage(); const ea = []; a.on('pageerror', e => ea.push(e.message));
@@ -23,7 +23,7 @@ const SHOTS = process.env.TLL_SHOTS || '';
     ok(/En vivo/.test(await a.textContent('[data-ls-st]')), `${name}: el teléfono a bordo indica que está transmitiendo (${(await a.textContent('[data-ls-st]')).trim()})`);
     const url = sh.url.replace(/^https?:\/\/[^/]+\//, BASE);
     // B: familiar que abre el enlace
-    const B = await b.newContext({ ...devB, deviceScaleFactor: 1 });
+    const B = await b.newContext({ locale: 'es-VE', ...devB, deviceScaleFactor: 1 });
     await B.route(/open-meteo/, r => r.fulfill({ status: 200, body: '{}' })); await B.route(/tile\.openstreetmap/, tile);
     const v = await B.newPage(); const eb = []; v.on('pageerror', e => eb.push(e.message));
     await v.goto(url); await v.waitForSelector('#dlg[open].follow-dlg');
@@ -78,7 +78,7 @@ const SHOTS = process.env.TLL_SHOTS || '';
     await A.close(); await B.close();
   }
   // enlaces inválidos
-  const C = await b.newContext({ viewport: { width: 390, height: 844 } }); await C.route(/tile\.openstreetmap/, tile); await C.route(/open-meteo/, r => r.fulfill({ status: 200, body: '{}' }));
+  const C = await b.newContext({ locale: 'es-VE', viewport: { width: 390, height: 844 } }); await C.route(/tile\.openstreetmap/, tile); await C.route(/open-meteo/, r => r.fulfill({ status: 200, body: '{}' }));
   const c = await C.newPage(); await c.goto(BASE + 'index.html#sigue/abcdefghijkmnpqrstuv'); await c.waitForTimeout(1500);
   ok((await c.textContent('[data-f-badge]')).includes('Inactivo'), 'Enlace inexistente: avisa que no está activo');
   await C.close();

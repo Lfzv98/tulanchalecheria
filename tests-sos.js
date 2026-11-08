@@ -6,7 +6,7 @@ const SHOTS = process.env.TLL_SHOTS || '';
   const b = await chromium.launch(); let f = 0, n = 0; const ok = (c, m) => { n++; console.log((c ? '✓ ' : '✗ ') + m); if (!c) f++; };
   const DEV = [['iPhone 13', devices['iPhone 13']], ['iPhone SE', devices['iPhone SE']], ['Pixel 7', devices['Pixel 7']], ['Galaxy Fold 280', { viewport: { width: 280, height: 653 }, isMobile: true, hasTouch: true }], ['iPad Mini', devices['iPad Mini']], ['Escritorio', { viewport: { width: 1440, height: 900 } }]];
   for (const [name, d] of DEV) {
-    const c = await b.newContext({ ...d, deviceScaleFactor: 1, permissions: ['geolocation'], geolocation: { latitude: 10.2521, longitude: -64.6713, accuracy: 8 } });
+    const c = await b.newContext({ locale: 'es-VE', ...d, deviceScaleFactor: 1, permissions: ['geolocation'], geolocation: { latitude: 10.2521, longitude: -64.6713, accuracy: 8 } });
     await c.route(/open-meteo/, r => r.fulfill({ status: 200, body: '{}' }));
     const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     const hold = async ms => { const r = await p.$eval('#dlg [data-sos]', e => { e.scrollIntoView({ block: 'center' }); const b = e.getBoundingClientRect(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; }); await p.mouse.move(r.x, r.y); await p.mouse.down(); await p.waitForTimeout(ms); await p.mouse.up(); await p.waitForTimeout(150); };

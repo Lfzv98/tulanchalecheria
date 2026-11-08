@@ -16,7 +16,7 @@ const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 
 (async () => {
   const b = await chromium.launch();
   for (const [name, d] of DEV) {
-    const ctx = await b.newContext({ ...d, deviceScaleFactor: 1, reducedMotion: 'reduce' });
+    const ctx = await b.newContext({ locale: 'es-VE', ...d, deviceScaleFactor: 1, reducedMotion: 'reduce' });
     await ctx.route(/wa\.me|open-meteo|youtu|instagram|mercadillo/, r => r.fulfill({ status: 200, body: 'ok' }));
     const p = await ctx.newPage(); const errs = []; const pops = [];
     p.on('pageerror', e => errs.push(e.message)); p.on('popup', async x => { pops.push(decodeURIComponent(x.url())); await x.close().catch(() => {}); });
@@ -90,13 +90,13 @@ const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 
     await ctx.close();
   }
   // datos viejos en el teléfono (versión anterior) no rompen la app
-  const c2 = await b.newContext({ ...devices['Pixel 7'] }); const q = await c2.newPage(); const e2 = []; q.on('pageerror', e => e2.push(e.message));
+  const c2 = await b.newContext({ locale: 'es-VE', ...devices['Pixel 7'] }); const q = await c2.newPage(); const e2 = []; q.on('pageerror', e => e2.push(e.message));
   await q.goto(URL); await q.evaluate(() => { localStorage.setItem('tll:quote', JSON.stringify({ pax: 30, boat: 'b8', route: 'r6', dock: 3, extras: { e1: true } })); localStorage.setItem('tll:cur', '"VES"'); localStorage.setItem('tll:quote2', JSON.stringify({ pax: 99, boat: 'zz', route: 'r9', dock: 'xx', beaches: ['Nada'], acc: { foo: 1 }, date: '2020-01-01', hx: 9 })); });
   await q.reload(); await q.waitForTimeout(500); await q.evaluate(() => location.hash = 'reservar'); await q.waitForTimeout(400);
   ok(!e2.length, `Datos viejos o dañados en el teléfono no rompen la app (${e2.join('|')})`);
   ok(!(await q.textContent('#ticket')).includes('Bs'), 'Datos viejos: ya no muestra bolívares');
   // sin almacenamiento (modo privado estricto)
-  const c3 = await b.newContext({ ...devices['iPhone 13'] }); await c3.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new Error('bloqueado'); } }); });
+  const c3 = await b.newContext({ locale: 'es-VE', ...devices['iPhone 13'] }); await c3.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new Error('bloqueado'); } }); });
   const r = await c3.newPage(); const e3 = []; r.on('pageerror', e => e3.push(e.message)); await r.goto(URL); await r.waitForTimeout(500);
   ok(!e3.length && (await r.textContent('#own-feature')).includes('Lancha de la casa'), `Sin almacenamiento (navegación privada) la app carga (${e3.join('|')})`);
   await b.close();

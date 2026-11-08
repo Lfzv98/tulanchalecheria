@@ -21,7 +21,7 @@ function show(name, anchor) {
     $$('.mainnav a').forEach(a => { if (a.dataset.nav === name) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     $$('.tabbar [data-tab]').forEach(t => t.setAttribute('aria-current', String(t.dataset.tab === name)));
     topbar.classList.toggle('inner', name !== 'inicio');
-    document.title = name === 'inicio' ? 'Tu Lancha Lechería · Paseos en lancha y yates a Mochima' : `${$(`[data-view="${name}"] h1`)?.textContent.trim() || ''} · Tu Lancha Lechería`;
+    document.title = name === 'inicio' ? TLL_I18N.tr('Tu Lancha Lechería · Paseos en lancha y yates a Mochima') : `${$(`[data-view="${name}"] h1`)?.textContent.trim() || ''} · Tu Lancha Lechería`;
     if (anchor && document.getElementById(anchor)) document.getElementById(anchor).scrollIntoView();
     else if (current !== name) scrollTo({ top: 0, behavior: 'instant' in document.documentElement.style ? 'instant' : 'auto' });
     current = name;
