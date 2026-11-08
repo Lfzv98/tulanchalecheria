@@ -1288,7 +1288,7 @@ body.has-trip [data-no-trip]{display:none!important}
 .tp-top > div{display:grid;gap:4px}.tp-top .eyebrow{color:#d6b66e}
 .tp-top h2{font-size:clamp(1.8rem,6vw,2.6rem);color:#fff}
 .tp-meta{color:var(--on-sea-muted);font-size:.9rem}.tp-meta::first-letter{text-transform:uppercase}
-.tp-code{font-size:.78rem;padding:5px 10px;border-radius:99px;border:1px solid rgba(214,182,110,.5);color:#f3d58a;white-space:nowrap}
+.tp-code{font-size:.78rem;padding:5px 10px;border-radius:99px;border:1px solid rgba(214,182,110,.5);color:#f3d58a;white-space:nowrap;flex-shrink:0}
 .tp-card .cd{justify-content:flex-start}
 .tp-live{margin:0;display:flex;gap:10px;align-items:center;font-weight:600}
 .tp-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:relative}
