@@ -275,9 +275,17 @@ function calendar(el, b, opts) {
 }
 
 /* ---------------- reglas de rumbo, muelle y horario ---------------- */
-const dockById = id => DOCKS.find(d => d.id === id) || DOCKS[0];
+/* Muelle escogido por el cliente: marca el punto exacto en un mapa satelital (Leaflet + Esri, sin llave)
+   y la ubicación viaja en el WhatsApp de la reserva y al panel de Eduardo. */
+const PIN_SVG = '<svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z" fill="#ea4335"/><circle cx="12" cy="9" r="2.6" fill="#7a1a12"/></svg>';
+const PIN_DOCK = { id: 'pin', name: 'Muelle escogido por ti', custom: true };
+const okPin = p => !!p && isFinite(p.lat) && isFinite(p.lng) && Math.abs(p.lat) <= 90 && Math.abs(p.lng) <= 180;
+const pinTxt = p => `${(+p.lat).toFixed(6)}, ${(+p.lng).toFixed(6)}`;
+const gmapsUrl = p => `https://www.google.com/maps/search/?api=1&query=${(+p.lat).toFixed(6)},${(+p.lng).toFixed(6)}`;
+const dockById = id => id === 'pin' ? PIN_DOCK : DOCKS.find(d => d.id === id) || DOCKS[0];
 // ¿Puede esta embarcación salir de / recoger en este punto? Devuelve {ok, cost, why}
 function dockFor(b, d) {
+  if (d.custom) return okPin(Q.pin) ? { ok: true, cost: 0, tbd: true } : { ok: false, why: 'Marca tu muelle en el mapa' };
   if (d.off) return { ok: false, why: 'Muelle no habilitado por ahora' };
   if (!d.pickup) return { ok: true, cost: 0 };
   if (b.pick && d.id in b.pick) return b.pick[d.id] === null ? { ok: false, why: `${b.name} no llega hasta ahí por su calado` } : { ok: true, cost: b.pick[d.id] };
@@ -435,11 +443,15 @@ function renderPlan(b) {
     <p class="rating">${r.desc} No combinamos playas de rumbos distintos.</p>${vlink('rumbo' + r.id.slice(1), 'Ver video del ' + r.name)}
     <p class="special">¿Otro destino? ${SPECIAL.join(', ')}: <a href="${wa(`Hola Tu Lancha 👋 Quiero una cotización especial para ${SPECIAL.join(' / ')} para ${paxTxt()} el ${fmtDay(qDate())}.`)}" target="_blank" rel="noopener">cotización especial por WhatsApp</a></p>`;
   const opt = d => { const c = dockFor(b, d); return `<option value="${d.id}" ${d.id === Q.dock ? 'selected' : ''} ${c.ok ? '' : 'disabled'}>${d.name}${d.fee ? ' · toque ' + d.fee : ''}${c.ok && c.cost ? ' · +' + money(c.cost) : ''}${c.ok ? '' : ' · no disponible'}</option>`; };
+  if (Q.dock === 'pin' && !okPin(Q.pin)) Q.dock = DOCKS[b.dock].id;
   if (!dockFor(b, dockById(Q.dock)).ok) Q.dock = DOCKS[b.dock].id;
-  $('#b-dock').innerHTML = `<optgroup label="Muelles sugeridos">${DOCKS.filter(d => !d.pickup).map(opt).join('')}</optgroup><optgroup label="Te buscamos en tu residencia">${DOCKS.filter(d => d.pickup).map(opt).join('')}</optgroup>`;
+  $('#b-dock').innerHTML = `<optgroup label="Muelles sugeridos">${DOCKS.filter(d => !d.pickup).map(opt).join('')}</optgroup><optgroup label="Te buscamos en tu residencia">${DOCKS.filter(d => d.pickup).map(opt).join('')}</optgroup><optgroup label="Otro punto"><option value="pin"${Q.dock === 'pin' ? ' selected' : ''}>📍 Escoge tu muelle en el mapa</option></optgroup>`;
+  renderMyPin();
   const d = dockById(Q.dock), c = dockFor(b, d);
   const blocked = DOCKS.filter(x => x.pickup && !dockFor(b, x).ok).map(x => dockFor(b, x).why);
-  $('#b-dockinfo').innerHTML = d.pickup
+  $('#b-dockinfo').innerHTML = d.custom
+    ? `<b>Muelle escogido por ti</b>${Q.pin.ref ? ` · <span translate="no">${esc(Q.pin.ref)}</span>` : ''}<br>Te confirmamos por WhatsApp si la embarcación puede llegar y si hay recargo.`
+    : d.pickup
     ? `<b>Recogida en ${d.name}</b>: +${money(c.cost)}.${d.back ? ` Regreso máximo a las ${d.back}.` : ''} ${blocked.length ? `<br><small>${[...new Set(blocked)].join('. ')}.</small>` : ''}`
     : `<b>${d.name}</b>: toque de muelle ${d.fee} (lo pagas en el muelle) · ${d.park}.`;
   $('#b-dockinfo').innerHTML += `<br>${vlink('muelles', 'Ver video de los muelles sugeridos')}<small>Al confirmar te enviamos la ubicación exacta, un video de cómo llegar y cómo pagar el toque de muelle. ¿Otra residencia? <a href="${wa(`Hola Tu Lancha 👋 ¿Pueden buscarnos en mi residencia? Somos ${paxTxt()}.`)}" target="_blank" rel="noopener">Pregúntanos</a>.</small>`;
@@ -467,6 +479,7 @@ function renderTicket() {
   if (kidExtra(b)) lines.push([`Excepción de niños (${kidExtra(b)} de 7 años o menos)`, kidExtra(b) * b.kidFee]);
   if (r.extra === null) lines.push([`Recargo ${r.name}`, 0, 'tbd']);
   if (dc.ok && dc.cost) lines.push([`Recogida en ${dk.name}`, dc.cost]);
+  if (dc.ok && dc.tbd) lines.push(['Recogida en tu muelle', 0, 'tbd']);
   if (Q.hx) lines.push([`${Q.hx} h extra (efectivo a bordo)`, Q.hx * b.hx]);
   Object.entries(b.opt).filter(([k]) => Q.acc[k]).forEach(([k, p]) => lines.push([ACC[k], p]));
   const code = codeInfo(Q.code);
@@ -488,7 +501,7 @@ function renderTicket() {
     <button class="btn btn-sun btn-lg" type="button" id="t-book">Reservar ahora</button>
     <p class="note">No pagas nada ahora: te confirmamos disponibilidad y abono. Fines de semana +${wkOf(b)}%.</p>`;
   $('#mb-total').textContent = money(total);
-  window.TLL_LAST = { boat: b.name, type: b.type, route: routeTxt, dock: dk.name, dockFee: dk.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
+  window.TLL_LAST = { boat: b.name, type: b.type, route: routeTxt, dock: dk.custom && Q.pin && Q.pin.ref ? `${dk.name} · ${Q.pin.ref}` : dk.name, pin: dk.custom && okPin(Q.pin) ? { lat: +Q.pin.lat, lng: +Q.pin.lng, ref: Q.pin.ref || '' } : null, dockFee: dk.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
 }
 const GIFT_VALUES = { A: 180, B: 320, C: 950, D: 1650 };
 const AL = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -528,7 +541,107 @@ $('#reservar').addEventListener('click', e => {
 });
 $('#reservar').addEventListener('submit', e => { if (e.target.id !== 'code-form') return; e.preventDefault(); Q.code = $('#q-code').value.trim().toUpperCase(); renderBuilder(); toast(codeInfo(Q.code).kind ? 'Código aplicado' : 'Código no válido'); });
 $('#b-date').onchange = e => { if (e.target.value) { Q.date = e.target.value; renderBuilder(); } };
-$('#b-dock').onchange = e => { Q.dock = e.target.value; renderBuilder(); };
+$('#b-dock').onchange = e => { if (e.target.value === 'pin' && !okPin(Q.pin)) { e.target.value = Q.dock; openPinMap(); return; } Q.dock = e.target.value; renderBuilder(); };
+function renderMyPin() {
+  const box = $('#b-mypin'); if (!box) return;
+  const p = okPin(Q.pin) ? Q.pin : null, on = p && Q.dock === 'pin';
+  box.innerHTML = p
+    ? `<div class="mypin-card${on ? ' on' : ''}"><span class="mypin-ic" aria-hidden="true">${PIN_SVG}</span><div class="mypin-t"><b>${on ? 'Saldrás de tu muelle' : 'Tu muelle guardado'}</b>${p.ref ? `<span translate="no">${esc(p.ref)}</span>` : ''}<small class="mono" translate="no">${pinTxt(p)}</small></div>
+      <div class="mypin-acts">${on ? '' : '<button type="button" class="btn btn-sun btn-sm" data-pin-use>Usar este muelle</button>'}<button type="button" class="btn btn-ghost btn-sm" data-pin-open>Cambiar</button><a class="btn btn-ghost btn-sm" href="${gmapsUrl(p)}" target="_blank" rel="noopener">Ver en Google Maps</a><button type="button" class="linkish" data-pin-del>Quitar</button></div></div>
+      <p class="mypin-note">Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.</p>`
+    : `<button type="button" class="mypin-btn" data-pin-open><span class="mypin-ic" aria-hidden="true">${PIN_SVG}</span><span><b>Escoge tu muelle</b><small>Marca el punto exacto en el mapa satelital</small></span></button>
+      <p class="mypin-note">Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.</p>`;
+}
+$('#b-mypin').addEventListener('click', e => {
+  if (e.target.closest('[data-pin-open]')) return openPinMap();
+  if (e.target.closest('[data-pin-use]')) { Q.dock = 'pin'; return renderBuilder(); }
+  if (e.target.closest('[data-pin-del]')) { Q.pin = null; if (Q.dock === 'pin') Q.dock = 'pm'; renderBuilder(); toast('Ubicación quitada'); }
+});
+
+/* ---------------- mapa satelital (Leaflet, sin llave) ---------------- */
+let lfP = null;
+const loadLeaflet = () => lfP || (lfP = new Promise((ok, no) => {
+  if (window.L) return ok(window.L);
+  const c = document.createElement('link'); c.rel = 'stylesheet'; c.href = 'vendor/leaflet.css'; document.head.appendChild(c);
+  const s = document.createElement('script'); s.src = 'vendor/leaflet.js'; s.onload = () => ok(window.L); s.onerror = () => { lfP = null; no(new Error('leaflet')); }; document.head.appendChild(s);
+}));
+// capas: satélite (Esri World Imagery + nombres) y mapa de calles (OpenStreetMap)
+function baseLayers(L) {
+  const E = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+  const sat = L.layerGroup([
+    L.tileLayer(E + 'World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, maxNativeZoom: 18, attribution: 'Imágenes © Esri, Maxar, Earthstar Geographics' }),
+    L.tileLayer(E + 'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, maxNativeZoom: 18 })
+  ]);
+  const street = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' });
+  return { sat, street };
+}
+const pinIcon = L => L.divIcon({ className: 'gpin', iconSize: [36, 46], iconAnchor: [18, 44], html: PIN_SVG });
+const LECHERIA = [10.1935, -64.6935];
+function openPinMap() {
+  const dlg = $('#dlg'); if (dlg.open) dlg.close();
+  const p0 = okPin(Q.pin) ? Q.pin : null;
+  dlg.className = 'full pin-dlg';
+  dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="view pin-view">
+    <div class="pin-h"><span class="eyebrow">Tu punto de salida</span><h2 id="m-title">Escoge tu muelle</h2><p>Toca el mapa o arrastra el pin hasta el lugar exacto donde te buscamos. Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.</p></div>
+    <form class="pin-search" data-pin-q><input type="search" placeholder="Busca un lugar, residencia o marina" aria-label="Buscar un lugar" autocomplete="off"><button class="btn btn-ghost btn-sm" type="submit">Buscar</button></form>
+    <div class="pin-results" data-pin-res hidden></div>
+    <div class="pin-map-w"><div class="pin-map" data-pin-map><div class="f-wait">Cargando mapa satelital…</div></div>
+      <div class="pin-layers" role="group" aria-label="Tipo de mapa"><button type="button" data-pin-layer="sat" aria-pressed="true">Satélite</button><button type="button" data-pin-layer="street" aria-pressed="false">Mapa</button></div>
+      <button type="button" class="pin-me" data-pin-me aria-label="Usar mi ubicación actual"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7.5" fill="none"/></svg></button></div>
+    <p class="pin-coords" data-pin-xy>${p0 ? `Ubicación: <b class="mono" translate="no">${pinTxt(p0)}</b>` : 'Toca el mapa para marcar tu muelle.'}</p>
+    <label class="field"><span class="lbl">Referencia (opcional)</span><input data-pin-ref translate="no" maxlength="120" placeholder="Ej.: muelle del edificio, puesto 12, portón azul" value="${esc(p0 ? p0.ref || '' : '')}"></label>
+    <div class="pin-acts"><button class="btn btn-sun btn-lg" type="button" data-pin-save ${p0 ? '' : 'disabled'}>Guardar ubicación</button><a class="btn btn-ghost" data-pin-g target="_blank" rel="noopener" ${p0 ? `href="${gmapsUrl(p0)}"` : 'hidden'}>Ver en Google Maps</a></div>
+  </div>`;
+  const q = s => dlg.querySelector(s);
+  let pt = p0 ? { lat: +p0.lat, lng: +p0.lng } : null, map = null, mk = null, layers = null;
+  const show = () => {
+    q('[data-pin-xy]').innerHTML = pt ? `Ubicación: <b class="mono" translate="no">${pinTxt(pt)}</b>` : 'Toca el mapa para marcar tu muelle.';
+    q('[data-pin-save]').disabled = !pt; const g = q('[data-pin-g]'); g.hidden = !pt; if (pt) g.href = gmapsUrl(pt);
+  };
+  const place = (ll, zoom) => {
+    pt = { lat: ll.lat, lng: ll.lng };
+    if (map) { if (!mk) { mk = window.L.marker(ll, { icon: pinIcon(window.L), draggable: true, autoPan: true, keyboard: true, title: 'Tu muelle' }).addTo(map); mk.on('dragend', () => { const x = mk.getLatLng(); pt = { lat: x.lat, lng: x.lng }; show(); }); } else mk.setLatLng(ll); if (zoom) map.setView(ll, zoom); }
+    show();
+  };
+  dlg.onclick = e => {
+    if (e.target === dlg || e.target.closest('.m-close')) return dlg.close();
+    const ly = e.target.closest('[data-pin-layer]');
+    if (ly && map) { const k = ly.dataset.pinLayer; Object.entries(layers).forEach(([n, l]) => n === k ? l.addTo(map) : map.removeLayer(l)); dlg.querySelectorAll('[data-pin-layer]').forEach(x => x.setAttribute('aria-pressed', x === ly)); return; }
+    if (e.target.closest('[data-pin-me]')) {
+      if (!navigator.geolocation) return toast('Tu teléfono no comparte la ubicación');
+      toast('Buscando tu ubicación…');
+      navigator.geolocation.getCurrentPosition(g => place({ lat: g.coords.latitude, lng: g.coords.longitude }, 18), () => toast('No pudimos leer tu ubicación. Marca el punto en el mapa.'), { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });
+      return;
+    }
+    const r = e.target.closest('[data-pin-hit]');
+    if (r) { place({ lat: +r.dataset.lat, lng: +r.dataset.lng }, 17); const ref = q('[data-pin-ref]'); if (!ref.value) ref.value = r.dataset.name.slice(0, 120); q('[data-pin-res]').hidden = true; return; }
+    if (e.target.closest('[data-pin-save]') && pt) {
+      Q.pin = { lat: +pt.lat.toFixed(6), lng: +pt.lng.toFixed(6), ref: q('[data-pin-ref]').value.trim().slice(0, 120) };
+      Q.dock = 'pin'; dlg.close(); renderBuilder(); toast('Ubicación guardada. Se enviará a Tu Lancha al finalizar tu solicitud.');
+    }
+  };
+  q('[data-pin-q]').onsubmit = async e => {
+    e.preventDefault(); const t = e.target.querySelector('input').value.trim(); if (t.length < 3) return;
+    const res = q('[data-pin-res]'); res.hidden = false; res.innerHTML = '<p class="rating">Buscando…</p>';
+    try {
+      const u = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=ve&viewbox=-65.2,10.6,-63.9,9.9&q=${encodeURIComponent(t)}`;
+      const l = await (await fetch(u, { headers: { 'Accept-Language': (window.TLL_I18N && TLL_I18N.lang) || 'es' } })).json();
+      res.innerHTML = l.length ? l.map(x => `<button type="button" data-pin-hit data-lat="${esc(x.lat)}" data-lng="${esc(x.lon)}" data-name="${esc(x.name || x.display_name.split(',')[0])}"><b translate="no">${esc(x.name || x.display_name.split(',')[0])}</b><small translate="no">${esc(x.display_name)}</small></button>`).join('') : '<p class="rating">No encontramos ese lugar. Mueve el mapa y toca el punto exacto.</p>';
+    } catch { res.innerHTML = '<p class="rating">Sin conexión para buscar. Mueve el mapa y toca el punto exacto.</p>'; }
+  };
+  dlg.addEventListener('close', () => { if (map) { map.remove(); map = null; } }, { once: true });
+  dlg.showModal();
+  loadLeaflet().then(L => {
+    if (!dlg.open || !q('[data-pin-map]')) return;
+    const el = q('[data-pin-map]'); el.innerHTML = '';
+    map = L.map(el, { zoomControl: true, attributionControl: true }).setView(pt || LECHERIA, pt ? 18 : 14);
+    layers = baseLayers(L); layers.sat.addTo(map);
+    map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+    map.on('click', e => place(e.latlng));
+    if (pt) place(pt);
+    setTimeout(() => map && map.invalidateSize(), 120);
+  }).catch(() => { const el = q('[data-pin-map]'); if (el) el.innerHTML = '<div class="f-wait">No se pudo cargar el mapa. Revisa tu conexión e inténtalo de nuevo.</div>'; });
+}
 
 /* ---------------- playas por rumbo ---------------- */
 function renderBeaches() {
@@ -653,6 +766,6 @@ loadCatalog();
 // al cambiar de idioma: volver a pintar lo que lleva fechas, días y montos con formato local
 addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); if (seaLast) renderSea(...seaLast); window.TLL.renderMine && window.TLL.renderMine(); });
 
-window.TLL = { CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
+window.TLL = { loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
 document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; fitTo(b); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); });
 })();

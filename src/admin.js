@@ -250,7 +250,7 @@ function bkCard(b) {
     <h4>${esc(b.name || 'Sin nombre')}</h4>
     <p>${esc(fmtD(dOf(b)))}${b.hours ? ' · ' + esc(b.hours) : ''}</p>
     <p class="rating">${esc(b.boat)} · ${b.pax || '—'} pers.${b.dock ? ' · ' + esc(b.dock) : ''}</p>
-    ${b.route ? `<p class="rating">${esc(b.route)}</p>` : ''}${b.note ? `<p class="rating">📝 ${esc(b.note)}</p>` : ''}
+    ${b.route ? `<p class="rating">${esc(b.route)}</p>` : ''}${T.okPin(b.pin) ? `<button type="button" class="ad-pin" data-bka="map"><span class="ad-pin-ic" aria-hidden="true">${T.PIN_SVG}</span><span><b>Muelle escogido por el cliente</b><small>${b.pin.ref ? esc(b.pin.ref) + ' · ' : ''}<span class="mono">${T.pinTxt(b.pin)}</span></small></span><span class="ad-pin-go">Ver mapa</span></button>` : ''}${b.note ? `<p class="rating">📝 ${esc(b.note)}</p>` : ''}
     <div class="ad-bk-m"><span>Total <b>${money(+b.total || 0)}</b></span><span>Pagado <b>${money(+b.paid || 0)}</b></span><span class="${due ? 'due' : 'ok'}">${due ? 'Falta ' + money(due) : 'Pagado ✓'}</span></div>
     <div class="adm-tools">${b.status !== 'confirmada' && b.status !== 'cancelada' ? '<button class="icon-btn pri" type="button" data-bka="ok">Confirmar</button>' : ''}${due ? `<button class="icon-btn" type="button" data-bka="half">Abono 50%</button><button class="icon-btn" type="button" data-bka="paid">Marcar pagado</button>` : ''}${b.phone ? '<button class="icon-btn" type="button" data-bka="wa">WhatsApp</button>' : ''}<button class="icon-btn" type="button" data-bka="edit">Editar</button>${b.status !== 'cancelada' ? '<button class="icon-btn" type="button" data-bka="cancel">Cancelar</button>' : '<button class="icon-btn" type="button" data-bka="del">Borrar</button>'}</div></article>`;
 }
@@ -276,6 +276,25 @@ function bkForm(b) {
     const x = { ...(b.code ? { code: b.code } : {}), name: v('bf-name').trim(), phone: v('bf-phone').trim(), iso: v('bf-iso'), boat: v('bf-boat'), route: v('bf-route'), dock: v('bf-dock'), pax: +v('bf-pax'), total: +v('bf-total'), paid: Math.min(+v('bf-paid'), +v('bf-total')), channel: v('bf-ch'), status: v('bf-st'), note: v('bf-note').trim() };
     try { await saveBk(x); closeSheet(); toast('Reserva guardada'); render(); } catch (err) { toast(errMsg(err)); }
   };
+}
+
+/* muelle que el cliente marcó en el mapa: vista satelital, Google Maps y envío al capitán */
+function pinSheet(b) {
+  const p = b.pin, g = T.gmapsUrl(p);
+  const cap = `⚓ Muelle de la reserva ${b.code}${b.name ? ' · ' + b.name : ''}\n📅 ${fmtD(dOf(b))}${b.hours ? ' · ' + b.hours : ''}\n👥 ${b.pax || '—'} pers. · ${b.boat || ''}${p.ref ? '\n📝 ' + p.ref : ''}\n📍 ${g}`;
+  sheet(`<h3>Muelle de ${esc(b.name || b.code)}</h3><p class="rating">${p.ref ? esc(p.ref) + ' · ' : ''}<span class="mono">${T.pinTxt(p)}</span></p>
+    <div class="pin-map-w"><div class="ad-pinmap" id="ad-pinmap"><p class="rating">Cargando mapa satelital…</p></div><div class="pin-layers" role="group" aria-label="Tipo de mapa"><button type="button" data-pl="sat" aria-pressed="true">Satélite</button><button type="button" data-pl="street" aria-pressed="false">Mapa</button></div></div>
+    <div class="adm-tools"><a class="btn btn-sun btn-sm" href="${g}" target="_blank" rel="noopener">Abrir en Google Maps</a><a class="btn btn-ghost btn-sm" href="https://wa.me/?text=${encodeURIComponent(cap)}" target="_blank" rel="noopener">Enviar al capitán</a><button class="btn btn-ghost btn-sm" type="button" id="ad-pin-copy">Copiar coordenadas</button></div>`);
+  $('#ad-pin-copy').onclick = async () => { try { await navigator.clipboard.writeText(T.pinTxt(p)); toast('Coordenadas copiadas'); } catch { toast(T.pinTxt(p)); } };
+  T.loadLeaflet().then(L => {
+    const el = $('#ad-pinmap'); if (!el) return; el.innerHTML = '';
+    const m = L.map(el, { zoomControl: true }).setView([p.lat, p.lng], 17);
+    const ly = T.baseLayers(L); ly.sat.addTo(m);
+    $$('[data-pl]', adm).forEach(x => x.onclick = () => { Object.entries(ly).forEach(([n, l]) => n === x.dataset.pl ? l.addTo(m) : m.removeLayer(l)); $$('[data-pl]', adm).forEach(y => y.setAttribute('aria-pressed', y === x)); });
+    m.attributionControl.setPrefix(false);
+    L.marker([p.lat, p.lng], { icon: T.pinIcon(L), title: 'Muelle del cliente' }).addTo(m);
+    setTimeout(() => m.invalidateSize(), 150);
+  }).catch(() => { const el = $('#ad-pinmap'); if (el) el.innerHTML = '<p class="rating">No se pudo cargar el mapa. Usa “Abrir en Google Maps”.</p>'; });
 }
 
 /* ---------------- embarcaciones ---------------- */
@@ -366,7 +385,7 @@ const HELP = {
     <ol class="ad-steps"><li><b>Resumen:</b> tus ventas, lo cobrado, lo que falta por cobrar y las próximas salidas.</li><li><b>Reservas:</b> llegan solas desde la app. Confírmalas, marca los pagos y escribe al cliente.</li><li><b>Embarcaciones:</b> fotos, precios, capacidad, accesorios, hora extra y recogidas de cada una.</li><li><b>Rumbos y playas:</b> playas de cada rumbo, recargos y fotos.</li><li><b>Muelles:</b> toques de muelle y recargos de recogida.</li><li><b>Pagos:</b> tu Zelle y Binance para que el cliente pague el abono.</li><li><b>Aliados:</b> marcas que recomiendas, con su logo y enlace.</li><li><b>Ajustes:</b> contraseña, versiones anteriores y respaldo.</li></ol>
     <p class="hint">En cada sección hay un botón <b>?</b> con instrucciones. Si te equivocas, en Ajustes puedes volver a una versión anterior.</p>`],
   inicio: ['El resumen', `<p>Muestra tus números con las reservas registradas (las canceladas no cuentan).</p><ul><li><b>Ventas:</b> suma del total de las reservas del período.</li><li><b>Cobrado:</b> lo que marcaste como pagado.</li><li><b>Por cobrar:</b> la diferencia.</li><li><b>Tu comisión:</b> se calcula con el % que pones en Ajustes.</li></ul><p>Cambia el período arriba (mes, 3 meses o 12 meses). Las flechas comparan con el período anterior.</p>`],
-  reservas: ['Las reservas', `<p>Cuando un cliente confirma en la app, la reserva llega aquí con estado <b>Nueva</b>, y a ti te escribe por WhatsApp con el mismo código.</p><ol class="ad-steps"><li>Verifica la disponibilidad y el pago del abono.</li><li>Toca <b>Confirmar</b> y luego <b>Abono 50%</b> o <b>Marcar pagado</b>.</li><li>Si no se da, toca <b>Cancelar</b>: deja de contar en tus números.</li></ol><p>Las reservas que cierras por WhatsApp o Instagram regístralas con <b>+ Registrar reserva</b> para que tus números estén completos.</p>`],
+  reservas: ['Las reservas', `<p>Cuando un cliente confirma en la app, la reserva llega aquí con estado <b>Nueva</b>, y a ti te escribe por WhatsApp con el mismo código.</p><p>Si el cliente escogió su propio muelle, la reserva muestra <b>📍 Muelle escogido por el cliente</b>: tócalo para verlo en el mapa satelital, abrirlo en Google Maps o enviárselo al capitán por WhatsApp.</p><ol class="ad-steps"><li>Verifica la disponibilidad y el pago del abono.</li><li>Toca <b>Confirmar</b> y luego <b>Abono 50%</b> o <b>Marcar pagado</b>.</li><li>Si no se da, toca <b>Cancelar</b>: deja de contar en tus números.</li></ol><p>Las reservas que cierras por WhatsApp o Instagram regístralas con <b>+ Registrar reserva</b> para que tus números estén completos.</p>`],
   flota: ['Tus embarcaciones', `<ul><li>Toca <b>Editar</b> para cambiar fotos, precio, capacidad, accesorios, horario y recogidas.</li><li>Con las flechas <b>↑ ↓</b> cambias el orden en que aparecen en la web.</li><li>La marcada como <b>De la casa</b> sale destacada en la portada y primero en la reserva.</li><li>Si una embarcación no está disponible por un tiempo, márcala como <b>Ocultar de la web</b> en vez de eliminarla.</li></ul><p class="hint">Recuerda tocar Publicar cambios al terminar.</p>`],
   barco: ['Editar una embarcación', `<p>Cada cambio queda en el borrador al momento. Toca <b>Listo</b> para volver y luego <b>Publicar cambios</b>.</p><ul><li><b>Tarifa por día:</b> el precio base en dólares. El recargo de fin de semana se suma solo.</li><li><b>Hora extra:</b> hasta qué hora puede quedarse y cuánto cuesta cada hora. Si no permite, el cliente no la puede pedir.</li><li><b>Playas por salida:</b> cuántas playas puede elegir el cliente.</li><li><b>Recogidas:</b> si por su calado no llega a una residencia, elige “No llega”; si la tienes cerca y no cobras, “Sin recargo”.</li></ul>`],
   fotos: ['Qué fotos subir', `<p>Puedes subirlas directo desde la galería del teléfono. El panel las recorta y las optimiza solo para que la app cargue rápido.</p><ul><li><b>Formato:</b> JPG, PNG o WebP. En iPhone también sirven las fotos normales de la cámara.</li><li><b>Orientación:</b> horizontal (acostada).</li><li><b>Medida ideal:</b> ${IMG.boat.size} (proporción 16:10). Mínimo ${IMG.boat.min} px de ancho para que no se vea borrosa.</li><li><b>Peso:</b> no importa, el panel la reduce a unos 200 a 400 KB.</li></ul><ol class="ad-steps"><li><b>Dron:</b> la principal. La embarcación completa desde arriba, en el agua.</li><li><b>Exterior:</b> de lado, navegando o fondeada.</li><li><b>Interior:</b> la cubierta o el salón, con buena luz.</li><li><b>Camarote:</b> solo si tiene.</li></ol><p class="hint">Consejos: luz de día, sin textos ni marcas de agua, la embarcación centrada. Al subirla verás una vista previa y podrás mover el encuadre.</p>`],
@@ -475,6 +494,7 @@ adm.addEventListener('click', async e => {
   if (d.bka) {
     const code = t.closest('[data-code]').dataset.code, b = BK.find(x => x.code === code); if (!b) return;
     if (d.bka === 'edit') return bkForm(b);
+    if (d.bka === 'map') return pinSheet(b);
     if (d.bka === 'wa') { const n = String(b.phone).replace(/\D/g, '').replace(/^0/, '58'); window.open(`https://wa.me/${n}?text=${encodeURIComponent(`¡Hola ${b.name}! Te escribo de Tu Lancha Lechería por tu reserva ${b.code}.`)}`, '_blank', 'noopener'); return; }
     if (d.bka === 'del') { if (!confirm(`¿Borrar la reserva ${code}? No se puede deshacer.`)) return; try { await api('bk', { del: code }); BK = BK.filter(x => x !== b); toast('Reserva borrada'); render(); } catch (err) { toast(errMsg(err)); } return; }
     if (d.bka === 'cancel' && !confirm(`¿Cancelar la reserva ${code}?`)) return;
@@ -483,7 +503,7 @@ adm.addEventListener('click', async e => {
     return;
   }
   if (t.id === 'bk-csv') {
-    const rows = [['codigo', 'fecha', 'cliente', 'telefono', 'embarcacion', 'rumbo', 'muelle', 'personas', 'total', 'pagado', 'estado', 'canal', 'idioma', 'nota']].concat(BK.map(b => [b.code, dOf(b), b.name, b.phone, b.boat, b.route, b.dock, b.pax, b.total, b.paid, b.status, b.channel, b.lang, b.note]));
+    const rows = [['codigo', 'fecha', 'cliente', 'telefono', 'embarcacion', 'rumbo', 'muelle', 'ubicacion', 'personas', 'total', 'pagado', 'estado', 'canal', 'idioma', 'nota']].concat(BK.map(b => [b.code, dOf(b), b.name, b.phone, b.boat, b.route, b.dock, T.okPin(b.pin) ? T.gmapsUrl(b.pin) : '', b.pax, b.total, b.paid, b.status, b.channel, b.lang, b.note]));
     dl(`tulancha-reservas-${iso(today)}.csv`, '﻿' + rows.map(r => r.map(x => `"${String(x ?? '').replace(/"/g, '""')}"`).join(',')).join('\n'), 'text/csv'); return;
   }
   if (t.id === 'bk-json') { dl(`tulancha-catalogo-${iso(today)}.json`, JSON.stringify(W, null, 1), 'application/json'); return; }

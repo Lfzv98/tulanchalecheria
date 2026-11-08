@@ -405,12 +405,7 @@ function wireShare(root, ctx, signal) {
 }
 
 /* ---- vista de quien sigue el enlace ---- */
-let lfP = null;
-const loadLeaflet = () => lfP || (lfP = new Promise((ok, no) => {
-  if (window.L) return ok(window.L);
-  const c = document.createElement('link'); c.rel = 'stylesheet'; c.href = 'vendor/leaflet.css'; document.head.appendChild(c);
-  const s = document.createElement('script'); s.src = 'vendor/leaflet.js'; s.onload = () => ok(window.L); s.onerror = () => { lfP = null; no(new Error('leaflet')); }; document.head.appendChild(s);
-}));
+const loadLeaflet = window.TLL.loadLeaflet;
 let followCtl = null;
 function openFollow(id) {
   const dlg = $('#dlg'); if (dlg.open) dlg.close();

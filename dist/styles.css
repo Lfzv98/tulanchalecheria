@@ -1524,3 +1524,36 @@ h4 .ad-help,h3 .ad-help{margin-left:8px;padding:3px 10px 3px 3px;font-size:.75re
 .pay-acct{overflow-wrap:anywhere}
 fieldset.pay{min-width:0;max-width:100%}
 #foot-logo{cursor:default;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+
+/* ---------- muelle escogido por el cliente (mapa satelital) ---------- */
+.mypin{display:grid;gap:6px;margin-top:10px}
+.mypin-ic{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#fff;box-shadow:0 2px 8px -2px rgba(21,26,51,.3);flex:none}.mypin-ic svg{width:24px;height:24px}
+.mypin-btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border-radius:14px;border:1.5px dashed rgba(234,67,53,.55);background:linear-gradient(135deg,#fff,#fdf1ef);color:var(--fg);font:inherit;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.mypin-btn b{display:block;font-size:1rem}.mypin-btn small{display:block;color:var(--muted);font-size:.82rem}
+@media (hover:hover){.mypin-btn:hover{border-color:#ea4335;box-shadow:var(--shadow-sm)}}
+.mypin-btn:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.mypin-card{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff}
+.mypin-card.on{border-color:#ea4335;box-shadow:0 0 0 3px rgba(234,67,53,.12)}
+.mypin-t{display:grid;gap:2px;flex:1 1 160px;min-width:0}.mypin-t span{overflow-wrap:anywhere}.mypin-t small{color:var(--muted);font-size:.78rem}
+.mypin-acts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;flex:1 1 100%}
+.linkish{background:none;border:0;padding:6px;color:var(--muted);font:inherit;font-size:.85rem;text-decoration:underline;cursor:pointer}
+.mypin-note{margin:0;font-size:.8rem;color:var(--muted)}
+.pin-dlg .pin-view{display:grid;gap:12px}
+.pin-h p{margin:6px 0 0;color:var(--muted);font-size:.92rem;line-height:1.5}
+.pin-search{display:flex;gap:8px}.pin-search input{flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:1px solid var(--line);font:inherit;font-size:16px;background:#fff;color:var(--fg)}
+.pin-results{display:grid;gap:4px;max-height:200px;overflow:auto}
+.pin-results button{display:grid;gap:2px;text-align:left;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--fg);font:inherit;cursor:pointer}.pin-results small{color:var(--muted);font-size:.76rem}
+.pin-map-w{position:relative}
+.pin-map{height:min(58vh,520px);min-height:300px;border-radius:16px;overflow:hidden;background:#0b1a2b;position:relative}
+.pin-map .f-wait,.ad-pinmap .rating{position:absolute;inset:0;display:grid;place-items:center;color:#cfd8ea;margin:0}
+.pin-layers{position:absolute;left:10px;bottom:24px;z-index:500;display:flex;background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.3);overflow:hidden}
+.pin-layers button{border:0;background:#fff;color:#151a33;padding:8px 12px;font:inherit;font-size:.82rem;font-weight:600;cursor:pointer}.pin-layers button[aria-pressed="true"]{background:#151a33;color:#fff}
+.pin-me{position:absolute;right:10px;bottom:24px;z-index:500;width:44px;height:44px;border-radius:50%;border:0;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.3);display:grid;place-items:center;cursor:pointer}
+.pin-me svg{width:22px;height:22px;fill:#1a73e8;stroke:#1a73e8;stroke-width:2}
+.pin-coords{margin:0;font-size:.88rem;color:var(--muted)}.pin-coords b{color:var(--fg)}
+.pin-acts{display:flex;flex-wrap:wrap;gap:8px}
+.gpin svg{width:36px;height:46px;filter:drop-shadow(0 3px 3px rgba(0,0,0,.45))}
+.ad-pin{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:6px 0;padding:8px 10px;border-radius:12px;border:1px solid rgba(234,67,53,.35);background:#fdf3f1;color:var(--fg);font:inherit;cursor:pointer}
+.ad-pin > span:nth-child(2){display:grid;gap:1px;flex:1;min-width:0}.ad-pin small{color:var(--muted);font-size:.78rem;overflow-wrap:anywhere}
+.ad-pin-ic svg{width:22px;height:28px;display:block}.ad-pin-go{font-size:.8rem;font-weight:700;color:#c5221f;white-space:nowrap}
+.ad-pinmap{position:relative;height:min(55vh,420px);min-height:260px;border-radius:14px;overflow:hidden;background:#0b1a2b}

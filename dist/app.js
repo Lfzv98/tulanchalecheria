@@ -822,6 +822,49 @@ const exact = [
 [`¿Tienen cupo?`, `Do you have space?`, `Tem vaga?`],
 [`Hola Tu Lancha 👋 Me interesa un chárter de pesca. ¿Qué fechas tienen?`, `Hi Tu Lancha 👋 I'm interested in a fishing charter. What dates do you have?`, `Olá Tu Lancha 👋 Tenho interesse em um charter de pesca. Quais datas vocês têm?`],
 [`Hola Tu Lancha 👋 Quiero formar parte del pool.`, `Hi Tu Lancha 👋 I'd like to join the pool.`, `Olá Tu Lancha 👋 Quero fazer parte do pool.`],
+/* ---------- muelle escogido por el cliente (mapa satelital) ---------- */
+[`Muelle escogido por ti`, `Your chosen dock`],
+[`Marca tu muelle en el mapa`, `Mark your dock on the map`],
+[`Otro punto`, `Another spot`],
+[`Escoge tu muelle en el mapa`, `Pick your dock on the map`],
+[`Escoge tu muelle`, `Pick your dock`],
+[`Marca el punto exacto en el mapa satelital`, `Mark the exact spot on the satellite map`],
+[`Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.`, `Save the address; it will be sent to TuLanchaLecheria when you finish your request.`],
+[`Te confirmamos por WhatsApp si la embarcación puede llegar y si hay recargo.`, `We'll confirm on WhatsApp whether the boat can get there and if there's a surcharge.`],
+[`Recogida en tu muelle`, `Pickup at your dock`],
+[`Saldrás de tu muelle`, `You'll depart from your dock`],
+[`Tu muelle guardado`, `Your saved dock`],
+[`Usar este muelle`, `Use this dock`],
+[`Cambiar`, `Change`],
+[`Ver en Google Maps`, `View in Google Maps`],
+[`Quitar`, `Remove`],
+[`Tu punto de salida`, `Your departure point`],
+[`Toca el mapa o arrastra el pin hasta el lugar exacto donde te buscamos.`, `Tap the map or drag the pin to the exact spot where we'll pick you up.`],
+[`Busca un lugar, residencia o marina`, `Search for a place, residence or marina`],
+[`Buscar un lugar`, `Search for a place`],
+[`Buscar`, `Search`],
+[`Satélite`, `Satellite`],
+[`Mapa`, `Map`],
+[`Tipo de mapa`, `Map type`],
+[`Usar mi ubicación actual`, `Use my current location`],
+[`Toca el mapa para marcar tu muelle.`, `Tap the map to mark your dock.`],
+[`Referencia (opcional)`, `Landmark (optional)`],
+[`Ej.: muelle del edificio, puesto 12, portón azul`, `E.g.: building dock, slip 12, blue gate`],
+[`Guardar ubicación`, `Save location`],
+[`Cargando mapa satelital…`, `Loading satellite map…`],
+[`Buscando…`, `Searching…`],
+[`No encontramos ese lugar. Mueve el mapa y toca el punto exacto.`, `We couldn't find that place. Move the map and tap the exact spot.`],
+[`Sin conexión para buscar. Mueve el mapa y toca el punto exacto.`, `No connection to search. Move the map and tap the exact spot.`],
+[`No se pudo cargar el mapa. Revisa tu conexión e inténtalo de nuevo.`, `The map couldn't load. Check your connection and try again.`],
+[`Tu muelle`, `Your dock`],
+[`Tu teléfono no comparte la ubicación`, `Your phone isn't sharing its location`],
+[`Buscando tu ubicación…`, `Finding your location…`],
+[`No pudimos leer tu ubicación. Marca el punto en el mapa.`, `We couldn't read your location. Mark the spot on the map.`],
+[`Ubicación guardada. Se enviará a Tu Lancha al finalizar tu solicitud.`, `Location saved. It will be sent to Tu Lancha when you finish your request.`],
+[`Ubicación quitada`, `Location removed`],
+[`Ubicación de mi muelle`, `My dock location`],
+[`Mi propio muelle`, `My own dock`],
+[`Imágenes © Esri, Maxar, Earthstar Geographics`, `Imagery © Esri, Maxar, Earthstar Geographics`],
 ];
 
 const pat = [
@@ -987,6 +1030,8 @@ const pat = [
 [/^Hola Tu Lancha 👋 Somos (.+) y nos interesa alquilar dos embarcaciones de 8p o 10p para el (.+)\.$/, `Hi Tu Lancha 👋 We're {t1} and we'd like to rent two boats of 8 or 10 people on {2}.`, `Olá Tu Lancha 👋 Somos {t1} e temos interesse em alugar duas embarcações de 8 ou 10 pessoas em {2}.`],
 [/^Hola Tu Lancha 👋 Me interesa la experiencia "(.+)"\. ¿Me dan información\?$/, `Hi Tu Lancha 👋 I'm interested in the "{t1}" experience. Could you send me details?`, `Olá Tu Lancha 👋 Tenho interesse na experiência "{t1}". Podem me passar informações?`],
 [/^Hola Tu Lancha 👋 Quiero agregar (.+) a mi salida\.$/, `Hi Tu Lancha 👋 I'd like to add {1} to my trip.`, `Olá Tu Lancha 👋 Quero adicionar {1} ao meu passeio.`],
+[/^Marcada en el mapa · (.+)$/, `Marked on the map · {1}`],
+[/^(-?\d[\d.]*, -?\d[\d.]*) · (https?:\/\/\S+)$/, `{1} · {2}`],
 ];
 
 // nombres propios y textos que no se traducen (solo para que las pruebas no los marquen como pendientes)
@@ -1481,9 +1526,17 @@ function calendar(el, b, opts) {
 }
 
 /* ---------------- reglas de rumbo, muelle y horario ---------------- */
-const dockById = id => DOCKS.find(d => d.id === id) || DOCKS[0];
+/* Muelle escogido por el cliente: marca el punto exacto en un mapa satelital (Leaflet + Esri, sin llave)
+   y la ubicación viaja en el WhatsApp de la reserva y al panel de Eduardo. */
+const PIN_SVG = '<svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z" fill="#ea4335"/><circle cx="12" cy="9" r="2.6" fill="#7a1a12"/></svg>';
+const PIN_DOCK = { id: 'pin', name: 'Muelle escogido por ti', custom: true };
+const okPin = p => !!p && isFinite(p.lat) && isFinite(p.lng) && Math.abs(p.lat) <= 90 && Math.abs(p.lng) <= 180;
+const pinTxt = p => `${(+p.lat).toFixed(6)}, ${(+p.lng).toFixed(6)}`;
+const gmapsUrl = p => `https://www.google.com/maps/search/?api=1&query=${(+p.lat).toFixed(6)},${(+p.lng).toFixed(6)}`;
+const dockById = id => id === 'pin' ? PIN_DOCK : DOCKS.find(d => d.id === id) || DOCKS[0];
 // ¿Puede esta embarcación salir de / recoger en este punto? Devuelve {ok, cost, why}
 function dockFor(b, d) {
+  if (d.custom) return okPin(Q.pin) ? { ok: true, cost: 0, tbd: true } : { ok: false, why: 'Marca tu muelle en el mapa' };
   if (d.off) return { ok: false, why: 'Muelle no habilitado por ahora' };
   if (!d.pickup) return { ok: true, cost: 0 };
   if (b.pick && d.id in b.pick) return b.pick[d.id] === null ? { ok: false, why: `${b.name} no llega hasta ahí por su calado` } : { ok: true, cost: b.pick[d.id] };
@@ -1641,11 +1694,15 @@ function renderPlan(b) {
     <p class="rating">${r.desc} No combinamos playas de rumbos distintos.</p>${vlink('rumbo' + r.id.slice(1), 'Ver video del ' + r.name)}
     <p class="special">¿Otro destino? ${SPECIAL.join(', ')}: <a href="${wa(`Hola Tu Lancha 👋 Quiero una cotización especial para ${SPECIAL.join(' / ')} para ${paxTxt()} el ${fmtDay(qDate())}.`)}" target="_blank" rel="noopener">cotización especial por WhatsApp</a></p>`;
   const opt = d => { const c = dockFor(b, d); return `<option value="${d.id}" ${d.id === Q.dock ? 'selected' : ''} ${c.ok ? '' : 'disabled'}>${d.name}${d.fee ? ' · toque ' + d.fee : ''}${c.ok && c.cost ? ' · +' + money(c.cost) : ''}${c.ok ? '' : ' · no disponible'}</option>`; };
+  if (Q.dock === 'pin' && !okPin(Q.pin)) Q.dock = DOCKS[b.dock].id;
   if (!dockFor(b, dockById(Q.dock)).ok) Q.dock = DOCKS[b.dock].id;
-  $('#b-dock').innerHTML = `<optgroup label="Muelles sugeridos">${DOCKS.filter(d => !d.pickup).map(opt).join('')}</optgroup><optgroup label="Te buscamos en tu residencia">${DOCKS.filter(d => d.pickup).map(opt).join('')}</optgroup>`;
+  $('#b-dock').innerHTML = `<optgroup label="Muelles sugeridos">${DOCKS.filter(d => !d.pickup).map(opt).join('')}</optgroup><optgroup label="Te buscamos en tu residencia">${DOCKS.filter(d => d.pickup).map(opt).join('')}</optgroup><optgroup label="Otro punto"><option value="pin"${Q.dock === 'pin' ? ' selected' : ''}>📍 Escoge tu muelle en el mapa</option></optgroup>`;
+  renderMyPin();
   const d = dockById(Q.dock), c = dockFor(b, d);
   const blocked = DOCKS.filter(x => x.pickup && !dockFor(b, x).ok).map(x => dockFor(b, x).why);
-  $('#b-dockinfo').innerHTML = d.pickup
+  $('#b-dockinfo').innerHTML = d.custom
+    ? `<b>Muelle escogido por ti</b>${Q.pin.ref ? ` · <span translate="no">${esc(Q.pin.ref)}</span>` : ''}<br>Te confirmamos por WhatsApp si la embarcación puede llegar y si hay recargo.`
+    : d.pickup
     ? `<b>Recogida en ${d.name}</b>: +${money(c.cost)}.${d.back ? ` Regreso máximo a las ${d.back}.` : ''} ${blocked.length ? `<br><small>${[...new Set(blocked)].join('. ')}.</small>` : ''}`
     : `<b>${d.name}</b>: toque de muelle ${d.fee} (lo pagas en el muelle) · ${d.park}.`;
   $('#b-dockinfo').innerHTML += `<br>${vlink('muelles', 'Ver video de los muelles sugeridos')}<small>Al confirmar te enviamos la ubicación exacta, un video de cómo llegar y cómo pagar el toque de muelle. ¿Otra residencia? <a href="${wa(`Hola Tu Lancha 👋 ¿Pueden buscarnos en mi residencia? Somos ${paxTxt()}.`)}" target="_blank" rel="noopener">Pregúntanos</a>.</small>`;
@@ -1673,6 +1730,7 @@ function renderTicket() {
   if (kidExtra(b)) lines.push([`Excepción de niños (${kidExtra(b)} de 7 años o menos)`, kidExtra(b) * b.kidFee]);
   if (r.extra === null) lines.push([`Recargo ${r.name}`, 0, 'tbd']);
   if (dc.ok && dc.cost) lines.push([`Recogida en ${dk.name}`, dc.cost]);
+  if (dc.ok && dc.tbd) lines.push(['Recogida en tu muelle', 0, 'tbd']);
   if (Q.hx) lines.push([`${Q.hx} h extra (efectivo a bordo)`, Q.hx * b.hx]);
   Object.entries(b.opt).filter(([k]) => Q.acc[k]).forEach(([k, p]) => lines.push([ACC[k], p]));
   const code = codeInfo(Q.code);
@@ -1694,7 +1752,7 @@ function renderTicket() {
     <button class="btn btn-sun btn-lg" type="button" id="t-book">Reservar ahora</button>
     <p class="note">No pagas nada ahora: te confirmamos disponibilidad y abono. Fines de semana +${wkOf(b)}%.</p>`;
   $('#mb-total').textContent = money(total);
-  window.TLL_LAST = { boat: b.name, type: b.type, route: routeTxt, dock: dk.name, dockFee: dk.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
+  window.TLL_LAST = { boat: b.name, type: b.type, route: routeTxt, dock: dk.custom && Q.pin && Q.pin.ref ? `${dk.name} · ${Q.pin.ref}` : dk.name, pin: dk.custom && okPin(Q.pin) ? { lat: +Q.pin.lat, lng: +Q.pin.lng, ref: Q.pin.ref || '' } : null, dockFee: dk.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
 }
 const GIFT_VALUES = { A: 180, B: 320, C: 950, D: 1650 };
 const AL = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -1734,7 +1792,107 @@ $('#reservar').addEventListener('click', e => {
 });
 $('#reservar').addEventListener('submit', e => { if (e.target.id !== 'code-form') return; e.preventDefault(); Q.code = $('#q-code').value.trim().toUpperCase(); renderBuilder(); toast(codeInfo(Q.code).kind ? 'Código aplicado' : 'Código no válido'); });
 $('#b-date').onchange = e => { if (e.target.value) { Q.date = e.target.value; renderBuilder(); } };
-$('#b-dock').onchange = e => { Q.dock = e.target.value; renderBuilder(); };
+$('#b-dock').onchange = e => { if (e.target.value === 'pin' && !okPin(Q.pin)) { e.target.value = Q.dock; openPinMap(); return; } Q.dock = e.target.value; renderBuilder(); };
+function renderMyPin() {
+  const box = $('#b-mypin'); if (!box) return;
+  const p = okPin(Q.pin) ? Q.pin : null, on = p && Q.dock === 'pin';
+  box.innerHTML = p
+    ? `<div class="mypin-card${on ? ' on' : ''}"><span class="mypin-ic" aria-hidden="true">${PIN_SVG}</span><div class="mypin-t"><b>${on ? 'Saldrás de tu muelle' : 'Tu muelle guardado'}</b>${p.ref ? `<span translate="no">${esc(p.ref)}</span>` : ''}<small class="mono" translate="no">${pinTxt(p)}</small></div>
+      <div class="mypin-acts">${on ? '' : '<button type="button" class="btn btn-sun btn-sm" data-pin-use>Usar este muelle</button>'}<button type="button" class="btn btn-ghost btn-sm" data-pin-open>Cambiar</button><a class="btn btn-ghost btn-sm" href="${gmapsUrl(p)}" target="_blank" rel="noopener">Ver en Google Maps</a><button type="button" class="linkish" data-pin-del>Quitar</button></div></div>
+      <p class="mypin-note">Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.</p>`
+    : `<button type="button" class="mypin-btn" data-pin-open><span class="mypin-ic" aria-hidden="true">${PIN_SVG}</span><span><b>Escoge tu muelle</b><small>Marca el punto exacto en el mapa satelital</small></span></button>
+      <p class="mypin-note">Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.</p>`;
+}
+$('#b-mypin').addEventListener('click', e => {
+  if (e.target.closest('[data-pin-open]')) return openPinMap();
+  if (e.target.closest('[data-pin-use]')) { Q.dock = 'pin'; return renderBuilder(); }
+  if (e.target.closest('[data-pin-del]')) { Q.pin = null; if (Q.dock === 'pin') Q.dock = 'pm'; renderBuilder(); toast('Ubicación quitada'); }
+});
+
+/* ---------------- mapa satelital (Leaflet, sin llave) ---------------- */
+let lfP = null;
+const loadLeaflet = () => lfP || (lfP = new Promise((ok, no) => {
+  if (window.L) return ok(window.L);
+  const c = document.createElement('link'); c.rel = 'stylesheet'; c.href = 'vendor/leaflet.css'; document.head.appendChild(c);
+  const s = document.createElement('script'); s.src = 'vendor/leaflet.js'; s.onload = () => ok(window.L); s.onerror = () => { lfP = null; no(new Error('leaflet')); }; document.head.appendChild(s);
+}));
+// capas: satélite (Esri World Imagery + nombres) y mapa de calles (OpenStreetMap)
+function baseLayers(L) {
+  const E = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+  const sat = L.layerGroup([
+    L.tileLayer(E + 'World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, maxNativeZoom: 18, attribution: 'Imágenes © Esri, Maxar, Earthstar Geographics' }),
+    L.tileLayer(E + 'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, maxNativeZoom: 18 })
+  ]);
+  const street = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' });
+  return { sat, street };
+}
+const pinIcon = L => L.divIcon({ className: 'gpin', iconSize: [36, 46], iconAnchor: [18, 44], html: PIN_SVG });
+const LECHERIA = [10.1935, -64.6935];
+function openPinMap() {
+  const dlg = $('#dlg'); if (dlg.open) dlg.close();
+  const p0 = okPin(Q.pin) ? Q.pin : null;
+  dlg.className = 'full pin-dlg';
+  dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="view pin-view">
+    <div class="pin-h"><span class="eyebrow">Tu punto de salida</span><h2 id="m-title">Escoge tu muelle</h2><p>Toca el mapa o arrastra el pin hasta el lugar exacto donde te buscamos. Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.</p></div>
+    <form class="pin-search" data-pin-q><input type="search" placeholder="Busca un lugar, residencia o marina" aria-label="Buscar un lugar" autocomplete="off"><button class="btn btn-ghost btn-sm" type="submit">Buscar</button></form>
+    <div class="pin-results" data-pin-res hidden></div>
+    <div class="pin-map-w"><div class="pin-map" data-pin-map><div class="f-wait">Cargando mapa satelital…</div></div>
+      <div class="pin-layers" role="group" aria-label="Tipo de mapa"><button type="button" data-pin-layer="sat" aria-pressed="true">Satélite</button><button type="button" data-pin-layer="street" aria-pressed="false">Mapa</button></div>
+      <button type="button" class="pin-me" data-pin-me aria-label="Usar mi ubicación actual"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7.5" fill="none"/></svg></button></div>
+    <p class="pin-coords" data-pin-xy>${p0 ? `Ubicación: <b class="mono" translate="no">${pinTxt(p0)}</b>` : 'Toca el mapa para marcar tu muelle.'}</p>
+    <label class="field"><span class="lbl">Referencia (opcional)</span><input data-pin-ref translate="no" maxlength="120" placeholder="Ej.: muelle del edificio, puesto 12, portón azul" value="${esc(p0 ? p0.ref || '' : '')}"></label>
+    <div class="pin-acts"><button class="btn btn-sun btn-lg" type="button" data-pin-save ${p0 ? '' : 'disabled'}>Guardar ubicación</button><a class="btn btn-ghost" data-pin-g target="_blank" rel="noopener" ${p0 ? `href="${gmapsUrl(p0)}"` : 'hidden'}>Ver en Google Maps</a></div>
+  </div>`;
+  const q = s => dlg.querySelector(s);
+  let pt = p0 ? { lat: +p0.lat, lng: +p0.lng } : null, map = null, mk = null, layers = null;
+  const show = () => {
+    q('[data-pin-xy]').innerHTML = pt ? `Ubicación: <b class="mono" translate="no">${pinTxt(pt)}</b>` : 'Toca el mapa para marcar tu muelle.';
+    q('[data-pin-save]').disabled = !pt; const g = q('[data-pin-g]'); g.hidden = !pt; if (pt) g.href = gmapsUrl(pt);
+  };
+  const place = (ll, zoom) => {
+    pt = { lat: ll.lat, lng: ll.lng };
+    if (map) { if (!mk) { mk = window.L.marker(ll, { icon: pinIcon(window.L), draggable: true, autoPan: true, keyboard: true, title: 'Tu muelle' }).addTo(map); mk.on('dragend', () => { const x = mk.getLatLng(); pt = { lat: x.lat, lng: x.lng }; show(); }); } else mk.setLatLng(ll); if (zoom) map.setView(ll, zoom); }
+    show();
+  };
+  dlg.onclick = e => {
+    if (e.target === dlg || e.target.closest('.m-close')) return dlg.close();
+    const ly = e.target.closest('[data-pin-layer]');
+    if (ly && map) { const k = ly.dataset.pinLayer; Object.entries(layers).forEach(([n, l]) => n === k ? l.addTo(map) : map.removeLayer(l)); dlg.querySelectorAll('[data-pin-layer]').forEach(x => x.setAttribute('aria-pressed', x === ly)); return; }
+    if (e.target.closest('[data-pin-me]')) {
+      if (!navigator.geolocation) return toast('Tu teléfono no comparte la ubicación');
+      toast('Buscando tu ubicación…');
+      navigator.geolocation.getCurrentPosition(g => place({ lat: g.coords.latitude, lng: g.coords.longitude }, 18), () => toast('No pudimos leer tu ubicación. Marca el punto en el mapa.'), { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });
+      return;
+    }
+    const r = e.target.closest('[data-pin-hit]');
+    if (r) { place({ lat: +r.dataset.lat, lng: +r.dataset.lng }, 17); const ref = q('[data-pin-ref]'); if (!ref.value) ref.value = r.dataset.name.slice(0, 120); q('[data-pin-res]').hidden = true; return; }
+    if (e.target.closest('[data-pin-save]') && pt) {
+      Q.pin = { lat: +pt.lat.toFixed(6), lng: +pt.lng.toFixed(6), ref: q('[data-pin-ref]').value.trim().slice(0, 120) };
+      Q.dock = 'pin'; dlg.close(); renderBuilder(); toast('Ubicación guardada. Se enviará a Tu Lancha al finalizar tu solicitud.');
+    }
+  };
+  q('[data-pin-q]').onsubmit = async e => {
+    e.preventDefault(); const t = e.target.querySelector('input').value.trim(); if (t.length < 3) return;
+    const res = q('[data-pin-res]'); res.hidden = false; res.innerHTML = '<p class="rating">Buscando…</p>';
+    try {
+      const u = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=ve&viewbox=-65.2,10.6,-63.9,9.9&q=${encodeURIComponent(t)}`;
+      const l = await (await fetch(u, { headers: { 'Accept-Language': (window.TLL_I18N && TLL_I18N.lang) || 'es' } })).json();
+      res.innerHTML = l.length ? l.map(x => `<button type="button" data-pin-hit data-lat="${esc(x.lat)}" data-lng="${esc(x.lon)}" data-name="${esc(x.name || x.display_name.split(',')[0])}"><b translate="no">${esc(x.name || x.display_name.split(',')[0])}</b><small translate="no">${esc(x.display_name)}</small></button>`).join('') : '<p class="rating">No encontramos ese lugar. Mueve el mapa y toca el punto exacto.</p>';
+    } catch { res.innerHTML = '<p class="rating">Sin conexión para buscar. Mueve el mapa y toca el punto exacto.</p>'; }
+  };
+  dlg.addEventListener('close', () => { if (map) { map.remove(); map = null; } }, { once: true });
+  dlg.showModal();
+  loadLeaflet().then(L => {
+    if (!dlg.open || !q('[data-pin-map]')) return;
+    const el = q('[data-pin-map]'); el.innerHTML = '';
+    map = L.map(el, { zoomControl: true, attributionControl: true }).setView(pt || LECHERIA, pt ? 18 : 14);
+    layers = baseLayers(L); layers.sat.addTo(map);
+    map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+    map.on('click', e => place(e.latlng));
+    if (pt) place(pt);
+    setTimeout(() => map && map.invalidateSize(), 120);
+  }).catch(() => { const el = q('[data-pin-map]'); if (el) el.innerHTML = '<div class="f-wait">No se pudo cargar el mapa. Revisa tu conexión e inténtalo de nuevo.</div>'; });
+}
 
 /* ---------------- playas por rumbo ---------------- */
 function renderBeaches() {
@@ -1859,7 +2017,7 @@ loadCatalog();
 // al cambiar de idioma: volver a pintar lo que lleva fechas, días y montos con formato local
 addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); if (seaLast) renderSea(...seaLast); window.TLL.renderMine && window.TLL.renderMine(); });
 
-window.TLL = { CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
+window.TLL = { loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
 document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; fitTo(b); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); });
 })();
 
@@ -2270,12 +2428,7 @@ function wireShare(root, ctx, signal) {
 }
 
 /* ---- vista de quien sigue el enlace ---- */
-let lfP = null;
-const loadLeaflet = () => lfP || (lfP = new Promise((ok, no) => {
-  if (window.L) return ok(window.L);
-  const c = document.createElement('link'); c.rel = 'stylesheet'; c.href = 'vendor/leaflet.css'; document.head.appendChild(c);
-  const s = document.createElement('script'); s.src = 'vendor/leaflet.js'; s.onload = () => ok(window.L); s.onerror = () => { lfP = null; no(new Error('leaflet')); }; document.head.appendChild(s);
-}));
+const loadLeaflet = window.TLL.loadLeaflet;
 let followCtl = null;
 function openFollow(id) {
   const dlg = $('#dlg'); if (dlg.open) dlg.close();
@@ -2445,7 +2598,7 @@ $('#ref-copy').onclick = () => copy($('#ref-code').textContent);
    El cliente confirma en la app, recibe su código TLL-#### y su comprobante.
    Eduardo recibe el aviso con un toque por WhatsApp (sin servidor). */
 (() => {
-const { $, $$, wa, money, store, toast } = window.TLL;
+const { $, $$, wa, money, store, toast, gmapsUrl, pinTxt, okPin } = window.TLL;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const mine = () => store.get('mine', []);
 const saveMine = l => store.set('mine', l);
@@ -2472,7 +2625,7 @@ const payInfo = (k, total) => { const m = PAY[k], [ac, holder] = acctOf(k), P = 
   return `<div class="pay-info"><div class="pay-amt"><span>Abono para apartar</span><b>${money(total / 2)}</b><small>50% · el resto en el muelle antes de zarpar</small></div><p>${ac ? HOW_ACCT[k] : m.how}</p>${ac ? `<p class="pay-acct mono" translate="no">${bn ? "ID " : ""}${esc(ac).replace("@", "@<wbr>")}</p>${holder ? `<p class="rating">${bn ? 'Usuario:' : 'Titular:'} <b translate="no">${esc(holder)}</b></p>` : ''}` : ''}
   ${bn && (P.binanceQR || P.binanceLink) ? `<div class="pay-qr">${P.binanceQR ? `<img src="${esc(P.binanceQR)}" alt="QR de Binance Pay" width="120" height="120" loading="lazy">` : ''}${P.binanceLink ? `<a class="btn btn-sun btn-sm" href="${esc(P.binanceLink)}" target="_blank" rel="noopener">Abrir en Binance</a>` : ''}</div>` : ''}</div>`; };
 
-const waText = r => `Hola Tu Lancha 👋 Hice una reserva en la app.\n🔖 Código: ${r.code}\n👤 ${r.name}${r.phone ? ' · ' + r.phone : ''}\n👥 ${r.paxTxt || r.pax + ' personas'}\n⛵ ${r.boat}\n📅 ${r.date}${r.hours ? ' · ' + r.hours : ''}\n🏝️ ${r.route}\n⚓ ${r.dock}\n${r.lines.slice(1).map(l => (l[1] < 0 ? '🎁 ' : '➕ ') + l[0] + (l[2] === 'tbd' ? ' (por confirmar)' : '')).join('\n')}${r.lines.length > 1 ? '\n' : ''}💵 Total estimado: ${money(r.total)}${r.pay && PAY[r.pay] ? `\n💳 Pago: ${PAY[r.pay].name} · abono ${money(r.total / 2)}` : ''}${r.note ? '\n📝 ' + r.note : ''}${r.accepted ? '\n✅ Acepté las condiciones de alquiler (' + POLICY_REV + ')' : ''}\n¿Me confirman disponibilidad y el abono?`;
+const waText = r => `Hola Tu Lancha 👋 Hice una reserva en la app.\n🔖 Código: ${r.code}\n👤 ${r.name}${r.phone ? ' · ' + r.phone : ''}\n👥 ${r.paxTxt || r.pax + ' personas'}\n⛵ ${r.boat}\n📅 ${r.date}${r.hours ? ' · ' + r.hours : ''}\n🏝️ ${r.route}\n⚓ ${okPin(r.pin) ? 'Mi propio muelle' + (r.pin.ref ? ' · ' + r.pin.ref : '') : r.dock}\n${okPin(r.pin) ? `📍 Ubicación de mi muelle: ${gmapsUrl(r.pin)}\n` : ''}${r.lines.slice(1).map(l => (l[1] < 0 ? '🎁 ' : '➕ ') + l[0] + (l[2] === 'tbd' ? ' (por confirmar)' : '')).join('\n')}${r.lines.length > 1 ? '\n' : ''}💵 Total estimado: ${money(r.total)}${r.pay && PAY[r.pay] ? `\n💳 Pago: ${PAY[r.pay].name} · abono ${money(r.total / 2)}` : ''}${r.note ? '\n📝 ' + r.note : ''}${r.accepted ? '\n✅ Acepté las condiciones de alquiler (' + POLICY_REV + ')' : ''}\n¿Me confirman disponibilidad y el abono?`;
 /* Condiciones y Política de Alquiler (Rev. 01 · sep. 2026). No se publica en la web:
    solo se muestra al confirmar una reserva, con casilla obligatoria. */
 const POLICY_REV = 'Rev. 01 · sep. 2026';
@@ -2497,7 +2650,7 @@ const policyHtml = () => `<details class="bk-policy"><summary>Leer las condicion
 const reviewHtml = q => {
   const extras = (q.lines || []).slice(1).filter(l => l[1] >= 0).map(l => l[0]);
   const ck = [['Embarcación', `${q.boat}${q.type ? ' · ' + q.type : ''}`], ['Grupo', q.paxTxt || q.pax + ' personas'], ['Fecha y horario', `${q.date}${q.hours ? ' · ' + q.hours : ''}`],
-    ['Rumbo', q.route], ['Muelle', `${q.dock}${q.dockFee ? ' · toque de muelle aparte' : ''}`], ['Extras', extras.length ? extras.join(', ') : 'Sin extras'], ['Incluido', 'Tripulación, chalecos, hielo y agua']];
+    ['Rumbo', q.route], ['Muelle', `${q.dock}${q.dockFee ? ' · toque de muelle aparte' : ''}`], ...(okPin(q.pin) ? [['Ubicación', `Marcada en el mapa · ${pinTxt(q.pin)}`]] : []), ['Extras', extras.length ? extras.join(', ') : 'Sin extras'], ['Incluido', 'Tripulación, chalecos, hielo y agua']];
   return `<section class="bk-review" aria-labelledby="bk-rv-t"><div class="bk-rv-h"><span class="eyebrow">Revisa tu pedido</span><b id="bk-rv-t">Todo lo que pediste</b></div>
     <ul class="bk-checks">${ck.map(([k, v]) => `<li><span class="bk-ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="bk-k">${k}</span><span class="bk-v">${esc(v)}</span></li>`).join('')}</ul>
     <dl class="bk-lines">${(q.lines || []).map(l => `<div><dt>${esc(l[0])}</dt><dd>${l[2] === 'tbd' ? 'por confirmar' : money(l[1])}</dd></div>`).join('')}</dl>
@@ -2542,7 +2695,7 @@ function openBooking() {
     const r = { ...q, code: newCode(), name, phone, pay: payNow(), note: $('#bk-note', dlg).value.trim(), created: Date.now(), accepted: Date.now(), sent: false };
     saveMine([r, ...mine()].slice(0, 20));
     // aviso al panel de Eduardo (si no hay conexión, no pasa nada: la reserva sigue en el teléfono y en WhatsApp)
-    try { fetch('/api/admin?a=book', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: r.code, created: r.created, iso: r.iso, date: r.date, boat: r.boat, route: r.route, dock: r.dock, hours: r.hours, pax: r.pax, kids: r.kids, total: r.total, pay: r.pay, name: r.name, phone: r.phone, note: r.note, lang: (window.TLL_I18N && TLL_I18N.lang) || 'es' }) }).catch(() => {}); } catch {}
+    try { fetch('/api/admin?a=book', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: r.code, created: r.created, iso: r.iso, date: r.date, boat: r.boat, route: r.route, dock: okPin(r.pin) ? 'Muelle del cliente' + (r.pin.ref ? ' · ' + r.pin.ref : '') : r.dock, pin: okPin(r.pin) ? r.pin : undefined, hours: r.hours, pax: r.pax, kids: r.kids, total: r.total, pay: r.pay, name: r.name, phone: r.phone, note: r.note, lang: (window.TLL_I18N && TLL_I18N.lang) || 'es' }) }).catch(() => {}); } catch {}
     showDone(r); renderMine();
   };
   dlg.showModal();
@@ -2659,7 +2812,7 @@ async function makePdf(r) {
   // checklist
   col(GOLD); d.setFont('helvetica', 'bold'); d.setFontSize(8); d.setCharSpace(1); d.text('TU PASEO, PUNTO POR PUNTO', M, y); d.setCharSpace(0); y += 6;
   const extras = (r.lines || []).slice(1).filter(l => l[1] >= 0).map(l => clean(l[0]));
-  const checks = [['Rumbo y playas', r.route], ['Muelle de salida', `${r.dock}${r.dockFee ? ' · toque de muelle aparte: ' + r.dockFee : ''}`], ['Extras', extras.length ? extras.join(', ') : 'Sin extras'],
+  const checks = [['Rumbo y playas', r.route], ['Muelle de salida', `${r.dock}${r.dockFee ? ' · toque de muelle aparte: ' + r.dockFee : ''}`], ...(okPin(r.pin) ? [['Ubicación', `${pinTxt(r.pin)} · ${gmapsUrl(r.pin)}`]] : []), ['Extras', extras.length ? extras.join(', ') : 'Sin extras'],
     ['Incluido', 'Tripulación, chalecos salvavidas, hielo y agua'], ['Condiciones', `Aceptadas (${POLICY_REV})`]];
   checks.forEach(([k, v]) => {
     need(8); fill(GOLD); d.circle(M + 2.6, y - 1.2, 2.6, 'F'); draw([255, 255, 255]); d.setLineWidth(.6); d.lines([[1, 1], [1.9, -2.1]], M + 1.3, y - 1.2);
@@ -3376,7 +3529,7 @@ function bkCard(b) {
     <h4>${esc(b.name || 'Sin nombre')}</h4>
     <p>${esc(fmtD(dOf(b)))}${b.hours ? ' · ' + esc(b.hours) : ''}</p>
     <p class="rating">${esc(b.boat)} · ${b.pax || '—'} pers.${b.dock ? ' · ' + esc(b.dock) : ''}</p>
-    ${b.route ? `<p class="rating">${esc(b.route)}</p>` : ''}${b.note ? `<p class="rating">📝 ${esc(b.note)}</p>` : ''}
+    ${b.route ? `<p class="rating">${esc(b.route)}</p>` : ''}${T.okPin(b.pin) ? `<button type="button" class="ad-pin" data-bka="map"><span class="ad-pin-ic" aria-hidden="true">${T.PIN_SVG}</span><span><b>Muelle escogido por el cliente</b><small>${b.pin.ref ? esc(b.pin.ref) + ' · ' : ''}<span class="mono">${T.pinTxt(b.pin)}</span></small></span><span class="ad-pin-go">Ver mapa</span></button>` : ''}${b.note ? `<p class="rating">📝 ${esc(b.note)}</p>` : ''}
     <div class="ad-bk-m"><span>Total <b>${money(+b.total || 0)}</b></span><span>Pagado <b>${money(+b.paid || 0)}</b></span><span class="${due ? 'due' : 'ok'}">${due ? 'Falta ' + money(due) : 'Pagado ✓'}</span></div>
     <div class="adm-tools">${b.status !== 'confirmada' && b.status !== 'cancelada' ? '<button class="icon-btn pri" type="button" data-bka="ok">Confirmar</button>' : ''}${due ? `<button class="icon-btn" type="button" data-bka="half">Abono 50%</button><button class="icon-btn" type="button" data-bka="paid">Marcar pagado</button>` : ''}${b.phone ? '<button class="icon-btn" type="button" data-bka="wa">WhatsApp</button>' : ''}<button class="icon-btn" type="button" data-bka="edit">Editar</button>${b.status !== 'cancelada' ? '<button class="icon-btn" type="button" data-bka="cancel">Cancelar</button>' : '<button class="icon-btn" type="button" data-bka="del">Borrar</button>'}</div></article>`;
 }
@@ -3402,6 +3555,25 @@ function bkForm(b) {
     const x = { ...(b.code ? { code: b.code } : {}), name: v('bf-name').trim(), phone: v('bf-phone').trim(), iso: v('bf-iso'), boat: v('bf-boat'), route: v('bf-route'), dock: v('bf-dock'), pax: +v('bf-pax'), total: +v('bf-total'), paid: Math.min(+v('bf-paid'), +v('bf-total')), channel: v('bf-ch'), status: v('bf-st'), note: v('bf-note').trim() };
     try { await saveBk(x); closeSheet(); toast('Reserva guardada'); render(); } catch (err) { toast(errMsg(err)); }
   };
+}
+
+/* muelle que el cliente marcó en el mapa: vista satelital, Google Maps y envío al capitán */
+function pinSheet(b) {
+  const p = b.pin, g = T.gmapsUrl(p);
+  const cap = `⚓ Muelle de la reserva ${b.code}${b.name ? ' · ' + b.name : ''}\n📅 ${fmtD(dOf(b))}${b.hours ? ' · ' + b.hours : ''}\n👥 ${b.pax || '—'} pers. · ${b.boat || ''}${p.ref ? '\n📝 ' + p.ref : ''}\n📍 ${g}`;
+  sheet(`<h3>Muelle de ${esc(b.name || b.code)}</h3><p class="rating">${p.ref ? esc(p.ref) + ' · ' : ''}<span class="mono">${T.pinTxt(p)}</span></p>
+    <div class="pin-map-w"><div class="ad-pinmap" id="ad-pinmap"><p class="rating">Cargando mapa satelital…</p></div><div class="pin-layers" role="group" aria-label="Tipo de mapa"><button type="button" data-pl="sat" aria-pressed="true">Satélite</button><button type="button" data-pl="street" aria-pressed="false">Mapa</button></div></div>
+    <div class="adm-tools"><a class="btn btn-sun btn-sm" href="${g}" target="_blank" rel="noopener">Abrir en Google Maps</a><a class="btn btn-ghost btn-sm" href="https://wa.me/?text=${encodeURIComponent(cap)}" target="_blank" rel="noopener">Enviar al capitán</a><button class="btn btn-ghost btn-sm" type="button" id="ad-pin-copy">Copiar coordenadas</button></div>`);
+  $('#ad-pin-copy').onclick = async () => { try { await navigator.clipboard.writeText(T.pinTxt(p)); toast('Coordenadas copiadas'); } catch { toast(T.pinTxt(p)); } };
+  T.loadLeaflet().then(L => {
+    const el = $('#ad-pinmap'); if (!el) return; el.innerHTML = '';
+    const m = L.map(el, { zoomControl: true }).setView([p.lat, p.lng], 17);
+    const ly = T.baseLayers(L); ly.sat.addTo(m);
+    $$('[data-pl]', adm).forEach(x => x.onclick = () => { Object.entries(ly).forEach(([n, l]) => n === x.dataset.pl ? l.addTo(m) : m.removeLayer(l)); $$('[data-pl]', adm).forEach(y => y.setAttribute('aria-pressed', y === x)); });
+    m.attributionControl.setPrefix(false);
+    L.marker([p.lat, p.lng], { icon: T.pinIcon(L), title: 'Muelle del cliente' }).addTo(m);
+    setTimeout(() => m.invalidateSize(), 150);
+  }).catch(() => { const el = $('#ad-pinmap'); if (el) el.innerHTML = '<p class="rating">No se pudo cargar el mapa. Usa “Abrir en Google Maps”.</p>'; });
 }
 
 /* ---------------- embarcaciones ---------------- */
@@ -3492,7 +3664,7 @@ const HELP = {
     <ol class="ad-steps"><li><b>Resumen:</b> tus ventas, lo cobrado, lo que falta por cobrar y las próximas salidas.</li><li><b>Reservas:</b> llegan solas desde la app. Confírmalas, marca los pagos y escribe al cliente.</li><li><b>Embarcaciones:</b> fotos, precios, capacidad, accesorios, hora extra y recogidas de cada una.</li><li><b>Rumbos y playas:</b> playas de cada rumbo, recargos y fotos.</li><li><b>Muelles:</b> toques de muelle y recargos de recogida.</li><li><b>Pagos:</b> tu Zelle y Binance para que el cliente pague el abono.</li><li><b>Aliados:</b> marcas que recomiendas, con su logo y enlace.</li><li><b>Ajustes:</b> contraseña, versiones anteriores y respaldo.</li></ol>
     <p class="hint">En cada sección hay un botón <b>?</b> con instrucciones. Si te equivocas, en Ajustes puedes volver a una versión anterior.</p>`],
   inicio: ['El resumen', `<p>Muestra tus números con las reservas registradas (las canceladas no cuentan).</p><ul><li><b>Ventas:</b> suma del total de las reservas del período.</li><li><b>Cobrado:</b> lo que marcaste como pagado.</li><li><b>Por cobrar:</b> la diferencia.</li><li><b>Tu comisión:</b> se calcula con el % que pones en Ajustes.</li></ul><p>Cambia el período arriba (mes, 3 meses o 12 meses). Las flechas comparan con el período anterior.</p>`],
-  reservas: ['Las reservas', `<p>Cuando un cliente confirma en la app, la reserva llega aquí con estado <b>Nueva</b>, y a ti te escribe por WhatsApp con el mismo código.</p><ol class="ad-steps"><li>Verifica la disponibilidad y el pago del abono.</li><li>Toca <b>Confirmar</b> y luego <b>Abono 50%</b> o <b>Marcar pagado</b>.</li><li>Si no se da, toca <b>Cancelar</b>: deja de contar en tus números.</li></ol><p>Las reservas que cierras por WhatsApp o Instagram regístralas con <b>+ Registrar reserva</b> para que tus números estén completos.</p>`],
+  reservas: ['Las reservas', `<p>Cuando un cliente confirma en la app, la reserva llega aquí con estado <b>Nueva</b>, y a ti te escribe por WhatsApp con el mismo código.</p><p>Si el cliente escogió su propio muelle, la reserva muestra <b>📍 Muelle escogido por el cliente</b>: tócalo para verlo en el mapa satelital, abrirlo en Google Maps o enviárselo al capitán por WhatsApp.</p><ol class="ad-steps"><li>Verifica la disponibilidad y el pago del abono.</li><li>Toca <b>Confirmar</b> y luego <b>Abono 50%</b> o <b>Marcar pagado</b>.</li><li>Si no se da, toca <b>Cancelar</b>: deja de contar en tus números.</li></ol><p>Las reservas que cierras por WhatsApp o Instagram regístralas con <b>+ Registrar reserva</b> para que tus números estén completos.</p>`],
   flota: ['Tus embarcaciones', `<ul><li>Toca <b>Editar</b> para cambiar fotos, precio, capacidad, accesorios, horario y recogidas.</li><li>Con las flechas <b>↑ ↓</b> cambias el orden en que aparecen en la web.</li><li>La marcada como <b>De la casa</b> sale destacada en la portada y primero en la reserva.</li><li>Si una embarcación no está disponible por un tiempo, márcala como <b>Ocultar de la web</b> en vez de eliminarla.</li></ul><p class="hint">Recuerda tocar Publicar cambios al terminar.</p>`],
   barco: ['Editar una embarcación', `<p>Cada cambio queda en el borrador al momento. Toca <b>Listo</b> para volver y luego <b>Publicar cambios</b>.</p><ul><li><b>Tarifa por día:</b> el precio base en dólares. El recargo de fin de semana se suma solo.</li><li><b>Hora extra:</b> hasta qué hora puede quedarse y cuánto cuesta cada hora. Si no permite, el cliente no la puede pedir.</li><li><b>Playas por salida:</b> cuántas playas puede elegir el cliente.</li><li><b>Recogidas:</b> si por su calado no llega a una residencia, elige “No llega”; si la tienes cerca y no cobras, “Sin recargo”.</li></ul>`],
   fotos: ['Qué fotos subir', `<p>Puedes subirlas directo desde la galería del teléfono. El panel las recorta y las optimiza solo para que la app cargue rápido.</p><ul><li><b>Formato:</b> JPG, PNG o WebP. En iPhone también sirven las fotos normales de la cámara.</li><li><b>Orientación:</b> horizontal (acostada).</li><li><b>Medida ideal:</b> ${IMG.boat.size} (proporción 16:10). Mínimo ${IMG.boat.min} px de ancho para que no se vea borrosa.</li><li><b>Peso:</b> no importa, el panel la reduce a unos 200 a 400 KB.</li></ul><ol class="ad-steps"><li><b>Dron:</b> la principal. La embarcación completa desde arriba, en el agua.</li><li><b>Exterior:</b> de lado, navegando o fondeada.</li><li><b>Interior:</b> la cubierta o el salón, con buena luz.</li><li><b>Camarote:</b> solo si tiene.</li></ol><p class="hint">Consejos: luz de día, sin textos ni marcas de agua, la embarcación centrada. Al subirla verás una vista previa y podrás mover el encuadre.</p>`],
@@ -3601,6 +3773,7 @@ adm.addEventListener('click', async e => {
   if (d.bka) {
     const code = t.closest('[data-code]').dataset.code, b = BK.find(x => x.code === code); if (!b) return;
     if (d.bka === 'edit') return bkForm(b);
+    if (d.bka === 'map') return pinSheet(b);
     if (d.bka === 'wa') { const n = String(b.phone).replace(/\D/g, '').replace(/^0/, '58'); window.open(`https://wa.me/${n}?text=${encodeURIComponent(`¡Hola ${b.name}! Te escribo de Tu Lancha Lechería por tu reserva ${b.code}.`)}`, '_blank', 'noopener'); return; }
     if (d.bka === 'del') { if (!confirm(`¿Borrar la reserva ${code}? No se puede deshacer.`)) return; try { await api('bk', { del: code }); BK = BK.filter(x => x !== b); toast('Reserva borrada'); render(); } catch (err) { toast(errMsg(err)); } return; }
     if (d.bka === 'cancel' && !confirm(`¿Cancelar la reserva ${code}?`)) return;
@@ -3609,7 +3782,7 @@ adm.addEventListener('click', async e => {
     return;
   }
   if (t.id === 'bk-csv') {
-    const rows = [['codigo', 'fecha', 'cliente', 'telefono', 'embarcacion', 'rumbo', 'muelle', 'personas', 'total', 'pagado', 'estado', 'canal', 'idioma', 'nota']].concat(BK.map(b => [b.code, dOf(b), b.name, b.phone, b.boat, b.route, b.dock, b.pax, b.total, b.paid, b.status, b.channel, b.lang, b.note]));
+    const rows = [['codigo', 'fecha', 'cliente', 'telefono', 'embarcacion', 'rumbo', 'muelle', 'ubicacion', 'personas', 'total', 'pagado', 'estado', 'canal', 'idioma', 'nota']].concat(BK.map(b => [b.code, dOf(b), b.name, b.phone, b.boat, b.route, b.dock, T.okPin(b.pin) ? T.gmapsUrl(b.pin) : '', b.pax, b.total, b.paid, b.status, b.channel, b.lang, b.note]));
     dl(`tulancha-reservas-${iso(today)}.csv`, '﻿' + rows.map(r => r.map(x => `"${String(x ?? '').replace(/"/g, '""')}"`).join(',')).join('\n'), 'text/csv'); return;
   }
   if (t.id === 'bk-json') { dl(`tulancha-catalogo-${iso(today)}.json`, JSON.stringify(W, null, 1), 'application/json'); return; }

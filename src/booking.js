@@ -2,7 +2,7 @@
    El cliente confirma en la app, recibe su código TLL-#### y su comprobante.
    Eduardo recibe el aviso con un toque por WhatsApp (sin servidor). */
 (() => {
-const { $, $$, wa, money, store, toast } = window.TLL;
+const { $, $$, wa, money, store, toast, gmapsUrl, pinTxt, okPin } = window.TLL;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const mine = () => store.get('mine', []);
 const saveMine = l => store.set('mine', l);
@@ -29,7 +29,7 @@ const payInfo = (k, total) => { const m = PAY[k], [ac, holder] = acctOf(k), P = 
   return `<div class="pay-info"><div class="pay-amt"><span>Abono para apartar</span><b>${money(total / 2)}</b><small>50% · el resto en el muelle antes de zarpar</small></div><p>${ac ? HOW_ACCT[k] : m.how}</p>${ac ? `<p class="pay-acct mono" translate="no">${bn ? "ID " : ""}${esc(ac).replace("@", "@<wbr>")}</p>${holder ? `<p class="rating">${bn ? 'Usuario:' : 'Titular:'} <b translate="no">${esc(holder)}</b></p>` : ''}` : ''}
   ${bn && (P.binanceQR || P.binanceLink) ? `<div class="pay-qr">${P.binanceQR ? `<img src="${esc(P.binanceQR)}" alt="QR de Binance Pay" width="120" height="120" loading="lazy">` : ''}${P.binanceLink ? `<a class="btn btn-sun btn-sm" href="${esc(P.binanceLink)}" target="_blank" rel="noopener">Abrir en Binance</a>` : ''}</div>` : ''}</div>`; };
 
-const waText = r => `Hola Tu Lancha 👋 Hice una reserva en la app.\n🔖 Código: ${r.code}\n👤 ${r.name}${r.phone ? ' · ' + r.phone : ''}\n👥 ${r.paxTxt || r.pax + ' personas'}\n⛵ ${r.boat}\n📅 ${r.date}${r.hours ? ' · ' + r.hours : ''}\n🏝️ ${r.route}\n⚓ ${r.dock}\n${r.lines.slice(1).map(l => (l[1] < 0 ? '🎁 ' : '➕ ') + l[0] + (l[2] === 'tbd' ? ' (por confirmar)' : '')).join('\n')}${r.lines.length > 1 ? '\n' : ''}💵 Total estimado: ${money(r.total)}${r.pay && PAY[r.pay] ? `\n💳 Pago: ${PAY[r.pay].name} · abono ${money(r.total / 2)}` : ''}${r.note ? '\n📝 ' + r.note : ''}${r.accepted ? '\n✅ Acepté las condiciones de alquiler (' + POLICY_REV + ')' : ''}\n¿Me confirman disponibilidad y el abono?`;
+const waText = r => `Hola Tu Lancha 👋 Hice una reserva en la app.\n🔖 Código: ${r.code}\n👤 ${r.name}${r.phone ? ' · ' + r.phone : ''}\n👥 ${r.paxTxt || r.pax + ' personas'}\n⛵ ${r.boat}\n📅 ${r.date}${r.hours ? ' · ' + r.hours : ''}\n🏝️ ${r.route}\n⚓ ${okPin(r.pin) ? 'Mi propio muelle' + (r.pin.ref ? ' · ' + r.pin.ref : '') : r.dock}\n${okPin(r.pin) ? `📍 Ubicación de mi muelle: ${gmapsUrl(r.pin)}\n` : ''}${r.lines.slice(1).map(l => (l[1] < 0 ? '🎁 ' : '➕ ') + l[0] + (l[2] === 'tbd' ? ' (por confirmar)' : '')).join('\n')}${r.lines.length > 1 ? '\n' : ''}💵 Total estimado: ${money(r.total)}${r.pay && PAY[r.pay] ? `\n💳 Pago: ${PAY[r.pay].name} · abono ${money(r.total / 2)}` : ''}${r.note ? '\n📝 ' + r.note : ''}${r.accepted ? '\n✅ Acepté las condiciones de alquiler (' + POLICY_REV + ')' : ''}\n¿Me confirman disponibilidad y el abono?`;
 /* Condiciones y Política de Alquiler (Rev. 01 · sep. 2026). No se publica en la web:
    solo se muestra al confirmar una reserva, con casilla obligatoria. */
 const POLICY_REV = 'Rev. 01 · sep. 2026';
@@ -54,7 +54,7 @@ const policyHtml = () => `<details class="bk-policy"><summary>Leer las condicion
 const reviewHtml = q => {
   const extras = (q.lines || []).slice(1).filter(l => l[1] >= 0).map(l => l[0]);
   const ck = [['Embarcación', `${q.boat}${q.type ? ' · ' + q.type : ''}`], ['Grupo', q.paxTxt || q.pax + ' personas'], ['Fecha y horario', `${q.date}${q.hours ? ' · ' + q.hours : ''}`],
-    ['Rumbo', q.route], ['Muelle', `${q.dock}${q.dockFee ? ' · toque de muelle aparte' : ''}`], ['Extras', extras.length ? extras.join(', ') : 'Sin extras'], ['Incluido', 'Tripulación, chalecos, hielo y agua']];
+    ['Rumbo', q.route], ['Muelle', `${q.dock}${q.dockFee ? ' · toque de muelle aparte' : ''}`], ...(okPin(q.pin) ? [['Ubicación', `Marcada en el mapa · ${pinTxt(q.pin)}`]] : []), ['Extras', extras.length ? extras.join(', ') : 'Sin extras'], ['Incluido', 'Tripulación, chalecos, hielo y agua']];
   return `<section class="bk-review" aria-labelledby="bk-rv-t"><div class="bk-rv-h"><span class="eyebrow">Revisa tu pedido</span><b id="bk-rv-t">Todo lo que pediste</b></div>
     <ul class="bk-checks">${ck.map(([k, v]) => `<li><span class="bk-ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="bk-k">${k}</span><span class="bk-v">${esc(v)}</span></li>`).join('')}</ul>
     <dl class="bk-lines">${(q.lines || []).map(l => `<div><dt>${esc(l[0])}</dt><dd>${l[2] === 'tbd' ? 'por confirmar' : money(l[1])}</dd></div>`).join('')}</dl>
@@ -99,7 +99,7 @@ function openBooking() {
     const r = { ...q, code: newCode(), name, phone, pay: payNow(), note: $('#bk-note', dlg).value.trim(), created: Date.now(), accepted: Date.now(), sent: false };
     saveMine([r, ...mine()].slice(0, 20));
     // aviso al panel de Eduardo (si no hay conexión, no pasa nada: la reserva sigue en el teléfono y en WhatsApp)
-    try { fetch('/api/admin?a=book', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: r.code, created: r.created, iso: r.iso, date: r.date, boat: r.boat, route: r.route, dock: r.dock, hours: r.hours, pax: r.pax, kids: r.kids, total: r.total, pay: r.pay, name: r.name, phone: r.phone, note: r.note, lang: (window.TLL_I18N && TLL_I18N.lang) || 'es' }) }).catch(() => {}); } catch {}
+    try { fetch('/api/admin?a=book', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: r.code, created: r.created, iso: r.iso, date: r.date, boat: r.boat, route: r.route, dock: okPin(r.pin) ? 'Muelle del cliente' + (r.pin.ref ? ' · ' + r.pin.ref : '') : r.dock, pin: okPin(r.pin) ? r.pin : undefined, hours: r.hours, pax: r.pax, kids: r.kids, total: r.total, pay: r.pay, name: r.name, phone: r.phone, note: r.note, lang: (window.TLL_I18N && TLL_I18N.lang) || 'es' }) }).catch(() => {}); } catch {}
     showDone(r); renderMine();
   };
   dlg.showModal();
@@ -216,7 +216,7 @@ async function makePdf(r) {
   // checklist
   col(GOLD); d.setFont('helvetica', 'bold'); d.setFontSize(8); d.setCharSpace(1); d.text('TU PASEO, PUNTO POR PUNTO', M, y); d.setCharSpace(0); y += 6;
   const extras = (r.lines || []).slice(1).filter(l => l[1] >= 0).map(l => clean(l[0]));
-  const checks = [['Rumbo y playas', r.route], ['Muelle de salida', `${r.dock}${r.dockFee ? ' · toque de muelle aparte: ' + r.dockFee : ''}`], ['Extras', extras.length ? extras.join(', ') : 'Sin extras'],
+  const checks = [['Rumbo y playas', r.route], ['Muelle de salida', `${r.dock}${r.dockFee ? ' · toque de muelle aparte: ' + r.dockFee : ''}`], ...(okPin(r.pin) ? [['Ubicación', `${pinTxt(r.pin)} · ${gmapsUrl(r.pin)}`]] : []), ['Extras', extras.length ? extras.join(', ') : 'Sin extras'],
     ['Incluido', 'Tripulación, chalecos salvavidas, hielo y agua'], ['Condiciones', `Aceptadas (${POLICY_REV})`]];
   checks.forEach(([k, v]) => {
     need(8); fill(GOLD); d.circle(M + 2.6, y - 1.2, 2.6, 'F'); draw([255, 255, 255]); d.setLineWidth(.6); d.lines([[1, 1], [1.9, -2.1]], M + 1.3, y - 1.2);

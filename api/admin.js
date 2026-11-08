@@ -67,6 +67,13 @@ async function authed(req) {
   const [s] = await redis([['GET', 'adm:s:' + sha(t)]]);
   return !!s;
 }
+// ubicación del muelle que el cliente marcó en el mapa
+function pinOf(p) {
+  if (!p || typeof p !== 'object') return null;
+  const lat = Number(p.lat), lng = Number(p.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+  return { lat: Math.round(lat * 1e6) / 1e6, lng: Math.round(lng * 1e6) / 1e6, ref: str(p.ref, 120) };
+}
 // reserva normalizada (de la app o registrada a mano en el panel)
 function cleanBooking(b, src) {
   return {
@@ -76,7 +83,8 @@ function cleanBooking(b, src) {
     pax: num(b.pax, 0, 200), kids: num(b.kids, 0, 200), total: Math.round(num(b.total, 0, 1e6)), paid: Math.round(num(b.paid, 0, 1e6)),
     pay: str(b.pay, 20), name: str(b.name, 80), phone: str(b.phone, 30), note: str(b.note, 400),
     lang: /^(es|en|pt)$/.test(b.lang || '') ? b.lang : 'es', channel: str(b.channel || (src === 'web' ? 'Web · app' : 'WhatsApp directo'), 40),
-    status: /^(nueva|confirmada|cancelada)$/.test(b.status || '') ? b.status : 'nueva'
+    status: /^(nueva|confirmada|cancelada)$/.test(b.status || '') ? b.status : 'nueva',
+    ...(pinOf(b.pin) ? { pin: pinOf(b.pin) } : {})
   };
 }
 
