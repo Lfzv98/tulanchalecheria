@@ -1183,7 +1183,8 @@ footer.site .num{white-space:normal}
 .ack-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.ack-row .btn{justify-content:center;white-space:normal}
 @keyframes ackpulse{50%{box-shadow:0 0 0 6px rgba(243,213,138,.25)}}
 @media (prefers-reduced-motion:reduce){.sos-ack.go{animation:none}}
-.live-grid{align-items:start}.live-grid>.map{align-self:start;position:sticky;top:0}
+.live-grid{align-items:start}.live-grid>.map{align-self:start}
+@media (min-width:900px){.live-grid>.map{position:sticky;top:0}}
 
 /* ---- revisión antes de pagar ---- */
 .bk-review{display:grid;gap:12px;padding:18px;border-radius:20px;background:var(--surface,#fff);border:1px solid var(--line);box-shadow:0 10px 30px -18px rgba(13,27,46,.35)}
@@ -1236,3 +1237,5 @@ footer.site .num{white-space:normal}
 .sos-dial{display:grid;gap:8px;padding:12px;border-radius:14px;background:#fff;border:1px solid rgba(214,52,52,.3);min-width:0}
 .sos-dial label{display:grid;gap:4px;font-size:.8rem;color:var(--muted)}.sos-dial input{font:inherit;font-size:1.15rem;padding:12px;border-radius:12px;border:1px solid var(--line);min-width:0}
 .sos-dial .btn.off{opacity:.6}
+
+@media (max-width:899px){.fmap{height:min(48vh,420px);min-height:260px}}

@@ -493,6 +493,7 @@ function openFollow(id) {
     map.on('dragstart', () => { follow = false; });
     if (pts.length) { const Lp = pts[pts.length - 1]; line.setLatLngs(pts.map(p => [p.lat, p.lng])); boat.setLatLng([Lp.lat, Lp.lng]).addTo(map); map.setView([Lp.lat, Lp.lng], 14); }
     setTimeout(() => map && map.invalidateSize(), 200);
+    if ('ResizeObserver' in window) { const ro = new ResizeObserver(() => map && map.invalidateSize()); ro.observe(el); sig.addEventListener('abort', () => ro.disconnect()); }
   }).catch(() => { const w = q('.f-wait'); if (w) w.textContent = 'No se pudo cargar el mapa. La posición y el enlace a Google Maps siguen funcionando.'; });
   poll();
 }
