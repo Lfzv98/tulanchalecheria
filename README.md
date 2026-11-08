@@ -9,10 +9,10 @@ Sitio: https://tulanchalecheria.vercel.app
 - **Flota:** catálogo con filtros por tipo, grupo, muelle y pernocta.
 - **Reservar:** asistente de 4 pasos (personas, embarcación, destino y fecha, extras) con total en USD o Bs. La reserva se confirma dentro de la app: el cliente recibe su código TLL-#### y su comprobante, y con un toque se le avisa a Tu Lancha por WhatsApp. Sus reservas quedan en **Mi viaje**.
 - **Playas y rutas**, **Experiencias**, **Regalos y Club** (tarjetas de regalo y referidos), **Aliados**, **Mi viaje** (ubicación en vivo con botón de emergencia y álbum del día), **Nosotros** (teléfono, WhatsApp, indicaciones en Google Maps, preguntas), **Propietarios** (formar parte del pool).
-- **Panel privado de Eduardo:** `#capitan` o 5 toques al logo del pie. Ver “Panel de control” más abajo.
+- **Panel privado de Eduardo:** `#capitan` o 6 toques al logo del pie. Ver “Panel de control” más abajo.
 
 ## Panel de control (Eduardo)
-Entrada oculta: `tulanchalecheria.vercel.app/#capitan`, o 5 toques seguidos al logo del pie de página. Usuario `tulanchalecheria`; la contraseña inicial se entrega aparte y conviene cambiarla en **Ajustes** la primera vez.
+Entrada oculta: `tulanchalecheria.vercel.app/#capitan`, o 6 toques seguidos al logo del pie de página. Usuario `tulanchalecheria`; la contraseña inicial se entrega aparte y conviene cambiarla en **Ajustes** la primera vez.
 
 Qué se controla desde ahí (los cambios quedan en borrador y los clientes los ven al tocar **Publicar cambios**):
 - **Resumen:** ventas, cobrado, por cobrar, ticket promedio, comisión, ventas por mes, por embarcación, rumbos, canales e idioma de los clientes.

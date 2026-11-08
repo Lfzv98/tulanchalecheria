@@ -30,8 +30,10 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     const c = await b.newContext({ locale: 'es-VE', viewport: { width: 1366, height: 860 }, deviceScaleFactor: 1, reducedMotion: 'reduce' }); const q = await c.newPage(); const errs = []; q.on('pageerror', e => errs.push(e.message));
     await q.goto(BASE); await q.waitForTimeout(400);
     ok(await q.isHidden('#adm'), 'El panel no se ve en la web');
-    for (let i = 0; i < 5; i++) await q.click('#foot-logo');
-    ok(await q.isVisible('#lg'), '5 toques al logo del pie abren el acceso');
+    await q.click('#foot-logo'); await q.waitForTimeout(200); ok(await q.evaluate(() => scrollY > 0 && location.hash === ''), 'Un toque al logo del pie no hace nada (no sube ni cambia de sección)');
+    for (let i = 0; i < 4; i++) await q.click('#foot-logo'); ok(await q.isHidden('#adm'), '5 toques todavía no abren nada');
+    await q.click('#foot-logo');
+    ok(await q.isVisible('#lg'), '6 toques al logo del pie abren el acceso');
     await login(q, USER, 'incorrecta'); await q.waitForFunction(() => document.querySelector('#lg-err').textContent.length > 0);
     ok((await q.textContent('#lg-err')).includes('incorrectos'), 'Contraseña incorrecta rechazada');
     await q.evaluate(() => document.querySelector('#lg-err').textContent = '');
