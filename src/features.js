@@ -129,7 +129,7 @@ function openLive(code) {
    - El GPS se enciende solo cuando el usuario toca (iOS exige un gesto para pedir el permiso).
    - La última posición se guarda en el teléfono para usarla en zonas sin cobertura (Mochima).
    - El SOS se activa manteniendo presionado 3 s; se cancela al soltar, al salir del botón o si el sistema cancela el toque.
-   - Con datos: WhatsApp a Tu Lancha. Sin datos: SMS (usa la red celular, no internet) y copiar el mensaje. */
+   - Con datos: WhatsApp a cualquier contacto. Sin datos: SMS (usa la red celular, no internet) y copiar el mensaje. */
 const SOS_HOLD = 3000;
 const SOS_TEL = { casa: '+584143083864', emergencias: '911' };
 // Autoridades de la zona norte de Anzoátegui (Lechería, Puerto La Cruz, Guanta y Mochima), datos enviados por Luis
@@ -186,10 +186,10 @@ function sosBlock() {
       <p class="rating" data-sos-note></p>
       <pre class="sos-msg" data-sos-msg></pre>
       <div class="sos-acts">
-        <a class="btn btn-wa" data-sos-wa target="_blank" rel="noopener">WhatsApp a Tu Lancha</a>
-        <a class="btn btn-sun" data-sos-sms>SMS a Tu Lancha (sin datos)</a>
+        <a class="btn btn-wa" data-sos-wa target="_blank" rel="noopener">Enviar por WhatsApp</a>
+        <a class="btn btn-sun" data-sos-sms>Enviar SMS (sin datos)</a>
         <button class="btn btn-ghost" type="button" data-sos-copy>Copiar mensaje</button>
-        <div class="sos-calls"><a class="btn btn-sos btn-sm" href="tel:${SOS_TEL.emergencias}">Llamar al 911</a><a class="btn btn-ghost btn-sm" data-sos-call href="tel:">Llamar a alguien</a></div>
+        <div class="sos-calls"><a class="btn btn-sos btn-sm" href="tel:${SOS_TEL.emergencias}">Llamar al 911</a><a class="btn btn-ghost btn-sm" data-sos-call href="tel:">Llamar</a></div>
         <div class="sos-auth">${SOS_AUTH.map(([n, d, t]) => `<div class="sa"><a class="btn btn-sos btn-sm" href="tel:${t[0]}">Llamar a ${n}</a><span>${d} · otros: ${t.slice(1).map(x => `<a href="tel:${x}">${telTxt(x)}</a>`).join(' · ')}</span></div>`).join('')}</div>
       </div>
       <div class="sos-ack" data-sos-ack hidden role="status" aria-live="assertive"></div>
@@ -205,7 +205,7 @@ function wireSos(root, ctx, signal) {
   // llamar a cualquier persona: el contacto guardado, o el marcador del teléfono vacío para escribir el número
   const ct = q('[data-sos-contact]'), call = q('[data-sos-call]');
   const telOf = v => { const d = String(v || '').replace(/[^\d+]/g, ''); if (!d) return ''; if (d.startsWith('+')) return d; if (d.startsWith('00')) return '+' + d.slice(2); if (/^0\d{10}$/.test(d)) return '+58' + d.slice(1); return d; };
-  const syncCall = () => { const t = telOf(ct.value); call.href = 'tel:' + t; call.textContent = t ? `Llamar a mi contacto (${ct.value.trim()})` : 'Llamar a alguien'; };
+  const syncCall = () => { const t = telOf(ct.value); call.href = 'tel:' + t; call.textContent = 'Llamar'; if (!panel.hidden) fill(); };
   ct.value = localStorage.getItem('tll:sosc') || ''; syncCall();
   ct.addEventListener('input', () => { try { localStorage.setItem('tll:sosc', ct.value); } catch {} syncCall(); }, { signal });
   const paint = () => {
@@ -221,8 +221,10 @@ function wireSos(root, ctx, signal) {
   const fill = () => {
     const t = sosText(ctx), on = navigator.onLine;
     q('[data-sos-msg]').textContent = t;
-    q('[data-sos-wa]').href = wa(t); q('[data-sos-sms]').href = smsHref(SOS_TEL.casa, t);
-    q('[data-sos-note]').textContent = on ? 'Envíala por WhatsApp a Tu Lancha. Si es grave, llama también a Guardacostas o al 911.' : 'Estás sin datos: envía el SMS (usa la señal celular) o copia el mensaje. Si es grave, llama a Guardacostas o al 911.';
+    // a cualquier contacto: el de emergencia guardado, o el que elijas en WhatsApp o Mensajes
+    const to = telOf(ct.value);
+    q('[data-sos-wa]').href = `https://wa.me/${to.replace(/\D/g, '')}?text=${encodeURIComponent(t)}`; q('[data-sos-sms]').href = smsHref(to, t);
+    q('[data-sos-note]').textContent = on ? 'Envíala por WhatsApp a quien elijas. Si es grave, llama también a Guardacostas o al 911.' : 'Estás sin datos: envía el SMS (usa la señal celular) o copia el mensaje. Si es grave, llama a Guardacostas o al 911.';
   };
   GPS.subs.add(paint); signal.addEventListener('abort', () => GPS.subs.delete(paint));
   addEventListener('online', paint, { signal }); addEventListener('offline', paint, { signal });
