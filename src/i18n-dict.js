@@ -865,6 +865,20 @@ const exact = [
 [`Ubicación de mi muelle`, `My dock location`],
 [`Mi propio muelle`, `My own dock`],
 [`Imágenes © Esri, Maxar, Earthstar Geographics`, `Imagery © Esri, Maxar, Earthstar Geographics`],
+/* cierre de la reserva: enviar el PDF y volver */
+[`Enviar comprobante por WhatsApp`, `Send receipt via WhatsApp`, `Enviar comprovante pelo WhatsApp`],
+[`Enviar el comprobante a Tu Lancha por WhatsApp`, `Send the receipt to Tu Lancha on WhatsApp`, `Enviar o comprovante à Tu Lancha pelo WhatsApp`],
+[`Volver al inicio`, `Back to home`, `Voltar ao início`],
+[`Ver mi viaje`, `See my trip`, `Ver minha viagem`],
+[`Abrir chat de Tu Lancha`, `Open Tu Lancha chat`, `Abrir chat da Tu Lancha`],
+[`Enviar de nuevo`, `Send again`, `Enviar de novo`],
+[`¡Listo! Eduardo recibe tu comprobante`, `Done! Eduardo gets your receipt`, `Pronto! O Eduardo recebe seu comprovante`],
+[`Al tocar Enviar se abre el menú de compartir: elige WhatsApp y el chat de Tu Lancha. Si no lo ves en la lista, descarga el PDF y adjúntalo en el chat.`, `Tapping Send opens the share menu: choose WhatsApp and the Tu Lancha chat. If it is not on the list, download the PDF and attach it in the chat.`, `Ao tocar Enviar, abre o menu de compartilhar: escolha o WhatsApp e o chat da Tu Lancha. Se não aparecer na lista, baixe o PDF e anexe no chat.`],
+[`Al tocar Enviar se descarga el PDF y se abre el chat de Tu Lancha: adjunta el PDF ahí (arrástralo o usa el clip).`, `Tapping Send downloads the PDF and opens the Tu Lancha chat: attach the PDF there (drag it in or use the clip).`, `Ao tocar Enviar, o PDF é baixado e o chat da Tu Lancha abre: anexe o PDF lá (arraste ou use o clipe).`],
+[`Tu reserva`, `Your booking`, `Sua reserva`],
+[`Comprobante`, `Receipt`, `Comprovante`],
+[`Tu álbum del día está listo`, `Your album of the day is ready`, `Seu álbum do dia está pronto`],
+[`Falta enviar el comprobante`, `Receipt not sent yet`, `Falta enviar o comprovante`],
 ];
 
 const pat = [
@@ -953,6 +967,7 @@ const pat = [
 /* comprobante, códigos y títulos */
 [/^Código: (.+)$/, `Code: {1}`, `Código: {1}`],
 [/^Comprobante de reserva (TLL-\d+)$/, `Booking receipt {1}`, `Comprovante de reserva {1}`],
+[/^Hola Tu Lancha, te envío el comprobante de mi reserva (TLL-\d+)\.$/, `Hi Tu Lancha, here is the receipt for my booking {1}.`, `Olá Tu Lancha, envio o comprovante da minha reserva {1}.`],
 [/^Comprobante (TLL-\d+)$/, `Receipt {1}`, `Comprovante {1}`],
 [/^Reserva (TLL-\d+) · Tu Lancha Lechería\. Elige WhatsApp y envíalo a Tu Lancha \((.+)\)\.$/, `Booking {1} · Tu Lancha Lechería. Choose WhatsApp and send it to Tu Lancha ({2}).`, `Reserva {1} · Tu Lancha Lechería. Escolha o WhatsApp e envie para a Tu Lancha ({2}).`],
 [/^Emitido: (.+)$/, `Issued: {1}`, `Emitido em: {1}`],

@@ -61,8 +61,9 @@ const ES_LEFT = ['Reservar mi salida', 'Embarcaciones y tarifas', 'Arma tu salid
       await p.fill('#bk-name', 'Ana Test'); await p.check('#bk-ok'); await p.click('#bk-go'); await p.waitForSelector('#dlg[open] #bk-code');
       ok((await p.textContent('#dlg')).includes('Booking registered!'), `${name}: pantalla final en inglés`);
       await p.evaluate(() => document.querySelector('#bk-send').click()); await p.waitForTimeout(500);
-      const msg = pops.find(u => u.includes('I made a booking'));
-      ok(!!msg && msg.includes('Code: TLL-') && msg.includes('Estimated total') && msg.includes('Can you confirm availability'), `${name}: mensaje de la reserva en inglés`);
+      const msg = pops.find(u => u.includes('here is the receipt for my booking'));
+      ok(!!msg && /TLL-\d{4}/.test(msg), `${name}: mensaje corto del comprobante en inglés`);
+      ok((await p.textContent('#dlg')).includes('Back to home') && (await p.textContent('#dlg')).includes('See my trip'), `${name}: "Back to home" y "See my trip" en inglés`);
       const pdf = await p.evaluate(async () => { const r = JSON.parse(localStorage.getItem('tll:mine'))[0]; const bl = await TLL.pdfFor(r); return bl.size; });
       ok(pdf > 20000, `${name}: comprobante PDF generado en inglés (${Math.round(pdf / 1024)} KB)`);
       await p.keyboard.press('Escape');

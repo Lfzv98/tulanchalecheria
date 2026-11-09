@@ -145,7 +145,14 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await tap('#bk-ok'); await tap('#bk-go'); await p.waitForSelector('#bk-code');
   const bcode = (await p.textContent('#bk-code')).trim(); ok(/^TLL-\d{4}$/.test(bcode), 'Reserva registrada con código ' + bcode);
   await tap('#bk-send'); await p.waitForTimeout(500);
-  ok(popups.some(u => { const d = decodeURIComponent(u); return d.includes(bcode) && d.includes('Familia Pérez') && d.includes('Acepté las condiciones') && d.includes('Rumbo 1') && d.includes('Pago: Binance Pay'); }), 'Un toque avisa a Tu Lancha con código, rumbo, condiciones aceptadas y método de pago');
+  ok(popups.some(u => { const d = decodeURIComponent(u); return d.includes(bcode) && d.includes('comprobante') && !d.includes('Familia Pérez'); }), 'Sin hoja de compartir: abre el chat de Tu Lancha con un mensaje corto (los datos van en el PDF)');
+  ok(await p.$('#bk-send') === null && await p.isVisible('#bk-home') && await p.isVisible('#bk-trip'), 'Tras enviar: "Volver al inicio" y "Ver mi viaje" toman el lugar del botón verde');
+  ok(await p.evaluate(() => { const a = document.querySelector('#bk-home').getBoundingClientRect(), b = document.querySelector('#bk-trip').getBoundingClientRect(); return Math.abs(a.top - b.top) < 2 && a.right <= b.left; }), '"Volver al inicio" y "Ver mi viaje" van lado a lado');
+  await tap('#bk-home'); await p.waitForTimeout(600);
+  ok(await p.evaluate(() => location.hash) === '#inicio' && !(await p.evaluate(() => document.querySelector('#dlg').open)), '"Volver al inicio" cierra y lleva a la portada');
+  ok(await p.isVisible('#hero-trip') && (await p.textContent('#hero-trip')).includes(bcode), 'Portada: aparece el acceso discreto a la reserva');
+  await tap('#hero-trip [data-mt-open]'); await p.waitForSelector('#dlg[open] #bk-code');
+  ok((await p.textContent('#bk-code')).trim() === bcode && await p.isVisible('#bk-trip'), 'Portada: "Comprobante" vuelve a mostrar la reserva registrada');
   await tap('#bk-trip'); await p.waitForTimeout(600);
   ok(await p.isVisible('#my-trips') && (await p.textContent('#my-trips')).includes(bcode) && (await p.textContent('#my-trips')).includes('Enviada'), 'Mi viaje muestra la reserva y su estado');
   ok(await p.inputValue('#code-live') === bcode, 'Mi viaje usa el código de la reserva');

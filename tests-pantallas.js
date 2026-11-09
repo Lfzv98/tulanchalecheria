@@ -69,7 +69,9 @@ const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 
     const code = (await p.textContent('#bk-code').catch(() => '')).trim(); ok(/^TLL-\d{4}$/.test(code), `${name}: reserva con código ${code}`);
     await dlgOver('reserva registrada');
     await act('#bk-send'); await p.waitForTimeout(400);
-    ok(pops.some(u => u.includes(code) && u.includes('Rumbo 2') && u.includes('Punta La Cruz') && u.includes('Américo Vespucio') && u.includes('Acepté')), `${name}: WhatsApp con código, rumbo, playas, muelle y condiciones`);
+    const shared = await p.evaluate(() => window.__shared || null);
+    ok(pops.some(u => u.includes(code)) || (shared && shared.text && shared.text.includes(code)), `${name}: el comprobante sale a WhatsApp con el código`);
+    await dlgOver('reserva enviada');
     await act('#bk-trip'); await p.waitForTimeout(500); await over('mi viaje con reserva');
     ok((await p.textContent('#my-trips')).includes(code), `${name}: Mi viaje lista la reserva`);
     // canales

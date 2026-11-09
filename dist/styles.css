@@ -1210,7 +1210,7 @@ footer.site .num{white-space:normal}
 .bk-pdf-doc{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(150deg,#0d1b2e,#1a2b44)}
 .bk-pdf-doc svg{width:22px;height:22px;fill:none;stroke:#f3d58a;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
 .bk-pdf-t{display:grid;min-width:0}.bk-pdf-t span{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
-.bk-pdf-acts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px}.bk-pdf-acts .btn{flex:1 1 140px}
+.bk-pdf-acts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px}.bk-pdf-acts .btn{flex:1 1 120px}
 .bk-pdf:not(.ready) .bk-pdf-acts .btn{opacity:.75}
 
 /* ---- compartir ubicación en vivo ---- */
@@ -1557,3 +1557,22 @@ fieldset.pay{min-width:0;max-width:100%}
 .ad-pin > span:nth-child(2){display:grid;gap:1px;flex:1;min-width:0}.ad-pin small{color:var(--muted);font-size:.78rem;overflow-wrap:anywhere}
 .ad-pin-ic svg{width:22px;height:28px;display:block}.ad-pin-go{font-size:.8rem;font-weight:700;color:#c5221f;white-space:nowrap}
 .ad-pinmap{position:relative;height:min(55vh,420px);min-height:260px;border-radius:14px;overflow:hidden;background:#0b1a2b}
+
+/* cierre de la reserva: "Volver al inicio" y "Ver mi viaje" lado a lado */
+.bk-nav{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.book.done .bk-nav .btn{width:auto;min-width:0;padding-left:10px;padding-right:10px}
+.bk-pdf-how{grid-column:1/-1;margin:0;font-size:.8rem;line-height:1.45;color:var(--muted);text-align:left}
+
+/* acceso discreto a Mi viaje en la portada (solo con una reserva) */
+.hero-trip{display:flex;align-items:center;gap:12px;max-width:560px;padding:10px 10px 10px 12px;border-radius:18px;background:rgba(9,18,33,.42);border:1px solid rgba(214,182,110,.45);color:#fff;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 18px 40px -22px rgba(0,0,0,.6);animation:tcin .5s cubic-bezier(.2,.9,.3,1.2)}
+.hero-trip[hidden]{display:none}
+.ht-ic{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgba(214,182,110,.18)}
+.ht-ic svg{width:20px;height:20px;fill:none;stroke:#f3d58a;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ht-tx{display:grid;min-width:0;flex:1;line-height:1.3}
+.ht-tx>b{font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ht-tx small{font-size:.76rem;color:rgba(255,255,255,.75)}.ht-tx small b{color:#f3d58a;letter-spacing:.04em}
+.ht-st.warn{color:#f6e13c}.ht-st.ok{color:#8fe3a8}
+.ht-acts{display:flex;gap:6px;flex:none}
+.ht-acts .btn{white-space:nowrap}
+@media (max-width:600px){.hero-trip{flex-wrap:wrap;padding:10px;gap:8px 10px}.ht-acts{width:100%}.ht-acts .btn{flex:1;justify-content:center;padding:9px 8px}}
+@media (prefers-reduced-motion:reduce){.hero-trip{animation:none}}
