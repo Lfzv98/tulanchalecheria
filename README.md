@@ -5,7 +5,7 @@ App web instalable, de diseño claro, para Tu Lancha Lechería: chárters, paseo
 Sitio: https://tulanchalecheria.vercel.app
 
 ## Navegación (versión 5, 12 nov)
-- **Portada compacta, pensada para el celular:** header, hero (foto de Mochima o la que Eduardo suba desde el panel, con la franja de prensa), la lancha de la casa (galería que rota sola, “+500 viajes exitosos · 5.0”) y el **menú giratorio**; abajo el footer con el cintillo de aliados.
+- **Portada compacta, pensada para el celular:** header, hero con el **video del dron de Mochima** siempre en bucle (1440p, 1080p o vertical según la pantalla; `video/hero2.sh` lo genera) y la franja de prensa, la lancha de la casa (galería que rota sola, “+500 viajes exitosos · 5.0”) y el **menú giratorio**; abajo el footer con el cintillo de aliados.
 - **Menú giratorio (`src/nav.js`):** 19 pantallas flotantes en 3D (2 por sección, 3 en Reservar: Embarcaciones, Playas, Experiencias, Regalos y Club, Servicio a bordo, Mi viaje, Nosotros, Reservar, Propietarios). Gira solo y despacio, se arrastra con el dedo con inercia, y las pestañas de abajo giran a cada sección. Con “reducir movimiento” queda quieto. Las imágenes son de relleno difuminado hasta que Eduardo suba las reales en **Portada y tienda**; entonces se ven nítidas.
 - **Búsqueda del header:** busca secciones, embarcaciones, rumbos, playas, aliados, experiencias y preguntas frecuentes, sin importar acentos. Atajos Ctrl/⌘ K y “/”; con flechas y Enter. En el celular se abre a pantalla completa.
 - **Menú lateral** (botón Explorar): todas las secciones con ícono, buscar y WhatsApp. En el celular sigue la barra inferior.
@@ -62,5 +62,5 @@ Las embarcaciones, tarifas y muelles del catálogo son de ejemplo y así se indi
 - `src/`: fuentes (body.html, styles.css, app.js, features.js, booking.js, plan.js, shell.js, nav.js, admin.js, i18n.js, i18n-dict.js).
 - `video/`: escena (`scene.html`) y render (`render.js`) del video del hero; `video/out/` tiene los archivos codificados.
 - `build.py`: genera `dist/` (necesita Python + Pillow). `dist/` se publica tal cual en Vercel (ver `vercel.json`).
-- `tests.js`, `tests-pantallas.js`, `tests-idiomas.js`, `tests-pdf.js`, `tests-sos.js`, `tests-videos.js`: verificaciones con Playwright en iPhone, Pixel, Galaxy, iPad, Galaxy Tab, laptop y escritorio (motor Chromium). Uso: `node tests.js` con el sitio servido en el puerto 8765.
+- `tests.js`, `tests-pantallas.js`, `tests-idiomas.js`, `tests-pdf.js`, `tests-sos.js`, `tests-videos.js`, `tests-hero.js`: verificaciones con Playwright en iPhone, Pixel, Galaxy, iPad, Galaxy Tab, laptop y escritorio (motor Chromium). Uso: `node tests.js` con el sitio servido en el puerto 8765.
 - `tests-panel.js`: el panel de punta a punta (acceso, bloqueo, fotos, publicar, reservas, versiones, contraseña, teléfono) contra la API real con un Redis falso: `node tests-vivo-servidor.js dist api/live.js 8766 &` y luego `TLL_USER=... TLL_PASS=... node tests-panel.js`.
