@@ -49,7 +49,7 @@ og.save('dist/og.jpg', quality=86, optimize=True)
 
 # ---------- página ----------
 css = open('src/styles.css').read(); body = open('src/body.html').read()
-js = '\n'.join(open(f'src/{n}.js').read() for n in ('i18n-dict', 'i18n', 'app', 'features', 'booking', 'plan', 'shell', 'admin'))
+js = '\n'.join(open(f'src/{n}.js').read() for n in ('i18n-dict', 'i18n', 'app', 'features', 'booking', 'plan', 'shell', 'nav', 'admin'))
 fonts = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
          '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap">')
 title_txt = 'Tu Lancha Lechería · Paseos en lancha y yates a Mochima'

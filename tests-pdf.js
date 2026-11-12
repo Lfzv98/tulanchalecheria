@@ -9,9 +9,11 @@ const SHOTS = process.env.TLL_SHOTS || '';
   for (const [name, d, share] of DEV) {
     const c = await b.newContext({ locale: 'es-VE', ...d, deviceScaleFactor: 1, acceptDownloads: true });
     await c.route(/open-meteo/, r => r.fulfill({ status: 200, body: '{}' }));
+    const waReq = []; await c.route(/wa\.me/, r => { waReq.push(decodeURIComponent(r.request().url())); r.fulfill({ status: 200, body: '' }); });
     if (share) await c.addInitScript(() => { window.__shared = null; navigator.canShare = o => !!(o && o.files); navigator.share = async o => { window.__shared = { n: o.files.length, name: o.files[0].name, type: o.files[0].type, size: o.files[0].size, text: o.text }; }; });
     const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL + '#reservar'); await p.waitForTimeout(600);
+    ok(await p.$eval('#hero-trip', e => e.hidden), `${name}: sin reserva no hay acceso a Mi viaje en la portada`);
     await p.evaluate(() => window.TLL.openBooking());
     await p.waitForSelector('#dlg[open] #bk-form');
     // revisión antes de pagar
@@ -28,7 +30,7 @@ const SHOTS = process.env.TLL_SHOTS || '';
     await p.waitForSelector('#dlg[open] #bk-pdf');
     await p.waitForSelector('#bk-pdf.ready', { timeout: 15000 }).catch(() => {});
     ok(await p.$('#bk-pdf.ready') !== null, `${name}: el PDF se prepara al abrir la pantalla final (${(await p.textContent('#bk-pdf-st')).trim()})`);
-    ok((await p.$('#bk-pdf-share') !== null) === share, `${name}: ${share ? 'muestra' : 'oculta'} "Enviar PDF por WhatsApp" según el equipo`);
+    ok((await p.textContent('.bk-pdf-how')).includes(share ? 'menú de compartir' : 'se descarga el PDF'), `${name}: explica cómo se envía el PDF según el equipo`);
     const code = await p.textContent('#bk-code');
     const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#bk-pdf-dl')]);
     const file = await dl.path(); const buf = fs.readFileSync(file);
@@ -36,18 +38,25 @@ const SHOTS = process.env.TLL_SHOTS || '';
     ok(buf.slice(0, 5).toString() === '%PDF-' && buf.length > 30000 && buf.length < 1500000, `${name}: es un PDF válido de ${Math.round(buf.length / 1024)} KB`);
     if (SHOTS && name === 'Escritorio') fs.copyFileSync(file, `${SHOTS}/comprobante.pdf`);
     if (share) {
-      await p.click('#bk-pdf-share'); await p.waitForTimeout(300);
+      await p.click('#bk-send'); await p.waitForTimeout(300);
       const sh = await p.evaluate(() => window.__shared);
-      ok(sh && sh.n === 1 && sh.type === 'application/pdf' && sh.name === `Tu-Lancha-${code}.pdf` && sh.size > 30000, `${name}: comparte el PDF como archivo (WhatsApp desde la hoja de compartir)`);
+      ok(sh && sh.n === 1 && sh.type === 'application/pdf' && sh.name === `Tu-Lancha-${code}.pdf` && sh.size > 30000, `${name}: el botón verde comparte el PDF como archivo (WhatsApp desde la hoja de compartir)`);
+      ok(sh && sh.text.includes(code) && sh.text.length < 90, `${name}: el PDF va con un mensaje corto, no con el resumen largo`);
       ok(await p.$eval('#bk-li-send', e => e.className === 'ok'), `${name}: al compartir marca la reserva como enviada`);
+    } else {
+      const [dl2, pop] = await Promise.all([p.waitForEvent('download'), p.waitForEvent('popup'), p.click('#bk-send')]);
+      await pop.waitForLoadState('commit').catch(() => {});
+      ok(dl2.suggestedFilename() === `Tu-Lancha-${code}.pdf` && waReq.some(u => u.includes(code) && u.includes('comprobante')), `${name}: sin hoja de compartir descarga el PDF y abre el chat de Tu Lancha`);
+      await pop.close();
     }
-    ok(await p.$eval('#bk-send', a => a.href.includes('wa.me')), `${name}: sigue el mensaje de WhatsApp con el resumen`);
+    ok(await p.$('#bk-send') === null && await p.isVisible('#bk-home') && await p.isVisible('#bk-trip'), `${name}: tras enviar quedan "Volver al inicio" y "Ver mi viaje"`);
+    ok(await p.$eval('#bk-pdf-chat', a => a.href.includes('wa.me')), `${name}: "Abrir chat de Tu Lancha" queda a mano para adjuntar el PDF`);
     const fit2 = await p.evaluate(() => [...document.querySelectorAll('#bk-pdf *')].every(e => e.getBoundingClientRect().right <= innerWidth + 1));
     ok(fit2, `${name}: el bloque del PDF cabe sin desborde`);
     if (SHOTS) { await p.$eval('#bk-pdf', e => e.scrollIntoView({ block: 'center' })); await p.waitForTimeout(150); await p.screenshot({ path: `${SHOTS}/done-${name.replace(/\W+/g, '')}.png` }); }
     // desde Mis reservas también se puede volver a bajar
     await p.keyboard.press('Escape'); await p.evaluate(() => { location.hash = 'mi-viaje'; }); await p.waitForTimeout(300);
-    await p.click(`[data-mt-open="${code}"]`); await p.waitForSelector('#dlg[open] #bk-pdf.ready', { timeout: 15000 }).catch(() => {});
+    await p.click(`#my-trips [data-mt-open="${code}"]`); await p.waitForSelector('#dlg[open] #bk-pdf.ready', { timeout: 15000 }).catch(() => {});
     ok(await p.$('#bk-pdf.ready') !== null, `${name}: Mis reservas permite volver a bajar el comprobante`);
     ok(!errs.length, `${name}: sin errores de JavaScript ${errs.join(' | ')}`);
     await c.close();

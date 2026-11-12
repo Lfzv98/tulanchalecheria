@@ -17,7 +17,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
     p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(700);
     const sw = await p.evaluate(w => Math.max(document.documentElement.scrollWidth, innerWidth) - w, (d.viewport||{}).width);
-    const wide = await p.evaluate(() => [...document.querySelectorAll('body *')].filter(e => { const r = e.getBoundingClientRect(); return r.right > innerWidth + 1 && getComputedStyle(e).position !== 'fixed' && !(e instanceof SVGElement && e.ownerSVGElement) && !e.closest('.tbl-wrap,.days,.links,.minibar,.tabbar,dialog,.adm,.layers,.hero'); }).slice(0, 3).map(e => e.tagName + '.' + e.className));
+    const wide = await p.evaluate(() => [...document.querySelectorAll('body *')].filter(e => { const r = e.getBoundingClientRect(); return r.right > innerWidth + 1 && getComputedStyle(e).position !== 'fixed' && !(e instanceof SVGElement && e.ownerSVGElement) && !e.closest('.tbl-wrap,.days,.links,.minibar,.tabbar,dialog,.adm,.layers,.hero,.orb-stage,.orb-tabs,.ribbon-track'); }).slice(0, 3).map(e => e.tagName + '.' + e.className));
     const tab = await p.evaluate(() => getComputedStyle(document.querySelector('.tabbar')).display);
     ok(!errs.length && sw <= 0 && !wide.length, `${n}: sin errores (${errs.join('|') || '0'}), sin desborde horizontal (${sw}px ${wide.join(',')}), barra inferior ${tab}`);
     await p.screenshot({ path: OUT + 'dev-' + n.replace(/\W+/g, '_') + '.png' });
@@ -59,8 +59,10 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   // portada: nombres nuevos, sin Bs ni Propietarios ni Linktree
   ok(await p.$('#cur-ves') === null, 'Sin selector de bolívares');
   ok((await p.textContent('.press-strip')).includes('Viajando con BIVI') && (await p.textContent('.press-strip')).includes('Canal Viajero'), 'Prensa: Viajando con BIVI y Canal Viajero');
-  ok(await p.$('a[href*="linktr.ee"]') === null && await p.$('#sheet a[href="#propietarios"], footer a[href="#propietarios"]') === null, 'Sin Linktree ni Propietarios en menús');
-  ok((await p.textContent('#own-feature')).includes('Recomendación de la casa'), 'Portada destaca la lancha de la casa');
+  ok(await p.$('#sheet .side-nav a[href="#propietarios"]') !== null && await p.$('#sheet .side-nav a[href="#aliados"]') !== null, 'Menú lateral con todas las secciones (Servicio a bordo y Propietarios incluidos)');
+  ok(await p.evaluate(() => !document.querySelector('.mainnav') && document.querySelectorAll('.orbit-band .orb-card').length === 18), 'Portada sin menú de texto en el header: las secciones van en el menú giratorio');
+  ok(await p.evaluate(() => ['.steps3', '.tiles', '#layers', '.cta-band'].every(s => !document.querySelector('[data-view="inicio"] ' + s))), 'Portada compacta: header, hero, lancha de la casa, menú giratorio y footer');
+  ok((await p.textContent('#own-feature')).includes('+500 viajes exitosos'), 'Portada destaca la lancha de la casa con +500 viajes exitosos');
   await go('flota'); ok(await p.evaluate(() => location.hash) === '#flota' && await p.isVisible('#boats'), 'Enlace viejo #flota abre Embarcaciones');
   ok(await p.getAttribute('#boats .boat:first-of-type', 'data-id') === 'b0' && (await p.textContent('#boats .boat:first-of-type')).includes('Recomendación de la casa'), 'La lancha de la casa va primero con su insignia');
   ok((await p.textContent('#boats')).includes('Otras opciones disponibles'), 'El resto aparece como "Otras opciones disponibles"');
@@ -71,8 +73,10 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await tap('.pill[data-type="Mini yate"]'); ok((await p.textContent('#f-count')).startsWith('1 de'), 'Filtro Mini yates muestra 1');
   await tap('.pill[data-type="all"]'); await p.selectOption('#f-pax', '20'); ok((await p.$$('#boats .boat')).length === 1, 'Filtro grupos grandes: solo el barco de eventos de 30');
   await p.selectOption('#f-pax', '0');
-  // fotos tabs
-  await tap('#boats .boat:first-of-type [data-v="interior"]'); ok(await p.getAttribute('#boats .boat:first-of-type [data-v="interior"]', 'aria-pressed') === 'true', 'Cambiar foto a Interior');
+  // fotos: un espacio sin foto no aparece; con fotos, galería con flechas y puntos solo de las que hay
+  ok(await p.evaluate(() => { const c = document.querySelector('#boats .boat.nopic'); return !!c && !c.querySelector('img.ph,[data-gal]'); }), 'Embarcación sin fotos: no muestra espacios de imagen vacíos');
+  ok(await p.evaluate(() => { const h = TLL.gallery({ id: 'x', name: 'X', type: 'Yate', photos: { proa: 'a.jpg', social: 'b.jpg' } }, {}); const d = document.createElement('div'); d.innerHTML = h; return d.querySelectorAll('img').length === 2 && !/Habitación|Baño|Popa/.test(d.textContent); }), 'Con 2 fotos de 7 espacios, la galería muestra solo 2');
+  ok(!(await p.textContent('#boats')).includes('★') && (await p.textContent('#boats')).includes('viajes'), 'Catálogo sin calificación, con "+N viajes"');
   // detalle
   await tap('[data-open="b2"]'); await p.waitForSelector('#dlg[open]');
   ok((await p.textContent('#dlg')).includes('Equipamiento básico incluido') && (await p.textContent('#dlg')).includes('Agua mineral'), 'Detalle muestra el equipamiento básico incluido');
@@ -87,14 +91,18 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await tap('[data-route="r1"]'); await tap('[data-beach="Puinare"]'); await tap('[data-beach="Chimana Segunda"]'); await p.waitForTimeout(200);
   ok((await p.$$('#b-beaches .bchip[aria-pressed="true"]')).length === 2, 'No deja pasar del límite de playas');
   await tap('[data-route="r3"]'); ok((await p.textContent('#b-beaches')).includes('Puedes sumar playas del Rumbo 2') && !(await p.textContent('#b-beaches')).includes('Puinare'), 'Rumbo 3 suma playas del Rumbo 2 y no cruza con el Rumbo 1');
-  ok((await p.textContent('#ticket')).includes('por confirmar'), 'Recargo del Rumbo 3 se marca por confirmar');
+  ok((await p.textContent('#ticket')).includes('por confirmar') && !(await p.textContent('#ticket')).toLowerCase().includes('recargo'), 'Tarifa del Rumbo 3 se marca por confirmar (sin la palabra recargo)');
+  ok((await p.textContent('#b-routes')).includes('millas náuticas'), 'Rumbos con millas náuticas aproximadas');
   // muelles
-  ok(await p.evaluate(() => [...document.querySelectorAll('#b-dock option')].find(o => o.value === 'cda').disabled), 'Barco no puede recoger en Cayo de Agua (solo lanchas)');
-  ok(await p.evaluate(() => [...document.querySelectorAll('#b-dock option')].find(o => o.value === 'ppa').disabled), 'Punta Palma aparece como no habilitado');
+  ok(await p.evaluate(() => [...document.querySelectorAll('#b-dock option')].find(o => o.value === 'pmr').disabled), 'Barco no puede recoger en Cayo de Agua (solo lanchas)');
+  ok(await p.evaluate(() => [...document.querySelectorAll('#b-dock option')].find(o => o.value === 'ppa').disabled) && (await p.textContent('#b-dock')).includes('muelle deshabilitado') && (await p.textContent('#b-dock')).includes('Resto del Complejo Turístico El Morro'), 'Punta Palma deshabilitado y Resto del Complejo El Morro disponible');
+  ok(await p.evaluate(() => [...document.querySelectorAll('#b-dock optgroup')].some(g => g.label === 'Muelles sugeridos (servicio por uso de muelle)') && !/toque/i.test(document.querySelector('#b-dock').textContent + document.querySelector('#b-dockinfo').textContent)), 'Muelles sugeridos (servicio por uso de muelle), sin la palabra toque');
   await p.selectOption('#b-dock', 'em'); await p.waitForTimeout(200);
-  ok((await p.textContent('#b-dockinfo')).includes('5:30 pm') && (await p.textContent('#ticket')).includes('Recogida en Cerro El Morro'), 'El Morro: recargo y regreso máximo 5:30 pm');
+  ok((await p.textContent('#b-dockinfo')).includes('5:30 pm') && (await p.textContent('#ticket')).includes('Recogida en Cerro El Morro'), 'El Morro: costo según tamaño y regreso máximo 5:30 pm');
+  ok((await p.textContent('#ticket')).includes('$50'), 'Recogida en El Morro para un barco: $50');
   await p.selectOption('#b-dock', 'pm'); await p.waitForTimeout(200);
-  ok((await p.textContent('#b-dockinfo')).includes('$30') && (await p.textContent('#b-dockinfo')).includes('video'), 'Plaza Mayor: toque $30 y aviso de ubicación y video');
+  ok((await p.textContent('#b-dockinfo')).includes('$30') && (await p.textContent('#b-dockinfo')).includes('video'), 'Plaza Mayor: servicio de muelle $30 y aviso de ubicación y video');
+  ok((await p.textContent('#ticket')).includes('se paga en sitio'), 'Ticket: el servicio de muelle aparte, se paga en sitio');
   ok((await p.textContent('#b-hours')).includes('10:00 am a 6:00 pm') && await p.$('#hx-p') === null, 'Horario 10 a 6 y sin hora extra si la embarcación no la permite');
   await tap('#st-back'); await tap('#st-back'); ok(await p.isVisible('[data-step="0"]'), 'Botón Atrás vuelve al paso 1');
   // niños de 7 años o menos y grupos de más de 12
@@ -102,11 +110,12 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await p.evaluate(() => { TLL.Q.pax = 4; TLL.Q.kids = 0; TLL.Q.boat = 'b0'; TLL.renderBuilder(); });
   ok(await p.isVisible('#kids') && (await p.textContent('#kids')).trim() === '0', 'Paso 1: contador de niños de 7 años o menos');
   await tap('#kid-p'); await tap('#kid-p');
-  ok(await p.evaluate(() => TLL.Q.boat === 'b0'), '4 adultos + 2 niños caben en la lancha de la casa (licencia de 5 + capitán)');
-  ok((await p.textContent('#ticket')).includes('Excepción de niños') && (await p.textContent('#ticket')).includes('4 adultos + 2 niños'), 'El precio cambia con la excepción de niños y el ticket lo muestra');
+  ok(await p.evaluate(() => TLL.Q.boat === 'b0'), '4 adultos + 2 niños caben en la lancha de la casa (5 puestos + 3 niños)');
+  ok((await p.textContent('#ticket')).includes('4 adultos + 2 niños'), 'El ticket muestra adultos y niños');
   ok(await p.evaluate(() => TLL_LAST.paxTxt.includes('2 niños') && TLL_LAST.pax === 6), 'El mensaje de WhatsApp incluye adultos y niños');
-  await p.evaluate(() => { TLL.Q.pax = 5; TLL.Q.kids = 2; TLL.renderBuilder(); });
-  ok(await p.evaluate(() => TLL.Q.boat !== 'b0'), '5 adultos + 2 niños ya no caben en la lancha de la casa');
+  await p.evaluate(() => { TLL.Q.pax = 5; TLL.Q.kids = 4; TLL.renderBuilder(); });
+  ok(await p.evaluate(() => TLL.Q.boat !== 'b0'), '5 adultos + 4 niños ya no caben en la lancha de la casa (los niños cuentan en el filtro)');
+  ok(await p.isVisible('.s1-tip-p') && await p.isVisible('.s1-tip-d') && (await p.textContent('.s1-tips')).includes('hasta 7 kg'), 'Paso 1: avisos de contextura y mascotas con ícono');
   await p.evaluate(() => { TLL.Q.pax = 12; TLL.Q.kids = 0; TLL.renderBuilder(); }); ok(!(await p.textContent('#big-group')).trim(), '12 adultos: sin aviso de grupo grande');
   await tap('#pax-p'); const big = await p.textContent('#big-group');
   ok(big.includes('Nuestros yates tienen una capacidad máxima de 12 personas y lanchas para 10p') && big.includes('quedo atento a la opción que les gustaría'), 'Más de 12 adultos: aparece el mensaje de Eduardo');
@@ -121,7 +130,9 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await tap('#stepper [data-go="3"]');
   // extras
   ok((await p.textContent('#b-extras')).includes('El Mercadillo') && (await p.textContent('#b-extras')).includes('Hielo y agua'), 'Paso de extras: hielo y agua incluidos y El Mercadillo');
-  await tap('[data-acc="mat"]'); const t1 = await p.textContent('#ticket .total'); ok((await p.textContent('#ticket')).includes('Alfombra flotante') && /Total\$[\d.]+/.test(t1.replace(/\s/g, '')), 'Extra con costo suma al total: ' + t1.trim());
+  ok((await p.textContent('#b-extras')).includes('Caretas de buceo (4)') && (await p.textContent('#b-extras')).includes('carbón'), 'Extras: caretas con cantidad y nota de la parrillera');
+  await p.evaluate(() => { TLL.Q.boat = 'b7'; TLL.renderBuilder(); }); await p.waitForTimeout(150);
+  await tap('[data-acc="kayak"]'); const t1 = await p.textContent('#ticket .total'); ok((await p.textContent('#ticket')).includes('Kayak') && /Total\$[\d.]+/.test(t1.replace(/\s/g, '')), 'Extra con costo suma al total: ' + t1.trim());
   await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(500);
   ok(await p.evaluate(() => document.querySelector('#minibar').classList.contains('show')), 'Barra de total fija visible en el móvil mientras armas el día');
   const refc = await p.evaluate(() => TLL.refCode('Ana'));
@@ -135,8 +146,10 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await tap('#t-book'); await p.waitForSelector('#bk-form');
   ok(await p.isVisible('#bk-form'), 'Reservar ahora abre la confirmación dentro de la app');
   ok((await p.textContent('#bk-form')).includes('Condiciones principales') && await p.$('#bk-form .bk-policy') !== null, 'Confirmación muestra el resumen de condiciones y el texto completo');
-  ok((await p.$$('#bk-form .pay-opt')).length === 3 && (await p.textContent('#bk-form .pay')).includes('Zelle') && (await p.textContent('#bk-form .pay')).includes('Binance Pay') && (await p.textContent('#bk-form .pay')).includes('Efectivo'), 'Pago: Zelle, Binance Pay o efectivo');
+  ok((await p.$$('#bk-form .pay-opt')).length === 4 && (await p.textContent('#bk-form .pay')).includes('Zelle') && (await p.textContent('#bk-form .pay')).includes('Binance Pay') && (await p.textContent('#bk-form .pay')).includes('PayPal') && (await p.textContent('#bk-form .pay')).includes('Efectivo'), 'Pago: Zelle, Binance Pay, PayPal o efectivo');
   ok(await p.isChecked('input[name="bk-pay"][value="zelle"]'), 'Pago: Zelle elegido por defecto');
+  await tap('.pay-opt[data-pay="paypal"]'); await p.waitForTimeout(150);
+  ok(await p.evaluate(() => { const t = document.querySelector('#bk-payinfo').textContent, tot = TLL_LAST.total; return t.includes('4,5% de comisión de PayPal') && t.includes(TLL.money(Math.round(tot / 2 * 1.045 * 100) / 100)); }), 'PayPal: el abono suma el 4,5% de comisión');
   await tap('.pay-opt[data-pay="binance"]'); await p.waitForTimeout(150);
   ok(await p.isChecked('input[name="bk-pay"][value="binance"]') && (await p.textContent('#bk-payinfo')).includes('Binance Pay') && (await p.textContent('#bk-payinfo')).includes('Abono para apartar'), 'Pago: al elegir Binance cambian las instrucciones y el abono');
   await tap('#bk-go'); ok(await p.isVisible('#bk-form'), 'Sin nombre no deja confirmar');
@@ -145,7 +158,14 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await tap('#bk-ok'); await tap('#bk-go'); await p.waitForSelector('#bk-code');
   const bcode = (await p.textContent('#bk-code')).trim(); ok(/^TLL-\d{4}$/.test(bcode), 'Reserva registrada con código ' + bcode);
   await tap('#bk-send'); await p.waitForTimeout(500);
-  ok(popups.some(u => { const d = decodeURIComponent(u); return d.includes(bcode) && d.includes('Familia Pérez') && d.includes('Acepté las condiciones') && d.includes('Rumbo 1') && d.includes('Pago: Binance Pay'); }), 'Un toque avisa a Tu Lancha con código, rumbo, condiciones aceptadas y método de pago');
+  ok(popups.some(u => { const d = decodeURIComponent(u); return d.includes(bcode) && d.includes('comprobante') && !d.includes('Familia Pérez'); }), 'Sin hoja de compartir: abre el chat de Tu Lancha con un mensaje corto (los datos van en el PDF)');
+  ok(await p.$('#bk-send') === null && await p.isVisible('#bk-home') && await p.isVisible('#bk-trip'), 'Tras enviar: "Volver al inicio" y "Ver mi viaje" toman el lugar del botón verde');
+  ok(await p.evaluate(() => { const a = document.querySelector('#bk-home').getBoundingClientRect(), b = document.querySelector('#bk-trip').getBoundingClientRect(); return Math.abs(a.top - b.top) < 2 && a.right <= b.left; }), '"Volver al inicio" y "Ver mi viaje" van lado a lado');
+  await tap('#bk-home'); await p.waitForTimeout(600);
+  ok(await p.evaluate(() => location.hash) === '#inicio' && !(await p.evaluate(() => document.querySelector('#dlg').open)), '"Volver al inicio" cierra y lleva a la portada');
+  ok(await p.isVisible('#hero-trip') && (await p.textContent('#hero-trip')).includes(bcode), 'Portada: aparece el acceso discreto a la reserva');
+  await tap('#hero-trip [data-mt-open]'); await p.waitForSelector('#dlg[open] #bk-code');
+  ok((await p.textContent('#bk-code')).trim() === bcode && await p.isVisible('#bk-trip'), 'Portada: "Comprobante" vuelve a mostrar la reserva registrada');
   await tap('#bk-trip'); await p.waitForTimeout(600);
   ok(await p.isVisible('#my-trips') && (await p.textContent('#my-trips')).includes(bcode) && (await p.textContent('#my-trips')).includes('Enviada'), 'Mi viaje muestra la reserva y su estado');
   ok(await p.inputValue('#code-live') === bcode, 'Mi viaje usa el código de la reserva');
@@ -155,9 +175,10 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok((await p.textContent('#canales')).includes('canales de El Morro') && (await p.textContent('#canales')).includes('Pesca deportiva'), 'Experiencias: canales de El Morro y pesca aparte');
   await tap('[data-copt="y"]'); ok((await p.textContent('#c-total')).includes('220'), 'Canales en yate: mínimo 10 personas × $22');
   await tap('#canal-form button[type=submit]'); await p.waitForTimeout(400); ok(popups.some(u => decodeURIComponent(u).includes('canales de El Morro')), 'Solicitar paseo por los canales abre WhatsApp');
-  await go('aliados'); ok((await p.textContent('#allies')).includes('Cervecería Regional') && !(await p.textContent('#allies')).includes('Coco Beach'), 'Aliados: entra Cervecería Regional');
+  await go('aliados'); ok((await p.textContent('#allies')).includes('Cervecería Regional') && !(await p.textContent('#allies')).includes('Coco Beach') && (await p.textContent('[data-view="aliados"] h1')).includes('Servicio a bordo'), 'Servicio a bordo: aliados en cuadros, entra Cervecería Regional');
+  ok(await p.evaluate(() => document.querySelectorAll('#ribbon-in .rb-i').length > 4 && !document.querySelector('#ribbon').hidden), 'Cintillo de aliados en el pie de página');
   await go('playas');
-  ok((await p.textContent('#beaches')).includes('Rumbo 4') && (await p.textContent('#beaches')).includes('Playa Ñacleta'), 'Playas agrupadas por rumbo');
+  ok((await p.textContent('#beaches')).includes('Rumbo 6') && (await p.textContent('#beaches')).includes('Isla La Borracha') && (await p.textContent('#beaches')).includes('Playa Ñacleta'), 'Playas agrupadas en 6 rumbos (Rumbo 4: La Borracha)');
   // playas → cotizador
   await tap('[data-goroute="r2"][data-gobeach="Isla de Plata"]'); await p.waitForTimeout(300); ok(await p.getAttribute('[data-route="r2"]', 'aria-pressed') === 'true' && await p.getAttribute('[data-beach="Isla de Plata"]', 'aria-pressed') === 'true', 'Playa → "Ir aquí" elige rumbo y playa en el asistente');
   await go('regalos');
@@ -197,6 +218,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   // portal propietario
   const k0 = await p.textContent('#k-res'); const day = await p.$('#o-cal .cal-g button:not(.past)'); await tap(day); const k1 = await p.textContent('#k-res');
   ok(k0 !== k1, `Portal propietario: marcar día cambia reservas (${k0}→${k1})`);
+  ok(await p.isVisible('#owners-sv') && (await p.textContent('#owner-allies')).includes('Servicio de capitán'), 'Propietarios: servicios que recomendamos (capitán, inflables)');
   await go('nosotros'); ok(await p.getAttribute('a[href^="tel:"]', 'href') === 'tel:+584143083864', 'Teléfono con enlace para llamar'); ok((await p.getAttribute('.visit a[href*="google.com/maps/dir"]', 'href')).includes('destination='), 'Ubicación abre indicaciones de Google Maps');
   ok(!errs.length, 'Sin errores de JavaScript en el flujo del cliente ' + errs.join('|'));
   await p.goto(URL + '#viaje'); await p.waitForTimeout(400); ok(await p.isVisible('#dlg[open] #lv-map'), 'Enlace directo #viaje abre la ubicación en vivo');

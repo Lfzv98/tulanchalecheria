@@ -38,7 +38,7 @@ const exact = [
 [`Empresa`, `Company`, `Empresa`],
 [`Cómo llegar`, `Directions`, `Como chegar`],
 [`Instagram @tulanchalecheria`, `Instagram @tulanchalecheria`, `Instagram @tulanchalecheria`],
-[`Chárters y paseos en lancha, barco, mini yate y yate a Mochima y las islas desde Lechería.`, `Charters and trips by speedboat, boat, mini yacht and yacht to Mochima and the islands, departing from Lechería.`, `Charters e passeios de lancha, barco, mini iate e iate para Mochima e as ilhas, saindo de Lechería.`],
+[`Chárters y paseos en lancha, barco, mini yate y yate desde Lechería a las islas del Parque Nacional Mochima.`, `Charters and trips by speedboat, boat, mini yacht and yacht from Lechería to the islands of Mochima National Park.`, `Charters e passeios de lancha, barco, mini iate e iate de Lechería para as ilhas do Parque Nacional Mochima.`],
 [`Tu Lancha Lechería · Paseos en lancha y yates a Mochima`, `Tu Lancha Lechería · Boat and yacht trips to Mochima`, `Tu Lancha Lechería · Passeios de lancha e iate para Mochima`],
 [`Paseos en lancha y yates a Mochima`, `Boat and yacht trips to Mochima`, `Passeios de lancha e iate para Mochima`],
 [`Ver más`, `See more`, `Ver mais`],
@@ -47,9 +47,9 @@ const exact = [
 [`10°11′N · 64°41′O · Lechería, Anzoátegui`, `10°11′N · 64°41′W · Lechería, Venezuela`, `10°11′N · 64°41′O · Lechería, Venezuela`],
 [`Tu día en el mar,`, `Your day at sea,`, `Seu dia no mar,`],
 [`sin complicaciones.`, `made effortless.`, `sem complicações.`],
-[`Lanchas, barcos, mini yates y yates con capitán a Mochima y las islas. Arma tu salida en un minuto y resérvala aquí mismo.`, `Speedboats, boats, mini yachts and yachts with a captain to Mochima and the islands. Plan your trip in a minute and book it right here.`, `Lanchas, barcos, mini iates e iates com capitão para Mochima e as ilhas. Monte seu passeio em um minuto e reserve aqui mesmo.`],
+[`Lanchas, barcos, mini yates y yates a las islas del Parque Nacional Mochima. Arma tu salida en un minuto y resérvala aquí mismo.`, `Speedboats, boats, mini yachts and yachts to the islands of Mochima National Park. Plan your trip in a minute and book it right here.`, `Lanchas, barcos, mini iates e iates para as ilhas do Parque Nacional Mochima. Monte seu passeio em um minuto e reserve aqui mesmo.`],
 [`Reservar mi salida`, `Book my trip`, `Reservar meu passeio`],
-[`Conoce nuestra lancha`, `Meet our boat`, `Conheça nossa lancha`],
+[`Conoce nuestra lancha prémium`, `Meet our premium boat`, `Conheça nossa lancha premium`],
 [`chárters realizados`, `charters completed`, `charters realizados`],
 [`clientes`, `clients`, `clientes`],
 [`Nos han reseñado`, `As featured in`, `Destaque na mídia`],
@@ -94,7 +94,14 @@ const exact = [
 [`Recomendación de la casa`, `House pick`, `Recomendação da casa`],
 [`Ver disponibilidad`, `See availability`, `Ver disponibilidade`],
 [`consúltanos`, `ask us`, `consulte-nos`],
-[`Corneta Bose S1 Pro`, `Bose S1 Pro speaker`, `Caixa de som Bose S1 Pro`],
+[`Internet a bordo`, `Onboard internet`, `Internet a bordo`],
+[`Flotadores de lujo`, `Luxury pool floats`, `Boias de luxo`],
+[`Alfombra en el agua`, `Floating water mat`, `Tapete flutuante na água`],
+[`Sonido JL Audio`, `JL Audio sound system`, `Som JL Audio`],
+[`Internet`, `Internet`, `Internet`],
+[`a bordo`, `on board`, `a bordo`],
+[`reseñas en medios`, `media features`, `destaques na mídia`],
+[`y Canal Viajero (IVC)`, `and Canal Viajero (IVC)`, `e Canal Viajero (IVC)`],
 [`Parrillera sin costo`, `Free grill`, `Churrasqueira grátis`],
 [`Toldo`, `Sun canopy`, `Toldo`],
 
@@ -133,10 +140,10 @@ const exact = [
 [`Lancha amplia para recorrer islas y hacer snorkel. Por su tamaño, visita hasta 2 playas por salida.`, `Spacious boat for island hopping and snorkeling. Because of its size, it visits up to 2 beaches per trip.`, `Lancha ampla para percorrer ilhas e fazer snorkel. Pelo tamanho, visita até 2 praias por passeio.`],
 [`La opción práctica para grupos pequeños. Ágil, económica y siempre puntual.`, `The practical choice for small groups. Nimble, affordable and always on time.`, `A opção prática para grupos pequenos. Ágil, econômica e sempre pontual.`],
 [`Bowrider con mucho espacio en proa. Buena relación precio/capacidad para grupos medianos.`, `Bowrider with lots of bow space. Great value for medium-sized groups.`, `Bowrider com muito espaço na proa. Ótimo custo-benefício para grupos médios.`],
-[`Mini yate con camarote y baño. Muy cómodo para familias y para quien quiere pernoctar en la bahía.`, `Mini yacht with cabin and bathroom. Very comfortable for families and for an overnight stay in the bay.`, `Mini iate com cabine e banheiro. Muito confortável para famílias e para quem quer pernoitar na baía.`],
+[`Mini yate con camarote y baño. Muy cómodo para familias y grupos que buscan sombra y privacidad.`, `Mini yacht with cabin and bathroom. Very comfortable for families and groups who want shade and privacy.`, `Mini iate com cabine e banheiro. Muito confortável para famílias e grupos que buscam sombra e privacidade.`],
 [`Barco estable y amplio, perfecto para celebraciones y grupos grandes. Malla de proa para tomar sol sobre el mar.`, `Stable, roomy boat, perfect for celebrations and large groups. Bow trampoline net for sunbathing over the sea.`, `Barco estável e espaçoso, perfeito para celebrações e grupos grandes. Rede de proa para tomar sol sobre o mar.`],
 [`Barco de eventos, el más grande. Pensado para fiestas en el mar con DJ y servicio de barra.`, `Our largest event boat. Designed for parties at sea with a DJ and bar service.`, `Barco de eventos, o maior. Pensado para festas no mar com DJ e serviço de bar.`],
-[`Yate con flybridge y salón climatizado. Para salidas premium, pernoctas y eventos corporativos.`, `Yacht with flybridge and air-conditioned salon. For premium trips, overnight stays and corporate events.`, `Iate com flybridge e salão climatizado. Para passeios premium, pernoites e eventos corporativos.`],
+[`Yate con flybridge y salón climatizado. Para salidas premium y eventos corporativos.`, `Yacht with flybridge and air-conditioned salon. For premium trips and corporate events.`, `Iate com flybridge e salão climatizado. Para passeios premium e eventos corporativos.`],
 [`Yate clásico de crucero con salón amplio y plataforma de baño a nivel del agua.`, `Classic cruising yacht with a large salon and a swim platform at water level.`, `Iate clássico de cruzeiro com salão amplo e plataforma de banho no nível da água.`],
 [`Cava`, `Cooler`, `Caixa térmica`],
 [`Escalera`, `Ladder`, `Escada`],
@@ -822,6 +829,224 @@ const exact = [
 [`¿Tienen cupo?`, `Do you have space?`, `Tem vaga?`],
 [`Hola Tu Lancha 👋 Me interesa un chárter de pesca. ¿Qué fechas tienen?`, `Hi Tu Lancha 👋 I'm interested in a fishing charter. What dates do you have?`, `Olá Tu Lancha 👋 Tenho interesse em um charter de pesca. Quais datas vocês têm?`],
 [`Hola Tu Lancha 👋 Quiero formar parte del pool.`, `Hi Tu Lancha 👋 I'd like to join the pool.`, `Olá Tu Lancha 👋 Quero fazer parte do pool.`],
+/* ---------- muelle escogido por el cliente (mapa satelital) ---------- */
+[`Muelle escogido por ti`, `Your chosen dock`],
+[`Marca tu muelle en el mapa`, `Mark your dock on the map`],
+[`Otro punto`, `Another spot`],
+[`Escoge tu muelle en el mapa`, `Pick your dock on the map`],
+[`Escoge tu muelle`, `Pick your dock`],
+[`Marca el punto exacto en el mapa satelital`, `Mark the exact spot on the satellite map`],
+[`Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.`, `Save the address; it will be sent to TuLanchaLecheria when you finish your request.`],
+[`Te confirmamos por WhatsApp si la embarcación puede llegar y si hay recargo.`, `We'll confirm on WhatsApp whether the boat can get there and if there's a surcharge.`],
+[`Recogida en tu muelle`, `Pickup at your dock`],
+[`Saldrás de tu muelle`, `You'll depart from your dock`],
+[`Tu muelle guardado`, `Your saved dock`],
+[`Usar este muelle`, `Use this dock`],
+[`Cambiar`, `Change`],
+[`Ver en Google Maps`, `View in Google Maps`],
+[`Quitar`, `Remove`],
+[`Tu punto de salida`, `Your departure point`],
+[`Toca el mapa o arrastra el pin hasta el lugar exacto donde te buscamos.`, `Tap the map or drag the pin to the exact spot where we'll pick you up.`],
+[`Busca un lugar, residencia o marina`, `Search for a place, residence or marina`],
+[`Buscar un lugar`, `Search for a place`],
+[`Buscar`, `Search`],
+[`Satélite`, `Satellite`],
+[`Mapa`, `Map`],
+[`Tipo de mapa`, `Map type`],
+[`Usar mi ubicación actual`, `Use my current location`],
+[`Toca el mapa para marcar tu muelle.`, `Tap the map to mark your dock.`],
+[`Referencia (opcional)`, `Landmark (optional)`],
+[`Ej.: muelle del edificio, puesto 12, portón azul`, `E.g.: building dock, slip 12, blue gate`],
+[`Guardar ubicación`, `Save location`],
+[`Cargando mapa satelital…`, `Loading satellite map…`],
+[`Buscando…`, `Searching…`],
+[`No encontramos ese lugar. Mueve el mapa y toca el punto exacto.`, `We couldn't find that place. Move the map and tap the exact spot.`],
+[`Sin conexión para buscar. Mueve el mapa y toca el punto exacto.`, `No connection to search. Move the map and tap the exact spot.`],
+[`No se pudo cargar el mapa. Revisa tu conexión e inténtalo de nuevo.`, `The map couldn't load. Check your connection and try again.`],
+[`Tu muelle`, `Your dock`],
+[`Tu teléfono no comparte la ubicación`, `Your phone isn't sharing its location`],
+[`Buscando tu ubicación…`, `Finding your location…`],
+[`No pudimos leer tu ubicación. Marca el punto en el mapa.`, `We couldn't read your location. Mark the spot on the map.`],
+[`Ubicación guardada. Se enviará a Tu Lancha al finalizar tu solicitud.`, `Location saved. It will be sent to Tu Lancha when you finish your request.`],
+[`Ubicación quitada`, `Location removed`],
+[`Ubicación de mi muelle`, `My dock location`],
+[`Mi propio muelle`, `My own dock`],
+[`Imágenes © Esri, Maxar, Earthstar Geographics`, `Imagery © Esri, Maxar, Earthstar Geographics`],
+/* cierre de la reserva: enviar el PDF y volver */
+[`Enviar comprobante por WhatsApp`, `Send receipt via WhatsApp`, `Enviar comprovante pelo WhatsApp`],
+[`Enviar el comprobante a Tu Lancha por WhatsApp`, `Send the receipt to Tu Lancha on WhatsApp`, `Enviar o comprovante à Tu Lancha pelo WhatsApp`],
+[`Volver al inicio`, `Back to home`, `Voltar ao início`],
+[`Ver mi viaje`, `See my trip`, `Ver minha viagem`],
+[`Abrir chat de Tu Lancha`, `Open Tu Lancha chat`, `Abrir chat da Tu Lancha`],
+[`Enviar de nuevo`, `Send again`, `Enviar de novo`],
+[`¡Listo! Eduardo recibe tu comprobante`, `Done! Eduardo gets your receipt`, `Pronto! O Eduardo recebe seu comprovante`],
+[`Al tocar Enviar se abre el menú de compartir: elige WhatsApp y el chat de Tu Lancha. Si no lo ves en la lista, descarga el PDF y adjúntalo en el chat.`, `Tapping Send opens the share menu: choose WhatsApp and the Tu Lancha chat. If it is not on the list, download the PDF and attach it in the chat.`, `Ao tocar Enviar, abre o menu de compartilhar: escolha o WhatsApp e o chat da Tu Lancha. Se não aparecer na lista, baixe o PDF e anexe no chat.`],
+[`Al tocar Enviar se descarga el PDF y se abre el chat de Tu Lancha: adjunta el PDF ahí (arrástralo o usa el clip).`, `Tapping Send downloads the PDF and opens the Tu Lancha chat: attach the PDF there (drag it in or use the clip).`, `Ao tocar Enviar, o PDF é baixado e o chat da Tu Lancha abre: anexe o PDF lá (arraste ou use o clipe).`],
+[`Tu reserva`, `Your booking`, `Sua reserva`],
+[`Comprobante`, `Receipt`, `Comprovante`],
+[`Tu álbum del día está listo`, `Your album of the day is ready`, `Seu álbum do dia está pronto`],
+[`Falta enviar el comprobante`, `Receipt not sent yet`, `Falta enviar o comprovante`],
+/* ---------- 12 nov: menú giratorio, búsqueda, cambios de Eduardo ---------- */
+[`Buscar en Tu Lancha`, `Search Tu Lancha`],
+[`Busca embarcaciones, playas, experiencias…`, `Search boats, beaches, experiences…`],
+[`Cerrar búsqueda`, `Close search`],
+[`Resultados`, `Results`],
+[`Explorar`, `Explore`],
+[`Explora`, `Explore`],
+[`Abrir menú`, `Open menu`],
+[`Sugerencias`, `Suggestions`],
+[`Sección`, `Section`],
+[`Embarcación`, `Boat`],
+[`Playa`, `Beach`],
+[`Rumbo`, `Route`],
+[`Pregunta frecuente`, `FAQ`],
+[`Experiencia`, `Experience`],
+[`Playas y rumbos`, `Beaches and routes`],
+[`recomendación de la casa`, `house pick`],
+[`Desde las 5:30 pm`, `From 5:30 pm`],
+[`Paseo por los canales de El Morro`, `El Morro canals tour`],
+[`Pesca deportiva`, `Sport fishing`],
+[`Con capitán pescador`, `With a fishing captain`],
+[`Pedida de mano`, `Marriage proposal`],
+[`Cumpleaños en el mar`, `Birthday at sea`],
+[`Corporativo`, `Corporate`],
+[`Modo a bordo y botón SOS`, `On-board mode and SOS button`],
+[`GPS del teléfono durante el paseo`, `Phone GPS during the trip`],
+[`Álbum del día`, `Album of the day`],
+[`Fotos y videos de dron de tu paseo`, `Photos and drone videos of your trip`],
+[`Escoge tu muelle en el mapa`, `Pick your dock on the map`],
+[`Marca tu punto de salida`, `Mark your departure point`],
+[`Tarjeta de regalo`, `Gift card`],
+[`Quiero formar parte del pool`, `I want to join the pool`],
+[`Para propietarios`, `For owners`],
+[`Todo Tu Lancha, en un giro`, `All of Tu Lancha, in one spin`],
+[`Desliza las pantallas o toca una sección`, `Swipe the screens or tap a section`],
+[`Lancha prémium`, `Premium boat`],
+[`La recomendación de la casa`, `The house pick`],
+[`Lanchas, mini yates y yates`, `Boats, mini yachts and yachts`],
+[`Toda la flota con capitán`, `The whole fleet, with captain`],
+[`Seis rumbos`, `Six routes`],
+[`Por el Parque Nacional Mochima`, `Through Mochima National Park`],
+[`Aguas cristalinas`, `Crystal-clear water`],
+[`Canales de El Morro`, `El Morro canals`],
+[`Al caer la tarde`, `At sunset`],
+[`Celebraciones a bordo`, `Celebrations on board`],
+[`Cumpleaños, pedidas y corporativos`, `Birthdays, proposals and corporate events`],
+[`Regala un día en el mar`, `Gift a day at sea`],
+[`Tarjetas de regalo`, `Gift cards`],
+[`Club Tu Lancha`, `Tu Lancha Club`],
+[`Invita y ganan los dos`, `Invite a friend and you both win`],
+[`Comida y bebidas`, `Food and drinks`],
+[`Te lo llevan al muelle`, `Delivered to the dock`],
+[`DJ, estilo y estadía`, `DJs, style and stays`],
+[`Aliados VIP`, `VIP partners`],
+[`Seguimiento en vivo`, `Live tracking`],
+[`Tu familia te sigue desde tierra`, `Your family follows you from land`],
+[`Modo a bordo y SOS`, `On-board mode and SOS`],
+[`GPS y botón de emergencia`, `GPS and emergency button`],
+[`Gente de mar de Lechería`, `Sea people from Lechería`],
+[`Muelles y horario`, `Docks and hours`],
+[`Dónde y a qué hora salimos`, `Where and when we depart`],
+[`Cuatro pasos y listo`, `Four steps and done`],
+[`Tu total al instante`, `Your total, instantly`],
+[`Sin pagar nada ahora`, `No payment now`],
+[`Únete al pool`, `Join the pool`],
+[`Pon tu embarcación a trabajar`, `Put your boat to work`],
+[`Servicios para propietarios`, `Services for owners`],
+[`Capitán, inflables y más`, `Captain, inflatables and more`],
+[`Propietarios`, `Owners`],
+[`propietarios`, `owners`],
+[`propietarios de embarcaciones`, `boat owners`],
+[`Servicio a bordo`, `Onboard service`],
+[`Lo mejor de la flota, filtrado para ti`, `The best of the fleet, filtered for you`],
+[`Presentamos nuestro panel principal de embarcaciones: unidades seleccionadas bajo estrictos estándares de mantenimiento, equipamiento, responsabilidad y tripulación de confianza.`, `Meet our main fleet: boats selected under strict standards of maintenance, equipment and responsibility, with a crew you can trust.`],
+[`Embarcaciones y tarifas de ejemplo hasta cargar los datos reales.`, `Sample boats and rates until the real data is loaded.`],
+[`Velocidad`, `Speed`],
+[`Proa`, `Bow`],
+[`Popa`, `Stern`],
+[`Área social`, `Social area`],
+[`Camarote`, `Cabin`],
+[`Habitación`, `Bedroom`],
+[`Baño`, `Bathroom`],
+[`Accesorios`, `Accessories`],
+[`Foto anterior`, `Previous photo`],
+[`Foto siguiente`, `Next photo`],
+[`La hora final de regreso puede variar según la recomendación del capitán, el grupo y el estado del mar.`, `The final return time may change depending on the captain's advice, the group and sea conditions.`],
+[`Internet a bordo`, `Onboard internet`],
+[`Cargador de teléfono`, `Phone charger`],
+[`Flotadores básicos`, `Basic floats`],
+[`Flotadores de lujo`, `Luxury floats`],
+[`Careta de buceo`, `Snorkel mask`],
+[`Lona lateral`, `Side canopy`],
+[`Alfombra en el agua`, `Floating mat`],
+[`Sonido JL Audio`, `JL Audio sound system`],
+[`Incluye utensilios, tabla para picar y bandeja.`, `Includes utensils, a cutting board and a tray.`],
+[`Tú traes el carbón, la proteína y los condimentos; recomendamos platos y cubiertos desechables.`, `You bring the charcoal, the protein and the seasoning; we recommend disposable plates and cutlery.`],
+[`Incluye utensilios, tabla para picar y bandeja. Tú traes el carbón, la proteína y los condimentos; recomendamos platos y cubiertos desechables.`, `Includes utensils, a cutting board and a tray. You bring the charcoal, the protein and the seasoning; we recommend disposable plates and cutlery.`],
+[`Te mostramos solo las embarcaciones donde cabe tu grupo y que están libres ese día.`, `We only show boats that fit your group and are free that day.`],
+[`Grupos de gran contextura`, `Larger-build groups`],
+[`Nuestro filtro de personas y niños está optimizado con un peso promedio por persona.`, `Our people-and-kids filter uses an average weight per person.`],
+[`Si tu grupo es de gran contextura, te recomendamos contemplar un puesto adicional.`, `If your group is larger in build, we recommend planning for one extra seat.`],
+[`Nuestro filtro de personas y niños está optimizado con un peso promedio por persona. Si tu grupo es de gran contextura, te recomendamos contemplar un puesto adicional.`, `Our people-and-kids filter uses an average weight per person. If your group is larger in build, we recommend planning for one extra seat.`],
+[`Mascotas: solo perros pequeños (hasta 7 kg)`, `Pets: small dogs only (up to 7 kg / 15 lb)`],
+[`No somos 100% pet friendly por restricciones ambientales del Parque Nacional y por el cuidado de las embarcaciones.`, `We're not 100% pet friendly because of National Park environmental rules and to protect the boats.`],
+[`Agradecemos no llevar mascotas de mayor tamaño ni otros tipos de animales.`, `Please don't bring larger pets or other kinds of animals.`],
+[`No somos 100% pet friendly por restricciones ambientales del Parque Nacional y por el cuidado de las embarcaciones. Agradecemos no llevar mascotas de mayor tamaño ni otros tipos de animales.`, `We're not 100% pet friendly because of National Park environmental rules and to protect the boats. Please don't bring larger pets or other kinds of animals.`],
+[`Precio por confirmar`, `Price to be confirmed`],
+[`Lo hace · precio por confirmar`, `Available · price to be confirmed`],
+[`Muelles sugeridos (servicio por uso de muelle)`, `Suggested docks (dock-use fee)`],
+[`Muelles sugeridos (servicio por uso de muelle: lo cobra el establecimiento y se paga en sitio)`, `Suggested docks (dock-use fee: charged by the venue and paid on site)`],
+[`muelle deshabilitado`, `dock disabled`],
+[`Muelle deshabilitado`, `Dock disabled`],
+[`gratis`, `free`],
+[`bajo calado`, `shallow draft`],
+[`Bajo calado · no disponible`, `Shallow draft · not available`],
+[`no disponible`, `not available`],
+[`sin costo de muelle`, `no dock fee`],
+[`Marca tu muelle en el mapa`, `Mark your dock on the map`],
+[`Solo lanchas; barcos y yates salen de los muelles sugeridos`, `Speedboats only; boats and yachts leave from the suggested docks`],
+[`Al confirmar te enviamos la ubicación exacta, un video de cómo llegar y cómo pagar el servicio de muelle.`, `When you confirm, we send you the exact location, a video on how to get there and how to pay the dock fee.`],
+[`Te buscamos siempre que tu residencia tenga muelle o escalera de acceso al agua y profundidad suficiente para la embarcación.`, `We pick you up as long as your residence has a dock or water-access stairs and enough depth for the boat.`],
+[`Si te buscamos en tu residencia, no aplica.`, `Doesn't apply if we pick you up at your residence.`],
+[`Tienda Tu Lancha`, `Tu Lancha shop`],
+[`Accesorios en stock para sumar a tu salida`, `Gear in stock to add to your trip`],
+[`Toalla de playa`, `Beach towel`],
+[`Termo`, `Thermos`],
+[`Antena de internet con cargador`, `Internet antenna with charger`],
+[`Inflable gigante de flor`, `Giant flower inflatable`],
+[`Balsa con remo`, `Raft with paddle`],
+[`El servicio por uso de muelle (se paga en sitio) y la seguridad del vehículo dependen de cada establecimiento.`, `The dock-use fee (paid on site) and vehicle security depend on each venue.`],
+[`Un solo punto de embarque para todo el grupo. El servicio por uso de muelle (se paga en sitio) y la seguridad del vehículo dependen de cada establecimiento.`, `One boarding point for the whole group. The dock-use fee (paid on site) and vehicle security depend on each venue.`],
+[`Solo perros pequeños (hasta 7 kg), con aprobación previa.`, `Small dogs only (up to 7 kg / 15 lb), with prior approval.`],
+[`USD · +4,5% de comisión`, `USD · +4.5% fee`],
+[`Te enviamos el enlace de PayPal por WhatsApp. Pagas el abono con la comisión y nos mandas la captura.`, `We'll send you the PayPal link on WhatsApp. You pay the deposit plus the fee and send us the screenshot.`],
+[`Paga el abono con la comisión de PayPal a esta cuenta y mándanos la captura por WhatsApp.`, `Pay the deposit plus the PayPal fee to this account and send us the screenshot on WhatsApp.`],
+[`Pagar con PayPal`, `Pay with PayPal`],
+[`Seis rumbos por el Parque Nacional Mochima, con sus millas náuticas aproximadas.`, `Six routes through Mochima National Park, with their approximate nautical miles.`],
+[`En cada salida eliges playas de un solo rumbo: hasta 3 en lancha y hasta 2 en barco, mini yate o yate.`, `On each trip you pick beaches from a single route: up to 3 by speedboat and up to 2 by boat, mini yacht or yacht.`],
+[`Seis rumbos por el Parque Nacional Mochima, con sus millas náuticas aproximadas. En cada salida eliges playas de un solo rumbo: hasta 3 en lancha y hasta 2 en barco, mini yate o yate.`, `Six routes through Mochima National Park, with their approximate nautical miles. On each trip you pick beaches from a single route: up to 3 by speedboat and up to 2 by boat, mini yacht or yacht.`],
+[`Unas 10 millas náuticas más lejos que el Rumbo 2.`, `About 10 nautical miles farther than Route 2.`],
+[`Rumbo hacia Isla La Borracha.`, `Heading to Isla La Borracha.`],
+[`Solo lo hacen algunas embarcaciones.`, `Only some boats do this route.`],
+[`Rumbo hacia Isla La Borracha. Solo lo hacen algunas embarcaciones.`, `Heading to Isla La Borracha. Only some boats do this route.`],
+[`Solo algunas embarcaciones`, `Only some boats`],
+[`Islotes de arena frente a Píritu.`, `Sandy islets off Píritu.`],
+[`Solo algunas embarcaciones y con buen mar.`, `Only some boats, and only in good sea conditions.`],
+[`Islotes de arena frente a Píritu. Solo algunas embarcaciones y con buen mar.`, `Sandy islets off Píritu. Only some boats, and only in good sea conditions.`],
+[`Solo algunas embarcaciones y solo en temporada de buen mar.`, `Only some boats, and only in the good-sea season.`],
+[`Solo con buen mar`, `Good sea conditions only`],
+[`Aliados VIP · 100% recomendados`, `VIP partners · 100% recommended`],
+[`Queremos que tu día en el mar sea perfecto: comida y bebidas, estilo, entretenimiento y estadía.`, `We want your day at sea to be perfect: food and drinks, style, entertainment and places to stay.`],
+[`Pídelo con tu reserva.`, `Order it with your booking.`],
+[`Queremos que tu día en el mar sea perfecto: comida y bebidas, estilo, entretenimiento y estadía. Pídelo con tu reserva.`, `We want your day at sea to be perfect: food and drinks, style, entertainment and places to stay. Order it with your booking.`],
+[`Ver todas las opciones`, `See all options`],
+[`Servicios que recomendamos`, `Services we recommend`],
+[`Para propietarios de embarcaciones`, `For boat owners`],
+[`Servicio a bordo con nuestros aliados`, `Onboard service with our partners`],
+[`Servicio de capitán`, `Captain service`],
+[`Capitán y marinero para tu embarcación, con accesorios si los necesitas`, `Captain and deckhand for your boat, with gear if you need it`],
+[`Alquiler de inflables y accesorios`, `Inflatable and gear rental`],
+[`Flotadores, inflables, antena de internet y más para tu salida`, `Floats, inflatables, internet antenna and more for your trip`],
 ];
 
 const pat = [
@@ -910,6 +1135,7 @@ const pat = [
 /* comprobante, códigos y títulos */
 [/^Código: (.+)$/, `Code: {1}`, `Código: {1}`],
 [/^Comprobante de reserva (TLL-\d+)$/, `Booking receipt {1}`, `Comprovante de reserva {1}`],
+[/^Hola Tu Lancha, te envío el comprobante de mi reserva (TLL-\d+)\.$/, `Hi Tu Lancha, here is the receipt for my booking {1}.`, `Olá Tu Lancha, envio o comprovante da minha reserva {1}.`],
 [/^Comprobante (TLL-\d+)$/, `Receipt {1}`, `Comprovante {1}`],
 [/^Reserva (TLL-\d+) · Tu Lancha Lechería\. Elige WhatsApp y envíalo a Tu Lancha \((.+)\)\.$/, `Booking {1} · Tu Lancha Lechería. Choose WhatsApp and send it to Tu Lancha ({2}).`, `Reserva {1} · Tu Lancha Lechería. Escolha o WhatsApp e envie para a Tu Lancha ({2}).`],
 [/^Emitido: (.+)$/, `Issued: {1}`, `Emitido em: {1}`],
@@ -987,10 +1213,37 @@ const pat = [
 [/^Hola Tu Lancha 👋 Somos (.+) y nos interesa alquilar dos embarcaciones de 8p o 10p para el (.+)\.$/, `Hi Tu Lancha 👋 We're {t1} and we'd like to rent two boats of 8 or 10 people on {2}.`, `Olá Tu Lancha 👋 Somos {t1} e temos interesse em alugar duas embarcações de 8 ou 10 pessoas em {2}.`],
 [/^Hola Tu Lancha 👋 Me interesa la experiencia "(.+)"\. ¿Me dan información\?$/, `Hi Tu Lancha 👋 I'm interested in the "{t1}" experience. Could you send me details?`, `Olá Tu Lancha 👋 Tenho interesse na experiência "{t1}". Podem me passar informações?`],
 [/^Hola Tu Lancha 👋 Quiero agregar (.+) a mi salida\.$/, `Hi Tu Lancha 👋 I'd like to add {1} to my trip.`, `Olá Tu Lancha 👋 Quero adicionar {1} ao meu passeio.`],
+[/^Marcada en el mapa · (.+)$/, `Marked on the map · {1}`],
+[/^(-?\d[\d.]*, -?\d[\d.]*) · (https?:\/\/\S+)$/, `{1} · {2}`],
+/* 12 nov */
+[/^No encontramos “(.+)”\. Prueba con una playa, una embarcación o escríbenos por WhatsApp\.$/, `We couldn't find “{1}”. Try a beach, a boat, or message us on WhatsApp.`],
+[/^~([\d.,]+) millas náuticas$/, `~{1} nautical miles`],
+[/^~([\d.,]+) millas náuticas · (.+)$/, `~{1} nautical miles · {t2}`],
+[/^(~\d+ min)$/, `{1}`],
+[/^RUMBO (\d+)$/, `ROUTE {1}`],
+[/^\+(\d+) viajes$/, `+{1} trips`],
+[/^\+(\d+) viajes exitosos$/, `+{1} successful trips`],
+[/^\+(\d+) viajes exitosos · ([\d.]+) ★$/, `+{1} successful trips · {2} ★`],
+[/^(\d+) nudos$/, `{1} knots`],
+[/^(\d+) pers\. \+ (\d+) niños?$/, `{1} people + {2} kids`],
+[/^(\d+) playas?$/, (m) => m[1] === '1' ? '1 beach' : `${m[1]} beaches`],
+[/^Caretas de buceo \((\d+)\)$/, `Snorkel masks ({1})`],
+[/^Servicio por uso de muelle: (.+)$/, `Dock-use fee: {1}`],
+[/^: servicio por uso de muelle (.+), lo cobra el establecimiento y se paga en sitio$/, `: dock-use fee {1}, charged by the venue and paid on site`],
+[/^No es un pago a Tu Lancha: lo cobra (.+) y se paga en sitio\.$/, `This isn't paid to Tu Lancha: {1} charges it and it's paid on site.`],
+[/^No es un pago a Tu Lancha: lo cobra (.+) y se paga en sitio\. Si te buscamos en tu residencia, no aplica\.$/, `This isn't paid to Tu Lancha: {1} charges it and it's paid on site. Doesn't apply if we pick you up at your residence.`],
+[/^(.+) no hace recogidas ahí$/, `{1} doesn't do pickups there`],
+[/^(.+) no sale de (.+)$/, `{1} doesn't leave from {2}`],
+[/^(.+) no llega hasta ahí por su calado$/, `{1} can't reach there because of its draft`],
+[/^(.+) no hace el (Rumbo \d+)$/, `{1} doesn't do {t2}`],
+[/^Tarifa del (Rumbo \d+)$/, `{t1} rate`],
+[/^50% \+ ([\d,]+)% de comisión de PayPal · el resto en el muelle$/, (m) => `50% + ${m[1].replace(',', '.')}% PayPal fee · the rest at the dock`],
+[/^([^:]+):$/, `{t1}:`],
+[/^([^:]+): ([^:]+)$/, `{t1}: {t2}`],
 ];
 
 // nombres propios y textos que no se traducen (solo para que las pruebas no los marquen como pendientes)
-const keep = ['Tu Lancha', 'Tu Lancha Lechería', 'TU LANCHA LECHERÍA', 'WhatsApp', 'Instagram', 'Zelle', 'Binance Pay', 'USD', 'USDT', 'VIP', 'IVC', 'Venevisión', 'Viajando con BIVI', 'Canal Viajero', 'Mochima', 'Morrocoy', 'Los Roques', 'Lechería', 'Anzoátegui', 'Margarita', 'Eurobuilding', '@tulanchalecheria', 'tulanchalecheria.vercel.app', 'El Mercadillo', 'El Rincón Marino', 'Cervecería Regional', 'Arena Swim', 'Brisa Deco', 'DJ Oleaje', 'Foto Proa', 'Posada Mochima'];
+const keep = ['Ctrl K', '⌘K', 'Isla La Borracha y Puinare', 'Isletas de Píritu', 'Manare y Playa Blanca', 'Playa Manare', 'Playa Blanca', 'Isla La Borracha', 'Isla La Tortuga', 'Islas Caracas', 'Margarita', 'La Caleta', 'Hotel Punta Palma', 'Resto del Complejo Turístico El Morro', 'Puerto Príncipe', 'Puerto Mares y Residencias Cayo de Agua', 'Bravo 32', 'Promar 34', 'Morro Sport 27', 'Plata 30', 'Mochima 36', 'Arapo 40', 'Caribe 48', 'Chimana 52', 'Borracha 45', 'El Saco', 'Puinare', 'Puinarito', 'Chimana Segunda', 'Isla de Plata', 'Punta La Cruz', 'Playa El Faro', 'Playa Varadero', 'Islas Arapo', 'La Piscina', 'Playa Ñacleta', 'Playa El Faro (Chimana Grande)', 'C.C. Plaza Mayor', 'Hotel Maremares', 'Marina Américo Vespucio', 'PayPal', 'Tu Lancha', 'Tu Lancha Lechería', 'TU LANCHA LECHERÍA', 'WhatsApp', 'Instagram', 'Zelle', 'Binance Pay', 'USD', 'USDT', 'VIP', 'IVC', 'Venevisión', 'Viajando con BIVI', 'Canal Viajero', 'Mochima', 'Morrocoy', 'Los Roques', 'Lechería', 'Anzoátegui', 'Anzoátegui – Venezuela', 'Viajando con BIVI (Venevisión)', 'min 7:30', 'Margarita', 'Eurobuilding', '@tulanchalecheria', 'tulanchalecheria.vercel.app', 'El Mercadillo', 'El Rincón Marino', 'Cervecería Regional', 'Arena Swim', 'Brisa Deco', 'DJ Oleaje', 'Foto Proa', 'Posada Mochima'];
 return { exact, pat, keep };
 })();
 
@@ -1222,54 +1475,72 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
    Rumbos, muelles, horario, paquete básico y políticas: reales, según Eduardo (nov. 2026).
    Embarcaciones, tarifas y extras con precio: DE EJEMPLO hasta cargar la flota real. */
 
-// Muelles sugeridos (toque de muelle lo cobra el establecimiento) y recogidas en residencias (recargo de Tu Lancha)
+// Muelles sugeridos (servicio por uso de muelle: lo cobra el establecimiento y se paga en sitio)
+// y recogidas en residencias (costo de Tu Lancha según el tamaño de la embarcación: s lancha pequeña, m lancha mediana, my mini yate, y yate o barco)
+// baseFree: las embarcaciones que tienen su base en ese muelle no pagan el servicio de muelle.
 const DOCKS = [
   { id: 'pm', name: 'C.C. Plaza Mayor', fee: '$30', park: 'Estacionamiento público con vigilancia' },
   { id: 'mm', name: 'Hotel Maremares', fee: '$11,6 a tasa BCV', park: 'Estacionamiento privado con vigilancia' },
-  { id: 'av', name: 'Marina Américo Vespucio', fee: '$34 a tasa BCV', park: 'Estacionamiento privado con vigilancia' },
-  { id: 'em', name: 'Cerro El Morro · Eurobuilding', pickup: true, lancha: 20, other: 30, back: '5:30 pm' },
-  { id: 'pmr', name: 'Puerto Mares', pickup: true, lanchaOnly: true, lancha: 20 },
-  { id: 'cda', name: 'Residencias Cayo de Agua', pickup: true, lanchaOnly: true, lancha: 20 },
-  { id: 'ppr', name: 'Puerto Príncipe', pickup: true, lanchaOnly: true, lancha: 20 },
-  { id: 'ppa', name: 'Hotel Punta Palma', off: true }
+  { id: 'av', name: 'Marina Américo Vespucio', fee: '$34 a tasa BCV', park: 'Estacionamiento privado con vigilancia', baseFree: true },
+  { id: 'ppa', name: 'Hotel Punta Palma', off: true, why: 'Muelle deshabilitado' },
+  { id: 'em', name: 'Cerro El Morro · Eurobuilding', pickup: true, cost: { s: 15, m: 20, my: 30, y: 50 }, back: '5:30 pm' },
+  { id: 'rem', name: 'Resto del Complejo Turístico El Morro', pickup: true, cost: { s: 0, m: 0, my: 0, y: 0 } },
+  { id: 'pmr', name: 'Puerto Mares y Residencias Cayo de Agua', pickup: true, lanchaOnly: true, cost: { s: 20, m: 20 } },
+  { id: 'ppr', name: 'Puerto Príncipe', pickup: true, lanchaOnly: true, cost: { s: 20, m: 20 } },
+  { id: 'cal', name: 'La Caleta', pickup: true, off: true, why: 'Bajo calado · no disponible' }
 ];
 const MAIN_DOCKS = DOCKS.filter(d => !d.pickup && !d.off);
+const SIZES = { s: 'Lancha pequeña', m: 'Lancha mediana', my: 'Mini yate', y: 'Yate o barco' };
+// tamaño de la embarcación para el costo de recogida (Eduardo lo puede fijar a mano en el panel)
+const sizeOf = b => b.size && SIZES[b.size] ? b.size : b.type === 'Lancha' ? (b.ft <= 26 ? 's' : 'm') : b.type === 'Mini yate' ? 'my' : 'y';
 
 // Paquete básico: lo incluyen TODAS las embarcaciones
 const BASIC = ['Tripulación según el tamaño de la embarcación', 'Capitanes con más de 10 años de experiencia', 'Chalecos salvavidas para todos', 'Ducha de agua dulce', 'Botiquín de primeros auxilios', 'Embarcación con documentación al día', 'Cava con hielo', 'Agua mineral suficiente para todos'];
 
 // Accesorios: cada embarcación dice cuáles trae incluidos (inc) y cuáles cobra aparte (opt)
-const ACC = { sonido: 'Sonido (integrado o Bluetooth)', mat: 'Alfombra flotante', paddle: 'Paddle board', kayak: 'Kayak', snorkel: 'Equipo de snorkel', flot: 'Flotadores', kids: 'Juguetes para niños', dron: 'Video con dron', cam: 'Cámara subacuática', parrilla: 'Parrillera' };
+const ACC = { sonido: 'Sonido (integrado o Bluetooth)', internet: 'Internet a bordo', cargador: 'Cargador de teléfono', mat: 'Alfombra flotante', flot: 'Flotadores básicos', flotlux: 'Flotadores de lujo', snorkel: 'Careta de buceo', paddle: 'Paddle board', kayak: 'Kayak', kids: 'Juguetes para niños', lona: 'Lona lateral', dron: 'Video con dron', cam: 'Cámara subacuática', parrilla: 'Parrillera' };
+// la parrillera siempre lleva esta aclaración, para que el cliente sepa qué traer
+const PARRILLA_NOTE = 'Incluye utensilios, tabla para picar y bandeja. Tú traes el carbón, la proteína y los condimentos; recomendamos platos y cubiertos desechables.';
+// nombre del accesorio con su cantidad (p. ej. caretas de buceo)
+const accName = (b, k) => k === 'snorkel' && b && b.qty && +b.qty.snorkel > 0 ? `Caretas de buceo (${+b.qty.snorkel})` : ACC[k] || k;
 
 /* Campos por embarcación:
    own: la lancha de Eduardo (va primero y destacada) · maxBeaches: playas por salida (lancha 3; barco, mini yate y yate 2)
-   r4: hace el Rumbo 4 · late: hasta qué hora puede quedarse (20 = 8:00 pm) · hx: costo de cada hora extra
-   pick: excepciones de recogida por calado ({cda: null} = no llega; {em: 0} = sin recargo) */
+   pax: puestos de la licencia · kx: niños de 7 años o menos que caben además de esos puestos (sin costo extra)
+   rp: precio por rumbo {r1: 350, r4: null (no hace ese rumbo), r6: true (lo hace, precio por confirmar)}; si falta, se usa la tarifa base
+   late: hasta qué hora puede quedarse (20 = 8:00 pm) · hx: costo de cada hora extra · kts: velocidad de crucero (nudos)
+   pick: excepciones de recogida por calado ({pmr: null} = no llega; {em: 0} = sin costo) · docks: muelles desde donde puede salir (vacío = todos)
+   photos: proa, popa, social, camarote, habitacion, bano, accesorios (las que falten no se muestran)
+   docs: vencimientos de licencia de navegación, radio, patrón del capitán y combustible (solo los ve Eduardo) */
 const DEF_BOATS_SRC = [
-  { id: 'b0', own: true, name: 'Lancha de la casa', type: 'Lancha', ft: 32, pax: 5, kidSeat: .5, kidFee: 15, price: 350, hue: 200, dock: 0, cabin: false, rating: 5.0, trips: 0, r4: true, late: 20, hx: 40, pick: { em: 20 },
-    inc: ['sonido', 'parrilla', 'snorkel', 'flot'], opt: { mat: 25, dron: 60 }, amen: ['Corneta Bose S1 Pro', 'Parrillera sin costo', 'Toldo'], desc: 'La embarcación de Tu Lancha, atendida por nuestra propia tripulación. Es la que más eligen nuestros clientes.' },
-  { id: 'b1', name: 'Bravo 32', type: 'Lancha', ft: 32, pax: 10, price: 320, hue: 205, dock: 0, cabin: false, rating: 4.9, trips: 214, inc: ['sonido', 'snorkel'], opt: { parrilla: 20, mat: 25 }, amen: ['Toldo', 'Cava'], desc: 'Lancha deportiva rápida y cómoda, ideal para grupos que quieren llegar primero a la playa. Doble motor fuera de borda.' },
-  { id: 'b9', name: 'Promar 34', type: 'Lancha', ft: 34, pax: 10, price: 380, hue: 210, dock: 2, cabin: false, rating: 4.8, trips: 132, maxBeaches: 2, inc: ['sonido', 'snorkel'], opt: { parrilla: 20 }, amen: ['Toldo', 'Escalera'], desc: 'Lancha amplia para recorrer islas y hacer snorkel. Por su tamaño, visita hasta 2 playas por salida.' },
-  { id: 'b4', name: 'Morro Sport 27', type: 'Lancha', ft: 27, pax: 8, kidSeat: .5, kidFee: 10, price: 230, hue: 170, dock: 2, cabin: false, rating: 4.8, trips: 305, pick: { cda: null }, inc: ['sonido'], opt: {}, amen: ['Toldo', 'Escalera de baño'], desc: 'La opción práctica para grupos pequeños. Ágil, económica y siempre puntual.' },
-  { id: 'b7', name: 'Plata 30', type: 'Lancha', ft: 30, pax: 10, price: 290, hue: 195, dock: 0, cabin: false, rating: 4.7, trips: 241, late: 20, hx: 40, inc: ['sonido', 'flot'], opt: { parrilla: 20, kayak: 30 }, amen: ['Toldo', 'Proa amplia'], desc: 'Bowrider con mucho espacio en proa. Buena relación precio/capacidad para grupos medianos.' },
-  { id: 'b5', name: 'Mochima 36', type: 'Mini yate', ft: 36, pax: 12, price: 450, hue: 215, dock: 1, cabin: true, rating: 4.9, trips: 176, inc: ['sonido', 'snorkel'], opt: { parrilla: 20, paddle: 30 }, amen: ['Camarote de proa', 'Baño'], desc: 'Mini yate con camarote y baño. Muy cómodo para familias y para quien quiere pernoctar en la bahía.' },
-  { id: 'b2', name: 'Arapo 40', type: 'Barco', ft: 40, pax: 12, price: 950, hue: 190, dock: 1, cabin: true, rating: 5.0, trips: 98, inc: ['sonido', 'parrilla', 'paddle'], opt: { dron: 60 }, amen: ['Malla de proa', '2 baños', 'Camarotes'], desc: 'Barco estable y amplio, perfecto para celebraciones y grupos grandes. Malla de proa para tomar sol sobre el mar.' },
-  { id: 'b8', name: 'Caribe 48', type: 'Barco', ft: 48, pax: 30, price: 1400, hue: 185, dock: 1, cabin: true, rating: 4.9, trips: 57, inc: ['sonido', 'kayak', 'kids'], opt: { dron: 60 }, amen: ['Barra', '4 baños', 'Tobogán'], desc: 'Barco de eventos, el más grande. Pensado para fiestas en el mar con DJ y servicio de barra.' },
-  { id: 'b3', name: 'Chimana 52', type: 'Yate', ft: 52, pax: 12, price: 1650, hue: 225, dock: 0, cabin: true, rating: 4.9, trips: 61, r4: true, late: 20, hx: 80, inc: ['sonido', 'mat', 'snorkel', 'paddle'], opt: { parrilla: 20, dron: 60, cam: 30 }, amen: ['Flybridge', 'Aire acondicionado', '3 camarotes', 'Generador'], desc: 'Yate con flybridge y salón climatizado. Para salidas premium, pernoctas y eventos corporativos.' },
-  { id: 'b6', name: 'Borracha 45', type: 'Yate', ft: 45, pax: 12, price: 1200, hue: 235, dock: 2, cabin: true, rating: 4.8, trips: 83, inc: ['sonido', 'mat'], opt: { parrilla: 20 }, amen: ['Salón', '2 camarotes', 'Aire acondicionado', 'Plataforma de baño'], desc: 'Yate clásico de crucero con salón amplio y plataforma de baño a nivel del agua.' }
+  { id: 'b0', own: true, name: 'Lancha de la casa', type: 'Lancha', ft: 24, pax: 5, kx: 3, price: 350, hue: 200, dock: 0, cabin: false, rating: 5.0, trips: 500, late: 20, hx: 40, pick: { em: 20 }, rp: { r4: true, r6: true },
+    inc: ['sonido', 'internet', 'parrilla', 'snorkel', 'flotlux', 'mat', 'lona'], opt: {}, qty: { snorkel: 4 }, amen: ['Internet a bordo', 'Flotadores de lujo', 'Alfombra en el agua', 'Parrillera', 'Toldo', 'Sonido JL Audio', 'Lona lateral'], desc: 'La embarcación de Tu Lancha, atendida por nuestra propia tripulación. Es la que más eligen nuestros clientes.' },
+  { id: 'b1', name: 'Bravo 32', type: 'Lancha', ft: 32, pax: 10, price: 320, hue: 205, dock: 0, cabin: false, rating: 4.9, trips: 214, inc: ['sonido', 'snorkel', 'cargador'], opt: { parrilla: 20, mat: 25 }, amen: ['Toldo', 'Cava'], desc: 'Lancha deportiva rápida y cómoda, ideal para grupos que quieren llegar primero a la playa. Doble motor fuera de borda.' },
+  { id: 'b9', name: 'Promar 34', type: 'Lancha', ft: 34, pax: 10, price: 380, hue: 210, dock: 2, cabin: false, rating: 4.8, trips: 132, maxBeaches: 2, rp: { r5: true }, inc: ['sonido', 'snorkel'], opt: { parrilla: 20 }, amen: ['Toldo', 'Escalera'], desc: 'Lancha amplia para recorrer islas y hacer snorkel. Por su tamaño, visita hasta 2 playas por salida.' },
+  { id: 'b4', name: 'Morro Sport 27', type: 'Lancha', ft: 27, pax: 8, kx: 2, price: 230, hue: 170, dock: 2, cabin: false, rating: 4.8, trips: 305, pick: { pmr: null }, inc: ['sonido', 'flot'], opt: {}, amen: ['Toldo', 'Escalera de baño'], desc: 'La opción práctica para grupos pequeños. Ágil, económica y siempre puntual.' },
+  { id: 'b7', name: 'Plata 30', type: 'Lancha', ft: 30, pax: 10, price: 290, hue: 195, dock: 0, cabin: false, rating: 4.7, trips: 241, late: 20, hx: 40, inc: ['sonido', 'flot'], opt: { parrilla: 20, kayak: 30, flotlux: 15 }, amen: ['Toldo', 'Proa amplia'], desc: 'Bowrider con mucho espacio en proa. Buena relación precio/capacidad para grupos medianos.' },
+  { id: 'b5', name: 'Mochima 36', type: 'Mini yate', ft: 36, pax: 12, price: 450, hue: 215, dock: 1, cabin: true, rating: 4.9, trips: 176, kts: 22, rp: { r4: true }, inc: ['sonido', 'snorkel', 'cargador'], opt: { parrilla: 20, paddle: 30 }, amen: ['Camarote de proa', 'Baño'], desc: 'Mini yate con camarote y baño. Muy cómodo para familias y grupos que buscan sombra y privacidad.' },
+  { id: 'b2', name: 'Arapo 40', type: 'Barco', ft: 40, pax: 12, price: 950, hue: 190, dock: 1, cabin: true, rating: 5.0, trips: 98, kts: 18, inc: ['sonido', 'parrilla', 'paddle'], opt: { dron: 60 }, amen: ['Malla de proa', '2 baños', 'Camarotes'], desc: 'Barco estable y amplio, perfecto para celebraciones y grupos grandes. Malla de proa para tomar sol sobre el mar.' },
+  { id: 'b8', name: 'Caribe 48', type: 'Barco', ft: 48, pax: 30, price: 1400, hue: 185, dock: 1, cabin: true, rating: 4.9, trips: 57, kts: 14, inc: ['sonido', 'kayak', 'kids'], opt: { dron: 60 }, amen: ['Barra', '4 baños', 'Tobogán'], desc: 'Barco de eventos, el más grande. Pensado para fiestas en el mar con DJ y servicio de barra.' },
+  { id: 'b3', name: 'Chimana 52', type: 'Yate', ft: 52, pax: 12, price: 1650, hue: 225, dock: 0, cabin: true, rating: 4.9, trips: 61, kts: 26, rp: { r4: true, r5: true, r6: true }, late: 20, hx: 80, inc: ['sonido', 'internet', 'mat', 'snorkel', 'paddle', 'flotlux'], opt: { parrilla: 20, dron: 60, cam: 30 }, amen: ['Flybridge', 'Aire acondicionado', '3 camarotes', 'Generador'], desc: 'Yate con flybridge y salón climatizado. Para salidas premium y eventos corporativos.' },
+  { id: 'b6', name: 'Borracha 45', type: 'Yate', ft: 45, pax: 12, price: 1200, hue: 235, dock: 2, cabin: true, rating: 4.8, trips: 83, kts: 24, rp: { r4: true }, inc: ['sonido', 'mat'], opt: { parrilla: 20 }, amen: ['Salón', '2 camarotes', 'Aire acondicionado', 'Plataforma de baño'], desc: 'Yate clásico de crucero con salón amplio y plataforma de baño a nivel del agua.' }
 ];
-const normBoat = b => { b.pernocta = b.cabin; b.maxBeaches ??= b.type === 'Lancha' ? 3 : 2; b.opt ??= {}; b.inc ??= []; b.amen ??= []; b.pick ??= {}; b.rating ??= 5; b.trips ??= 0; b.hue ??= 200; b.dock ??= 0; return b; };
+const normBoat = b => { b.maxBeaches ??= b.type === 'Lancha' ? 3 : 2; b.opt ??= {}; b.inc ??= []; b.amen ??= []; b.pick ??= {}; b.rp ??= {}; b.qty ??= {}; b.photos ??= {}; b.kx = Math.max(0, +b.kx || 0); b.rating ??= 5; b.trips ??= 0; b.hue ??= 200; b.dock ??= 0; return b; };
 const BOATS = JSON.parse(JSON.stringify(DEF_BOATS_SRC)).map(normBoat);
 const OWN = BOATS.find(b => b.own) || BOATS[0];
 
-// Rumbos: nunca se cruzan. extra: null = recargo que se confirma por WhatsApp
+// Rumbos: nunca se cruzan. nm: millas náuticas aproximadas desde Lechería.
+// add: diferencia sobre la tarifa base cuando la embarcación no tiene precio propio para ese rumbo (vacío = precio por confirmar).
+// open: false = solo lo hacen las embarcaciones que lo tienen marcado en su precio por rumbo.
 const ROUTES = [
-  { id: 'r1', name: 'Rumbo 1', zone: 'Chimanas y Puinare', nm: 7, min: 20, hue: 190, extra: 0, beaches: ['El Saco', 'Puinare', 'Puinarito', 'Ensenada · Bahía del Silencio', 'Playa El Faro (Chimana Grande)', 'Chimana Segunda'], tags: ['Aguas calmas', 'Ideal para niños'], desc: 'Las islas más cercanas, con aguas tranquilas.' },
-  { id: 'r2', name: 'Rumbo 2', zone: 'Isla de Plata y Punta La Cruz', nm: 9, min: 25, hue: 185, extra: 0, beaches: ['Isla de Plata', 'Punta La Cruz', 'Playa El Faro', 'Playa Varadero'], tags: ['Aguas cristalinas', 'Restaurante en la playa'], desc: 'Aguas cristalinas y comida en El Rincón Marino, en Punta La Cruz.' },
-  { id: 'r3', name: 'Rumbo 3', zone: 'Islas Arapo · estado Sucre', nm: 19, min: 45, hue: 175, extra: null, plus: 'r2', beaches: ['Islas Arapo', 'La Piscina', 'Playa Ñacleta'], tags: ['Más probabilidad de delfines', '+10 millas'], desc: 'Unas 10 millas náuticas más lejos, con recargo en todas las embarcaciones. Puedes sumar playas del Rumbo 2.' },
-  { id: 'r4', name: 'Rumbo 4', zone: 'Manare y Playa Blanca', nm: 24, min: 60, hue: 180, extra: null, early: true, beaches: ['Playa Manare', 'Playa Blanca'], tags: ['Solo con buen mar', '9:00 am a 5:00 pm'], desc: 'Solo algunas embarcaciones y solo en temporada de buen mar.' }
+  { id: 'r1', name: 'Rumbo 1', zone: 'Chimanas y Puinare', nm: 7, min: 20, hue: 190, add: 0, beaches: ['El Saco', 'Puinare', 'Puinarito', 'Ensenada · Bahía del Silencio', 'Playa El Faro (Chimana Grande)', 'Chimana Segunda'], tags: ['Aguas calmas', 'Ideal para niños'], desc: 'Las islas más cercanas, con aguas tranquilas.' },
+  { id: 'r2', name: 'Rumbo 2', zone: 'Isla de Plata y Punta La Cruz', nm: 9, min: 25, hue: 185, add: 0, beaches: ['Isla de Plata', 'Punta La Cruz', 'Playa El Faro', 'Playa Varadero'], tags: ['Aguas cristalinas', 'Restaurante en la playa'], desc: 'Aguas cristalinas y comida en El Rincón Marino, en Punta La Cruz.' },
+  { id: 'r3', name: 'Rumbo 3', zone: 'Islas Arapo · estado Sucre', nm: 19, min: 45, hue: 175, add: null, plus: 'r2', beaches: ['Islas Arapo', 'La Piscina', 'Playa Ñacleta'], tags: ['Más probabilidad de delfines'], desc: 'Unas 10 millas náuticas más lejos que el Rumbo 2. Puedes sumar playas del Rumbo 2.' },
+  { id: 'r4', name: 'Rumbo 4', zone: 'Isla La Borracha y Puinare', nm: 12, min: 35, hue: 200, add: null, open: false, beaches: ['Isla La Borracha'], tags: ['Solo algunas embarcaciones'], desc: 'Rumbo hacia Isla La Borracha. Solo lo hacen algunas embarcaciones.' },
+  { id: 'r5', name: 'Rumbo 5', zone: 'Isletas de Píritu', nm: 22, min: 55, hue: 170, add: null, open: false, early: true, beaches: ['Isletas de Píritu'], tags: ['9:00 am a 5:00 pm', 'Solo con buen mar'], desc: 'Islotes de arena frente a Píritu. Solo algunas embarcaciones y con buen mar.' },
+  { id: 'r6', name: 'Rumbo 6', zone: 'Manare y Playa Blanca', nm: 24, min: 60, hue: 180, add: null, open: false, early: true, beaches: ['Playa Manare', 'Playa Blanca'], tags: ['Solo con buen mar', '9:00 am a 5:00 pm'], desc: 'Solo algunas embarcaciones y solo en temporada de buen mar.' }
 ];
-const SPECIAL = ['Isletas de Píritu', 'Isla La Tortuga', 'Islas Caracas', 'Margarita'];
+const SPECIAL = ['Isla La Tortuga', 'Islas Caracas', 'Margarita'];
 
 const MERCADILLO = 'https://mercadillo.lovable.app/';
 // Videos de Eduardo (comprimidos a 480p; se cargan solo al tocar "play")
@@ -1304,12 +1575,13 @@ const ALLIES = [
   { cat: 'Comida y bebidas', items: [['El Mercadillo', 'Haz tu pedido y te lo llevan al muelle antes de zarpar', MERCADILLO, '#1e7fb8'], ['El Rincón Marino', 'Restaurante en Playa Punta La Cruz (Rumbos 2 y 3)', '', '#d35b2f'], ['Cervecería Regional', 'Aliado oficial de cerveza', '', '#b0161e']] },
   { cat: 'Estilo', items: [['Arena Swim', 'Trajes de baño y salidas de playa', '', '#1e9b8f'], ['Brisa Deco', 'Decoración para celebraciones', '', '#8a5cd6']] },
   { cat: 'Entretenimiento', items: [['DJ Oleaje', 'Música en vivo en el mar', '', '#232843'], ['Foto Proa', 'Fotografía y dron', '', '#5b6b7a']] },
-  { cat: 'Estadía', items: [['Posada Mochima', 'Alojamiento frente a la bahía', '', '#2b8a4b']] }
+  { cat: 'Estadía', items: [['Posada Mochima', 'Alojamiento frente a la bahía', '', '#2b8a4b']] },
+  // owners: se muestra en la página de Propietarios (beneficios para dueños de embarcaciones)
+  { cat: 'Para propietarios', owners: true, items: [['Servicio de capitán', 'Capitán y marinero para tu embarcación, con accesorios si los necesitas', '', '#16759b'], ['Alquiler de inflables y accesorios', 'Flotadores, inflables, antena de internet y más para tu salida', '', '#1e9b8f']] }
 ];
 const EXPS = [
   ['Pedida de mano', 'Decoración, fotógrafo escondido y brindis en el mar.', '<path d="M12 21s-7-4.4-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.6-9 9-9 9z"/>'],
   ['Cumpleaños en el mar', 'Torta, decoración y música a bordo.', '<path d="M4 21h16M5 21v-7h14v7M12 14V9M12 6v.01M8 14v-2M16 14v-2"/>'],
-  ['Pernocta en Mochima', 'Duerme anclado en la bahía y amanece en el parque.', '<path d="M20 14A8 8 0 1110 4a6 6 0 0010 10z"/>'],
   ['Corporativo', 'Integraciones de equipo y atención a clientes con factura.', '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/>']
 ];
 const EXTRAS = Object.entries(ACC).map(([id, name]) => ({ id, name }));
@@ -1329,17 +1601,76 @@ const DEF_PAY = {
   ],
   zelleOn: 0,
   binance: '23928727', binanceUser: 'tradersince2016', binanceMail: 'eduardo.escobar@avanteksolutions.com',
-  binanceLink: 'https://app.binance.com/uni-qr/HvBFHrx1', binanceQR: 'icons/binance-qr.png'
+  binanceLink: 'https://app.binance.com/uni-qr/HvBFHrx1', binanceQR: 'icons/binance-qr.png',
+  paypal: '', paypalFee: 4.5   // PayPal: correo o enlace; la comisión se suma al abono
 };
-const DEF = { boats: clone(DEF_BOATS_SRC), routes: clone(ROUTES), docks: clone(DOCKS), allies: clone(ALLIES), basic: clone(BASIC), special: clone(SPECIAL), wa: WA, pay: clone(DEF_PAY) };
+/* Tienda a bordo: accesorios que Tu Lancha tiene en stock y se pueden sumar a cualquier salida.
+   Sin precio no se muestran: Eduardo los activa desde el panel cuando los tenga. */
+const DEF_SHOP = [
+  { id: 'toalla', name: 'Toalla de playa', price: 0 }, { id: 'termo', name: 'Termo', price: 0 },
+  { id: 'antena', name: 'Antena de internet con cargador', price: 0 }, { id: 'flor', name: 'Inflable gigante de flor', price: 0 },
+  { id: 'balsa', name: 'Balsa con remo', price: 0 }
+];
+// portada: foto principal y las imágenes de las pantallas flotantes (vacías = imagen difuminada de relleno)
+const DEF_HOME = { hero: '', cards: {} };
+const DEF = { boats: clone(DEF_BOATS_SRC), routes: clone(ROUTES), docks: clone(DOCKS), allies: clone(ALLIES), basic: clone(BASIC), special: clone(SPECIAL), wa: WA, pay: clone(DEF_PAY), shop: clone(DEF_SHOP), home: clone(DEF_HOME) };
+/* Catálogos publicados antes del 12 nov: se pasan al formato nuevo sin perder lo que Eduardo ya cargó
+   (fotos, precios, playas, aliados). Lo usan la web y el panel; al publicar desde el panel queda guardado. */
+const CAT_V = 2;
+function migrateCat(c) {
+  c = c && typeof c === 'object' ? clone(c) : {};
+  if ((c.v || 1) >= CAT_V) return c;
+  const PH = { drone: 'proa', exterior: 'popa', interior: 'social' };
+  if (Array.isArray(c.boats)) c.boats.forEach(b => {
+    const P = b.photos || {}; Object.entries(PH).forEach(([o, n]) => { if (P[o] && !P[n]) P[n] = P[o]; delete P[o]; }); b.photos = P;
+    b.rp = b.rp || {}; if (b.r4 && !('r6' in b.rp)) b.rp.r6 = true; delete b.r4;
+    if (b.kidSeat && b.kx == null) b.kx = b.own ? 3 : 2; delete b.kidSeat; delete b.kidFee;
+    b.pick = b.pick || {}; if ('cda' in b.pick) { if (!('pmr' in b.pick)) b.pick.pmr = b.pick.cda; delete b.pick.cda; }
+    if (b.own) {
+      b.inc = (b.inc || []).filter(k => k !== 'flot' && k !== 'dron'); ['internet', 'flotlux', 'lona'].forEach(k => { if (!b.inc.includes(k)) b.inc.push(k); });
+      if (b.opt) { delete b.opt.dron; delete b.opt.flot; }
+      b.amen = (b.amen || []).map(a => /^dron$/i.test(a) ? 'Lona lateral' : a);
+      if (!b.trips) b.trips = 500;
+    }
+  });
+  if (Array.isArray(c.routes)) {
+    const r4 = c.routes.find(r => r.id === 'r4');
+    if (r4 && /manare|blanca/i.test(r4.zone + r4.beaches) && !c.routes.some(r => r.id === 'r6')) {
+      Object.assign(r4, { id: 'r6', name: 'Rumbo 6', open: false });
+      const D = DEF.routes; c.routes.splice(c.routes.indexOf(r4), 0, clone(D.find(r => r.id === 'r4')), clone(D.find(r => r.id === 'r5')));
+    }
+    c.routes.forEach(r => { const d = DEF.routes.find(x => x.id === r.id) || {}; if (r.nm == null) r.nm = d.nm; if (!('add' in r)) r.add = 'extra' in r ? r.extra : d.add ?? 0; delete r.extra; if (d.open === false && r.open == null) r.open = false; if (r.tags) r.tags = r.tags.filter(t => !/millas/.test(t)); });
+  }
+  if (Array.isArray(c.docks)) {
+    const ids = c.docks.map(d => d.id);
+    c.docks.forEach(d => {
+      if (d.pickup && !d.cost) { d.cost = d.lanchaOnly ? { s: +d.lancha || 0, m: +d.lancha || 0 } : { s: +d.lancha || 0, m: +d.lancha || 0, my: +d.other || 0, y: +d.other || 0 }; delete d.lancha; delete d.other; }
+      if (d.id === 'em' && d.cost && d.cost.s === 20 && d.cost.my === 30) d.cost = { s: 15, m: 20, my: 30, y: 50 };
+      if (d.id === 'av' && d.baseFree == null) d.baseFree = true;
+      if (d.id === 'ppa' && d.off && !d.why) d.why = 'Muelle deshabilitado';
+      if (d.id === 'pmr' && ids.includes('cda') && !/cayo/i.test(d.name)) d.name = d.name + ' y Residencias Cayo de Agua';
+    });
+    c.docks = c.docks.filter(d => d.id !== 'cda');
+    const at = c.docks.findIndex(d => d.id === 'em') + 1 || c.docks.length;
+    if (!ids.includes('rem')) c.docks.splice(at, 0, clone(DEF.docks.find(d => d.id === 'rem')));
+    if (!ids.includes('cal')) c.docks.push(clone(DEF.docks.find(d => d.id === 'cal')));
+  }
+  if (Array.isArray(c.special)) c.special = c.special.filter(x => !/p[ií]ritu/i.test(x));
+  if (Array.isArray(c.allies) && !c.allies.some(x => x.owners)) c.allies.push(clone(DEF.allies.find(x => x.owners)));
+  c.v = CAT_V;
+  return c;
+}
 const normPay = p => { p = p && typeof p === 'object' ? clone(p) : {}; const o = { ...clone(DEF_PAY), ...p };
   if (!Array.isArray(p.zelles)) { o.zelles = clone(DEF_PAY.zelles); if (p.zelle) { o.zelles.unshift({ name: p.zelleName || '', email: p.zelle }); o.zelleOn = 0; } }
   o.zelles = o.zelles.filter(z => z && z.email); if (!(o.zelleOn >= 0 && o.zelleOn < o.zelles.length)) o.zelleOn = 0;
   const z = o.zelles[o.zelleOn] || {}; o.zelle = z.email || ''; o.zelleName = z.name || ''; return o; };
-const CAT = { pay: {}, beachPhotos: {}, ig: 'tulanchalecheria' };
+const CAT = { pay: {}, beachPhotos: {}, ig: 'tulanchalecheria', home: { hero: '', cards: {} } };
+const SHOP = [];
+const shopOn = () => SHOP.filter(x => x && x.name && +x.price > 0);
+const PICK_NOTE = 'Te buscamos siempre que tu residencia tenga muelle o escalera de acceso al agua y profundidad suficiente para la embarcación.';
 const fill = (arr, items) => { arr.splice(0, arr.length, ...items); };
 function applyCat(c) {
-  c = c && typeof c === 'object' ? c : {};
+  c = migrateCat(c);
   const boats = (Array.isArray(c.boats) && c.boats.length ? clone(c.boats) : clone(DEF.boats)).filter(b => !b.hidden).map(normBoat);
   if (!boats.length) boats.push(...clone(DEF.boats).map(normBoat));
   const own = boats.find(b => b.own) || boats[0];
@@ -1356,6 +1687,12 @@ function applyCat(c) {
   CAT.pay = normPay(c.pay);
   CAT.beachPhotos = c.beachPhotos && typeof c.beachPhotos === 'object' ? c.beachPhotos : {};
   CAT.ig = c.ig || 'tulanchalecheria';
+  fill(SHOP, (Array.isArray(c.shop) ? clone(c.shop) : clone(DEF.shop)).filter(x => x && x.name));
+  CAT.home = { ...clone(DEF.home), ...(c.home && typeof c.home === 'object' ? clone(c.home) : {}) }; CAT.home.cards ||= {};
+  // foto principal subida desde el panel (si no hay, queda la de Mochima)
+  const hi = document.querySelector('#hero-reel img');
+  if (hi) { hi.dataset.def ||= hi.getAttribute('src'); const so = hi.parentNode.querySelector('source'); if (so) so.dataset.def ||= so.getAttribute('srcset');
+    hi.src = CAT.home.hero || hi.dataset.def; if (so) so.srcset = CAT.home.hero || so.dataset.def; }
   // textos nuevos escritos por Eduardo con su versión en inglés
   const tr = [];
   [...BOATS, ...ROUTES].forEach(x => { if (x.desc && x.desc_en) tr.push([x.desc, x.desc_en]); });
@@ -1364,12 +1701,50 @@ function applyCat(c) {
 }
 applyCat(store.get('cat', null));
 const ph = (u, alt = '') => `<img class="ph" src="${esc(u)}" alt="${esc(alt)}" loading="lazy" decoding="async">`;
-// foto real de la embarcación si Eduardo la subió; si no, la ilustración
+/* Fotos de cada embarcación. Solo se muestran las que Eduardo subió: un espacio sin foto no aparece en la web.
+   Las tres últimas solo aplican a mini yates, barcos y yates. Si no hay ninguna, queda una sola ilustración de portada. */
+const VIEWS = [['proa', 'Proa'], ['popa', 'Popa'], ['social', 'Área social'], ['camarote', 'Camarote'], ['habitacion', 'Habitación', 1], ['bano', 'Baño', 1], ['accesorios', 'Accesorios', 1]];
+const viewsOf = b => VIEWS.filter(v => !v[2] || b.type !== 'Lancha');
+const photosOf = b => viewsOf(b).filter(([k]) => b.photos && b.photos[k]).map(([k, l]) => ({ k, l, u: b.photos[k] }));
 function pic(b, kind) {
-  const P = b.photos || {}, u = P[kind] || (kind === 'exterior' ? P.drone : kind === 'drone' ? P.exterior : '');
-  return u ? ph(u, b.name) : art(kind === 'camarote' && !P.camarote ? 'camarote' : kind, b.hue, b.id);
+  const l = photosOf(b), f = l.find(x => x.k === kind) || l[0];
+  return f ? ph(f.u, b.name) : art('drone', b.hue, b.id);
 }
-const beachPic = (n, hue) => { const u = CAT.beachPhotos[String(n).replace(/\./g, '·')]; return u ? ph(u, n) : beachArt({ id: n, hue }); };
+// galería: pasa sola cada 5 s (auto) y también con flechas, puntos o deslizando el dedo
+function gallery(b, o = {}) {
+  const l = photosOf(b);
+  if (l.length < 2) return `<div class="gal one">${pic(b)}${l[0] && o.label ? `<span class="gal-l">${l[0].l}</span>` : ''}${o.badge || ''}</div>`;
+  return `<div class="gal" data-gal${o.auto ? ' data-auto' : ''} data-i="0" role="region" aria-roledescription="carrusel" aria-label="Fotos de ${esc(b.name)}">
+    ${l.map((x, i) => `<figure class="gal-s${i ? '' : ' on'}" data-k="${x.k}" aria-hidden="${i ? 'true' : 'false'}">${ph(x.u, `${b.name} · ${x.l}`)}${o.label ? `<figcaption class="gal-l">${x.l}</figcaption>` : ''}</figure>`).join('')}
+    ${o.badge || ''}<button type="button" class="gal-a prev" data-gal-go="-1" aria-label="Foto anterior"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="gal-a next" data-gal-go="1" aria-label="Foto siguiente"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    <div class="gal-dots">${l.map((x, i) => `<button type="button" data-gal-to="${i}" aria-label="${x.l}" aria-pressed="${!i}"></button>`).join('')}</div></div>`;
+}
+function galGo(g, to) {
+  const s = $$('.gal-s', g), n = s.length; if (n < 2) return;
+  const i = ((to % n) + n) % n; g.dataset.i = i;
+  s.forEach((x, j) => { x.classList.toggle('on', j === i); x.setAttribute('aria-hidden', String(j !== i)); });
+  $$('[data-gal-to]', g).forEach((x, j) => x.setAttribute('aria-pressed', String(j === i)));
+  const th = g.closest('.m-media'); if (th) $$('[data-mv]', th).forEach((x, j) => x.setAttribute('aria-pressed', String(j === i)));
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-gal-go],[data-gal-to]'); if (!a) return;
+  const g = a.closest('[data-gal]') || (a.closest('.m-media') && $('[data-gal]', a.closest('.m-media'))); if (!g) return;
+  e.preventDefault(); e.stopPropagation(); g.dataset.hold = Date.now();
+  galGo(g, a.dataset.galTo != null ? +a.dataset.galTo : +g.dataset.i + +a.dataset.galGo);
+}, true);
+let galX = null;
+document.addEventListener('pointerdown', e => { const g = e.target.closest('[data-gal]'); galX = g ? [g, e.clientX, e.clientY] : null; }, { passive: true });
+document.addEventListener('pointerup', e => { if (!galX) return; const [g, x, y] = galX, dx = e.clientX - x; galX = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(e.clientY - y)) { g.dataset.hold = Date.now(); galGo(g, +g.dataset.i + (dx < 0 ? 1 : -1)); } }, { passive: true });
+const galReduce = matchMedia('(prefers-reduced-motion: reduce)');
+setInterval(() => {
+  if (galReduce.matches || document.hidden) return;
+  $$('[data-gal][data-auto]').forEach(g => { if (!g.offsetParent || Date.now() - (+g.dataset.hold || 0) < 9000 || g.matches(':hover')) return; galGo(g, +g.dataset.i + 1); });
+}, 5000);
+const beachPhoto = n => CAT.beachPhotos[String(n).replace(/\./g, '·')] || '';
+const beachPic = (n, hue) => { const u = beachPhoto(n); return u ? ph(u, n) : beachArt({ id: n, hue }); };
+// viajes realizados en vez de estrellas (pedido de Eduardo)
+const tripsTxt = b => +b.trips > 0 ? `+${(+b.trips).toLocaleString(TLL_I18N.loc())} viajes` : '';
+const speedTxt = b => b.type !== 'Lancha' && +b.kts > 0 ? `${+b.kts} nudos` : '';
 const REVIEWS = [];
 const NEWS = [];
 void REVIEWS; void NEWS;
@@ -1425,28 +1800,8 @@ function beachArt(b) {
 }
 
 /* ---------------- hero ---------------- */
-/* ---------------- condiciones del mar ---------------- */
 const wday = (d, f = 'short') => { const s = d.toLocaleDateString(TLL_I18N.loc(), { weekday: f }).replace(/\.$/, ''); return s.charAt(0).toUpperCase() + s.slice(1); };
-let seaLast = null;
-function seaLevel(wave, wind) { return wave > 1.4 || wind > 20 ? 'red' : wave > 0.9 || wind > 14 ? 'amber' : 'ok'; }
-function renderSea(days, live) {
-  seaLast = [days, live];
-  const t = days[0], lv = seaLevel(t.wave, t.wind);
-  const txt = { ok: ['Mar en calma', 'Condiciones ideales para todas las rutas, incluida Mochima.'], amber: ['Mar moderado', 'Recomendamos rutas cercanas o salir temprano. Embarcaciones grandes sin problema.'], red: ['Mar picado', 'El capitán puede reprogramar. Te avisamos con tiempo y sin costo.'] }[lv];
-  $('#mar-now').innerHTML = `<span class="flag ${lv === 'ok' ? '' : lv}"><i></i>Hoy</span><div class="verdict">${txt[0]}</div><p>${txt[1]}</p><div class="mono" style="font-size:.9rem">Ola ${t.wave.toFixed(1)} m · Viento ${Math.round(t.wind)} nudos</div>`;
-  $('#mar-days').innerHTML = days.slice(1, 6).map(d => { const l = seaLevel(d.wave, d.wind); return `<div class="day ${l === 'ok' ? '' : l}"><span class="d">${wday(d.date)} ${d.date.getDate()}</span><div class="bar"><i style="width:${Math.min(100, d.wave / 1.8 * 100)}%"></i></div><span class="k">${d.wave.toFixed(1)} m · ${Math.round(d.wind)} kn</span></div>`; }).join('');
-  $('#mar-src').textContent = live ? 'en vivo · Open-Meteo' : 'datos de ejemplo';
-}
 const today = new Date(); today.setHours(0, 0, 0, 0);
-const sample = [0.6, 0.7, 1.0, 0.8, 0.5, 0.6].map((w, i) => ({ date: new Date(today.getTime() + i * 864e5), wave: w, wind: [9, 11, 15, 12, 8, 10][i] }));
-renderSea(sample, false);
-Promise.all([
-  fetch('https://marine-api.open-meteo.com/v1/marine?latitude=10.3&longitude=-64.6&daily=wave_height_max&timezone=America%2FCaracas&forecast_days=6').then(r => r.json()),
-  fetch('https://api.open-meteo.com/v1/forecast?latitude=10.2&longitude=-64.65&daily=wind_speed_10m_max&wind_speed_unit=kn&timezone=America%2FCaracas&forecast_days=6').then(r => r.json())
-]).then(([m, f]) => {
-  const days = m.daily.time.map((d, i) => ({ date: new Date(d + 'T12:00'), wave: m.daily.wave_height_max[i] ?? 0.6, wind: f.daily.wind_speed_10m_max[i] ?? 10 }));
-  if (days.length >= 6) renderSea(days, true);
-}).catch(() => {});
 
 /* ---------------- disponibilidad (propietarios) ---------------- */
 const owner = store.get('owner', {}); // {boatId: {rate, wk, busy:{'2026-11-20':true}}}
@@ -1455,7 +1810,7 @@ function busyDefault(b, d) { const r = rnd(b.id + iso(d)); return r() < .22; }
 function isBusy(b, d) { const o = owner[b.id]?.busy; const k = iso(d); return o && k in o ? o[k] : busyDefault(b, d); }
 function rateOf(b) { return owner[b.id]?.rate ?? b.price; }
 function wkOf(b) { return owner[b.id]?.wk ?? b.wk ?? 10; }
-function priceOn(b, d) { const wkend = d && (d.getDay() === 0 || d.getDay() === 6); return rateOf(b) * (wkend ? 1 + wkOf(b) / 100 : 1); }
+function priceOn(b, d, r) { const wkend = d && (d.getDay() === 0 || d.getDay() === 6); const base = r ? routePrice(b, r).price : rateOf(b); return base * (wkend ? 1 + wkOf(b) / 100 : 1); }
 function nextFree(b) { for (let i = 1; i < 60; i++) { const d = new Date(today.getTime() + i * 864e5); if (!isBusy(b, d)) return d; } }
 const fmtDay = d => d.toLocaleDateString(TLL_I18N.loc(), { weekday: 'short', day: 'numeric', month: 'short' });
 
@@ -1481,22 +1836,45 @@ function calendar(el, b, opts) {
 }
 
 /* ---------------- reglas de rumbo, muelle y horario ---------------- */
-const dockById = id => DOCKS.find(d => d.id === id) || DOCKS[0];
-// ¿Puede esta embarcación salir de / recoger en este punto? Devuelve {ok, cost, why}
+/* Muelle escogido por el cliente: marca el punto exacto en un mapa satelital (Leaflet + Esri, sin llave)
+   y la ubicación viaja en el WhatsApp de la reserva y al panel de Eduardo. */
+const PIN_SVG = '<svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z" fill="#ea4335"/><circle cx="12" cy="9" r="2.6" fill="#7a1a12"/></svg>';
+const PIN_DOCK = { id: 'pin', name: 'Muelle escogido por ti', custom: true };
+const okPin = p => !!p && isFinite(p.lat) && isFinite(p.lng) && Math.abs(p.lat) <= 90 && Math.abs(p.lng) <= 180;
+const pinTxt = p => `${(+p.lat).toFixed(6)}, ${(+p.lng).toFixed(6)}`;
+const gmapsUrl = p => `https://www.google.com/maps/search/?api=1&query=${(+p.lat).toFixed(6)},${(+p.lng).toFixed(6)}`;
+const dockById = id => id === 'pin' ? PIN_DOCK : DOCKS.find(d => d.id === id) || DOCKS[0];
+// ¿Puede esta embarcación salir de / recoger en este punto? Devuelve {ok, cost, fee, why}
+// cost: lo cobra Tu Lancha (recogida). fee: servicio por uso de muelle, lo cobra el establecimiento y se paga en sitio.
 function dockFor(b, d) {
-  if (d.off) return { ok: false, why: 'Muelle no habilitado por ahora' };
-  if (!d.pickup) return { ok: true, cost: 0 };
-  if (b.pick && d.id in b.pick) return b.pick[d.id] === null ? { ok: false, why: `${b.name} no llega hasta ahí por su calado` } : { ok: true, cost: b.pick[d.id] };
-  if (d.lanchaOnly && b.type !== 'Lancha') return { ok: false, why: 'Solo lanchas; barcos y yates salen de los muelles sugeridos' };
-  return { ok: true, cost: b.type === 'Lancha' ? d.lancha : d.other };
+  if (d.custom) return okPin(Q.pin) ? { ok: true, cost: 0, tbd: true } : { ok: false, why: 'Marca tu muelle en el mapa' };
+  if (d.off) return { ok: false, why: d.why || 'Muelle deshabilitado' };
+  if (Array.isArray(b.docks) && b.docks.length && !b.docks.includes(d.id)) return { ok: false, why: d.pickup ? `${b.name} no hace recogidas ahí` : `${b.name} no sale de ${d.name}` };
+  if (!d.pickup) { const home = DOCKS[b.dock] && DOCKS[b.dock].id === d.id; return { ok: true, cost: 0, fee: d.baseFree && home ? '' : d.fee || '', free: !!(d.baseFree && home && d.fee) }; }
+  if (b.pick && d.id in b.pick) return b.pick[d.id] === null ? { ok: false, why: `${b.name} no llega hasta ahí por su calado` } : { ok: true, cost: +b.pick[d.id] || 0 };
+  const z = sizeOf(b), c = d.cost || {};
+  if ((d.lanchaOnly && b.type !== 'Lancha') || c[z] == null) return { ok: false, why: 'Solo lanchas; barcos y yates salen de los muelles sugeridos' };
+  return { ok: true, cost: +c[z] || 0 };
 }
-const routeOk = (b, r) => !r.id || r.id !== 'r4' || !!b.r4;
+/* Precio por rumbo: cada embarcación tiene su tarifa para cada rumbo (no es un recargo).
+   Devuelve {ok, price, tbd}: tbd = el precio de ese rumbo se confirma por WhatsApp. */
+function routePrice(b, r) {
+  const base = rateOf(b);
+  if (!r) return { ok: true, price: base };
+  const v = b.rp ? b.rp[r.id] : undefined;
+  if (v === null || v === false) return { ok: false };
+  if (typeof v === 'number' && v > 0) return { ok: true, price: v };
+  if (v === undefined && r.open === false) return { ok: false };
+  if (typeof r.add === 'number') return { ok: true, price: base + r.add };
+  return { ok: true, price: base, tbd: true };
+}
+const routeOk = (b, r) => !r || !r.id || routePrice(b, r).ok;
 const hh = h => `${h > 12 ? h - 12 : h}:00 ${h >= 12 ? 'pm' : 'am'}`;
 function hoursFor(b, r, d) {
   const start = r.early ? 9 : 10, end = r.early ? 17 : 18;
   let maxX = 0, why = '';
   if (d.back) why = `Regreso al ${d.name} máximo a las ${d.back}.`;
-  else if (r.early) why = `${r.name} sale a las 9:00 am y regresa a las 5:00 pm.`;
+  else if (r.early) why = `El ${r.name} sale a las 9:00 am y regresa a las 5:00 pm.`;
   else if (b.late) maxX = b.late - end;
   else why = `${b.name} regresa a las 6:00 pm.`;
   return { start, end, maxX, why };
@@ -1504,57 +1882,51 @@ function hoursFor(b, r, d) {
 function beachLimitText(b) { return `Puedes elegir hasta ${b.maxBeaches} playa${b.maxBeaches > 1 ? 's' : ''}`; }
 
 /* ---------------- embarcaciones ---------------- */
-const VIEWS = [['drone', 'Dron'], ['exterior', 'Exterior'], ['interior', 'Interior'], ['camarote', 'Camarote']];
-let filt = { type: 'all', pax: 0, dock: '' };
+let filt = { type: 'all', pax: 0 };
 const OWN_BADGE = 'Recomendación de la casa';
+const ownBadge = b => b.own ? `<span class="badge own-badge">${OWN_BADGE}</span>` : '';
+const hasPics = b => photosOf(b).length > 0;
 function boatCard(b) {
-  const nf = nextFree(b);
-  return `<article class="boat${b.own ? ' own' : ''}" data-id="${b.id}">
-    <div class="shot"><span class="pic">${pic(b, 'drone')}</span>${b.own ? `<span class="badge own-badge">${OWN_BADGE}</span>` : ''}
-      <div class="tabs">${VIEWS.filter(v => v[0] !== 'camarote' || b.cabin).map((v, i) => `<button type="button" data-v="${v[0]}" aria-pressed="${i === 0}">${v[1]}</button>`).join('')}</div></div>
+  const nf = nextFree(b), tr = tripsTxt(b), sp = speedTxt(b);
+  return `<article class="boat${b.own ? ' own' : ''}${hasPics(b) ? '' : ' nopic'}" data-id="${b.id}">
+    ${hasPics(b) ? `<div class="shot">${gallery(b, { auto: b.own, label: true, badge: ownBadge(b) })}</div>` : ''}
     <div class="body">
-      <div class="row"><h3>${b.name}</h3><span class="rating">${b.own ? '<b>La más vendida</b>' : `<b>${b.rating.toFixed(1)}</b> ★`}</span></div>
-      <div class="meta"><span class="tag">${b.type}</span><span class="tag">${b.ft} pies</span><span class="tag">Hasta ${b.pax} pers.</span>${b.cabin ? '<span class="tag">Pernocta</span>' : ''}</div>
-      <div class="rating">Hasta ${b.maxBeaches} playas por salida${b.r4 ? ' · hace el Rumbo 4' : ''}</div>
-      <div class="rating">Sale de ${DOCKS[b.dock].name} · libre ${nf ? fmtDay(nf) : '—'}</div>
+      ${!hasPics(b) && b.own ? ownBadge(b) : ''}<div class="row"><h3>${esc(b.name)}</h3>${tr ? `<span class="trips">${tr}</span>` : ''}</div>
+      <div class="meta"><span class="tag">${b.type}</span><span class="tag">${b.ft} pies</span>${b.own ? '' : `<span class="tag">Hasta ${b.pax} pers.</span>`}${sp ? `<span class="tag">${sp}</span>` : ''}</div>
+      <div class="rating">Hasta ${b.maxBeaches} playas por salida · libre ${nf ? fmtDay(nf) : '—'}</div>
       <div class="acts"><button class="btn btn-ghost btn-sm" type="button" data-open="${b.id}">Ver detalles</button><button class="btn btn-sun btn-sm" type="button" data-book="${b.id}">Reservar</button></div>
     </div></article>`;
 }
 function renderBoats() {
-  const list = BOATS.filter(b => (filt.type === 'all' || (filt.type === 'Pernocta' ? b.cabin : b.type === filt.type)) && b.pax >= filt.pax && (filt.dock === '' || b.dock === +filt.dock))
+  const list = BOATS.filter(b => (filt.type === 'all' || b.type === filt.type) && b.pax >= filt.pax)
     .sort((a, b) => (b.own ? 1 : 0) - (a.own ? 1 : 0));
   const own = list.filter(b => b.own), rest = list.filter(b => !b.own);
-  $('#boats').innerHTML = (own.map(boatCard).join('') + (rest.length && own.length ? '<h3 class="grid-h">Otras opciones disponibles</h3>' : '') + rest.map(boatCard).join('')) || '<p class="rating">No hay embarcaciones con esos filtros. Prueba con otro muelle o tamaño de grupo.</p>';
+  $('#boats').innerHTML = (own.map(boatCard).join('') + (rest.length && own.length ? '<h3 class="grid-h">Otras opciones disponibles</h3>' : '') + rest.map(boatCard).join('')) || '<p class="rating">No hay embarcaciones con esos filtros. Prueba con otro tipo o tamaño de grupo.</p>';
   $('#f-count').textContent = `${list.length} de ${BOATS.length} embarcaciones`;
 }
 function renderOwnFeature() {
   const el = $('#own-feature'); if (!el || !OWN) return;
-  const nf = nextFree(OWN);
-  el.innerHTML = `<div class="own-card glass-card">
-    <div class="own-shot">${pic(OWN, 'exterior')}<span class="badge own-badge">${OWN_BADGE}</span></div>
-    <div class="own-in"><span class="eyebrow">La más vendida</span><h2>${OWN.name}</h2><p>${OWN.desc}</p>
-      <div class="meta"><span class="tag">${OWN.type} · ${OWN.ft} pies</span><span class="tag">Hasta ${OWN.pax} pasajeros + capitán</span>${OWN.amen.map(a => `<span class="tag">${a}</span>`).join('')}</div>
+  const nf = nextFree(OWN), tr = tripsTxt(OWN);
+  el.innerHTML = `<div class="own-card glass-card${hasPics(OWN) ? '' : ' nopic'}">
+    ${hasPics(OWN) ? `<div class="own-shot">${gallery(OWN, { auto: true, label: true, badge: ownBadge(OWN) })}</div>` : ''}
+    <div class="own-in">${hasPics(OWN) ? '' : ownBadge(OWN)}<span class="eyebrow">${tr ? `${tr} exitosos` : 'La más elegida'} · ${(+OWN.rating || 5).toFixed(1)} ★</span><h2>${esc(OWN.name)}</h2><p>${esc(OWN.desc)}</p>
+      <div class="meta"><span class="tag">${OWN.type} · ${OWN.ft} pies</span>${OWN.amen.map(a => `<span class="tag">${esc(a)}</span>`).join('')}</div>
+      ${OWN.promo ? `<p class="own-promo">${esc(OWN.promo)}</p>` : ''}
       <p class="rating">Próxima fecha libre: <b>${nf ? fmtDay(nf) : 'consúltanos'}</b></p>
       <div class="row2"><button class="btn btn-sun" type="button" data-open="${OWN.id}">Ver disponibilidad</button><button class="btn btn-ghost" type="button" data-book="${OWN.id}">Reservar</button></div></div></div>`;
 }
-const F_DOCK0 = $('#f-dock').innerHTML;
 function renderDockOpts() {
-  $('#f-dock').innerHTML = F_DOCK0 + MAIN_DOCKS.map(d => `<option value="${DOCKS.indexOf(d)}">${esc(d.name)}</option>`).join('');
   const pd = $('#p-dock'); if (pd) pd.innerHTML = MAIN_DOCKS.map(d => `<option>${esc(d.name)}</option>`).join('') + '<option>Otro</option>';
 }
 renderDockOpts();
 $('#filters').addEventListener('click', e => { const p = e.target.closest('.pill'); if (!p) return; $$('.pill', $('#filters')).forEach(x => x.setAttribute('aria-pressed', x === p)); filt.type = p.dataset.type; renderBoats(); });
 $('#f-pax').onchange = e => { filt.pax = +e.target.value; renderBoats(); };
-$('#f-dock').onchange = e => { filt.dock = e.target.value; renderBoats(); };
-$('#boats').addEventListener('click', e => {
-  const v = e.target.closest('[data-v]');
-  if (v) { const card = v.closest('.boat'), b = BOATS.find(x => x.id === card.dataset.id); $('.pic', card).innerHTML = pic(b, v.dataset.v); $$('[data-v]', card).forEach(x => x.setAttribute('aria-pressed', x === v)); }
-});
 document.addEventListener('click', e => { const o = e.target.closest('[data-open]'); if (!o || o.closest('dialog')) return; e.preventDefault(); openBoat(o.dataset.open); });
 
+const parNote = k => k === 'parrilla' ? `<small class="acc-note">${PARRILLA_NOTE}</small>` : '';
 function accHtml(b) {
-  const inc = b.inc.map(k => `<li>${ACC[k]}${k === 'parrilla' ? ' <b>sin costo</b>' : ''}</li>`).join('');
-  const opt = Object.entries(b.opt).map(([k, p]) => `<li>${ACC[k]} <b>+${money(p)}</b></li>`).join('');
+  const inc = b.inc.filter(k => ACC[k]).map(k => `<li>${accName(b, k)}${k === 'parrilla' ? ' <b>sin costo</b>' : ''}${parNote(k)}</li>`).join('');
+  const opt = Object.entries(b.opt).filter(([k]) => ACC[k]).map(([k, p]) => `<li>${accName(b, k)} <b>+${money(p)}</b>${parNote(k)}</li>`).join('');
   return `${inc ? `<div><h4>Incluido en esta embarcación</h4><ul class="chk">${inc}</ul></div>` : ''}${opt ? `<div><h4>Extras con costo</h4><ul class="chk plus">${opt}</ul></div>` : ''}`;
 }
 const basicHtml = () => `<ul class="chk">${BASIC.map(x => `<li>${x}</li>`).join('')}</ul>`;
@@ -1563,21 +1935,22 @@ const basicHtml = () => `<ul class="chk">${BASIC.map(x => `<li>${x}</li>`).join(
 function openBoat(id) {
   const b = BOATS.find(x => x.id === id), dlg = $('#dlg'); if (!b) return;
   if (dlg.open) dlg.close();
-  dlg.className = '';
+  dlg.className = hasPics(b) ? '' : 'nopic';
   let pick = nextFree(b);
-  const views = VIEWS.filter(v => v[0] !== 'camarote' || b.cabin);
-  const hr = hoursFor(b, ROUTES[0], DOCKS[0]);
+  const l = photosOf(b), hr = hoursFor(b, ROUTES[0], DOCKS[0]), tr = tripsTxt(b), sp = speedTxt(b);
+  const extra = ROUTES.filter(r => r.open === false && routeOk(b, r));
   dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="m-grid">
-    <div class="m-media"><div class="shot" id="m-shot">${pic(b, 'drone')}${b.own ? `<span class="badge own-badge">${OWN_BADGE}</span>` : ''}</div>
-      <div class="thumbs">${views.map((v, i) => `<button type="button" data-mv="${v[0]}" aria-pressed="${i === 0}" aria-label="${v[1]}">${pic(b, v[0])}</button>`).join('')}</div>
-      <div class="links-v"><a class="btn btn-ghost on-sea btn-sm" href="https://www.youtube.com/results?search_query=tu+lancha+lecheria" target="_blank" rel="noopener">Ver video</a><a class="btn btn-ghost on-sea btn-sm" href="https://www.instagram.com/tulanchalecheria/" target="_blank" rel="noopener">Fotos en Instagram</a></div></div>
+    ${l.length ? `<div class="m-media"><div class="shot" id="m-shot">${gallery(b, { label: true, badge: ownBadge(b) })}</div>
+      ${l.length > 1 ? `<div class="thumbs">${l.map((x, i) => `<button type="button" data-mv="${x.k}" data-gal-to="${i}" aria-pressed="${i === 0}" aria-label="${x.l}">${ph(x.u, x.l)}</button>`).join('')}</div>` : ''}
+      <div class="links-v"><a class="btn btn-ghost on-sea btn-sm" href="https://www.instagram.com/tulanchalecheria/" target="_blank" rel="noopener">Más fotos en Instagram</a></div></div>` : ''}
     <div class="m-body">
-      <div style="display:grid;gap:6px"><span class="eyebrow">${b.type}${b.own ? ' · La más vendida' : ` · ${b.rating.toFixed(1)} ★`}</span><h2 id="m-title" style="font-size:1.8rem">${b.name}</h2><p style="color:var(--muted)">${b.desc}</p></div>
-      <div class="specs"><div class="spec"><span>Eslora</span><b>${b.ft} ft</b></div><div class="spec"><span>Personas</span><b>${b.pax}</b></div><div class="spec"><span>Playas</span><b>hasta ${b.maxBeaches}</b></div></div>
-      <div class="amen">${b.amen.map(a => `<span class="tag">${a}</span>`).join('')}</div>
+      <div style="display:grid;gap:6px"><span class="eyebrow">${b.type}${tr ? ' · ' + tr : ''}</span><h2 id="m-title" style="font-size:1.8rem">${esc(b.name)}</h2><p style="color:var(--muted)">${esc(b.desc)}</p></div>
+      <div class="specs"><div class="spec"><span>Eslora</span><b>${b.ft} ft</b></div>${b.own ? (b.inc.includes('internet') ? '<div class="spec"><span>Internet</span><b>a bordo</b></div>' : '') : `<div class="spec"><span>Personas</span><b>${b.pax}</b></div>`}${sp ? `<div class="spec"><span>Velocidad</span><b>${sp}</b></div>` : ''}<div class="spec"><span>Playas</span><b>hasta ${b.maxBeaches}</b></div></div>
+      <div class="amen">${b.amen.map(a => `<span class="tag">${esc(a)}</span>`).join('')}</div>
+      ${b.promo ? `<p class="own-promo">${esc(b.promo)}</p>` : ''}
       <details class="pk" open><summary>Equipamiento básico incluido</summary>${basicHtml()}</details>
       <div class="acc">${accHtml(b)}</div>${vlink('accesorios', 'Ver video: accesorios y facilidades')}
-      <p class="rating hr-note">Horario: 10:00 am a 6:00 pm. ${b.late ? `Puede quedarse hasta las ${hh(b.late)} con hora extra (${money(b.hx)} c/u, en efectivo a bordo).` : hr.why} ${b.r4 ? 'Hace el Rumbo 4 (Manare y Playa Blanca) en temporada de buen mar.' : ''}</p>
+      <p class="rating hr-note">Horario: 10:00 am a 6:00 pm. ${b.late ? `Puede quedarse hasta las ${hh(b.late)} con hora extra (${money(b.hx)} c/u, en efectivo a bordo).` : hr.why} ${CAPT_NOTE}${extra.length ? ` También hace ${extra.map(r => `el ${r.name} (${r.zone})`).join(', ')}.` : ''}</p>
       <div class="cal" id="m-cal"></div>
       <div class="row" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="rating" id="m-when"></div><button class="btn btn-sun" type="button" id="m-book">Reservar esta embarcación</button></div>
     </div></div>`;
@@ -1586,28 +1959,28 @@ function openBoat(id) {
   dlg.onchange = null;
   dlg.onclick = e => {
     if (e.target === dlg || e.target.closest('.m-close')) return dlg.close();
-    const mv = e.target.closest('[data-mv]'); if (mv) { $('#m-shot', dlg).innerHTML = pic(b, mv.dataset.mv) + (b.own ? `<span class="badge own-badge">${OWN_BADGE}</span>` : ''); $$('[data-mv]', dlg).forEach(x => x.setAttribute('aria-pressed', x === mv)); }
     if (e.target.closest('#m-book')) { Q.boat = b.id; if (pick) Q.date = iso(pick); fitTo(b); dlg.close(); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(2), 0); }
   };
   upd(); dlg.showModal();
 }
+const CAPT_NOTE = 'La hora final de regreso puede variar según la recomendación del capitán, el grupo y el estado del mar.';
 
 /* ---------------- reserva guiada ---------------- */
 const Q = Object.assign({ pax: 4, kids: 0, boat: OWN ? OWN.id : 'b1', route: 'r1', beaches: [], dock: 'pm', hx: 0, date: iso(new Date(today.getTime() + 7 * 864e5)), acc: {} }, store.get('quote2', {}));
-// Niños de 7 años o menos: en embarcaciones con excepción (kidSeat), dos niños ocupan un puesto, con recargo (kidFee) por cada niño por encima de la licencia.
-const seatsOn = b => Q.pax + (Q.kids || 0) * (b.kidSeat || 1);
-const fitsOn = b => seatsOn(b) <= b.pax;
-const kidExtra = b => b.kidSeat ? Math.max(0, Math.min(Q.kids || 0, Q.pax + (Q.kids || 0) - b.pax)) : 0;
+/* Niños de 7 años o menos: cuentan como pasajeros, pero algunas embarcaciones admiten además unos niños pequeños (kx)
+   sin costo extra. Ej.: la lancha de la casa lleva 5 adultos y hasta 3 niños pequeños. El precio es el de la embarcación. */
+const fitsOn = b => Q.pax <= b.pax && Q.pax + (Q.kids || 0) <= b.pax + (+b.kx || 0);
 const people = () => Q.pax + (Q.kids || 0);
 const paxTxt = () => `${Q.pax} adulto${Q.pax === 1 ? '' : 's'}${Q.kids ? ` + ${Q.kids} niño${Q.kids === 1 ? '' : 's'} (7 años o menos)` : ''}`;
-const capTxt = b => `${b.pax} pers.${b.kidSeat ? ' + niños' : ''}`;
+const capTxt = b => `${b.pax} pers.${+b.kx ? ` + ${+b.kx} niños` : ''}`;
 function fitTo(b) { Q.pax = Math.min(Q.pax, b.pax); while (Q.kids && !fitsOn(b)) Q.kids--; }
 const BIG_MSG = 'Nuestros yates tienen una capacidad máxima de 12 personas y lanchas para 10p. Para grupos más grandes, la opción ideal es nuestro barco de eventos de 30p o para mayor versatilidad, el alquiler de dos embarcaciones de 8p ó 10p cada una, quedo atento a la opción que les gustaría…';
 Q.pax = Math.min(30, Math.max(1, Math.round(+Q.pax) || 4)); Q.kids = Math.min(10, Math.max(0, Math.round(+Q.kids) || 0));
 const qDate = () => { const [yy, mm, dd] = Q.date.split('-').map(Number); return new Date(yy, mm - 1, dd); };
+const thumbOf = b => hasPics(b) ? `<span class="o-th">${pic(b)}</span>` : '';
 function boatOpt(b, d) {
-  const busy = isBusy(b, d);
-  return `<button type="button" class="opt${b.own ? ' own' : ''}" data-boat="${b.id}" aria-pressed="${b.id === Q.boat}">${b.own ? `<span class="own-tag">${OWN_BADGE}</span>` : ''}<b>${b.name}</b><span>${b.type} · ${capTxt(b)} · hasta ${b.maxBeaches} playas</span>${busy ? '<span class="busy-t">Ocupada ese día</span>' : ''}<span class="p">${money(priceOn(b, d))} / día</span></button>`;
+  const busy = isBusy(b, d), r = ROUTES.find(x => x.id === Q.route) || ROUTES[0], rr = routeOk(b, r) ? r : ROUTES[0];
+  return `<button type="button" class="opt boat-o${b.own ? ' own' : ''}${hasPics(b) ? ' has-th' : ''}" data-boat="${b.id}" aria-pressed="${b.id === Q.boat}">${thumbOf(b)}<span class="o-tx">${b.own ? `<span class="own-tag">${OWN_BADGE}</span>` : ''}<b>${esc(b.name)}</b><span>${b.type} · ${b.own ? `${b.ft} pies` : capTxt(b)} · hasta ${b.maxBeaches} playas</span>${busy ? '<span class="busy-t">Ocupada ese día</span>' : ''}<span class="p">${routePrice(b, rr).tbd ? 'desde ' : ''}${money(priceOn(b, d, rr))} / día</span></span></button>`;
 }
 function renderBuilder() {
   Q.kids = Q.kids || 0;
@@ -1619,7 +1992,7 @@ function renderBuilder() {
   const ownOk = OWN && fitsOn(OWN) && !isBusy(OWN, d);
   const others = fits.filter(b => !b.own).sort((a, b) => (isBusy(a, d) - isBusy(b, d)) || rateOf(a) - rateOf(b));
   if (!fits.find(b => b.id === Q.boat) || (Q.boat === OWN?.id && !ownOk)) Q.boat = ownOk ? OWN.id : (others.find(b => !isBusy(b, d)) || others[0])?.id;
-  const ownMsg = !OWN || ownOk ? '' : `<p class="own-off">${!fitsOn(OWN) ? `La ${OWN.name.toLowerCase()} lleva hasta ${OWN.pax} pasajeros más el capitán (dos niños de 7 años o menos ocupan un puesto).` : `La ${OWN.name.toLowerCase()} ya está reservada el ${fmtDay(d)}.`} Estas embarcaciones de nuestros aliados están disponibles:</p>`;
+  const ownMsg = !OWN || ownOk ? '' : `<p class="own-off">${!fitsOn(OWN) ? `Para tu grupo te recomendamos estas embarcaciones, donde todos van cómodos.` : `La ${OWN.name.toLowerCase()} ya está reservada el ${fmtDay(d)}.`} Estas embarcaciones de nuestros aliados están disponibles:</p>`;
   $('#b-boats').innerHTML = (ownOk ? `<div class="opts own-row">${boatOpt(OWN, d)}</div><h4 class="opts-h">Otras opciones disponibles</h4>` : ownMsg) + `<div class="opts">${others.map(b => boatOpt(b, d)).join('')}</div>`;
   const b = BOATS.find(x => x.id === Q.boat);
   $('#b-date').value = Q.date; $('#b-date').min = iso(today);
@@ -1633,33 +2006,41 @@ function renderPlan(b) {
   const allowed = [...r.beaches, ...(plus ? plus.beaches : [])];
   Q.beaches = (Q.beaches || []).filter(x => allowed.includes(x)).slice(0, b.maxBeaches);
   if (!Q.beaches.length) Q.beaches = [r.beaches[0]];
-  $('#b-routes').innerHTML = ROUTES.map(x => { const ok = routeOk(b, x); return `<button type="button" class="opt rumbo" data-route="${x.id}" aria-pressed="${x.id === r.id}" ${ok ? '' : 'disabled'}><b>${x.name} · ${x.zone}</b><span>${x.beaches.join(', ')}</span><span class="p">${ok ? (x.extra === null ? 'Con recargo · te lo confirmamos' : 'Sin recargo') + ` · ~${x.min} min` : 'No disponible en esta embarcación'}</span></button>`; }).join('');
+  const dd = qDate();
+  $('#b-routes').innerHTML = ROUTES.map(x => { const rp = routePrice(b, x); return `<button type="button" class="opt rumbo" data-route="${x.id}" aria-pressed="${x.id === r.id}" ${rp.ok ? '' : 'disabled'}><b>${x.name} · ${esc(x.zone)}</b><span>${x.beaches.map(esc).join(', ')}</span><span class="r-m">${x.nm ? `~${x.nm} millas náuticas · ` : ''}~${x.min} min</span><span class="p">${rp.ok ? (rp.tbd ? 'Precio por confirmar' : money(priceOn(b, dd, x))) : 'No disponible en esta embarcación'}</span></button>`; }).join('');
   const chip = n => `<button type="button" class="bchip" data-beach="${esc(n)}" aria-pressed="${Q.beaches.includes(n)}">${esc(n)}</button>`;
   $('#b-beaches').innerHTML = `<div class="bl-h"><b>Elige tus playas</b><span class="lim" id="b-lim">${beachLimitText(b)} · ${Q.beaches.length}/${b.maxBeaches}</span></div>
     <div class="bchips">${r.beaches.map(chip).join('')}</div>
     ${plus ? `<p class="rating">Puedes sumar playas del ${plus.name}:</p><div class="bchips">${plus.beaches.map(chip).join('')}</div>` : ''}
     <p class="rating">${r.desc} No combinamos playas de rumbos distintos.</p>${vlink('rumbo' + r.id.slice(1), 'Ver video del ' + r.name)}
     <p class="special">¿Otro destino? ${SPECIAL.join(', ')}: <a href="${wa(`Hola Tu Lancha 👋 Quiero una cotización especial para ${SPECIAL.join(' / ')} para ${paxTxt()} el ${fmtDay(qDate())}.`)}" target="_blank" rel="noopener">cotización especial por WhatsApp</a></p>`;
-  const opt = d => { const c = dockFor(b, d); return `<option value="${d.id}" ${d.id === Q.dock ? 'selected' : ''} ${c.ok ? '' : 'disabled'}>${d.name}${d.fee ? ' · toque ' + d.fee : ''}${c.ok && c.cost ? ' · +' + money(c.cost) : ''}${c.ok ? '' : ' · no disponible'}</option>`; };
-  if (!dockFor(b, dockById(Q.dock)).ok) Q.dock = DOCKS[b.dock].id;
-  $('#b-dock').innerHTML = `<optgroup label="Muelles sugeridos">${DOCKS.filter(d => !d.pickup).map(opt).join('')}</optgroup><optgroup label="Te buscamos en tu residencia">${DOCKS.filter(d => d.pickup).map(opt).join('')}</optgroup>`;
+  const opt = d => { const c = dockFor(b, d); return `<option value="${d.id}" ${d.id === Q.dock ? 'selected' : ''} ${c.ok ? '' : 'disabled'}>${esc(d.name)}${c.ok ? (d.pickup ? (c.cost ? ' · +' + money(c.cost) : ' · gratis') : c.free ? ' · sin costo de muelle' : c.fee ? ' · ' + c.fee : '') : ' · ' + (d.off && d.why ? d.why.toLowerCase() : 'no disponible')}</option>`; };
+  const home = (DOCKS[b.dock] && dockFor(b, DOCKS[b.dock]).ok ? DOCKS[b.dock] : DOCKS.find(x => dockFor(b, x).ok) || DOCKS[0]).id;
+  if (Q.dock === 'pin' && !okPin(Q.pin)) Q.dock = home;
+  if (!dockFor(b, dockById(Q.dock)).ok) Q.dock = home;
+  $('#b-dock').innerHTML = `<optgroup label="Muelles sugeridos (servicio por uso de muelle)">${DOCKS.filter(d => !d.pickup).map(opt).join('')}</optgroup><optgroup label="Te buscamos en tu residencia">${DOCKS.filter(d => d.pickup).map(opt).join('')}</optgroup><optgroup label="Otro punto"><option value="pin"${Q.dock === 'pin' ? ' selected' : ''}>📍 Escoge tu muelle en el mapa</option></optgroup>`;
+  renderMyPin();
   const d = dockById(Q.dock), c = dockFor(b, d);
   const blocked = DOCKS.filter(x => x.pickup && !dockFor(b, x).ok).map(x => dockFor(b, x).why);
-  $('#b-dockinfo').innerHTML = d.pickup
-    ? `<b>Recogida en ${d.name}</b>: +${money(c.cost)}.${d.back ? ` Regreso máximo a las ${d.back}.` : ''} ${blocked.length ? `<br><small>${[...new Set(blocked)].join('. ')}.</small>` : ''}`
-    : `<b>${d.name}</b>: toque de muelle ${d.fee} (lo pagas en el muelle) · ${d.park}.`;
-  $('#b-dockinfo').innerHTML += `<br>${vlink('muelles', 'Ver video de los muelles sugeridos')}<small>Al confirmar te enviamos la ubicación exacta, un video de cómo llegar y cómo pagar el toque de muelle. ¿Otra residencia? <a href="${wa(`Hola Tu Lancha 👋 ¿Pueden buscarnos en mi residencia? Somos ${paxTxt()}.`)}" target="_blank" rel="noopener">Pregúntanos</a>.</small>`;
+  $('#b-dockinfo').innerHTML = d.custom
+    ? `<b>Muelle escogido por ti</b>${Q.pin.ref ? ` · <span translate="no">${esc(Q.pin.ref)}</span>` : ''}<br>Te confirmamos por WhatsApp si la embarcación puede llegar y si hay recargo.`
+    : d.pickup
+    ? `<b>Recogida en ${esc(d.name)}</b>: ${c.cost ? '+' + money(c.cost) : 'sin costo'}.${d.back ? ` Regreso máximo a las ${d.back}.` : ''} ${blocked.length ? `<br><small>${[...new Set(blocked)].join('. ')}.</small>` : ''}<br><small>${PICK_NOTE}</small>`
+    : `<b>${esc(d.name)}</b>: ${c.free ? `las embarcaciones con base aquí no pagan servicio de muelle` : c.fee ? `servicio por uso de muelle ${c.fee}, lo cobra el establecimiento y se paga en sitio` : 'sin servicio de muelle'}${d.park ? ' · ' + esc(d.park) : ''}.`;
+  $('#b-dockinfo').innerHTML += `<br>${vlink('muelles', 'Ver video de los muelles sugeridos')}<small>Al confirmar te enviamos la ubicación exacta, un video de cómo llegar y cómo pagar el servicio de muelle. ¿Otra residencia? <a href="${wa(`Hola Tu Lancha 👋 ¿Pueden buscarnos en mi residencia? Somos ${paxTxt()}.`)}" target="_blank" rel="noopener">Pregúntanos</a>.</small>`;
   const h = hoursFor(b, r, d);
   Q.hx = Math.max(0, Math.min(Q.hx || 0, h.maxX));
   $('#b-hours').innerHTML = `<div class="bl-h"><b>Horario</b><span class="lim">${hh(h.start)} a ${hh(h.end)}</span></div>
-    <p class="rating">La tripulación prepara el regreso ${r.early ? '20 minutos antes' : 'a las 5:40 pm'}. ${h.why}</p>${vlink('horario', 'Ver video del horario')}
+    <p class="rating">La tripulación prepara el regreso ${r.early ? '20 minutos antes' : 'a las 5:40 pm'}. ${h.why} ${CAPT_NOTE}</p>${vlink('horario', 'Ver video del horario')}
     ${h.maxX ? `<div class="hx"><span>Horas extra <small>(${money(b.hx)} c/u, en efectivo a bordo, hasta las ${hh(h.end + h.maxX)})</small></span><div class="qty"><button type="button" id="hx-m" aria-label="Menos horas extra">−</button><output id="hx">${Q.hx}</output><button type="button" id="hx-p" aria-label="Más horas extra">+</button></div></div>` : ''}
     <p class="rating"><small>¿Salir más temprano o regresar de noche? La navegación nocturna tiene costo adicional: <a href="${wa(`Hola Tu Lancha 👋 Quiero un horario especial para el ${fmtDay(qDate())} para ${paxTxt()}.`)}" target="_blank" rel="noopener">consúltalo por WhatsApp</a>.</small></p>`;
   const accOpt = Object.entries(b.opt);
   for (const k of Object.keys(Q.acc)) if (!(k in b.opt)) delete Q.acc[k];
+  Q.shop = Q.shop || {}; for (const k of Object.keys(Q.shop)) if (!shopOn().some(x => x.id === k)) delete Q.shop[k];
   $('#b-extras').innerHTML = `${vlink('accesorios', 'Ver video: accesorios y facilidades')}<details class="pk"><summary>Equipamiento básico incluido en todas</summary>${basicHtml()}</details>
-    ${b.inc.length ? `<div><h4>Ya viene en ${esc(b.name)}</h4><div class="amen">${b.inc.map(k => `<span class="tag">✓ ${ACC[k]}${k === 'parrilla' ? ' sin costo' : ''}</span>`).join('')}</div></div>` : ''}
-    ${accOpt.length ? `<div><h4>Agrega a tu salida</h4><div class="opts">${accOpt.map(([k, p]) => `<button type="button" class="opt" data-acc="${k}" aria-pressed="${!!Q.acc[k]}"><b>${ACC[k]}</b><span class="p">+${money(p)}</span></button>`).join('')}</div></div>` : ''}
+    ${b.inc.length ? `<div><h4>Ya viene en ${esc(b.name)}</h4><div class="amen">${b.inc.filter(k => ACC[k]).map(k => `<span class="tag">✓ ${accName(b, k)}${k === 'parrilla' ? ' sin costo' : ''}</span>`).join('')}</div>${b.inc.includes('parrilla') ? `<p class="acc-note">🔥 Parrillera: ${PARRILLA_NOTE}</p>` : ''}</div>` : ''}
+    ${accOpt.length ? `<div><h4>Agrega a tu salida</h4><div class="opts">${accOpt.map(([k, p]) => `<button type="button" class="opt" data-acc="${k}" aria-pressed="${!!Q.acc[k]}"><b>${accName(b, k)}</b>${k === 'parrilla' ? `<span>${PARRILLA_NOTE}</span>` : ''}<span class="p">+${money(p)}</span></button>`).join('')}</div></div>` : ''}
+    ${shopOn().length ? `<div><h4>Tienda Tu Lancha <small>lo llevamos a tu embarcación</small></h4><div class="opts">${shopOn().map(x => `<button type="button" class="opt" data-shop="${esc(x.id)}" aria-pressed="${!!(Q.shop && Q.shop[x.id])}"><b>${esc(x.name)}</b><span class="p">+${money(x.price)}</span></button>`).join('')}</div></div>` : ''}
     <div class="food glass-card"><h4>Comida y bebidas</h4><p>Hielo y agua mineral ya están incluidos. Puedes traer todo lo que quieras, o pedirlo a <b>El Mercadillo</b> y te lo llevan al muelle antes de zarpar.</p>
       <div class="vrow">${vcard('comidas')}${vcard('mercadillo')}${['r2', 'r3'].includes(r.id) ? vcard('rincon') : ''}</div>
       <a class="btn btn-ghost btn-sm" href="${MERCADILLO}" target="_blank" rel="noopener">Pedir en El Mercadillo</a>
@@ -1669,32 +2050,35 @@ function renderTicket() {
   const b = BOATS.find(x => x.id === Q.boat);
   if (!b) { window.TLL_LAST = null; $('#ticket').innerHTML = '<h3>Tu cotización</h3><p class="empty">Para grupos de más de 30 personas armamos una flotilla a la medida. Escríbenos.</p>'; return; }
   const r = ROUTES.find(x => x.id === Q.route) || ROUTES[0], d = qDate(), busy = isBusy(b, d), dk = dockById(Q.dock), dc = dockFor(b, dk);
-  const lines = [[`${b.name} · ${fmtDay(d)}`, priceOn(b, d)]];
-  if (kidExtra(b)) lines.push([`Excepción de niños (${kidExtra(b)} de 7 años o menos)`, kidExtra(b) * b.kidFee]);
-  if (r.extra === null) lines.push([`Recargo ${r.name}`, 0, 'tbd']);
+  const rp = routePrice(b, r);
+  const lines = [[`${b.name} · ${r.name} · ${fmtDay(d)}`, priceOn(b, d, r)]];
+  if (rp.tbd) lines.push([`Tarifa del ${r.name}`, 0, 'tbd']);
   if (dc.ok && dc.cost) lines.push([`Recogida en ${dk.name}`, dc.cost]);
+  if (dc.ok && dc.tbd) lines.push(['Recogida en tu muelle', 0, 'tbd']);
   if (Q.hx) lines.push([`${Q.hx} h extra (efectivo a bordo)`, Q.hx * b.hx]);
-  Object.entries(b.opt).filter(([k]) => Q.acc[k]).forEach(([k, p]) => lines.push([ACC[k], p]));
+  Object.entries(b.opt).filter(([k]) => Q.acc[k] && ACC[k]).forEach(([k, p]) => lines.push([accName(b, k), p]));
+  shopOn().filter(x => Q.shop && Q.shop[x.id]).forEach(x => lines.push([x.name, x.price]));
   const code = codeInfo(Q.code);
   const sub = lines.reduce((s, l) => s + l[1], 0);
   if (code.kind === 'ref') lines.push([`Código ${code.code} (−5%)`, -Math.round(sub * .05)]);
   if (code.kind === 'gift') lines.push([`Tarjeta de regalo ${code.code}`, -Math.min(sub, code.value)]);
   const total = Math.max(0, lines.reduce((s, l) => s + l[1], 0));
-  const block = !dc.ok ? dc.why : !routeOk(b, r) ? `${b.name} no hace el ${r.name}` : !Q.beaches.length ? 'Elige al menos una playa' : '';
+  const block = !dc.ok ? dc.why : !rp.ok ? `${b.name} no hace el ${r.name}` : !Q.beaches.length ? 'Elige al menos una playa' : '';
   const routeTxt = `${r.name} · ${Q.beaches.join(', ')}`;
   const h = hoursFor(b, r, dk);
-  $('#ticket').innerHTML = `<h3>Tu cotización</h3>
+  $('#ticket').innerHTML = `${hasPics(b) ? `<div class="t-th">${pic(b)}<span>${esc(b.name)}</span></div>` : ''}<h3>Tu cotización</h3>
     ${busy ? `<span class="flag amber"><i></i>${b.name} está ocupada ese día</span>` : `<span class="flag"><i></i>Disponible</span>`}
     <p class="t-pax">${paxTxt()}</p><p class="t-route">${esc(routeTxt)}<br><small>${dk.name} · ${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}</small></p>
     <ul>${lines.map(l => `<li><span>${l[0]}</span><span>${l[2] === 'tbd' ? 'por confirmar' : money(l[1])}</span></li>`).join('')}</ul>
     <div class="total"><span>Total</span><span>${money(total)}</span></div>
-    <div class="pp">${money(total / people())} por persona · abono para apartar ${money(total / 2)}${dk.fee ? `<br>Aparte, en el muelle: toque de ${dk.fee}` : ''}</div>
+    <div class="pp">${money(total / people())} por persona · abono para apartar ${money(total / 2)}</div>
+    ${dc.fee ? `<div class="t-dock"><b>Servicio por uso de muelle: ${esc(dc.fee)}</b><span>No es un pago a Tu Lancha: lo cobra ${esc(dk.name)} y se paga en sitio. Si te buscamos en tu residencia, no aplica.</span></div>` : ''}
     <form class="code-in" id="code-form"><input id="q-code" placeholder="Código de amigo o de regalo" aria-label="Código de amigo o tarjeta de regalo" value="${esc(Q.code || '')}" autocomplete="off" autocapitalize="characters"><button class="btn btn-ghost on-sea btn-sm" type="submit">Aplicar</button></form>
     ${Q.code ? (code.kind ? `<span class="code-ok">✓ ${code.kind === 'ref' ? 'Descuento de amigo aplicado' : 'Tarjeta de regalo aplicada (' + money(code.value) + ')'}</span>` : `<span class="code-bad">Ese código no es válido. Revisa que esté bien escrito, por ejemplo ANA-7K2 o TLLG-B4XK.</span>`) : ''}
     <button class="btn btn-sun btn-lg" type="button" id="t-book">Reservar ahora</button>
     <p class="note">No pagas nada ahora: te confirmamos disponibilidad y abono. Fines de semana +${wkOf(b)}%.</p>`;
   $('#mb-total').textContent = money(total);
-  window.TLL_LAST = { boat: b.name, type: b.type, route: routeTxt, dock: dk.name, dockFee: dk.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
+  window.TLL_LAST = { boat: b.name, type: b.type, route: routeTxt, dock: dk.custom && Q.pin && Q.pin.ref ? `${dk.name} · ${Q.pin.ref}` : dk.name, pin: dk.custom && okPin(Q.pin) ? { lat: +Q.pin.lat, lng: +Q.pin.lng, ref: Q.pin.ref || '' } : null, dockFee: dc.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
 }
 const GIFT_VALUES = { A: 180, B: 320, C: 950, D: 1650 };
 const AL = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -1730,16 +2114,117 @@ $('#reservar').addEventListener('click', e => {
   if (t.dataset.boat) Q.boat = t.dataset.boat;
   if (t.dataset.route && t.dataset.route !== Q.route) { Q.route = t.dataset.route; Q.beaches = []; }
   if (t.dataset.acc) Q.acc[t.dataset.acc] = !Q.acc[t.dataset.acc];
+  if (t.dataset.shop) { Q.shop = Q.shop || {}; Q.shop[t.dataset.shop] = !Q.shop[t.dataset.shop]; }
   renderBuilder();
 });
 $('#reservar').addEventListener('submit', e => { if (e.target.id !== 'code-form') return; e.preventDefault(); Q.code = $('#q-code').value.trim().toUpperCase(); renderBuilder(); toast(codeInfo(Q.code).kind ? 'Código aplicado' : 'Código no válido'); });
 $('#b-date').onchange = e => { if (e.target.value) { Q.date = e.target.value; renderBuilder(); } };
-$('#b-dock').onchange = e => { Q.dock = e.target.value; renderBuilder(); };
+$('#b-dock').onchange = e => { if (e.target.value === 'pin' && !okPin(Q.pin)) { e.target.value = Q.dock; openPinMap(); return; } Q.dock = e.target.value; renderBuilder(); };
+function renderMyPin() {
+  const box = $('#b-mypin'); if (!box) return;
+  const p = okPin(Q.pin) ? Q.pin : null, on = p && Q.dock === 'pin';
+  box.innerHTML = p
+    ? `<div class="mypin-card${on ? ' on' : ''}"><span class="mypin-ic" aria-hidden="true">${PIN_SVG}</span><div class="mypin-t"><b>${on ? 'Saldrás de tu muelle' : 'Tu muelle guardado'}</b>${p.ref ? `<span translate="no">${esc(p.ref)}</span>` : ''}<small class="mono" translate="no">${pinTxt(p)}</small></div>
+      <div class="mypin-acts">${on ? '' : '<button type="button" class="btn btn-sun btn-sm" data-pin-use>Usar este muelle</button>'}<button type="button" class="btn btn-ghost btn-sm" data-pin-open>Cambiar</button><a class="btn btn-ghost btn-sm" href="${gmapsUrl(p)}" target="_blank" rel="noopener">Ver en Google Maps</a><button type="button" class="linkish" data-pin-del>Quitar</button></div></div>
+      <p class="mypin-note">Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.</p>`
+    : `<button type="button" class="mypin-btn" data-pin-open><span class="mypin-ic" aria-hidden="true">${PIN_SVG}</span><span><b>Escoge tu muelle</b><small>Marca el punto exacto en el mapa satelital</small></span></button>
+      <p class="mypin-note">Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.</p>`;
+}
+$('#b-mypin').addEventListener('click', e => {
+  if (e.target.closest('[data-pin-open]')) return openPinMap();
+  if (e.target.closest('[data-pin-use]')) { Q.dock = 'pin'; return renderBuilder(); }
+  if (e.target.closest('[data-pin-del]')) { Q.pin = null; if (Q.dock === 'pin') Q.dock = 'pm'; renderBuilder(); toast('Ubicación quitada'); }
+});
+
+/* ---------------- mapa satelital (Leaflet, sin llave) ---------------- */
+let lfP = null;
+const loadLeaflet = () => lfP || (lfP = new Promise((ok, no) => {
+  if (window.L) return ok(window.L);
+  const c = document.createElement('link'); c.rel = 'stylesheet'; c.href = 'vendor/leaflet.css'; document.head.appendChild(c);
+  const s = document.createElement('script'); s.src = 'vendor/leaflet.js'; s.onload = () => ok(window.L); s.onerror = () => { lfP = null; no(new Error('leaflet')); }; document.head.appendChild(s);
+}));
+// capas: satélite (Esri World Imagery + nombres) y mapa de calles (OpenStreetMap)
+function baseLayers(L) {
+  const E = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+  const sat = L.layerGroup([
+    L.tileLayer(E + 'World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, maxNativeZoom: 18, attribution: 'Imágenes © Esri, Maxar, Earthstar Geographics' }),
+    L.tileLayer(E + 'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, maxNativeZoom: 18 })
+  ]);
+  const street = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' });
+  return { sat, street };
+}
+const pinIcon = L => L.divIcon({ className: 'gpin', iconSize: [36, 46], iconAnchor: [18, 44], html: PIN_SVG });
+const LECHERIA = [10.1935, -64.6935];
+function openPinMap() {
+  const dlg = $('#dlg'); if (dlg.open) dlg.close();
+  const p0 = okPin(Q.pin) ? Q.pin : null;
+  dlg.className = 'full pin-dlg';
+  dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="view pin-view">
+    <div class="pin-h"><span class="eyebrow">Tu punto de salida</span><h2 id="m-title">Escoge tu muelle</h2><p>Toca el mapa o arrastra el pin hasta el lugar exacto donde te buscamos. Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.</p></div>
+    <form class="pin-search" data-pin-q><input type="search" placeholder="Busca un lugar, residencia o marina" aria-label="Buscar un lugar" autocomplete="off"><button class="btn btn-ghost btn-sm" type="submit">Buscar</button></form>
+    <div class="pin-results" data-pin-res hidden></div>
+    <div class="pin-map-w"><div class="pin-map" data-pin-map><div class="f-wait">Cargando mapa satelital…</div></div>
+      <div class="pin-layers" role="group" aria-label="Tipo de mapa"><button type="button" data-pin-layer="sat" aria-pressed="true">Satélite</button><button type="button" data-pin-layer="street" aria-pressed="false">Mapa</button></div>
+      <button type="button" class="pin-me" data-pin-me aria-label="Usar mi ubicación actual"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7.5" fill="none"/></svg></button></div>
+    <p class="pin-coords" data-pin-xy>${p0 ? `Ubicación: <b class="mono" translate="no">${pinTxt(p0)}</b>` : 'Toca el mapa para marcar tu muelle.'}</p>
+    <label class="field"><span class="lbl">Referencia (opcional)</span><input data-pin-ref translate="no" maxlength="120" placeholder="Ej.: muelle del edificio, puesto 12, portón azul" value="${esc(p0 ? p0.ref || '' : '')}"></label>
+    <div class="pin-acts"><button class="btn btn-sun btn-lg" type="button" data-pin-save ${p0 ? '' : 'disabled'}>Guardar ubicación</button><a class="btn btn-ghost" data-pin-g target="_blank" rel="noopener" ${p0 ? `href="${gmapsUrl(p0)}"` : 'hidden'}>Ver en Google Maps</a></div>
+  </div>`;
+  const q = s => dlg.querySelector(s);
+  let pt = p0 ? { lat: +p0.lat, lng: +p0.lng } : null, map = null, mk = null, layers = null;
+  const show = () => {
+    q('[data-pin-xy]').innerHTML = pt ? `Ubicación: <b class="mono" translate="no">${pinTxt(pt)}</b>` : 'Toca el mapa para marcar tu muelle.';
+    q('[data-pin-save]').disabled = !pt; const g = q('[data-pin-g]'); g.hidden = !pt; if (pt) g.href = gmapsUrl(pt);
+  };
+  const place = (ll, zoom) => {
+    pt = { lat: ll.lat, lng: ll.lng };
+    if (map) { if (!mk) { mk = window.L.marker(ll, { icon: pinIcon(window.L), draggable: true, autoPan: true, keyboard: true, title: 'Tu muelle' }).addTo(map); mk.on('dragend', () => { const x = mk.getLatLng(); pt = { lat: x.lat, lng: x.lng }; show(); }); } else mk.setLatLng(ll); if (zoom) map.setView(ll, zoom); }
+    show();
+  };
+  dlg.onclick = e => {
+    if (e.target === dlg || e.target.closest('.m-close')) return dlg.close();
+    const ly = e.target.closest('[data-pin-layer]');
+    if (ly && map) { const k = ly.dataset.pinLayer; Object.entries(layers).forEach(([n, l]) => n === k ? l.addTo(map) : map.removeLayer(l)); dlg.querySelectorAll('[data-pin-layer]').forEach(x => x.setAttribute('aria-pressed', x === ly)); return; }
+    if (e.target.closest('[data-pin-me]')) {
+      if (!navigator.geolocation) return toast('Tu teléfono no comparte la ubicación');
+      toast('Buscando tu ubicación…');
+      navigator.geolocation.getCurrentPosition(g => place({ lat: g.coords.latitude, lng: g.coords.longitude }, 18), () => toast('No pudimos leer tu ubicación. Marca el punto en el mapa.'), { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });
+      return;
+    }
+    const r = e.target.closest('[data-pin-hit]');
+    if (r) { place({ lat: +r.dataset.lat, lng: +r.dataset.lng }, 17); const ref = q('[data-pin-ref]'); if (!ref.value) ref.value = r.dataset.name.slice(0, 120); q('[data-pin-res]').hidden = true; return; }
+    if (e.target.closest('[data-pin-save]') && pt) {
+      Q.pin = { lat: +pt.lat.toFixed(6), lng: +pt.lng.toFixed(6), ref: q('[data-pin-ref]').value.trim().slice(0, 120) };
+      Q.dock = 'pin'; dlg.close(); renderBuilder(); toast('Ubicación guardada. Se enviará a Tu Lancha al finalizar tu solicitud.');
+    }
+  };
+  q('[data-pin-q]').onsubmit = async e => {
+    e.preventDefault(); const t = e.target.querySelector('input').value.trim(); if (t.length < 3) return;
+    const res = q('[data-pin-res]'); res.hidden = false; res.innerHTML = '<p class="rating">Buscando…</p>';
+    try {
+      const u = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=ve&viewbox=-65.2,10.6,-63.9,9.9&q=${encodeURIComponent(t)}`;
+      const l = await (await fetch(u, { headers: { 'Accept-Language': (window.TLL_I18N && TLL_I18N.lang) || 'es' } })).json();
+      res.innerHTML = l.length ? l.map(x => `<button type="button" data-pin-hit data-lat="${esc(x.lat)}" data-lng="${esc(x.lon)}" data-name="${esc(x.name || x.display_name.split(',')[0])}"><b translate="no">${esc(x.name || x.display_name.split(',')[0])}</b><small translate="no">${esc(x.display_name)}</small></button>`).join('') : '<p class="rating">No encontramos ese lugar. Mueve el mapa y toca el punto exacto.</p>';
+    } catch { res.innerHTML = '<p class="rating">Sin conexión para buscar. Mueve el mapa y toca el punto exacto.</p>'; }
+  };
+  dlg.addEventListener('close', () => { if (map) { map.remove(); map = null; } }, { once: true });
+  dlg.showModal();
+  loadLeaflet().then(L => {
+    if (!dlg.open || !q('[data-pin-map]')) return;
+    const el = q('[data-pin-map]'); el.innerHTML = '';
+    map = L.map(el, { zoomControl: true, attributionControl: true }).setView(pt || LECHERIA, pt ? 18 : 14);
+    layers = baseLayers(L); layers.sat.addTo(map);
+    map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+    map.on('click', e => place(e.latlng));
+    if (pt) place(pt);
+    setTimeout(() => map && map.invalidateSize(), 120);
+  }).catch(() => { const el = q('[data-pin-map]'); if (el) el.innerHTML = '<div class="f-wait">No se pudo cargar el mapa. Revisa tu conexión e inténtalo de nuevo.</div>'; });
+}
 
 /* ---------------- playas por rumbo ---------------- */
 function renderBeaches() {
-$('#beaches').innerHTML = `<div class="vintro">${vcard('playas', 'Conoce nuestras playas')}<div><h2>Antes de elegir</h2><p>Mira en un minuto cómo son nuestros rumbos y playas. Cada rumbo tiene su video abajo.</p></div></div>` + ROUTES.map(r => `<section class="rumbo-sec"><div class="rumbo-h"><div><span class="eyebrow">${r.name}</span><h2>${r.zone}</h2><p>${r.desc}</p></div><div class="tags rumbo-tags">${r.tags.map(t => `<span class="tag">${t}</span>`).join('')}<span class="tag">~${r.min} min en lancha</span></div></div>${VID['rumbo' + r.id.slice(1)] ? `<div class="rumbo-v">${vcard('rumbo' + r.id.slice(1), 'Video del ' + r.name)}</div>` : ''}
-  <div class="beaches">${r.beaches.map(n => `<article class="beach">${beachPic(n, r.hue)}<div class="in"><span class="km">${r.name.toUpperCase()}</span><h3>${esc(n)}</h3>
+$('#beaches').innerHTML = `<div class="vintro">${vcard('playas', 'Conoce nuestras playas')}<div><h2>Antes de elegir</h2><p>Mira en un minuto cómo son nuestros rumbos y playas. Cada rumbo tiene su video abajo.</p></div></div>` + ROUTES.map(r => `<section class="rumbo-sec" id="rumbo-${r.id}"><div class="rumbo-h"><div><span class="eyebrow">${r.name}</span><h2>${r.zone}</h2><p>${r.desc}</p></div><div class="tags rumbo-tags">${r.nm ? `<span class="tag tag-nm">~${r.nm} millas náuticas</span>` : ''}${r.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}<span class="tag">~${r.min} min en lancha</span></div></div>${VID['rumbo' + r.id.slice(1)] ? `<div class="rumbo-v">${vcard('rumbo' + r.id.slice(1), 'Video del ' + r.name)}</div>` : ''}
+  <div class="beaches">${r.beaches.map(n => `<article class="beach${beachPhoto(n) ? '' : ' nopic'}">${beachPhoto(n) ? ph(beachPhoto(n), n) : ''}<div class="in"><span class="km">${r.name.toUpperCase()}</span><h3>${esc(n)}</h3>
   <div class="ln"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent('Tu Lancha Lechería ' + n)}" target="_blank" rel="noopener">Video</a><a href="https://www.instagram.com/tulanchalecheria/" target="_blank" rel="noopener">Fotos</a><button type="button" data-goroute="${r.id}" data-gobeach="${esc(n)}" style="all:unset;cursor:pointer;color:var(--on-sea);font-weight:700">Ir aquí →</button></div></div></article>`).join('')}</div></section>`).join('')
   + `<div class="parks"><b>Cotización especial:</b>${SPECIAL.map(s => `<span class="tag">${s}</span>`).join('')}<a class="btn btn-wa btn-sm" href="${wa(`Hola Tu Lancha 👋 Quiero una cotización especial para ${SPECIAL.join(' / ')}.`)}" target="_blank" rel="noopener">Pedir cotización</a></div>`;
 }
@@ -1756,7 +2241,7 @@ function renderCanales() {
   el.innerHTML = `<article class="canal glass-card">
     <div class="canal-in"><span class="eyebrow">Experiencia aparte · cupos limitados</span><h2>Paseo por los canales de El Morro</h2>
       <p>Recorre los canales del Complejo Turístico El Morro al caer la tarde. Todos los días desde las 5:30 pm, con reserva previa. Duración: 1 h 30 min.</p>
-      <ul class="chk"><li>Sale de C.C. Plaza Mayor, Muelle Aquavic, Hotel Maremares o tu residencia (toque de muelle aparte)</li><li>No incluye bebidas, hielo ni pasapalos; puedes traer tu cava</li><li>Fines de semana con disponibilidad limitada: las embarcaciones prefieren salir a las islas</li></ul>
+      <ul class="chk"><li>Sale de C.C. Plaza Mayor, Muelle Aquavic, Hotel Maremares o tu residencia (servicio de muelle aparte, se paga en sitio)</li><li>No incluye bebidas, hielo ni pasapalos; puedes traer tu cava</li><li>Fines de semana con disponibilidad limitada: las embarcaciones prefieren salir a las islas</li></ul>
       <a class="btn btn-ghost btn-sm" href="${CANALES.video}" target="_blank" rel="noopener">Ver el video del paseo</a></div>
     <form class="canal-f" id="canal-form">
       <div class="opts">${CANALES.opts.map(x => `<button type="button" class="opt" data-copt="${x.id}" aria-pressed="${x.id === CQ.opt}"><b>${x.name}</b><span>${x.flat ? `Hasta ${x.max} personas` : `Mín. ${x.min}, máx. ${x.max}`}</span><span class="p">${x.flat ? money(x.flat) : money(x.pp) + ' por persona'}</span></button>`).join('')}</div>
@@ -1790,9 +2275,23 @@ document.addEventListener('submit', e => {
 });
 renderCanales();
 $('#exps').innerHTML = EXPS.map(x => `<div class="exp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${x[2]}</svg></span><h3>${x[0]}</h3><p>${x[1]}</p><a href="${wa(`Hola Tu Lancha 👋 Me interesa la experiencia "${x[0]}". ¿Me dan información?`)}" target="_blank" rel="noopener">Pedir propuesta →</a></div>`).join('');
-$('#ally-videos') && ($('#ally-videos').innerHTML = vcard('mercadillo') + vcard('rincon') + vcard('comidas'));
+$('#ally-videos') && ($('#ally-videos').innerHTML = ['mercadillo', 'rincon', 'comidas'].map(k => vcard(k)).join(''));
+const allyLink = (n, u) => esc(u || wa(`Hola Tu Lancha 👋 Quiero agregar ${n} a mi salida.`));
+const initials = n => esc(String(n).split(' ').map(w => w[0]).slice(0, 2).join(''));
+// tarjeta tipo cuadro: con portada si Eduardo subió una foto; si no, solo logo o iniciales (sin espacio de imagen vacío)
+const allyCard = ([n, d, u, col, logo, cover]) => `<a class="ally-t${cover ? ' has-cover' : ''}" href="${allyLink(n, u)}" target="_blank" rel="noopener">
+  ${cover ? `<span class="ally-cv">${ph(cover, n)}</span>` : ''}<span class="ally-b"><span class="av${logo ? ' logo' : ''}" translate="no" style="background:${esc(logo ? '#fff' : col || '#232843')}">${logo ? ph(logo, n) : initials(n)}</span><span class="ally-tx"><b>${esc(n)}</b><span>${esc(d)}</span></span><span class="vip">VIP</span></span></a>`;
 function renderAllies() {
-$('#allies').innerHTML = ALLIES.map(c => `<div class="cat"><h3>${esc(c.cat)}</h3>${c.items.map(([n, d, u, col, logo]) => `<a class="ally" href="${esc(u || wa(`Hola Tu Lancha 👋 Quiero agregar ${n} a mi salida.`))}" target="_blank" rel="noopener"><span class="av${logo ? ' logo' : ''}" style="background:${esc(logo ? '#fff' : col || '#232843')}">${logo ? ph(logo, n) : esc(String(n).split(' ').map(w => w[0]).slice(0, 2).join(''))}</span><div><b>${esc(n)}</b><span>${esc(d)}</span></div><span class="vip">VIP</span></a>`).join('')}</div>`).join('');
+  $('#allies').innerHTML = ALLIES.filter(c => !c.owners && c.items.length).map(c => `<div class="cat"><h3>${esc(c.cat)}</h3><div class="ally-grid">${c.items.map(allyCard).join('')}</div></div>`).join('');
+  const ow = ALLIES.filter(c => c.owners && c.items.length), box = $('#owners-sv');
+  if (box) { box.hidden = !ow.length; $('#owner-allies').innerHTML = ow.map(c => `<div class="cat">${ow.length > 1 ? `<h3>${esc(c.cat)}</h3>` : ''}<div class="ally-grid">${c.items.map(allyCard).join('')}</div></div>`).join(''); }
+  // cintillo de aliados en el pie: logos en un mismo tono (blanco), sin carnaval de colores
+  const all = ALLIES.filter(c => !c.owners).flatMap(c => c.items), rb = $('#ribbon');
+  if (rb) {
+    rb.hidden = !all.length;
+    const one = all.map(([n, , u, , logo]) => `<a class="rb-i" href="${allyLink(n, u)}" target="_blank" rel="noopener" title="${esc(n)}">${logo ? `<img src="${esc(logo)}" alt="${esc(n)}" loading="lazy" decoding="async">` : `<span>${esc(n)}</span>`}</a>`).join('');
+    $('#ribbon-in').innerHTML = one + `<span class="rb-dup" aria-hidden="true">${one.replace(/<a /g, '<a tabindex="-1" ')}</span>`;
+  }
 }
 renderAllies();
 
@@ -1857,9 +2356,9 @@ function loadCatalog() {
 }
 loadCatalog();
 // al cambiar de idioma: volver a pintar lo que lleva fechas, días y montos con formato local
-addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); if (seaLast) renderSea(...seaLast); window.TLL.renderMine && window.TLL.renderMine(); });
+addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); window.TLL.renderMine && window.TLL.renderMine(); });
 
-window.TLL = { CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
+window.TLL = { routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
 document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; fitTo(b); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); });
 })();
 
@@ -1882,7 +2381,7 @@ const PLACES = {
   borracha: [372, 150, 'La Borracha'], arapo: [690, 190, 'Isla de Arapo'], puinare: [360, 345, 'Puinare'],
   maritas: [520, 330, 'Las Maritas'], colorada: [740, 300, 'Playa Colorada'], mochima: [770, 240, 'Mochima']
 };
-const ROUTE_PLACE = { r1: 'chimana', r2: 'plata', r3: 'arapo', r4: 'mochima' };
+const ROUTE_PLACE = { r1: 'chimana', r2: 'plata', r3: 'arapo', r4: 'borracha', r5: 'mochima', r6: 'mochima' };
 // Carta náutica nocturna (esquemática, no apta para navegación): costas irregulares, bajos turquesa,
 // isobatas, sondas, cuadrícula dorada, rosa de los vientos y ruta luminosa.
 let mapN = 0;
@@ -2270,12 +2769,7 @@ function wireShare(root, ctx, signal) {
 }
 
 /* ---- vista de quien sigue el enlace ---- */
-let lfP = null;
-const loadLeaflet = () => lfP || (lfP = new Promise((ok, no) => {
-  if (window.L) return ok(window.L);
-  const c = document.createElement('link'); c.rel = 'stylesheet'; c.href = 'vendor/leaflet.css'; document.head.appendChild(c);
-  const s = document.createElement('script'); s.src = 'vendor/leaflet.js'; s.onload = () => ok(window.L); s.onerror = () => { lfP = null; no(new Error('leaflet')); }; document.head.appendChild(s);
-}));
+const loadLeaflet = window.TLL.loadLeaflet;
 let followCtl = null;
 function openFollow(id) {
   const dlg = $('#dlg'); if (dlg.open) dlg.close();
@@ -2294,7 +2788,9 @@ function openFollow(id) {
   followCtl?.abort(); followCtl = new AbortController(); const sig = followCtl.signal;
   const q = s => dlg.querySelector(s);
   let map = null, line = null, boat = null, pts = [], lastT = 0, follow = true, timer = null, data = null, skew = 0, dist = 0;
-  const icon = hdg => window.L.divIcon({ className: 'f-boat', iconSize: [44, 44], iconAnchor: [22, 22], html: `<span class="f-pulse"></span><svg viewBox="-22 -22 44 44" style="transform:rotate(${hdg || 0}deg)"><circle r="14" fill="rgba(127,227,240,.22)"/><path d="M0 -12L8 9L0 4.5L-8 9Z" fill="#fff" stroke="#0b2236" stroke-width="1.6" stroke-linejoin="round"/></svg>` });
+  // marcador estilo "ubicación en tiempo real": disco blanco con el logo, punto exacto debajo, rumbo y nombre con 🚤
+  const pinName = n => String(n || 'Tu Lancha').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const icon = hdg => window.L.divIcon({ className: 'f-boat', iconSize: [56, 70], iconAnchor: [28, 64], html: `<span class="f-pulse"></span><span class="f-hdg" style="transform:rotate(${Math.round(hdg || 0)}deg)"></span><span class="f-disc"><img src="icons/logo-128.png" alt="" width="44" height="44"></span><span class="f-stem"></span><span class="f-dot"></span><span class="f-tag" translate="no">${pinName(data && data.boat)} <span aria-hidden="true">🚤</span></span>` });
   const bearing = (a, b) => { const r = Math.PI / 180, y = Math.sin((b.lng - a.lng) * r) * Math.cos(b.lat * r), x = Math.cos(a.lat * r) * Math.sin(b.lat * r) - Math.sin(a.lat * r) * Math.cos(b.lat * r) * Math.cos((b.lng - a.lng) * r); return (Math.atan2(y, x) / r + 360) % 360; };
   const hm = t => new Date(t).toLocaleTimeString(TLL_I18N.loc(), { hour: '2-digit', minute: '2-digit' });
   const setNote = (cls, txt, badge) => { const n = q('[data-f-note]'); n.className = 'f-note ' + cls; n.textContent = txt; const b = q('[data-f-badge]'); b.className = 'f-badge ' + cls; b.textContent = badge; };
@@ -2445,7 +2941,7 @@ $('#ref-copy').onclick = () => copy($('#ref-code').textContent);
    El cliente confirma en la app, recibe su código TLL-#### y su comprobante.
    Eduardo recibe el aviso con un toque por WhatsApp (sin servidor). */
 (() => {
-const { $, $$, wa, money, store, toast } = window.TLL;
+const { $, $$, wa, money, store, toast, gmapsUrl, pinTxt, okPin } = window.TLL;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const mine = () => store.get('mine', []);
 const saveMine = l => store.set('mine', l);
@@ -2459,20 +2955,25 @@ const PAY = {
     ic: '<path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>' },
   binance: { name: 'Binance Pay', tag: 'USDT · sin comisión', acct: '', how: 'Te enviamos nuestro ID de Binance Pay por WhatsApp. Pagas en USDT y nos mandas la captura.',
     ic: '<path d="M12 2l3 3-3 3-3-3 3-3zM5 9l3 3-3 3-3-3 3-3zm14 0l3 3-3 3-3-3 3-3zm-7 7l3 3-3 3-3-3 3-3zm0-7l3 3-3 3-3-3 3-3z"/>' },
+  paypal: { name: 'PayPal', tag: 'USD · +4,5% de comisión', acct: '', how: 'Te enviamos el enlace de PayPal por WhatsApp. Pagas el abono con la comisión y nos mandas la captura.',
+    ic: '<path d="M7 21l1.5-9h4.5c3.5 0 6-2 6-5.5C19 4 17 3 14 3H8L5 21h2z"/><path d="M9.5 12L8.5 18"/>' },
   efectivo: { name: 'Efectivo', tag: 'USD · se acuerda', acct: '', how: 'Acordamos contigo por WhatsApp cómo y dónde entregar el abono en efectivo.',
     ic: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9v.01M18 15v.01"/>' }
 };
 const payCard = (k, sel, total) => { const m = PAY[k]; return `<label class="pay-opt" data-pay="${k}"><input type="radio" name="bk-pay" value="${k}"${k === sel ? ' checked' : ''}>
   <span class="pay-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${m.ic}</svg></span><span class="pay-txt"><b>${m.name}</b><small>${m.tag}</small></span><span class="pay-chk" aria-hidden="true"></span></label>`; };
 // cuentas que Eduardo carga en su panel (correo Zelle, titular, ID de Binance Pay)
-const acctOf = k => { const P = (window.TLL.CAT && window.TLL.CAT.pay) || {}; return k === 'zelle' ? [P.zelle, P.zelleName] : k === 'binance' ? [P.binance, P.binanceUser] : ['', '']; };
-const HOW_ACCT = { zelle: 'Paga el abono a este Zelle y mándanos la captura por WhatsApp.', binance: 'Paga el abono en USDT a este ID de Binance Pay y mándanos la captura por WhatsApp.' };
+const acctOf = k => { const P = (window.TLL.CAT && window.TLL.CAT.pay) || {}; return k === 'zelle' ? [P.zelle, P.zelleName] : k === 'binance' ? [P.binance, P.binanceUser] : k === 'paypal' ? [P.paypal, ''] : ['', '']; };
+const HOW_ACCT = { zelle: 'Paga el abono a este Zelle y mándanos la captura por WhatsApp.', binance: 'Paga el abono en USDT a este ID de Binance Pay y mándanos la captura por WhatsApp.', paypal: 'Paga el abono con la comisión de PayPal a esta cuenta y mándanos la captura por WhatsApp.' };
+// PayPal suma su comisión (4,5% por defecto) al abono; el resto se paga en el muelle
+const ppFee = () => { const P = (window.TLL.CAT && window.TLL.CAT.pay) || {}; const f = +P.paypalFee; return f >= 0 && P.paypalFee !== '' && P.paypalFee != null ? f : 4.5; };
+const abono = (k, total) => k === 'paypal' ? Math.round(total / 2 * (1 + ppFee() / 100) * 100) / 100 : total / 2;
 const payInfo = (k, total) => { const m = PAY[k], [ac, holder] = acctOf(k), P = (window.TLL.CAT && window.TLL.CAT.pay) || {};
-  const bn = k === 'binance' && ac;
-  return `<div class="pay-info"><div class="pay-amt"><span>Abono para apartar</span><b>${money(total / 2)}</b><small>50% · el resto en el muelle antes de zarpar</small></div><p>${ac ? HOW_ACCT[k] : m.how}</p>${ac ? `<p class="pay-acct mono" translate="no">${bn ? "ID " : ""}${esc(ac).replace("@", "@<wbr>")}</p>${holder ? `<p class="rating">${bn ? 'Usuario:' : 'Titular:'} <b translate="no">${esc(holder)}</b></p>` : ''}` : ''}
-  ${bn && (P.binanceQR || P.binanceLink) ? `<div class="pay-qr">${P.binanceQR ? `<img src="${esc(P.binanceQR)}" alt="QR de Binance Pay" width="120" height="120" loading="lazy">` : ''}${P.binanceLink ? `<a class="btn btn-sun btn-sm" href="${esc(P.binanceLink)}" target="_blank" rel="noopener">Abrir en Binance</a>` : ''}</div>` : ''}</div>`; };
+  const bn = k === 'binance' && ac, pp = k === 'paypal', link = pp && /^https?:\/\/|paypal\.me/i.test(ac || '');
+  return `<div class="pay-info"><div class="pay-amt"><span>Abono para apartar</span><b>${money(abono(k, total))}</b><small>${pp ? `50% + ${String(ppFee()).replace('.', ',')}% de comisión de PayPal · el resto en el muelle` : '50% · el resto en el muelle antes de zarpar'}</small></div><p>${ac ? HOW_ACCT[k] : m.how}</p>${ac ? `<p class="pay-acct mono" translate="no">${bn ? "ID " : ""}${esc(ac).replace("@", "@<wbr>")}</p>${holder ? `<p class="rating">${bn ? 'Usuario:' : 'Titular:'} <b translate="no">${esc(holder)}</b></p>` : ''}` : ''}
+  ${bn && (P.binanceQR || P.binanceLink) ? `<div class="pay-qr">${P.binanceQR ? `<img src="${esc(P.binanceQR)}" alt="QR de Binance Pay" width="120" height="120" loading="lazy">` : ''}${P.binanceLink ? `<a class="btn btn-sun btn-sm" href="${esc(P.binanceLink)}" target="_blank" rel="noopener">Abrir en Binance</a>` : ''}</div>` : ''}
+  ${link ? `<div class="pay-qr"><a class="btn btn-sun btn-sm" href="${esc(/^https?:/i.test(ac) ? ac : 'https://' + ac)}" target="_blank" rel="noopener">Pagar con PayPal</a></div>` : ''}</div>`; };
 
-const waText = r => `Hola Tu Lancha 👋 Hice una reserva en la app.\n🔖 Código: ${r.code}\n👤 ${r.name}${r.phone ? ' · ' + r.phone : ''}\n👥 ${r.paxTxt || r.pax + ' personas'}\n⛵ ${r.boat}\n📅 ${r.date}${r.hours ? ' · ' + r.hours : ''}\n🏝️ ${r.route}\n⚓ ${r.dock}\n${r.lines.slice(1).map(l => (l[1] < 0 ? '🎁 ' : '➕ ') + l[0] + (l[2] === 'tbd' ? ' (por confirmar)' : '')).join('\n')}${r.lines.length > 1 ? '\n' : ''}💵 Total estimado: ${money(r.total)}${r.pay && PAY[r.pay] ? `\n💳 Pago: ${PAY[r.pay].name} · abono ${money(r.total / 2)}` : ''}${r.note ? '\n📝 ' + r.note : ''}${r.accepted ? '\n✅ Acepté las condiciones de alquiler (' + POLICY_REV + ')' : ''}\n¿Me confirman disponibilidad y el abono?`;
 /* Condiciones y Política de Alquiler (Rev. 01 · sep. 2026). No se publica en la web:
    solo se muestra al confirmar una reserva, con casilla obligatoria. */
 const POLICY_REV = 'Rev. 01 · sep. 2026';
@@ -2485,10 +2986,10 @@ const POLICY_SHORT = [
 ];
 const POLICY_FULL = [
   ['Reserva y pago', ['Se reserva con 50% en temporada baja o 100% en temporada alta. En temporada alta y fines de semana no se aparta una embarcación más de 30 minutos: es del primero que pague.', 'El 50% restante se paga y se verifica antes de encender motores, después de revisar la embarcación en el muelle.', 'Las horas extra se pagan en efectivo a bordo. Las reservas de varios días se liquidan cada día.', 'Los reembolsos por Zelle tardan de 24 a 72 horas.']],
-  ['Normas a bordo', ['Uso exclusivo para tu grupo, con al menos una persona mayor de 18 años.', 'La capacidad es estricta y los niños cuentan como pasajeros. Excederla tiene una penalidad de $50 (lanchas) o $100 (yates) y se suspende la salida.', 'Solo perros pequeños, con aprobación previa.', 'Prohibidos la cachimba (hookah) y los vapers (Gaceta Oficial 42.682) y las drogas: el capitán puede terminar el paseo sin reembolso.', 'Se suman las tasas portuarias que apliquen.']],
+  ['Normas a bordo', ['Uso exclusivo para tu grupo, con al menos una persona mayor de 18 años.', 'La capacidad es estricta y los niños cuentan como pasajeros. Excederla tiene una penalidad de $50 (lanchas) o $100 (yates) y se suspende la salida.', 'Solo perros pequeños (hasta 7 kg), con aprobación previa.', 'Prohibidos la cachimba (hookah) y los vapers (Gaceta Oficial 42.682) y las drogas: el capitán puede terminar el paseo sin reembolso.', 'Se suman las tasas portuarias que apliquen.']],
   ['Cancelaciones', ['Todo reembolso tiene una retención del 20%.', 'Si cancelas con 24 h (lanchas) o 48 h (barcos y yates) de anticipación: reembolso menos 20%, o 100% en crédito para usar en 30 días.', 'Si cancelas después: reembolso menos 20% solo si la embarcación se vuelve a alquilar; si no, no hay reembolso.']],
   ['Fallas', ['Si la embarcación falla, te damos otra de condiciones similares (unas 1,5 h de espera, que se compensan al final del día). Si la nueva cuesta más de $70 por encima de la original, pagas la diferencia; si no hay opción, reembolso del 100%. En feriados casi no hay reemplazos.', 'Falla de motor ya en la playa: reembolso proporcional.', 'Falla de planta o aire acondicionado en yates: compensación de $70 si el paseo continúa.', 'Embarcaciones grandes (25 a 30 personas): no hay reemplazo inmediato, se reprograma la fecha. Los proveedores externos no están cubiertos.']],
-  ['Muelles y accesorios', ['Un solo punto de embarque para todo el grupo. El toque de muelle y la seguridad del vehículo dependen de cada establecimiento.', 'Cerro El Morro y Eurobuilding: regreso máximo a las 5:30 pm.', 'Los daños a accesorios se cobran a precio de mercado.', 'No alquilamos motos de agua ni inflables externos; si los contratas, se abordan desde la orilla.', 'No respondemos por objetos que caigan al agua.']],
+  ['Muelles y accesorios', ['Un solo punto de embarque para todo el grupo. El servicio por uso de muelle (se paga en sitio) y la seguridad del vehículo dependen de cada establecimiento.', 'Cerro El Morro y Eurobuilding: regreso máximo a las 5:30 pm.', 'Los daños a accesorios se cobran a precio de mercado.', 'No alquilamos motos de agua ni inflables externos; si los contratas, se abordan desde la orilla.', 'No respondemos por objetos que caigan al agua.']],
   ['Seguridad', ['Recomendamos pastillas para el mareo (por ejemplo, Viajesan).', 'Ante síntomas graves, la embarcación regresa de inmediato.', 'Eventos grandes (más de 20 personas): traslado con embarcaciones de apoyo, por cuenta del cliente.']],
   ['Clima', ['Las nubes o la lluvia pasajera no son motivo de cancelación.', 'Solo el cierre oficial del puerto (INEA o Capitanía) o condiciones extremas declaradas por el capitán permiten reprogramar al 100%, o reembolso si no puedes reprogramar.', 'Si decides no ir con el puerto abierto, cuenta como cancelación tardía.']]
 ];
@@ -2497,7 +2998,7 @@ const policyHtml = () => `<details class="bk-policy"><summary>Leer las condicion
 const reviewHtml = q => {
   const extras = (q.lines || []).slice(1).filter(l => l[1] >= 0).map(l => l[0]);
   const ck = [['Embarcación', `${q.boat}${q.type ? ' · ' + q.type : ''}`], ['Grupo', q.paxTxt || q.pax + ' personas'], ['Fecha y horario', `${q.date}${q.hours ? ' · ' + q.hours : ''}`],
-    ['Rumbo', q.route], ['Muelle', `${q.dock}${q.dockFee ? ' · toque de muelle aparte' : ''}`], ['Extras', extras.length ? extras.join(', ') : 'Sin extras'], ['Incluido', 'Tripulación, chalecos, hielo y agua']];
+    ['Rumbo', q.route], ['Muelle', `${q.dock}${q.dockFee ? ' · servicio de muelle aparte (se paga en sitio)' : ''}`], ...(okPin(q.pin) ? [['Ubicación', `Marcada en el mapa · ${pinTxt(q.pin)}`]] : []), ['Extras', extras.length ? extras.join(', ') : 'Sin extras'], ['Incluido', 'Tripulación, chalecos, hielo y agua']];
   return `<section class="bk-review" aria-labelledby="bk-rv-t"><div class="bk-rv-h"><span class="eyebrow">Revisa tu pedido</span><b id="bk-rv-t">Todo lo que pediste</b></div>
     <ul class="bk-checks">${ck.map(([k, v]) => `<li><span class="bk-ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="bk-k">${k}</span><span class="bk-v">${esc(v)}</span></li>`).join('')}</ul>
     <dl class="bk-lines">${(q.lines || []).map(l => `<div><dt>${esc(l[0])}</dt><dd>${l[2] === 'tbd' ? 'por confirmar' : money(l[1])}</dd></div>`).join('')}</dl>
@@ -2542,47 +3043,69 @@ function openBooking() {
     const r = { ...q, code: newCode(), name, phone, pay: payNow(), note: $('#bk-note', dlg).value.trim(), created: Date.now(), accepted: Date.now(), sent: false };
     saveMine([r, ...mine()].slice(0, 20));
     // aviso al panel de Eduardo (si no hay conexión, no pasa nada: la reserva sigue en el teléfono y en WhatsApp)
-    try { fetch('/api/admin?a=book', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: r.code, created: r.created, iso: r.iso, date: r.date, boat: r.boat, route: r.route, dock: r.dock, hours: r.hours, pax: r.pax, kids: r.kids, total: r.total, pay: r.pay, name: r.name, phone: r.phone, note: r.note, lang: (window.TLL_I18N && TLL_I18N.lang) || 'es' }) }).catch(() => {}); } catch {}
+    try { fetch('/api/admin?a=book', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: r.code, created: r.created, iso: r.iso, date: r.date, boat: r.boat, route: r.route, dock: okPin(r.pin) ? 'Muelle del cliente' + (r.pin.ref ? ' · ' + r.pin.ref : '') : r.dock, pin: okPin(r.pin) ? r.pin : undefined, hours: r.hours, pax: r.pax, kids: r.kids, total: r.total, pay: r.pay, name: r.name, phone: r.phone, note: r.note, lang: (window.TLL_I18N && TLL_I18N.lang) || 'es' }) }).catch(() => {}); } catch {}
     showDone(r); renderMine();
   };
   dlg.showModal();
 }
 
+// Mensaje corto que acompaña al PDF: los detalles van en el comprobante, no en el texto
+const shortText = r => TLL_I18N.tr(`Hola Tu Lancha, te envío el comprobante de mi reserva ${r.code}.`);
+const navPair = () => `<div class="bk-nav" id="bk-nav"><a class="btn btn-ghost" href="#inicio" id="bk-home">Volver al inicio</a><a class="btn btn-sun" href="#mi-viaje" id="bk-trip">Ver mi viaje</a></div>`;
 function showDone(r) {
-  const dlg = $('#dlg');
+  const dlg = $('#dlg'); const share = canShareFiles();
   dlg.className = 'sheetish';
   dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="view book done">
     <div class="bk-check" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l7 7 15-16"/></svg></div>
     <h2 id="m-title">¡Reserva registrada!</h2>
     <p class="bk-code-l">Tu código de reserva</p><p class="bk-code mono" id="bk-code">${r.code}</p>
     <div class="bk-sum"><div><b>${esc(r.boat)}</b><span>${esc(r.date)} · ${esc(r.paxTxt || r.pax + ' personas')}</span><span>${esc(r.route)}</span></div><strong>${money(r.total)}</strong></div>
-    ${r.pay && PAY[r.pay] ? `<div class="pay-done"><span class="pay-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${PAY[r.pay].ic}</svg></span><div><span>Pagarás con</span><b>${PAY[r.pay].name}</b></div><strong>${money(r.total / 2)}<small>abono</small></strong></div>` : ''}
-    <ol class="bk-next"><li class="ok">Reserva guardada en tu app</li><li id="bk-li-send" class="${r.sent ? 'ok' : 'now'}">Enviar la reserva a Tu Lancha por WhatsApp</li><li>Eduardo confirma la disponibilidad y te pasa ${r.pay === 'efectivo' ? 'cómo entregar el abono en efectivo' : 'los datos para el abono'}</li><li>Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el toque de muelle</li></ol>
-    <a class="btn btn-wa btn-lg" id="bk-send" target="_blank" rel="noopener" href="${wa(waText(r))}">${r.sent ? 'Volver a enviar a Tu Lancha' : 'Enviar y acordar el pago por WhatsApp'}</a>
+    ${r.pay && PAY[r.pay] ? `<div class="pay-done"><span class="pay-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${PAY[r.pay].ic}</svg></span><div><span>Pagarás con</span><b>${PAY[r.pay].name}</b></div><strong>${money(abono(r.pay, r.total))}<small>abono</small></strong></div>` : ''}
+    <ol class="bk-next"><li class="ok">Reserva guardada en tu app</li><li id="bk-li-send" class="${r.sent ? 'ok' : 'now'}">Enviar el comprobante a Tu Lancha por WhatsApp</li><li>Eduardo confirma la disponibilidad y te pasa ${r.pay === 'efectivo' ? 'cómo entregar el abono en efectivo' : 'los datos para el abono'}</li><li>Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el toque de muelle</li></ol>
+    ${r.sent ? navPair() : `<button class="btn btn-wa btn-lg" type="button" id="bk-send">Enviar comprobante por WhatsApp</button>`}
     <div class="bk-pdf" id="bk-pdf"><div class="bk-pdf-doc" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/><path d="M9 13h7M9 17h5"/></svg></div>
       <div class="bk-pdf-t"><b>Comprobante de reserva</b><span id="bk-pdf-st">Preparando tu PDF…</span></div>
-      <div class="bk-pdf-acts">${canShareFiles() ? '<button class="btn btn-wa btn-sm" type="button" id="bk-pdf-share">Enviar PDF por WhatsApp</button>' : ''}<button class="btn btn-ghost btn-sm" type="button" id="bk-pdf-dl">Descargar PDF</button></div></div>
+      <p class="bk-pdf-how">${share ? 'Al tocar Enviar se abre el menú de compartir: elige WhatsApp y el chat de Tu Lancha. Si no lo ves en la lista, descarga el PDF y adjúntalo en el chat.' : 'Al tocar Enviar se descarga el PDF y se abre el chat de Tu Lancha: adjunta el PDF ahí (arrástralo o usa el clip).'}</p>
+      <div class="bk-pdf-acts"><button class="btn btn-ghost btn-sm" type="button" id="bk-pdf-dl">Descargar PDF</button><a class="btn btn-ghost btn-sm" id="bk-pdf-chat" target="_blank" rel="noopener" href="${wa(shortText(r))}">Abrir chat de Tu Lancha</a>${r.sent ? '<button class="btn btn-ghost btn-sm" type="button" id="bk-resend">Enviar de nuevo</button>' : ''}</div></div>
     ${window.TLL.planBlock ? window.TLL.planBlock(r) : ''}
-    <a class="btn btn-ghost" href="#mi-viaje" id="bk-trip">Ver en Mi viaje</a>
+    ${r.sent ? '' : navPair()}
   </div>`;
   closeOn(dlg);
   window.TLL.wirePlan && window.TLL.wirePlan(dlg);
-  $('#bk-send', dlg).addEventListener('click', () => { markSent(r.code); $('#bk-li-send', dlg).className = 'ok'; $('#bk-send', dlg).textContent = 'Volver a enviar a Tu Lancha'; });
-  $('#bk-trip', dlg).addEventListener('click', () => dlg.close());
   // el PDF se prepara apenas se abre esta pantalla, así el toque de "Enviar" conserva el gesto del usuario
   const st = $('#bk-pdf-st', dlg); let blob = null;
   pdfFor(r).then(b => { blob = b; st.textContent = `${pdfName(r)} · ${Math.max(1, Math.round(b.size / 1024))} KB`; $('#bk-pdf', dlg).classList.add('ready'); })
     .catch(() => { st.textContent = 'No se pudo preparar el PDF. Intenta de nuevo.'; });
   const getBlob = async () => blob || (blob = await pdfFor(r));
+  // una vez enviado, "Volver al inicio" y "Ver mi viaje" toman el lugar del botón verde
+  const sent = () => {
+    markSent(r.code); $('#bk-li-send', dlg).className = 'ok';
+    const btn = $('#bk-send', dlg); if (!btn) return;
+    $('#bk-nav', dlg)?.remove(); btn.insertAdjacentHTML('afterend', navPair()); btn.remove(); wireNav();
+    const acts = $('.bk-pdf-acts', dlg); if (acts && !$('#bk-resend', dlg)) { acts.insertAdjacentHTML('beforeend', '<button class="btn btn-ghost btn-sm" type="button" id="bk-resend">Enviar de nuevo</button>'); $('#bk-resend', dlg).addEventListener('click', send); }
+  };
+  async function send() {
+    if (share) {
+      try {
+        const file = new File([await getBlob()], pdfName(r), { type: 'application/pdf' });
+        await navigator.share({ files: [file], title: TLL_I18N.tr(`Comprobante ${r.code}`), text: shortText(r) });
+        sent(); toast('¡Listo! Eduardo recibe tu comprobante');
+        return;
+      } catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    // sin hoja de compartir con archivos (computadora): se descarga el PDF y se abre el chat con un mensaje corto
+    window.open(wa(shortText(r)), '_blank', 'noopener');
+    try { saveBlob(await getBlob(), pdfName(r)); } catch { toast('No se pudo crear el PDF'); return; }
+    sent(); toast('Descargamos el PDF: adjúntalo en el chat de WhatsApp');
+  }
+  function wireNav() {
+    $('#bk-home', dlg).addEventListener('click', e => { e.preventDefault(); dlg.close(); location.hash = 'inicio'; scrollTo(0, 0); });
+    $('#bk-trip', dlg).addEventListener('click', () => dlg.close());
+  }
+  wireNav();
+  $('#bk-send', dlg)?.addEventListener('click', send);
+  $('#bk-resend', dlg)?.addEventListener('click', send);
   $('#bk-pdf-dl', dlg).addEventListener('click', async () => { try { saveBlob(await getBlob(), pdfName(r)); toast('Comprobante descargado'); } catch { toast('No se pudo crear el PDF'); } });
-  const sh = $('#bk-pdf-share', dlg);
-  if (sh) sh.addEventListener('click', async () => {
-    try {
-      const file = new File([await getBlob()], pdfName(r), { type: 'application/pdf' });
-      await navigator.share({ files: [file], title: TLL_I18N.tr(`Comprobante ${r.code}`), text: TLL_I18N.tr(`Reserva ${r.code} · Tu Lancha Lechería. Elige WhatsApp y envíalo a Tu Lancha (+58 414 308 3864).`) });
-      markSent(r.code); $('#bk-li-send', dlg).className = 'ok';
-    } catch (e) { if (e && e.name === 'AbortError') return; saveBlob(await getBlob(), pdfName(r)); toast('Descargamos el PDF: adjúntalo en el chat de WhatsApp'); }
-  });
   if (!dlg.open) dlg.showModal();
 }
 function markSent(code) { saveMine(mine().map(x => x.code === code ? { ...x, sent: true } : x)); renderMine(); }
@@ -2659,12 +3182,14 @@ async function makePdf(r) {
   // checklist
   col(GOLD); d.setFont('helvetica', 'bold'); d.setFontSize(8); d.setCharSpace(1); d.text('TU PASEO, PUNTO POR PUNTO', M, y); d.setCharSpace(0); y += 6;
   const extras = (r.lines || []).slice(1).filter(l => l[1] >= 0).map(l => clean(l[0]));
-  const checks = [['Rumbo y playas', r.route], ['Muelle de salida', `${r.dock}${r.dockFee ? ' · toque de muelle aparte: ' + r.dockFee : ''}`], ['Extras', extras.length ? extras.join(', ') : 'Sin extras'],
+  const checks = [['Rumbo y playas', r.route], ['Muelle de salida', `${r.dock}${r.dockFee ? ' · servicio de muelle aparte (se paga en sitio): ' + r.dockFee : ''}`], ...(okPin(r.pin) ? [['Ubicación', `${pinTxt(r.pin)} · ${gmapsUrl(r.pin)}`]] : []), ['Extras', extras.length ? extras.join(', ') : 'Sin extras'],
     ['Incluido', 'Tripulación, chalecos salvavidas, hielo y agua'], ['Condiciones', `Aceptadas (${POLICY_REV})`]];
   checks.forEach(([k, v]) => {
     need(8); fill(GOLD); d.circle(M + 2.6, y - 1.2, 2.6, 'F'); draw([255, 255, 255]); d.setLineWidth(.6); d.lines([[1, 1], [1.9, -2.1]], M + 1.3, y - 1.2);
     col(INK); d.setFont('helvetica', 'bold'); d.setFontSize(9.5); d.text(k, M + 8, y);
-    d.setFont('helvetica', 'normal'); col([60, 66, 88]); const t = d.splitTextToSize(clean(v), W - 2 * M - 52); d.text(t, M + 50, y); y += Math.max(1, t.length) * 4.4 + 2;
+    d.setFont('helvetica', 'normal'); col([60, 66, 88]); const t = d.splitTextToSize(clean(v), W - 2 * M - 52); d.text(t, M + 50, y);
+    if (k === 'Ubicación' && okPin(r.pin)) d.link(M + 50, y - 3.6, W - 2 * M - 52, Math.max(1, t.length) * 4.4, { url: gmapsUrl(r.pin) }); // se abre en Google Maps con un toque
+    y += Math.max(1, t.length) * 4.4 + 2;
   });
   // detalle y total
   y += 2; col(GOLD); d.setFont('helvetica', 'bold'); d.setFontSize(8); d.setCharSpace(1); d.text('DETALLE DEL PEDIDO', M, y); d.setCharSpace(0); y += 3;
@@ -2675,7 +3200,7 @@ async function makePdf(r) {
   const pm = r.pay && PAY[r.pay] ? PAY[r.pay].name : 'Por acordar';
   fill([253, 248, 236]); draw([236, 220, 180]); d.roundedRect(M, y, W - 2 * M, 22, 3, 3, 'FD');
   col(MUT); d.setFont('helvetica', 'normal'); d.setFontSize(7.5); d.text('MÉTODO DE PAGO', M + 6, y + 6.5); d.text('ABONO PARA APARTAR (50%)', M + 70, y + 6.5); d.text('RESTO, EN EL MUELLE', M + 132, y + 6.5);
-  col(INK); d.setFont('helvetica', 'bold'); d.setFontSize(12); d.text(pm, M + 6, y + 14); d.text(money(r.total / 2), M + 70, y + 14); d.text(money(r.total - r.total / 2), M + 132, y + 14);
+  col(INK); d.setFont('helvetica', 'bold'); d.setFontSize(12); d.text(pm, M + 6, y + 14); d.text(money(abono(r.pay, r.total)), M + 70, y + 14); d.text(money(r.total - r.total / 2), M + 132, y + 14);
   col(MUT); d.setFont('helvetica', 'normal'); d.setFontSize(7.5); d.text(r.pay === 'efectivo' ? 'La entrega del abono en efectivo se acuerda por WhatsApp.' : 'Los datos para el abono te los envía Tu Lancha por WhatsApp.', M + 6, y + 19.2); y += 26;
   if (r.note) { need(14); col(MUT); d.setFontSize(7.5); d.text('NOTA DEL CLIENTE', M, y); col(INK); d.setFontSize(9.5); const t = d.splitTextToSize(clean(r.note), W - 2 * M); d.text(t, M, y + 5); y += 7 + t.length * 4.4; }
   // condiciones resumidas
@@ -2978,10 +3503,21 @@ $('#trip-chip')?.addEventListener('click', e => {
   if (s === 'today') window.TLL.openAbordo(r.code); else if (s === 'album') window.TLL.openAlbum(r.code); else location.hash = 'mi-viaje';
 });
 
+/* ---------- acceso discreto en el inicio: solo con una reserva vigente ---------- */
+function renderHome() {
+  const el = $('#hero-trip'); if (!el) return;
+  const r = featured() || mine().find(x => !times(x)); if (!r) { el.hidden = true; el.innerHTML = ''; return; }
+  const s = stateOf(r);
+  const sub = s === 'today' ? 'Hoy zarpas' : s === 'album' ? 'Tu álbum del día está listo' : r.sent ? 'Enviada a Tu Lancha' : 'Falta enviar el comprobante';
+  el.hidden = false;
+  el.innerHTML = `<span class="ht-ic">${ic(s === 'album' ? 'album' : 'cal')}</span><span class="ht-tx"><small>Tu reserva <b class="mono">${esc(r.code)}</b></small><b>${esc(r.boat)} · ${esc(r.date)}</b><small class="ht-st ${!r.sent && (s === 'soon' || s === 'none') ? 'warn' : 'ok'}">${sub}</small></span>
+    <span class="ht-acts"><button type="button" class="btn btn-glass btn-sm" data-mt-open="${esc(r.code)}">Comprobante</button><a class="btn btn-sun btn-sm" href="#mi-viaje">Ver mi viaje</a></span>`;
+}
+
 /* ---------- Mi viaje solo aparece cuando hay una reserva ---------- */
 function render() {
   document.body.classList.toggle('has-trip', mine().length > 0);
-  renderCard(); renderChip();
+  renderCard(); renderChip(); renderHome();
   $$('[data-plan]').forEach(refresh);
 }
 
@@ -3037,7 +3573,7 @@ function route() { const [v, a] = target(); closeSheet(); if (v !== current || a
 addEventListener('hashchange', route);
 
 /* ---------- reserva paso a paso ---------- */
-let step = 0;
+let step = 0, mbReady = false;
 const steps = $$('.step'), labels = $$('#stepper [data-go]');
 function goStep(n) {
   step = Math.max(0, Math.min(3, n));
@@ -3047,6 +3583,7 @@ function goStep(n) {
   $('#st-back').style.visibility = step === 0 ? 'hidden' : 'visible';
   const nx = $('#st-next');
   if (step === 3) { nx.textContent = 'Reservar ahora'; } else { nx.textContent = 'Siguiente'; }
+  if (mbReady) syncMinibar();
 }
 $('#stepper').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) goStep(+b.dataset.go); });
 $('#st-back').onclick = () => { goStep(step - 1); $('#stepper').scrollIntoView({ block: 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' }); };
@@ -3063,12 +3600,14 @@ $('#reservar').addEventListener('click', e => {
 goStep(0);
 
 /* ---------- barra de total en el móvil ---------- */
-const mb = $('#minibar');
+const mb = $('#minibar'); mbReady = true;
 let ticketIn = false;
 new IntersectionObserver(es => { ticketIn = es[0].isIntersecting; syncMinibar(); }, { threshold: .25 }).observe($('#ticket'));
 function syncMinibar() {
   const on = current === 'reservar' && !ticketIn && !!BOATS.find(x => x.id === Q.boat);
-  mb.classList.toggle('show', on); mb.setAttribute('aria-hidden', String(!on)); $('#mb-book').tabIndex = on ? 0 : -1;
+  // el botón de reservar solo aparece en el último paso (pedido de Eduardo); antes se ve solo el total
+  const last = step === 3;
+  mb.classList.toggle('show', on); mb.classList.toggle('no-btn', !last); mb.setAttribute('aria-hidden', String(!on)); $('#mb-book').hidden = !last; $('#mb-book').tabIndex = on && last ? 0 : -1;
 }
 
 /* ---------- menú ---------- */
@@ -3124,6 +3663,212 @@ route(); if (!current) show('inicio');
 window.TLL.goStep = goStep;
 })();
 
+/* ---------------- navegación: menú giratorio de pantallas flotantes y búsqueda del encabezado ----------------
+   La portada queda compacta: header, hero, lancha de la casa y este menú. Cada sección se abre desde
+   las pantallas que giran (o desde la búsqueda y el menú lateral).
+   Las pantallas muestran por ahora imágenes de relleno difuminadas; Eduardo puede subir la imagen de
+   cada pantalla desde el panel (Portada) y entonces se ve nítida. */
+(() => {
+'use strict';
+const T = window.TLL, { $, $$, esc, art, beachArt, BOATS, ROUTES, ALLIES, OWN, CAT } = T;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+/* ---------- pantallas por sección (2 por sección) ---------- */
+const SECS = [
+  ['embarcaciones', 'Embarcaciones', [['c-premium', 'Lancha prémium', 'La recomendación de la casa', '#embarcaciones', 'drone', 200], ['c-flota', 'Lanchas, mini yates y yates', 'Toda la flota con capitán', '#embarcaciones', 'exterior', 215]]],
+  ['playas', 'Playas', [['c-rumbos', 'Seis rumbos', 'Por el Parque Nacional Mochima', '#playas', 'beach', 185], ['c-plata', 'Isla de Plata', 'Aguas cristalinas', '#playas', 'beach', 175]]],
+  ['experiencias', 'Experiencias', [['c-canales', 'Canales de El Morro', 'Al caer la tarde', '#experiencias', 'hero', 25], ['c-celebra', 'Celebraciones a bordo', 'Cumpleaños, pedidas y corporativos', '#experiencias', 'interior', 330]]],
+  ['regalos', 'Regalos y Club', [['c-regalo', 'Regala un día en el mar', 'Tarjetas de regalo', '#regalos', 'hero', 340], ['c-club', 'Club Tu Lancha', 'Invita y ganan los dos', '#club', 'exterior', 160]]],
+  ['aliados', 'Servicio a bordo', [['c-comida', 'Comida y bebidas', 'Te lo llevan al muelle', '#aliados', 'interior', 30], ['c-vip', 'DJ, estilo y estadía', 'Aliados VIP', '#aliados', 'hero', 280]]],
+  ['mi-viaje', 'Mi viaje', [['c-vivo', 'Seguimiento en vivo', 'Tu familia te sigue desde tierra', '#mi-viaje', 'drone', 190], ['c-sos', 'Modo a bordo y SOS', 'GPS y botón de emergencia', '#mi-viaje', 'exterior', 230]]],
+  ['nosotros', 'Nosotros', [['c-somos', 'Quiénes somos', 'Gente de mar de Lechería', '#nosotros', 'hero', 200], ['c-muelles', 'Muelles y horario', 'Dónde y a qué hora salimos', '#nosotros', 'exterior', 195]]],
+  ['reservar', 'Reservar', [['c-arma', 'Arma tu salida', 'Cuatro pasos y listo', '#reservar', 'drone', 210], ['c-cotiza', 'Tu total al instante', 'Sin pagar nada ahora', '#reservar', 'beach', 190]]],
+  ['propietarios', 'Propietarios', [['c-pool', 'Únete al pool', 'Pon tu embarcación a trabajar', '#propietarios', 'exterior', 220], ['c-servi', 'Servicios para propietarios', 'Capitán, inflables y más', '#propietarios', 'interior', 205]]]
+];
+const CARDS = SECS.flatMap(([sec, name, cards], si) => cards.map(c => ({ sec, si, secName: name, id: c[0], t: c[1], s: c[2], href: c[3], kind: c[4], hue: c[5] })));
+T.NAV_CARDS = CARDS;   // el panel las lista en Portada para subir la imagen de cada pantalla
+// imagen de relleno: ilustración generada y difuminada (cuando Eduardo suba la real, se ve nítida)
+function fill(c) {
+  const u = CAT.home && CAT.home.cards && CAT.home.cards[c.id];
+  if (u) return `<img class="orb-img" src="${esc(u)}" alt="" loading="lazy" decoding="async">`;
+  const svg = c.kind === 'beach' ? beachArt({ id: c.id, hue: c.hue }) : art(c.kind, c.hue, c.id);
+  return `<span class="orb-img orb-blur">${svg}</span>`;
+}
+
+function mount(host) {
+  const small = host.classList.contains('sm');
+  host.innerHTML = `<div class="orb-stage" tabindex="-1"><div class="orb-ring">${CARDS.map((c, i) => `<a class="orb-card" href="${c.href}" data-i="${i}" data-sec="${c.sec}" aria-label="${esc(c.t)}: ${esc(c.s)}">${fill(c)}<span class="orb-sheen" aria-hidden="true"></span><span class="orb-tx"><small>${esc(SECS[c.si][1])}</small><b>${esc(c.t)}</b><span>${esc(c.s)}</span></span></a>`).join('')}</div></div>
+    <div class="orb-tabs" role="tablist" aria-label="Secciones">${SECS.map(([k, n], i) => `<button type="button" role="tab" data-sec="${k}" data-si="${i}" aria-selected="false">${esc(n)}</button>`).join('')}<span class="orb-ink" aria-hidden="true"></span></div>`;
+  const stage = $('.orb-stage', host), cards = $$('.orb-card', host), tabs = $$('.orb-tabs [data-si]', host), ink = $('.orb-ink', host), tabRow = $('.orb-tabs', host);
+  const N = cards.length, STEP = 360 / N;
+  let rot = 0, vel = 0, target = null, drag = null, hover = false, seen = false, last = 0, active = -1, raf = 0, idleUntil = 0;
+  const geo = () => { const w = stage.clientWidth, cw = Math.max(118, Math.min(small ? 170 : 214, w * (w < 600 ? .36 : .17))); return { cw, R: (cw * 1.2) / (2 * Math.tan(Math.PI / N)), w }; };
+  let G = geo();
+  function place() {
+    host.style.setProperty('--cw', G.cw + 'px');
+    for (let i = 0; i < N; i++) {
+      let a = ((i * STEP - rot) % 360 + 540) % 360 - 180;           // ángulo respecto al frente, -180..180
+      const c = cards[i], vis = Math.abs(a) < 78;
+      if (!vis) { if (c.style.visibility !== 'hidden') { c.style.visibility = 'hidden'; c.tabIndex = -1; } continue; }
+      const r = a * Math.PI / 180, x = Math.sin(r) * G.R, z = (1 - Math.cos(r)) * G.R * .38;
+      c.style.visibility = ''; c.tabIndex = Math.abs(a) < STEP * 2 ? 0 : -1;
+      c.style.transform = `translate3d(${x.toFixed(1)}px,0,${z.toFixed(1)}px) rotateY(${(-a * .9).toFixed(2)}deg)`;
+      c.style.opacity = Math.min(1, (78 - Math.abs(a)) / 22).toFixed(3);
+      c.style.zIndex = 200 - Math.round(Math.abs(a));
+      c.style.setProperty('--glow', Math.max(0, 1 - Math.abs(a) / 26).toFixed(3));
+    }
+    // sección al frente
+    const front = Math.round(((rot % 360) + 360) % 360 / STEP) % N, si = CARDS[front].si;
+    if (si !== active) { active = si; tabs.forEach((t, j) => t.setAttribute('aria-selected', String(j === si))); moveInk(); }
+  }
+  function moveInk() {
+    const t = tabs[active]; if (!t) return;
+    ink.style.width = t.offsetWidth + 'px'; ink.style.transform = `translateX(${t.offsetLeft}px)`;
+    if (tabRow.scrollWidth > tabRow.clientWidth + 2 && !drag) { const want = t.offsetLeft - (tabRow.clientWidth - t.offsetWidth) / 2; if (Math.abs(tabRow.scrollLeft - want) > 4) tabRow.scrollTo({ left: want, behavior: reduce.matches ? 'auto' : 'smooth' }); }
+  }
+  const nearest = to => { const d = ((to - rot) % 360 + 540) % 360 - 180; return rot + d; };
+  function goSec(si) { const i = CARDS.findIndex(c => c.si === si); target = nearest(i * STEP + STEP / 2); idleUntil = performance.now() + 6000; kick(); }
+  function tick(t) {
+    raf = 0; const dt = Math.min(48, t - (last || t)); last = t;
+    if (!drag) {
+      if (target != null) { const d = target - rot; rot += d * Math.min(1, dt / 140); if (Math.abs(d) < .05) { rot = target; target = null; } vel = 0; }
+      else if (Math.abs(vel) > .01) { rot += vel * dt; vel *= Math.pow(.94, dt / 16); }
+      else if (!hover && !reduce.matches && t > idleUntil) rot += dt * .0065;   // giro lento continuo
+      else if (t <= idleUntil || hover) { const s = nearest(Math.round(rot / STEP) * STEP); if (Math.abs(s - rot) > .05 && t > idleUntil - 5000) rot += (s - rot) * Math.min(1, dt / 220); }
+    }
+    place();
+    if (seen && !document.hidden && host.offsetParent) raf = requestAnimationFrame(tick); else last = 0;
+  }
+  const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
+  // arrastrar con el dedo o el mouse
+  stage.addEventListener('pointerdown', e => { if (e.button > 0) return; drag = { x: e.clientX, r: rot, t: performance.now(), moved: false, id: e.pointerId, vx: 0 }; target = null; vel = 0; kick(); });
+  addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x; if (Math.abs(dx) > 6 && !drag.moved) { drag.moved = true; try { stage.setPointerCapture(e.pointerId); } catch {} }
+    if (!drag.moved) return;
+    const now = performance.now(), nr = drag.r - dx * (STEP / G.cw) * 1.1;
+    drag.vx = (nr - rot) / Math.max(1, now - (drag.lt || now - 16)); drag.lt = now; rot = nr;
+  }, { passive: true });
+  const end = e => { if (!drag || (e && e.pointerId !== drag.id)) return; if (drag.moved) { vel = Math.max(-.6, Math.min(.6, drag.vx || 0)); stage.dataset.dragged = Date.now(); } drag = null; idleUntil = performance.now() + 5000; kick(); };
+  addEventListener('pointerup', end); addEventListener('pointercancel', end);
+  // un arrastre no debe abrir la pantalla que quedó debajo del dedo
+  host.addEventListener('click', e => {
+    const tab = e.target.closest('[data-si]'); if (tab) { goSec(+tab.dataset.si); return; }
+    const c = e.target.closest('.orb-card'); if (!c) return;
+    if (Date.now() - (+stage.dataset.dragged || 0) < 250) { e.preventDefault(); return; }
+    if (c.getAttribute('href') === '#embarcaciones' && CARDS[+c.dataset.i].id === 'c-premium' && OWN) { e.preventDefault(); location.hash = 'embarcaciones'; setTimeout(() => T.openBoat(OWN.id), 60); }
+  });
+  host.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { hover = true; idleUntil = performance.now() + 400; } });
+  host.addEventListener('pointerleave', () => { hover = false; kick(); });
+  host.addEventListener('focusin', e => { const c = e.target.closest('.orb-card'); if (c) { target = nearest(+c.dataset.i * STEP); idleUntil = performance.now() + 8000; kick(); } });
+  host.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return; e.preventDefault();
+    const n = (active + (e.key === 'ArrowRight' ? 1 : -1) + SECS.length) % SECS.length; goSec(n);
+    const t = tabs[n]; if (t && e.target.closest('.orb-tabs')) t.focus();
+  });
+  new IntersectionObserver(es => { seen = es[0].isIntersecting; if (seen) kick(); }).observe(host);
+  addEventListener('resize', () => { G = geo(); place(); moveInk(); });
+  document.addEventListener('visibilitychange', kick);
+  addEventListener('hashchange', () => setTimeout(() => { G = geo(); kick(); moveInk(); }, 60));
+  host.orbit = { goSec, refresh: () => { cards.forEach((c, i) => { const im = $('.orb-img', c); im.outerHTML = fill(CARDS[i]); }); }, kick: () => { G = geo(); kick(); } };
+  rot = STEP / 2; place(); requestAnimationFrame(() => { G = geo(); place(); moveInk(); });
+}
+const hosts = $$('[data-orbit]'); hosts.forEach(mount);
+addEventListener('tll:cat', () => hosts.forEach(h => h.orbit && h.orbit.refresh()));
+
+/* ---------------- búsqueda del encabezado ---------------- */
+const box = $('#tsearch'), q = $('#ts-q'), res = $('#ts-res'), form = $('#ts-form');
+const SEC_KW = {
+  embarcaciones: 'lancha lanchas yate yates mini yate barco barcos flota catalogo boat boats yacht premium capitan',
+  reservar: 'reservar reserva cotizar precio precios tarifa book booking quote total abono pagar',
+  playas: 'playa playas rumbo rumbos islas isla millas beach beaches mochima parque',
+  experiencias: 'experiencias canales morro pesca cumpleanos pedida corporativo celebracion fishing',
+  regalos: 'regalo regalos tarjeta club referido codigo gift card',
+  aliados: 'servicio a bordo aliados comida bebidas mercadillo dj fotografo estadia posada restaurante partners food',
+  'mi-viaje': 'mi viaje gps seguimiento en vivo sos emergencia album fotos dron ubicacion tracking',
+  nosotros: 'nosotros quienes somos contacto telefono whatsapp horario ubicacion muelles preguntas faq about',
+  propietarios: 'propietarios pool propietario embarcacion postular dueno owners capitan servicios'
+};
+const SEC_N = { embarcaciones: 'Embarcaciones', reservar: 'Reservar', playas: 'Playas y rumbos', experiencias: 'Experiencias', regalos: 'Regalos y Club', aliados: 'Servicio a bordo', 'mi-viaje': 'Mi viaje', nosotros: 'Nosotros', propietarios: 'Propietarios' };
+const IC = {
+  sec: '<path d="M4 6h16M4 12h16M4 18h10"/>', boat: '<path d="M3 17l2 3h14l2-3M5 17V9l7-5 7 5v8"/>', beach: '<path d="M2 18c3 0 3-2 6-2s3 2 6 2 3-2 6-2M12 3v9M12 3l6 4M12 3L6 7"/>',
+  ally: '<path d="M4 10h16l-1.5 9a2 2 0 01-2 1.7h-9a2 2 0 01-2-1.7zM8 10V7a4 4 0 018 0v3"/>', faq: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 015 0c0 2-2.5 2-2.5 4M12 17h.01"/>', exp: '<path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/>'
+};
+const KIND_N = { sec: 'Sección', boat: 'Embarcación', beach: 'Playa', route: 'Rumbo', ally: 'Servicio a bordo', faq: 'Pregunta frecuente', exp: 'Experiencia' };
+function index() {
+  const L = [];
+  Object.keys(SEC_N).forEach(k => L.push({ k: 'sec', t: SEC_N[k], s: '', kw: SEC_KW[k], go: '#' + k }));
+  BOATS.forEach(b => L.push({ k: 'boat', t: b.name, s: `${b.type} · ${b.ft} pies${b.own ? ' · recomendación de la casa' : ''}`, kw: `${b.type} ${b.own ? 'premium casa recomendada' : ''} ${(b.amen || []).join(' ')}`, boat: b.id }));
+  ROUTES.forEach(r => {
+    L.push({ k: 'route', ic: 'beach', t: `${r.name} · ${r.zone}`, s: `${r.nm ? '~' + r.nm + ' millas náuticas · ' : ''}${r.beaches.length} playas`, kw: r.beaches.join(' '), go: '#playas', el: 'rumbo-' + r.id });
+    r.beaches.forEach(n => L.push({ k: 'beach', t: n, s: `${r.name} · ${r.zone}`, kw: r.zone, go: '#playas', el: 'rumbo-' + r.id }));
+  });
+  ALLIES.forEach(c => (c.items || []).forEach(it => L.push({ k: 'ally', t: it[0], s: it[1] || c.cat, kw: c.cat, go: c.owners ? '#propietarios' : '#aliados' })));
+  [['Paseo por los canales de El Morro', 'Desde las 5:30 pm'], ['Pesca deportiva', 'Con capitán pescador'], ['Pedida de mano', 'Celebraciones a bordo'], ['Cumpleaños en el mar', 'Celebraciones a bordo'], ['Corporativo', 'Celebraciones a bordo']].forEach(([t, s]) => L.push({ k: 'exp', t, s, kw: '', go: '#experiencias' }));
+  $$('#nosotros .faq details').forEach((d, i) => { const sm = $('summary', d); if (sm) L.push({ k: 'faq', t: sm.textContent.trim(), s: ($('p', d) || {}).textContent || '', kw: '', go: '#nosotros', faq: i }); });
+  [['Modo a bordo y botón SOS', 'GPS del teléfono durante el paseo', '#mi-viaje', 'sos emergencia gps'], ['Álbum del día', 'Fotos y videos de dron de tu paseo', '#mi-viaje', 'album fotos dron'], ['Escoge tu muelle en el mapa', 'Marca tu punto de salida', '#reservar', 'muelle mapa residencia recogida'], ['Tarjeta de regalo', 'Regala un día en el mar', '#regalos', 'regalo gift'], ['Quiero formar parte del pool', 'Para propietarios', '#propietarios', 'pool propietario']].forEach(([t, s, go, kw]) => L.push({ k: 'sec', ic: 'exp', t, s, go, kw }));
+  L.forEach(x => { x.nt = norm(x.t); x.nk = norm(x.kw + ' ' + x.s); });
+  return L;
+}
+let IDX = null, hits = [], sel = -1;
+addEventListener('tll:cat', () => { IDX = null; });
+function search(term) {
+  IDX ||= index();
+  const w = norm(term).split(/\s+/).filter(Boolean);
+  if (!w.length) return IDX.filter(x => ['Lancha de la casa', 'Isla de Plata', 'Reservar', 'Paseo por los canales de El Morro', 'Modo a bordo y botón SOS'].includes(x.t) || (x.boat && OWN && x.boat === OWN.id)).slice(0, 5);
+  return IDX.map(x => {
+    let sc = 0;
+    for (const t of w) {
+      if (x.nt.startsWith(t)) sc += 6; else if (x.nt.includes(' ' + t)) sc += 5; else if (x.nt.includes(t)) sc += 3; else if (x.nk.includes(t)) sc += 1.5; else return null;
+    }
+    return [sc + (x.k === 'sec' ? .5 : 0), x];
+  }).filter(Boolean).sort((a, b) => b[0] - a[0]).slice(0, 8).map(a => a[1]);
+}
+// en inglés el nombre se traduce antes de resaltar (si no, el resaltado parte la frase y no se traduce)
+const L = t => window.TLL_I18N && TLL_I18N.tr ? TLL_I18N.tr(t) : t;
+const hl = (t, term) => { const w = norm(term).split(/\s+/).filter(Boolean)[0]; if (!w) return esc(t); const i = norm(t).indexOf(w); return i < 0 ? esc(t) : esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + w.length)) + '</mark>' + esc(t.slice(i + w.length)); };
+function draw() {
+  const term = q.value.trim(); hits = search(term); sel = hits.length ? 0 : -1;
+  res.innerHTML = (term ? '' : '<p class="ts-h">Sugerencias</p>') + (hits.length ? hits.map((x, i) => `<button type="button" role="option" id="ts-o${i}" class="ts-o" data-o="${i}" aria-selected="${i === sel}"><span class="ts-oi" aria-hidden="true"><svg viewBox="0 0 24 24">${IC[x.ic || (x.k === 'route' ? 'beach' : x.k)] || IC.sec}</svg></span><span class="ts-ot"><b translate="no">${hl(L(x.t), term)}</b>${x.s ? `<small>${esc(x.s.slice(0, 90))}</small>` : ''}</span><span class="ts-ok">${KIND_N[x.k]}</span></button>`).join('') : `<p class="ts-none">No encontramos “${esc(term)}”. Prueba con una playa, una embarcación o escríbenos por WhatsApp.</p>`);
+  res.hidden = false; q.setAttribute('aria-expanded', 'true'); q.setAttribute('aria-activedescendant', sel >= 0 ? 'ts-o0' : '');
+}
+function pickSel() { $$('.ts-o', res).forEach((b, i) => b.setAttribute('aria-selected', String(i === sel))); q.setAttribute('aria-activedescendant', sel >= 0 ? 'ts-o' + sel : ''); const b = $(`#ts-o${sel}`); if (b) b.scrollIntoView({ block: 'nearest' }); }
+function closeRes() { res.hidden = true; q.setAttribute('aria-expanded', 'false'); }
+function closeBox() { closeRes(); box.classList.remove('open'); document.body.classList.remove('ts-on'); q.blur(); }
+function go(x) {
+  closeBox(); q.value = '';
+  if (x.boat) { location.hash = 'embarcaciones'; setTimeout(() => T.openBoat(x.boat), 80); return; }
+  const same = location.hash === x.go;
+  location.hash = x.go.slice(1);
+  setTimeout(() => {
+    if (x.faq != null) { const d = $$('#nosotros .faq details')[x.faq]; if (d) { d.open = true; d.scrollIntoView({ block: 'center', behavior: reduce.matches ? 'auto' : 'smooth' }); } }
+    else if (x.el && document.getElementById(x.el)) document.getElementById(x.el).scrollIntoView({ block: 'start', behavior: reduce.matches ? 'auto' : 'smooth' });
+    else if (same) scrollTo({ top: 0, behavior: 'smooth' });
+  }, 120);
+}
+q.addEventListener('focus', draw);
+q.addEventListener('input', draw);
+q.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (!hits.length) return; sel = (sel + (e.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length; pickSel(); }
+  else if (e.key === 'Enter') { e.preventDefault(); if (hits[sel]) go(hits[sel]); }
+  else if (e.key === 'Escape') { e.preventDefault(); closeBox(); }
+});
+form.addEventListener('submit', e => { e.preventDefault(); if (hits[sel]) go(hits[sel]); });
+res.addEventListener('mousedown', e => e.preventDefault());
+res.addEventListener('click', e => { const o = e.target.closest('[data-o]'); if (o) go(hits[+o.dataset.o]); });
+document.addEventListener('pointerdown', e => { if (!box.contains(e.target) && !e.target.closest('[data-side-search]')) { closeRes(); if (box.classList.contains('open') && !q.value) closeBox(); } });
+function openBox() { box.classList.add('open'); document.body.classList.add('ts-on'); setTimeout(() => q.focus(), 30); }
+$('#ts-open').addEventListener('click', openBox);
+$('#ts-x').addEventListener('click', closeBox);
+document.addEventListener('click', e => { if (e.target.closest('[data-side-search]')) { const c = $('#menu-close'); if (c) c.click(); setTimeout(openBox, 60); } });
+addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openBox(); } else if (e.key === '/' && !/input|textarea|select/i.test((document.activeElement || {}).tagName || '') && !document.querySelector('dialog[open]')) { e.preventDefault(); openBox(); } });
+if (!/Mac|iP(hone|ad|od)/.test(navigator.platform || navigator.userAgent)) { const k = $('.ts-kbd'); if (k) k.textContent = 'Ctrl K'; }
+// en el menú lateral se marca la sección actual
+const markSide = () => { const h = (location.hash.slice(1) || 'inicio').split('/')[0]; $$('[data-side]').forEach(a => a.toggleAttribute('aria-current', a.dataset.side === h)); };
+addEventListener('hashchange', markSide); markSide();
+})();
+
 (() => {
 'use strict';
 /* ================= Panel de control de Eduardo =================
@@ -3149,9 +3894,17 @@ const IMG = {
   boat: { w: 1600, h: 1000, min: 1000, fit: 'cover', label: 'horizontal 16:10', size: '1600 × 1000 px' },
   beach: { w: 1200, h: 1200, min: 800, fit: 'cover', label: 'cuadrada 1:1', size: '1200 × 1200 px' },
   logo: { w: 512, h: 512, min: 200, fit: 'contain', label: 'cuadrada, logo completo', size: '512 × 512 px' },
-  qr: { w: 600, h: 600, min: 250, fit: 'contain', label: 'cuadrada, QR completo', size: '600 × 600 px', png: true }   // PNG sin pérdida para que el QR se pueda escanear
+  qr: { w: 600, h: 600, min: 250, fit: 'contain', label: 'cuadrada, QR completo', size: '600 × 600 px', png: true },   // PNG sin pérdida para que el QR se pueda escanear
+  hero: { w: 1920, h: 1080, min: 1200, fit: 'cover', label: 'horizontal 16:9', size: '1920 × 1080 px' },
+  card: { w: 900, h: 1200, min: 600, fit: 'cover', label: 'vertical 3:4', size: '900 × 1200 px' },
+  cover: { w: 1200, h: 800, min: 800, fit: 'cover', label: 'horizontal 3:2', size: '1200 × 800 px' }
 };
-const VIEWS = [['drone', 'Dron · principal'], ['exterior', 'Exterior'], ['interior', 'Interior'], ['camarote', 'Camarote']];
+const DOCS = [['lic', 'Licencia de navegación'], ['radio', 'Licencia de radio'], ['patron', 'Patrón del capitán'], ['fuel', 'Permiso de combustible']];
+const SIZE_L = [['', 'Automático (según tipo y pies)'], ['s', 'Lancha pequeña'], ['m', 'Lancha mediana'], ['my', 'Mini yate'], ['y', 'Yate o barco']];
+// documentos que vencen en los próximos 30 días (o ya vencidos)
+const docAlerts = () => { const t = iso(today), lim = iso(new Date(today.getTime() + 30 * 864e5)), out = [];
+  W.boats.forEach(b => DOCS.forEach(([k, l]) => { const v = b.docs && b.docs[k]; if (v && v <= lim) out.push({ b: b.name, l, v, gone: v < t }); }));
+  return out.sort((a, b) => a.v < b.v ? -1 : 1); };
 
 let TOK = null, W = null, PUB = '', BK = [], tab = 'inicio', period = 'mes', demo = false, idleT, bkFilter = 'proximas', bkQuery = '';
 
@@ -3215,8 +3968,9 @@ function bump() { clearTimeout(idleT); idleT = setTimeout(() => { if (TOK && !di
 
 /* ---------------- datos de trabajo ---------------- */
 function fromCat(c) {
-  c = c && typeof c === 'object' ? clone(c) : {};
-  return {
+  c = T.migrateCat(c);   // catálogos viejos pasan al formato nuevo (fotos, precios por rumbo, muelles)
+  const o = {
+    v: T.CAT_V,
     boats: Array.isArray(c.boats) && c.boats.length ? c.boats : clone(DEF.boats),
     routes: Array.isArray(c.routes) && c.routes.length ? c.routes : clone(DEF.routes),
     docks: Array.isArray(c.docks) && c.docks.length ? c.docks : clone(DEF.docks),
@@ -3224,9 +3978,15 @@ function fromCat(c) {
     basic: Array.isArray(c.basic) && c.basic.length ? c.basic : clone(DEF.basic),
     special: Array.isArray(c.special) && c.special.length ? c.special : clone(DEF.special),
     pay: T.normPay(c.pay),
+    shop: Array.isArray(c.shop) ? c.shop : clone(DEF.shop),
+    home: { hero: '', cards: {}, ...(c.home && typeof c.home === 'object' ? c.home : {}) },
     beachPhotos: c.beachPhotos || {},
     tr: c.tr || []
   };
+  // campos que el editor necesita, listos desde el inicio para que abrir algo no cuente como cambio
+  o.boats.forEach(b => { ['photos', 'opt', 'pick', 'rp', 'qty', 'docs'].forEach(k => { if (!b[k] || typeof b[k] !== 'object') b[k] = {}; }); ['inc', 'amen'].forEach(k => { if (!Array.isArray(b[k])) b[k] = []; }); });
+  o.docks.forEach(d => { if (d.pickup && !d.cost) d.cost = {}; });
+  return o;
 }
 const snap = () => JSON.stringify(W);
 const dirty = () => !!W && snap() !== PUB;
@@ -3265,7 +4025,7 @@ const photoSlot = (path, kind, label, small) => { const u = getPath(W, path);
     <div class="ad-ph-b"><b>${label}</b><div class="adm-tools"><button type="button" class="icon-btn" data-up="${path}" data-kind="${kind}">${u ? 'Cambiar' : 'Subir foto'}</button>${u ? `<button type="button" class="icon-btn" data-rmph="${path}">Quitar</button>` : ''}</div></div></div>`; };
 
 /* ---------------- estructura del panel ---------------- */
-const TABS = [['inicio', 'Resumen'], ['reservas', 'Reservas'], ['flota', 'Embarcaciones'], ['rumbos', 'Rumbos y playas'], ['muelles', 'Muelles'], ['pagos', 'Pagos'], ['aliados', 'Aliados'], ['ajustes', 'Ajustes']];
+const TABS = [['inicio', 'Resumen'], ['reservas', 'Reservas'], ['flota', 'Embarcaciones'], ['rumbos', 'Rumbos y playas'], ['muelles', 'Muelles'], ['pagos', 'Pagos'], ['aliados', 'Servicio a bordo'], ['portada', 'Portada y tienda'], ['ajustes', 'Ajustes']];
 function render() {
   bump(); adm.hidden = false; lockScroll(true);
   const nNew = BK.filter(b => b.status === 'nueva').length;
@@ -3337,6 +4097,7 @@ VIEW.inicio = () => {
   return `<div class="ad-head"><div><h2>Hola, Eduardo 👋</h2><p class="rating">${demo ? 'Estás viendo <b>datos de ejemplo</b> para conocer el panel.' : BK.length ? `Tienes ${BK.length} reservas registradas${nNew ? ` y <b>${nNew} nuevas por revisar</b>` : ''}.` : 'Aún no hay reservas registradas. Las que hagan tus clientes en la app aparecerán aquí solas.'}</p></div>
     <div class="adm-tools"><div class="seg light" role="group" aria-label="Período">${[['mes', 'Mes'], ['3m', '3 meses'], ['12m', '12 meses']].map(([k, l]) => `<button type="button" data-p="${k}" aria-pressed="${k === period}">${l}</button>`).join('')}</div>${helpBtn('inicio')}</div></div>
     ${!BK.length || demo ? `<div class="panel ad-note"><b>${demo ? 'Datos de ejemplo activados' : '¿Quieres ver cómo se verá con datos?'}</b><span class="rating">${demo ? 'Nada de esto es real ni se guarda. Desactívalo para ver tus números.' : 'Activa los datos de ejemplo para conocer las gráficas. No se guardan ni afectan nada.'}</span><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" id="a-demo">${demo ? 'Ver mis datos reales' : 'Ver con datos de ejemplo'}</button></div></div>` : ''}
+    ${(() => { const A = docAlerts(); return A.length ? `<div class="panel ad-alert ad-docs"><b>Documentos por vencer</b>${A.map(x => `<span>${esc(x.b)} · ${esc(x.l)}: <b>${x.gone ? 'venció' : 'vence'} el ${esc(fmtD(x.v))}</b></span>`).join('')}<span class="rating">Actualiza la fecha en Embarcaciones → Editar → Documentos.</span></div>` : ''; })()}
     ${nNew && !demo ? `<button type="button" class="panel ad-alert" data-adtab="reservas"><b>${nNew} reserva${nNew > 1 ? 's' : ''} nueva${nNew > 1 ? 's' : ''} por confirmar</b><span>Revísalas y confírmalas en Reservas →</span></button>` : ''}
     <div class="adm-kpis">
       <div class="akpi"><span>Ventas · ${plbl}</span><b>${money(S.rev)}</b>${delta(S.rev, P.rev)}</div>
@@ -3376,10 +4137,13 @@ function bkCard(b) {
     <h4>${esc(b.name || 'Sin nombre')}</h4>
     <p>${esc(fmtD(dOf(b)))}${b.hours ? ' · ' + esc(b.hours) : ''}</p>
     <p class="rating">${esc(b.boat)} · ${b.pax || '—'} pers.${b.dock ? ' · ' + esc(b.dock) : ''}</p>
-    ${b.route ? `<p class="rating">${esc(b.route)}</p>` : ''}${b.note ? `<p class="rating">📝 ${esc(b.note)}</p>` : ''}
+    ${b.route ? `<p class="rating">${esc(b.route)}</p>` : ''}${T.okPin(b.pin) ? `<button type="button" class="ad-pin" data-bka="map"><span class="ad-pin-ic" aria-hidden="true">${T.PIN_SVG}</span><span><b>Muelle escogido por el cliente</b><small>${b.pin.ref ? esc(b.pin.ref) + ' · ' : ''}<span class="mono">${T.pinTxt(b.pin)}</span></small></span><span class="ad-pin-go">Ver mapa</span></button>` : ''}${b.note ? `<p class="rating">📝 ${esc(b.note)}</p>` : ''}
     <div class="ad-bk-m"><span>Total <b>${money(+b.total || 0)}</b></span><span>Pagado <b>${money(+b.paid || 0)}</b></span><span class="${due ? 'due' : 'ok'}">${due ? 'Falta ' + money(due) : 'Pagado ✓'}</span></div>
-    <div class="adm-tools">${b.status !== 'confirmada' && b.status !== 'cancelada' ? '<button class="icon-btn pri" type="button" data-bka="ok">Confirmar</button>' : ''}${due ? `<button class="icon-btn" type="button" data-bka="half">Abono 50%</button><button class="icon-btn" type="button" data-bka="paid">Marcar pagado</button>` : ''}${b.phone ? '<button class="icon-btn" type="button" data-bka="wa">WhatsApp</button>' : ''}<button class="icon-btn" type="button" data-bka="edit">Editar</button>${b.status !== 'cancelada' ? '<button class="icon-btn" type="button" data-bka="cancel">Cancelar</button>' : '<button class="icon-btn" type="button" data-bka="del">Borrar</button>'}</div></article>`;
+    <div class="adm-tools">${b.status !== 'confirmada' && b.status !== 'cancelada' ? '<button class="icon-btn pri" type="button" data-bka="ok">Confirmar</button>' : ''}${due ? `<button class="icon-btn" type="button" data-bka="half">Abono 50%</button><button class="icon-btn" type="button" data-bka="paid">Marcar pagado</button>` : ''}${b.phone ? '<button class="icon-btn" type="button" data-bka="wa">WhatsApp</button>' : ''}${ownerOf(b) ? '<button class="icon-btn" type="button" data-bka="owner">Enviar al propietario</button>' : ''}<button class="icon-btn" type="button" data-bka="edit">Editar</button>${b.status !== 'cancelada' ? '<button class="icon-btn" type="button" data-bka="cancel">Cancelar</button>' : '<button class="icon-btn" type="button" data-bka="del">Borrar</button>'}</div></article>`;
 }
+// propietario de la embarcación reservada (su WhatsApp se carga en Embarcaciones → Editar)
+const ownerOf = b => { const x = W && W.boats.find(y => y.name === b.boat); const n = x && String(x.ownerWa || '').replace(/\D/g, ''); return n && n.length >= 10 ? n : ''; };
+const ownerMsg = b => `⚓ Reserva ${b.code} · Tu Lancha Lechería\n🚤 ${b.boat || ''}\n📅 ${fmtD(dOf(b))}${b.hours ? ' · ' + b.hours : ''}\n🧭 ${b.route || '—'}\n📍 ${b.dock || '—'}${T.okPin(b.pin) ? ' · ' + T.gmapsUrl(b.pin) : ''}\n👥 ${b.pax || '—'} pers.${+b.kids ? ` + ${b.kids} niños` : ''}\n👤 ${b.name || ''}${b.note ? '\n📝 ' + b.note : ''}\nEstado: ${ST[b.status || 'nueva'][1]}`;
 async function saveBk(x) { const j = await api('bk', { booking: x }); const i = BK.findIndex(b => b.code === j.booking.code); if (i >= 0) BK[i] = j.booking; else BK.push(j.booking); return j.booking; }
 function bkForm(b) {
   b = b || { iso: iso(new Date(today.getTime() + 864e5)), pax: 6, total: 0, paid: 0, channel: 'WhatsApp directo', status: 'confirmada', boat: (W.boats.find(x => x.own) || W.boats[0]).name, route: W.routes[0].name, dock: W.docks[0].name };
@@ -3404,38 +4168,64 @@ function bkForm(b) {
   };
 }
 
+/* muelle que el cliente marcó en el mapa: vista satelital, Google Maps y envío al capitán */
+function pinSheet(b) {
+  const p = b.pin, g = T.gmapsUrl(p);
+  const cap = `⚓ Muelle de la reserva ${b.code}${b.name ? ' · ' + b.name : ''}\n📅 ${fmtD(dOf(b))}${b.hours ? ' · ' + b.hours : ''}\n👥 ${b.pax || '—'} pers. · ${b.boat || ''}${p.ref ? '\n📝 ' + p.ref : ''}\n📍 ${g}`;
+  sheet(`<h3>Muelle de ${esc(b.name || b.code)}</h3><p class="rating">${p.ref ? esc(p.ref) + ' · ' : ''}<span class="mono">${T.pinTxt(p)}</span></p>
+    <div class="pin-map-w"><div class="ad-pinmap" id="ad-pinmap"><p class="rating">Cargando mapa satelital…</p></div><div class="pin-layers" role="group" aria-label="Tipo de mapa"><button type="button" data-pl="sat" aria-pressed="true">Satélite</button><button type="button" data-pl="street" aria-pressed="false">Mapa</button></div></div>
+    <div class="adm-tools"><a class="btn btn-sun btn-sm" href="${g}" target="_blank" rel="noopener">Abrir en Google Maps</a><a class="btn btn-ghost btn-sm" href="https://wa.me/?text=${encodeURIComponent(cap)}" target="_blank" rel="noopener">Enviar al capitán</a><button class="btn btn-ghost btn-sm" type="button" id="ad-pin-copy">Copiar coordenadas</button></div>`);
+  $('#ad-pin-copy').onclick = async () => { try { await navigator.clipboard.writeText(T.pinTxt(p)); toast('Coordenadas copiadas'); } catch { toast(T.pinTxt(p)); } };
+  T.loadLeaflet().then(L => {
+    const el = $('#ad-pinmap'); if (!el) return; el.innerHTML = '';
+    const m = L.map(el, { zoomControl: true }).setView([p.lat, p.lng], 17);
+    const ly = T.baseLayers(L); ly.sat.addTo(m);
+    $$('[data-pl]', adm).forEach(x => x.onclick = () => { Object.entries(ly).forEach(([n, l]) => n === x.dataset.pl ? l.addTo(m) : m.removeLayer(l)); $$('[data-pl]', adm).forEach(y => y.setAttribute('aria-pressed', y === x)); });
+    m.attributionControl.setPrefix(false);
+    L.marker([p.lat, p.lng], { icon: T.pinIcon(L), title: 'Muelle del cliente' }).addTo(m);
+    setTimeout(() => m.invalidateSize(), 150);
+  }).catch(() => { const el = $('#ad-pinmap'); if (el) el.innerHTML = '<p class="rating">No se pudo cargar el mapa. Usa “Abrir en Google Maps”.</p>'; });
+}
+
 /* ---------------- embarcaciones ---------------- */
-const thumb = b => { const u = b.photos && (b.photos.drone || b.photos.exterior); return u ? `<img src="${esc(u)}" alt="">` : art('drone', b.hue || 200, b.id); };
+const thumb = b => { const P = b.photos || {}, u = P.proa || P.popa || P.social || Object.values(P).find(Boolean); return u ? `<img src="${esc(u)}" alt="">` : art('drone', b.hue || 200, b.id); };
 VIEW.flota = () => `<div class="ad-head"><div><h2>Embarcaciones</h2><p class="rating">${W.boats.length} en total · ${W.boats.filter(b => !b.hidden).length} visibles en la web. La primera de la lista es la que destacas como “Recomendación de la casa”.</p></div><div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-boat-new>+ Agregar embarcación</button>${helpBtn('flota')}</div></div>
   <div class="ad-boats">${W.boats.map((b, i) => `<article class="ad-boat${b.hidden ? ' off' : ''}" data-i="${i}"><div class="ad-boat-ph">${thumb(b)}${b.own ? '<span class="badge own-badge">De la casa</span>' : ''}${b.hidden ? '<span class="badge">Oculta</span>' : ''}</div>
     <div class="ad-boat-b"><h4>${esc(b.name)}</h4><p class="rating">${esc(b.type)} · ${b.ft} pies · ${b.pax} pers.</p><p><b>${money(+b.price || 0)}</b> <span class="rating">por día</span></p>
-    <p class="rating">${Object.values(b.photos || {}).filter(Boolean).length} de 4 fotos</p>
+    <p class="rating">${T.viewsOf(b).filter(([k]) => b.photos && b.photos[k]).length} de ${T.viewsOf(b).length} fotos${b.hidden ? '' : ' · las que falten no se muestran'}</p>
     <div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-boat-edit="${i}">Editar</button><button class="icon-btn" type="button" data-boat-up="${i}" aria-label="Subir en la lista" ${i ? '' : 'disabled'}>↑</button><button class="icon-btn" type="button" data-boat-down="${i}" aria-label="Bajar en la lista" ${i < W.boats.length - 1 ? '' : 'disabled'}>↓</button></div></div></article>`).join('')}</div>`;
 function boatEditor(i) {
   const b = W.boats[i]; if (!b) return; const p = 'boats.' + i;
-  b.photos ??= {}; b.inc ??= []; b.opt ??= {}; b.amen ??= []; b.pick ??= {};
-  const pickups = W.docks.filter(d => d.pickup && !d.off);
+  b.photos ??= {}; b.inc ??= []; b.opt ??= {}; b.amen ??= []; b.pick ??= {}; b.rp ??= {}; b.qty ??= {}; b.docs ??= {};
+  const pickups = W.docks.filter(d => d.pickup && !d.off), lancha = b.type === 'Lancha';
   const accRow = ([k, name]) => { const st = b.inc.includes(k) ? 'inc' : k in b.opt ? 'opt' : 'no';
     return `<div class="ad-acc"><span>${esc(name)}</span><select data-acc="${k}" aria-label="${esc(name)}"><option value="no"${st === 'no' ? ' selected' : ''}>No tiene</option><option value="inc"${st === 'inc' ? ' selected' : ''}>Incluido</option><option value="opt"${st === 'opt' ? ' selected' : ''}>Con costo</option></select><input type="number" min="0" inputmode="decimal" data-accp="${k}" value="${st === 'opt' ? +b.opt[k] || 0 : ''}" placeholder="$" aria-label="Precio de ${esc(name)}" ${st === 'opt' ? '' : 'hidden'}></div>`; };
+  // precio por rumbo: según el rumbo (tarifa base), un precio propio, por confirmar o no lo hace
+  const rpRow = r => { const v = b.rp[r.id], st = v === null || v === false ? 'no' : v === true ? 'tbd' : typeof v === 'number' ? 'num' : 'def';
+    const defTxt = r.open === false ? 'No lo hace (rumbo bajo pedido)' : typeof r.add === 'number' ? `Tarifa base${r.add ? ` + $${r.add}` : ''}` : 'Tarifa base · por confirmar';
+    return `<div class="ad-acc"><span>${esc(r.name)}<small class="rating"> ${esc(r.zone || '')}</small></span><select data-rp="${esc(r.id)}" aria-label="Precio en ${esc(r.name)}"><option value="def"${st === 'def' ? ' selected' : ''}>${defTxt}</option><option value="num"${st === 'num' ? ' selected' : ''}>Precio propio</option><option value="tbd"${st === 'tbd' ? ' selected' : ''}>Lo hace · precio por confirmar</option><option value="no"${st === 'no' ? ' selected' : ''}>No lo hace</option></select><input type="number" min="0" inputmode="decimal" data-rpp="${esc(r.id)}" value="${st === 'num' ? v : ''}" placeholder="$" aria-label="Precio en ${esc(r.name)}" ${st === 'num' ? '' : 'hidden'}></div>`; };
+  const okDocks = W.docks.filter(d => !d.off && !d.custom), allow = Array.isArray(b.docks) && b.docks.length ? b.docks : null;
   sheet(`<div class="ad-sheet-h"><h3>${esc(b.name || 'Nueva embarcación')}</h3>${helpBtn('barco', 'Ayuda')}</div>
-    <section><h4>Fotos ${helpBtn('fotos', 'Qué fotos subir')}</h4><div class="ad-photos">${VIEWS.map(([k, l]) => photoSlot(`${p}.photos.${k}`, 'boat', l)).join('')}</div><p class="hint">La de dron es la principal: sale en el catálogo y en la reserva. Si falta alguna, se muestra una ilustración.</p></section>
-    <section><h4>Datos</h4><div class="adm-form">${inp(p + '.name', 'Nombre')}${inp(p + '.type', 'Tipo', { sel: TYPES.map(t => [t, t]) })}${inp(p + '.ft', 'Pies', { t: 'num' })}${inp(p + '.pax', 'Capacidad (personas)', { t: 'num', min: 1, hint: 'Los niños cuentan como pasajeros.' })}${inp(p + '.rating', 'Valoración (1 a 5)', { t: 'num', step: .1, min: 1 })}${inp(p + '.trips', 'Paseos realizados', { t: 'num' })}</div>
-      <div class="ad-checks">${inp(p + '.cabin', 'Tiene camarote (permite pernocta)', { t: 'bool' })}<label class="ad-check"><input type="checkbox" data-own="${i}"${b.own ? ' checked' : ''}> Es la lancha de la casa (sale destacada)</label>${inp(p + '.hidden', 'Ocultar de la web (no se puede reservar)', { t: 'bool' })}</div></section>
-    <section><h4>Precio y horario</h4><div class="adm-form">${inp(p + '.price', 'Tarifa por día (USD)', { t: 'num' })}${inp(p + '.wk', 'Recargo fin de semana (%)', { t: 'num', ph: '10', hint: 'Se suma sábados y domingos. Vacío = 10%.' })}${inp(p + '.late', 'Hora extra', { sel: LATE, t: 'int', def: 0 })}${inp(p + '.hx', 'Costo de cada hora extra (USD)', { t: 'num', hint: 'Se paga en efectivo a bordo.' })}</div></section>
-    <section><h4>Rumbos y muelle</h4><div class="adm-form">${inp(p + '.maxBeaches', 'Playas por salida', { sel: [[1, '1 playa'], [2, '2 playas'], [3, '3 playas'], [4, '4 playas']], t: 'int', def: b.type === 'Lancha' ? 3 : 2 })}${inp(p + '.dock', 'Muelle base', { sel: W.docks.map((d, j) => [j, d.name]).filter(([j]) => !W.docks[j].pickup && !W.docks[j].off), t: 'int' })}</div>
-      <div class="ad-checks">${inp(p + '.r4', 'Hace el Rumbo 4 (Manare y Playa Blanca)', { t: 'bool' })}</div>
-      ${pickups.length ? `<h5>Recogidas en residencias</h5><div class="ad-picks">${pickups.map(d => { const v = b.pick[d.id]; const st = v === null ? 'no' : v === 0 ? 'free' : 'std';
-        return `<div class="ad-acc"><span>${esc(d.name)}</span><select data-pick="${esc(d.id)}" aria-label="${esc(d.name)}"><option value="std"${st === 'std' ? ' selected' : ''}>Con recargo normal</option><option value="free"${st === 'free' ? ' selected' : ''}>Sin recargo</option><option value="no"${st === 'no' ? ' selected' : ''}>No llega (calado)</option></select></div>`; }).join('')}</div>` : ''}</section>
+    <section><h4>Fotos ${helpBtn('fotos', 'Qué fotos subir')}</h4><div class="ad-photos">${T.viewsOf(b).map(([k, l]) => photoSlot(`${p}.photos.${k}`, 'boat', l)).join('')}</div><p class="hint">La primera que tenga foto es la principal. Los espacios sin foto no se muestran en la web; si no hay ninguna, sale una ilustración. ${lancha ? 'Habitación, baño y accesorios aparecen al elegir mini yate, barco o yate.' : ''}</p></section>
+    <section><h4>Datos</h4><div class="adm-form">${inp(p + '.name', 'Nombre')}${inp(p + '.type', 'Tipo', { sel: TYPES.map(t => [t, t]) })}${inp(p + '.ft', 'Pies', { t: 'num' })}${inp(p + '.size', 'Tamaño (para muelles y recogidas)', { sel: SIZE_L })}${inp(p + '.pax', 'Capacidad (puestos de la licencia)', { t: 'num', min: 1 })}${inp(p + '.kx', 'Niños de 7 años o menos además de esos puestos', { t: 'num', hint: '0 = los niños ocupan puesto. El filtro de la reserva usa los dos números.' })}${lancha ? '' : inp(p + '.kts', 'Velocidad de navegación (nudos)', { t: 'num', ph: '20' })}${inp(p + '.trips', 'Viajes realizados', { t: 'num', hint: 'Se muestra como “+N viajes”.' })}${inp(p + '.ownerWa', 'WhatsApp del propietario', { ph: '58414xxxxxxx', hint: 'Para enviarle cada reserva con un toque desde Reservas. No se muestra en la web.' })}${inp(p + '.promo', 'Promoción (opcional)', { ph: 'Ej. 10% de descuento entre semana', cls: 'ad-wide' })}</div>
+      <div class="ad-checks">${inp(p + '.cabin', 'Tiene camarote', { t: 'bool' })}<label class="ad-check"><input type="checkbox" data-own="${i}"${b.own ? ' checked' : ''}> Es la lancha de la casa (sale destacada)</label>${inp(p + '.hidden', 'Ocultar de la web (no se puede reservar)', { t: 'bool' })}</div></section>
+    <section><h4>Precio y horario</h4><div class="adm-form">${inp(p + '.price', 'Tarifa base por día (USD)', { t: 'num' })}${inp(p + '.wk', 'Recargo fin de semana (%)', { t: 'num', ph: '10', hint: 'Se suma sábados y domingos. Vacío = 10%.' })}${inp(p + '.late', 'Hora extra', { sel: LATE, t: 'int', def: 0 })}${inp(p + '.hx', 'Costo de cada hora extra (USD)', { t: 'num', hint: 'Se paga en efectivo a bordo.' })}</div></section>
+    <section><h4>Precio por rumbo ${helpBtn('precios', 'Ayuda')}</h4><div class="ad-accs">${W.routes.map(rpRow).join('')}</div><div class="adm-form" style="margin-top:10px">${inp(p + '.maxBeaches', 'Playas por salida', { sel: [[1, '1 playa'], [2, '2 playas'], [3, '3 playas'], [4, '4 playas']], t: 'int', def: lancha ? 3 : 2 })}</div></section>
+    <section><h4>Muelles</h4><div class="adm-form">${inp(p + '.dock', 'Muelle base (no se muestra en la web)', { sel: W.docks.map((d, j) => [j, d.name]).filter(([j]) => !W.docks[j].pickup && !W.docks[j].off), t: 'int', hint: 'Si el muelle no cobra a las embarcaciones que tienen ahí su base (Marina Américo Vespucio), el cliente no paga servicio de muelle.' })}</div>
+      <h5>Desde dónde puede salir</h5><div class="ad-checks">${okDocks.map(d => `<label class="ad-check"><input type="checkbox" data-dockok="${esc(d.id)}"${!allow || allow.includes(d.id) ? ' checked' : ''}> ${esc(d.name)}</label>`).join('')}</div><p class="hint">Todas marcadas = puede salir de cualquiera.</p>
+      ${pickups.length ? `<h5>Excepciones de recogida</h5><div class="ad-picks">${pickups.map(d => { const v = b.pick[d.id]; const st = v === null ? 'no' : v === 0 ? 'free' : 'std';
+        return `<div class="ad-acc"><span>${esc(d.name)}</span><select data-pick="${esc(d.id)}" aria-label="${esc(d.name)}"><option value="std"${st === 'std' ? ' selected' : ''}>Costo normal según tamaño</option><option value="free"${st === 'free' ? ' selected' : ''}>Sin costo</option><option value="no"${st === 'no' ? ' selected' : ''}>No llega (calado)</option></select></div>`; }).join('')}</div>` : ''}</section>
     <section><h4>Accesorios ${helpBtn('accesorios', 'Ayuda')}</h4><div class="ad-accs">${Object.entries(ACC).map(accRow).join('')}</div>
-      <div class="adm-form" style="margin-top:10px">${inp(p + '.amen', 'Lo que la distingue (separado por comas)', { t: 'list', ph: 'Toldo, Baño, Aire acondicionado', cls: 'ad-wide' })}</div></section>
+      <div class="adm-form" style="margin-top:10px">${inp(p + '.qty.snorkel', 'Cantidad de caretas de buceo', { t: 'num', hint: 'Se muestra como “Caretas de buceo (4)”.' })}${inp(p + '.amen', 'Lo que la distingue (separado por comas)', { t: 'list', ph: 'Toldo, Baño, Aire acondicionado', cls: 'ad-wide' })}</div></section>
+    <section><h4>Documentos <small class="rating">solo los ves tú</small></h4><div class="adm-form">${DOCS.map(([k, l]) => inp(`${p}.docs.${k}`, `${l} · vence`, { type: 'date' })).join('')}</div><p class="hint">Te avisamos en el Resumen 30 días antes de que venzan.</p></section>
     <section><h4>Descripción ${helpBtn('textos', 'Idiomas')}</h4><div class="adm-form">${inp(p + '.desc', 'En español', { area: 1, cls: 'ad-wide' })}${inp(p + '.desc_en', 'En inglés (opcional)', { area: 1, cls: 'ad-wide' })}</div></section>
     <div class="ad-sheet-f"><button class="btn btn-sun" type="button" data-close>Listo</button><button class="btn btn-ghost btn-sm" type="button" data-boat-dup="${i}">Duplicar</button><button class="btn btn-ghost btn-sm ad-danger" type="button" data-boat-del="${i}">Eliminar</button></div>`, 'boat');
 }
 
 /* ---------------- rumbos y playas ---------------- */
-VIEW.rumbos = () => `<div class="ad-head"><div><h2>Rumbos y playas</h2><p class="rating">Los rumbos nunca se cruzan: el cliente elige uno y sus playas.</p></div><div class="adm-tools">${helpBtn('rumbos')}</div></div>
+VIEW.rumbos = () => `<div class="ad-head"><div><h2>Rumbos y playas</h2><p class="rating">Los rumbos nunca se cruzan: el cliente elige uno y sus playas. El precio de cada embarcación por rumbo se pone en Embarcaciones.</p></div><div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-route-new>+ Agregar rumbo</button>${helpBtn('rumbos')}</div></div>
   ${W.routes.map((r, i) => { const p = 'routes.' + i; return `<section class="panel ad-route"><h3>${esc(r.name)} <small>${r.beaches.length} playas</small></h3>
-    <div class="adm-form">${inp(p + '.name', 'Nombre')}${inp(p + '.zone', 'Zona')}${inp(p + '.min', 'Minutos de navegación', { t: 'num' })}${inp(p + '.extra', 'Recargo (USD)', { t: 'numn', ph: 'Por WhatsApp', hint: 'Vacío = se confirma por WhatsApp. 0 = sin recargo.' })}
+    <div class="adm-form">${inp(p + '.name', 'Nombre')}${inp(p + '.zone', 'Zona')}${inp(p + '.min', 'Minutos de navegación', { t: 'num' })}${inp(p + '.nm', 'Millas náuticas (aprox.)', { t: 'num', step: .5 })}${inp(p + '.add', 'Diferencia sobre la tarifa base (USD)', { t: 'numn', ph: 'Por confirmar', hint: 'Para las embarcaciones sin precio propio en este rumbo. Vacío = precio por confirmar. 0 = tarifa base.' })}<div class="ad-checks ad-wide"><label class="ad-check"><input type="checkbox" data-rclosed="${i}"${r.open === false ? ' checked' : ''}> Solo para embarcaciones que lo hacen (las demás no lo muestran)</label></div>
     ${inp(p + '.tags', 'Etiquetas (separadas por comas)', { t: 'list', cls: 'ad-wide' })}${inp(p + '.desc', 'Descripción', { area: 1, rows: 2, cls: 'ad-wide' })}${inp(p + '.desc_en', 'Descripción en inglés (opcional)', { area: 1, rows: 2, cls: 'ad-wide' })}</div>
     <h4>Playas ${helpBtn('playas', 'Fotos de playas')}</h4>
     <div class="ad-beaches">${r.beaches.map((n, j) => `<div class="ad-beach">${photoSlot('beachPhotos.' + n.replace(/\./g, '·'), 'beach', '', true)}<div class="field"><label for="bn-${i}-${j}">Nombre</label><input id="bn-${i}-${j}" data-beach="${i}.${j}" value="${esc(n)}"></div><button type="button" class="icon-btn ad-danger" data-beach-del="${i}.${j}">Quitar playa</button></div>`).join('')}
@@ -3443,11 +4233,13 @@ VIEW.rumbos = () => `<div class="ad-head"><div><h2>Rumbos y playas</h2><p class=
   <section class="panel"><h3>Cotización especial</h3><div class="adm-form">${inp('special', 'Destinos que van por WhatsApp (separados por comas)', { t: 'list', cls: 'ad-wide' })}</div></section>`;
 
 /* ---------------- muelles ---------------- */
-VIEW.muelles = () => `<div class="ad-head"><div><h2>Muelles y recogidas</h2><p class="rating">Los muelles sugeridos y las residencias donde buscas al cliente.</p></div><div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-dock-new>+ Agregar</button>${helpBtn('muelles')}</div></div>
-  <div class="ad-docks">${W.docks.map((d, i) => { const p = 'docks.' + i; return `<section class="panel${d.off ? ' off' : ''}"><h3>${esc(d.name)} <small>${d.pickup ? 'Recogida en residencia' : 'Muelle sugerido'}${d.off ? ' · no habilitado' : ''}</small></h3>
+const COST_L = [['s', 'Lancha pequeña'], ['m', 'Lancha mediana'], ['my', 'Mini yate'], ['y', 'Yate o barco']];
+VIEW.muelles = () => `<div class="ad-head"><div><h2>Muelles y recogidas</h2><p class="rating">Los muelles sugeridos (servicio por uso de muelle, lo cobra cada establecimiento) y las residencias donde buscas al cliente.</p></div><div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-dock-new>+ Agregar</button>${helpBtn('muelles')}</div></div>
+  <div class="ad-docks">${W.docks.map((d, i) => { const p = 'docks.' + i; return `<section class="panel${d.off ? ' off' : ''}"><h3>${esc(d.name)} <small>${d.pickup ? 'Recogida en residencia' : 'Muelle sugerido'}${d.off ? ' · no disponible' : ''}</small></h3>
     <div class="adm-form">${inp(p + '.name', 'Nombre')}
-    ${d.pickup ? `${inp(p + '.lancha', 'Recargo en lancha (USD)', { t: 'num' })}${d.lanchaOnly ? '' : inp(p + '.other', 'Recargo en barco o yate (USD)', { t: 'num' })}${inp(p + '.back', 'Regreso máximo', { ph: '5:30 pm', hint: 'Vacío = horario normal.' })}` : `${inp(p + '.fee', 'Toque de muelle', { ph: '$30', hint: 'Lo cobra el establecimiento.' })}${inp(p + '.park', 'Estacionamiento', { cls: 'ad-wide' })}`}</div>
-    <div class="ad-checks">${d.pickup ? inp(p + '.lanchaOnly', 'Solo lanchas (por baja profundidad)', { t: 'bool' }) : ''}${inp(p + '.off', 'No habilitado por ahora', { t: 'bool' })}</div></section>`; }).join('')}</div>`;
+    ${d.pickup ? `${COST_L.filter(([z]) => !d.lanchaOnly || z === 's' || z === 'm').map(([z, l]) => inp(`${p}.cost.${z}`, `${l} (USD)`, { t: 'numn', ph: 'No llega', hint: z === 's' ? 'Vacío = ese tamaño no llega. 0 = sin costo.' : '' })).join('')}${inp(p + '.back', 'Regreso máximo', { ph: '5:30 pm', hint: 'Vacío = horario normal.' })}` : `${inp(p + '.fee', 'Servicio por uso de muelle', { ph: '$30', hint: 'Lo cobra el establecimiento y se paga en sitio.' })}${inp(p + '.park', 'Estacionamiento', { cls: 'ad-wide' })}`}
+    ${d.off ? inp(p + '.why', 'Por qué no está disponible', { ph: 'Muelle deshabilitado', cls: 'ad-wide' }) : ''}</div>
+    <div class="ad-checks">${d.pickup ? inp(p + '.lanchaOnly', 'Solo lanchas (por baja profundidad)', { t: 'bool' }) : inp(p + '.baseFree', 'Sin costo para las embarcaciones que tienen aquí su base', { t: 'bool' })}${inp(p + '.off', 'No disponible por ahora (se muestra deshabilitado)', { t: 'bool' })}</div></section>`; }).join('')}</div>`;
 
 /* ---------------- pagos ---------------- */
 VIEW.pagos = () => { const P = W.pay; return `<div class="ad-head"><div><h2>Pagos</h2><p class="rating">Lo que ve el cliente al confirmar, para pagar el abono del 50%.</p></div><div class="adm-tools">${helpBtn('pagos')}</div></div>
@@ -3457,6 +4249,7 @@ VIEW.pagos = () => { const P = W.pay; return `<div class="ad-head"><div><h2>Pago
       <button type="button" class="icon-btn ad-danger" data-zdel="${i}">Quitar</button></div>`).join('')}
     <button type="button" class="ad-add" data-zadd>+ Agregar cuenta Zelle</button></div></section>
   <section class="panel"><h3>Binance Pay</h3><div class="ad-ally">${photoSlot('pay.binanceQR', 'qr', 'Código QR', true)}<div class="adm-form">${inp('pay.binance', 'ID de Binance Pay', { ph: '123456789' })}${inp('pay.binanceUser', 'Usuario', { ph: 'tu_usuario' })}${inp('pay.binanceMail', 'Correo de Binance', { cls: 'ad-wide' })}${inp('pay.binanceLink', 'Enlace de pago (el del QR)', { ph: 'https://app.binance.com/…', cls: 'ad-wide', hint: 'En el teléfono el cliente toca “Abrir en Binance” y paga directo.' })}</div></div></section>
+  <section class="panel"><h3>PayPal</h3><div class="adm-form">${inp('pay.paypal', 'Correo o enlace de PayPal', { ph: 'paypal.me/tulancha o pagos@ejemplo.com', cls: 'ad-wide', hint: 'Vacío = la app dice que se lo envías por WhatsApp.' })}${inp('pay.paypalFee', 'Comisión que se suma (%)', { t: 'num', step: .1, hint: 'Se suma al abono cuando el cliente elige PayPal.' })}</div></section>
   <section class="panel"><h3>Así lo verá el cliente</h3><div class="ad-preview">${payPreview()}</div><p class="hint">El efectivo siempre se acuerda por WhatsApp.</p></section>`; };
 const payPreview = () => { const P = W.pay, z = P.zelles[P.zelleOn] || {};
   const box = (title, how, acct, extra) => `<div class="pay-info"><div class="pay-amt"><span>${title} · abono para apartar</span><b>$175</b><small>50% · el resto en el muelle antes de zarpar</small></div><p>${acct ? how : 'Sin datos: la app le dice que se los envías por WhatsApp.'}</p>${acct ? `<p class="pay-acct mono">${esc(acct)}</p>${extra}` : ''}</div>`;
@@ -3464,10 +4257,18 @@ const payPreview = () => { const P = W.pay, z = P.zelles[P.zelleOn] || {};
     + box('Binance Pay', 'Paga el abono en USDT a este ID de Binance Pay y mándanos la captura por WhatsApp.', P.binance ? 'ID ' + P.binance : '', `${P.binanceUser ? `<p class="rating">Usuario: <b>${esc(P.binanceUser)}</b></p>` : ''}${P.binanceQR || P.binanceLink ? `<div class="pay-qr">${P.binanceQR ? `<img src="${esc(P.binanceQR)}" alt="" width="120" height="120">` : ''}${P.binanceLink ? '<span class="btn btn-sun btn-sm">Abrir en Binance</span>' : ''}</div>` : ''}`); };
 
 /* ---------------- aliados ---------------- */
-VIEW.aliados = () => `<div class="ad-head"><div><h2>Aliados</h2><p class="rating">Marcas y servicios que recomiendas. Aparecen en la sección Aliados de la web.</p></div><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" data-cat-new>+ Nueva categoría</button>${helpBtn('aliados')}</div></div>
-  ${W.allies.map((c, i) => `<section class="panel"><div class="adm-form">${inp(`allies.${i}.cat`, 'Categoría')}</div>
-    <div class="ad-allies">${c.items.map((it, j) => { const p = `allies.${i}.items.${j}`; return `<div class="ad-ally">${photoSlot(p + '.4', 'logo', 'Logo', true)}<div class="adm-form">${inp(p + '.0', 'Nombre')}${inp(p + '.1', 'Descripción', { cls: 'ad-wide' })}${inp(p + '.2', 'Enlace (web o Instagram)', { ph: 'https://…', cls: 'ad-wide', hint: 'Vacío = abre WhatsApp para pedirlo.' })}<div class="field"><label>Color si no hay logo</label><input type="color" data-k="${p}.3" value="${esc(it[3] || '#232843')}"></div></div><button type="button" class="icon-btn ad-danger" data-ally-del="${i}.${j}">Quitar</button></div>`; }).join('')}</div>
+VIEW.aliados = () => `<div class="ad-head"><div><h2>Servicio a bordo</h2><p class="rating">Aliados VIP que recomiendas. Salen en Servicio a bordo y en el cintillo del pie de página. Las categorías marcadas “para propietarios” salen en la página de Propietarios.</p></div><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" data-cat-new>+ Nueva categoría</button>${helpBtn('aliados')}</div></div>
+  ${W.allies.map((c, i) => `<section class="panel"><div class="adm-form">${inp(`allies.${i}.cat`, 'Categoría')}</div><div class="ad-checks">${inp(`allies.${i}.owners`, 'Para propietarios de embarcaciones (sale en Propietarios)', { t: 'bool' })}</div>
+    <div class="ad-allies">${c.items.map((it, j) => { const p = `allies.${i}.items.${j}`; return `<div class="ad-ally">${photoSlot(p + '.4', 'logo', 'Logo', true)}${photoSlot(p + '.5', 'cover', 'Portada', true)}<div class="adm-form">${inp(p + '.0', 'Nombre')}${inp(p + '.1', 'Descripción', { cls: 'ad-wide' })}${inp(p + '.2', 'Enlace (web o Instagram)', { ph: 'https://…', cls: 'ad-wide', hint: 'Vacío = abre WhatsApp para pedirlo.' })}<div class="field"><label>Color si no hay logo</label><input type="color" data-k="${p}.3" value="${esc(it[3] || '#232843')}"></div></div><button type="button" class="icon-btn ad-danger" data-ally-del="${i}.${j}">Quitar</button></div>`; }).join('')}</div>
     <div class="adm-tools"><button type="button" class="ad-add" data-ally-add="${i}">+ Agregar aliado</button>${c.items.length ? '' : `<button type="button" class="icon-btn ad-danger" data-cat-del="${i}">Quitar categoría</button>`}</div></section>`).join('')}`;
+
+/* ---------------- portada y tienda ---------------- */
+VIEW.portada = () => { const C = T.NAV_CARDS || []; return `<div class="ad-head"><div><h2>Portada y tienda</h2><p class="rating">La foto principal de la web, las pantallas del menú giratorio y los accesorios que vendes.</p></div><div class="adm-tools">${helpBtn('portada')}</div></div>
+  <section class="panel"><h3>Foto principal <small>vacía = la foto actual de Mochima</small></h3><div class="ad-photos">${photoSlot('home.hero', 'hero', 'Portada (Isla de Plata, por ejemplo)')}</div></section>
+  <section class="panel"><h3>Menú giratorio <small>${C.filter(c => W.home.cards[c.id]).length} de ${C.length} con foto · las vacías se ven difuminadas</small></h3><div class="ad-photos ad-cards">${C.map(c => photoSlot('home.cards.' + c.id, 'card', `${esc(c.secName || '')} · ${esc(c.t)}`, true)).join('')}</div></section>
+  <section class="panel"><h3>Tienda Tu Lancha <small>accesorios en stock que el cliente suma a su salida</small></h3><p class="rating">Solo se muestran los que tengan precio.</p>
+    <div class="ad-accs">${W.shop.map((x, i) => `<div class="ad-acc ad-shop">${inp(`shop.${i}.name`, 'Artículo')}${inp(`shop.${i}.price`, 'Precio (USD)', { t: 'num' })}<button type="button" class="icon-btn ad-danger" data-shop-del="${i}">Quitar</button></div>`).join('')}</div>
+    <button type="button" class="ad-add" data-shop-add>+ Agregar artículo</button></section>`; };
 
 /* ---------------- ajustes ---------------- */
 VIEW.ajustes = () => `<div class="ad-head"><div><h2>Ajustes</h2></div><div class="adm-tools">${helpBtn('ajustes')}</div></div>
@@ -3492,15 +4293,17 @@ const HELP = {
     <ol class="ad-steps"><li><b>Resumen:</b> tus ventas, lo cobrado, lo que falta por cobrar y las próximas salidas.</li><li><b>Reservas:</b> llegan solas desde la app. Confírmalas, marca los pagos y escribe al cliente.</li><li><b>Embarcaciones:</b> fotos, precios, capacidad, accesorios, hora extra y recogidas de cada una.</li><li><b>Rumbos y playas:</b> playas de cada rumbo, recargos y fotos.</li><li><b>Muelles:</b> toques de muelle y recargos de recogida.</li><li><b>Pagos:</b> tu Zelle y Binance para que el cliente pague el abono.</li><li><b>Aliados:</b> marcas que recomiendas, con su logo y enlace.</li><li><b>Ajustes:</b> contraseña, versiones anteriores y respaldo.</li></ol>
     <p class="hint">En cada sección hay un botón <b>?</b> con instrucciones. Si te equivocas, en Ajustes puedes volver a una versión anterior.</p>`],
   inicio: ['El resumen', `<p>Muestra tus números con las reservas registradas (las canceladas no cuentan).</p><ul><li><b>Ventas:</b> suma del total de las reservas del período.</li><li><b>Cobrado:</b> lo que marcaste como pagado.</li><li><b>Por cobrar:</b> la diferencia.</li><li><b>Tu comisión:</b> se calcula con el % que pones en Ajustes.</li></ul><p>Cambia el período arriba (mes, 3 meses o 12 meses). Las flechas comparan con el período anterior.</p>`],
-  reservas: ['Las reservas', `<p>Cuando un cliente confirma en la app, la reserva llega aquí con estado <b>Nueva</b>, y a ti te escribe por WhatsApp con el mismo código.</p><ol class="ad-steps"><li>Verifica la disponibilidad y el pago del abono.</li><li>Toca <b>Confirmar</b> y luego <b>Abono 50%</b> o <b>Marcar pagado</b>.</li><li>Si no se da, toca <b>Cancelar</b>: deja de contar en tus números.</li></ol><p>Las reservas que cierras por WhatsApp o Instagram regístralas con <b>+ Registrar reserva</b> para que tus números estén completos.</p>`],
+  reservas: ['Las reservas', `<p>Cuando un cliente confirma en la app, la reserva llega aquí con estado <b>Nueva</b>, y a ti te escribe por WhatsApp con el mismo código.</p><p>Si el cliente escogió su propio muelle, la reserva muestra <b>📍 Muelle escogido por el cliente</b>: tócalo para verlo en el mapa satelital, abrirlo en Google Maps o enviárselo al capitán por WhatsApp.</p><ol class="ad-steps"><li>Verifica la disponibilidad y el pago del abono.</li><li>Toca <b>Confirmar</b> y luego <b>Abono 50%</b> o <b>Marcar pagado</b>.</li><li>Si no se da, toca <b>Cancelar</b>: deja de contar en tus números.</li></ol><p>Las reservas que cierras por WhatsApp o Instagram regístralas con <b>+ Registrar reserva</b> para que tus números estén completos.</p>`],
   flota: ['Tus embarcaciones', `<ul><li>Toca <b>Editar</b> para cambiar fotos, precio, capacidad, accesorios, horario y recogidas.</li><li>Con las flechas <b>↑ ↓</b> cambias el orden en que aparecen en la web.</li><li>La marcada como <b>De la casa</b> sale destacada en la portada y primero en la reserva.</li><li>Si una embarcación no está disponible por un tiempo, márcala como <b>Ocultar de la web</b> en vez de eliminarla.</li></ul><p class="hint">Recuerda tocar Publicar cambios al terminar.</p>`],
   barco: ['Editar una embarcación', `<p>Cada cambio queda en el borrador al momento. Toca <b>Listo</b> para volver y luego <b>Publicar cambios</b>.</p><ul><li><b>Tarifa por día:</b> el precio base en dólares. El recargo de fin de semana se suma solo.</li><li><b>Hora extra:</b> hasta qué hora puede quedarse y cuánto cuesta cada hora. Si no permite, el cliente no la puede pedir.</li><li><b>Playas por salida:</b> cuántas playas puede elegir el cliente.</li><li><b>Recogidas:</b> si por su calado no llega a una residencia, elige “No llega”; si la tienes cerca y no cobras, “Sin recargo”.</li></ul>`],
   fotos: ['Qué fotos subir', `<p>Puedes subirlas directo desde la galería del teléfono. El panel las recorta y las optimiza solo para que la app cargue rápido.</p><ul><li><b>Formato:</b> JPG, PNG o WebP. En iPhone también sirven las fotos normales de la cámara.</li><li><b>Orientación:</b> horizontal (acostada).</li><li><b>Medida ideal:</b> ${IMG.boat.size} (proporción 16:10). Mínimo ${IMG.boat.min} px de ancho para que no se vea borrosa.</li><li><b>Peso:</b> no importa, el panel la reduce a unos 200 a 400 KB.</li></ul><ol class="ad-steps"><li><b>Dron:</b> la principal. La embarcación completa desde arriba, en el agua.</li><li><b>Exterior:</b> de lado, navegando o fondeada.</li><li><b>Interior:</b> la cubierta o el salón, con buena luz.</li><li><b>Camarote:</b> solo si tiene.</li></ol><p class="hint">Consejos: luz de día, sin textos ni marcas de agua, la embarcación centrada. Al subirla verás una vista previa y podrás mover el encuadre.</p>`],
   playas: ['Fotos de las playas', `<ul><li><b>Medida ideal:</b> ${IMG.beach.size}, cuadrada. Mínimo ${IMG.beach.min} px.</li><li>Una captura nítida del video de dron sirve perfecto.</li><li>Lo importante al centro: el texto de la tarjeta va abajo.</li></ul><p>Si cambias el nombre de una playa, vuelve a subir su foto.</p>`],
   accesorios: ['Accesorios', `<p>Para cada accesorio elige:</p><ul><li><b>No tiene.</b></li><li><b>Incluido:</b> va en el precio.</li><li><b>Con costo:</b> escribe el precio. El cliente lo puede sumar en la reserva y se agrega al total (por ejemplo, parrillera +$20).</li></ul><p>Lo que es igual en todas (tripulación, chalecos, ducha, botiquín) se edita en Ajustes.</p>`],
   textos: ['Texto en inglés', `<p>La web abre siempre en español y tiene un botón para verla en inglés. Los textos que ya existen están traducidos. Si escribes una descripción nueva, agrega su versión en inglés para que los turistas la lean en su idioma. Si la dejas vacía, verán el texto en español.</p>`],
-  rumbos: ['Rumbos y playas', `<ul><li><b>Recargo:</b> se suma al precio de la embarcación. Si lo dejas vacío, la app dice que se confirma por WhatsApp.</li><li><b>Playas:</b> agrega, quita o cambia nombres. El cliente elige entre las playas del rumbo, según el límite de cada embarcación.</li><li><b>Cotización especial:</b> destinos que no se reservan en la app (Píritu, La Tortuga…).</li></ul>`],
-  muelles: ['Muelles y recogidas', `<ul><li><b>Muelle sugerido:</b> el toque de muelle lo cobra el establecimiento; escríbelo como quieres que se vea (ej. “$11,6 a tasa BCV”).</li><li><b>Recogida en residencia:</b> recargo de Tu Lancha por buscar al cliente. Puede ser distinto para lancha y para barco o yate.</li><li><b>Solo lanchas:</b> los yates no pueden llegar por la profundidad.</li><li><b>No habilitado:</b> aparece como no disponible.</li></ul><p class="hint">Por embarcación puedes decir que no llega o que no cobra recargo (en Embarcaciones › Editar).</p>`],
+  precios: ['Precio por rumbo', `<p>Cada embarcación puede tener un precio distinto en cada rumbo. No es un recargo: es la tarifa de ese rumbo.</p><ul><li><b>Tarifa base:</b> usa la tarifa por día (más la diferencia del rumbo, si la pusiste en Rumbos).</li><li><b>Precio propio:</b> el precio de esta embarcación en ese rumbo.</li><li><b>Por confirmar:</b> la hace, y el precio se confirma por WhatsApp.</li><li><b>No lo hace:</b> el cliente no ve ese rumbo con esta embarcación.</li></ul>`],
+  portada: ['Portada y tienda', `<ul><li><b>Foto principal:</b> ${IMG.hero.size}, horizontal. Lo importante al centro.</li><li><b>Menú giratorio:</b> ${IMG.card.size}, vertical. Mientras no subas una, se ve una imagen difuminada de relleno.</li><li><b>Tienda:</b> accesorios que tienes en stock (toallas, termos, inflables…). El cliente los suma en el paso de extras. Sin precio no se muestran.</li></ul>`],
+  rumbos: ['Rumbos y playas', `<ul><li><b>Diferencia sobre la tarifa base:</b> solo para las embarcaciones que no tienen precio propio en ese rumbo. Vacío = precio por confirmar.</li><li><b>Millas náuticas:</b> distancia aproximada que ve el cliente.</li><li><b>Solo para embarcaciones que lo hacen:</b> el rumbo solo aparece con las embarcaciones que tienen precio o “por confirmar” en ese rumbo.</li><li><b>Playas:</b> agrega, quita o cambia nombres. El cliente elige entre las playas del rumbo, según el límite de cada embarcación.</li><li><b>Cotización especial:</b> destinos que no se reservan en la app (Píritu, La Tortuga…).</li></ul>`],
+  muelles: ['Muelles y recogidas', `<ul><li><b>Muelle sugerido:</b> el servicio por uso de muelle lo cobra el establecimiento y se paga en sitio; escríbelo como quieres que se vea (ej. “$11,6 a tasa BCV”).</li><li><b>Recogida en residencia:</b> costo de Tu Lancha por buscar al cliente, según el tamaño de la embarcación (vacío = ese tamaño no llega).</li><li><b>Solo lanchas:</b> los yates no pueden llegar por la profundidad.</li><li><b>No habilitado:</b> aparece como no disponible.</li></ul><p class="hint">Por embarcación puedes decir que no llega o que no cobra recargo (en Embarcaciones › Editar).</p>`],
   pagos: ['Datos de pago', `<p>Cuando el cliente confirma su reserva y elige Zelle o Binance, la app le muestra estos datos para pagar el abono del 50% y le pide mandarte la captura por WhatsApp.</p><ul><li><b>Zelle:</b> puedes tener varias cuentas guardadas, pero el cliente ve <b>solo la principal</b>. Para cambiarla, marca otra como principal y toca Publicar cambios.</li><li><b>Binance:</b> el cliente ve tu ID, tu usuario, el código QR y un botón para abrir Binance desde el teléfono.</li><li><b>Código QR:</b> sube la imagen del QR que te da Binance (una captura de pantalla sirve). Se guarda en PNG para que se pueda escanear.</li></ul><p class="hint">Si dejas los datos vacíos, la app le dice al cliente que se los envías por WhatsApp.</p>`],
   aliados: ['Aliados', `<ul><li><b>Logo:</b> cuadrado, ${IMG.logo.size}, en PNG con fondo blanco o transparente.</li><li><b>Enlace:</b> su web, Instagram o menú. Si lo dejas vacío, el botón abre tu WhatsApp para pedir ese servicio.</li></ul>`],
   ajustes: ['Ajustes', `<ul><li><b>Versiones:</b> cada vez que publicas se guarda la versión anterior. Puedes volver a cualquiera de las últimas 15.</li><li><b>Contraseña:</b> cámbiala la primera vez que entres y no la compartas.</li><li><b>Respaldo:</b> descarga una copia del catálogo y de tus reservas cuando quieras.</li></ul>`]
@@ -3565,15 +4368,19 @@ adm.addEventListener('input', e => {
   if (el.id === 'bk-q') { bkQuery = el.value; const pos = el.selectionStart; render(); const n = $('#bk-q', adm); n.focus(); n.setSelectionRange(pos, pos); return; }
   if (el.dataset.k && W) { setPath(W, el.dataset.k, readVal(el)); refreshSaveBar(); if (el.dataset.k.startsWith('pay.')) { const pv = $('.ad-preview', adm); if (pv) pv.innerHTML = payPreview(); } if (el.dataset.k.endsWith('.name')) { const h = el.closest('.ad-sheet,.panel'); const t = h && $('h3', h); if (t && el.closest('.ad-sheet')) t.textContent = el.value; } return; }
   if (el.dataset.beach) { const [i, j] = el.dataset.beach.split('.').map(Number), r = W.routes[i], old = r.beaches[j], nw = el.value; r.beaches[j] = nw; const ko = old.replace(/\./g, '·'), kn = nw.replace(/\./g, '·'); if (W.beachPhotos[ko] && ko !== kn) { W.beachPhotos[kn] = W.beachPhotos[ko]; delete W.beachPhotos[ko]; } refreshSaveBar(); return; }
+  if (el.dataset.rpp) { W.boats[editing].rp[el.dataset.rpp] = +el.value || 0; refreshSaveBar(); return; }
   if (el.dataset.accp) { const b = W.boats[editing]; b.opt[el.dataset.accp] = +el.value || 0; refreshSaveBar(); return; }
   if (el.id === 'basic-ta') { W.basic = el.value.split('\n').map(x => x.trim()).filter(Boolean); refreshSaveBar(); return; }
   if (el.id === 's-comm') { store.set('adm-comm', Math.min(100, Math.max(0, +el.value || 0))); }
 });
 adm.addEventListener('change', e => {
   const el = e.target;
-  if (el.dataset.k && W && (el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'color')) { setPath(W, el.dataset.k, readVal(el)); refreshSaveBar(); if (el.closest('.ad-sheet') && el.dataset.k.endsWith('.hidden')) render() || boatEditor(editing); return; }
+  if (el.dataset.k && W && (el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'color')) { setPath(W, el.dataset.k, readVal(el)); refreshSaveBar(); if (el.closest('.ad-sheet') && /\.(hidden|type)$/.test(el.dataset.k)) { const sc = $('.ad-sheet.k-boat', adm), st = sc ? sc.scrollTop : 0; render(); boatEditor(editing); const n = $('.ad-sheet.k-boat', adm); if (n) n.scrollTop = st; } return; }
   if (el.dataset.acc) { const b = W.boats[editing], k = el.dataset.acc, v = el.value; b.inc = b.inc.filter(x => x !== k); delete b.opt[k]; if (v === 'inc') b.inc.push(k); if (v === 'opt') b.opt[k] = 0; const p = $(`[data-accp="${k}"]`, adm); p.hidden = v !== 'opt'; if (v === 'opt') p.focus(); refreshSaveBar(); return; }
   if (el.dataset.zon != null) { W.pay.zelleOn = +el.dataset.zon; refreshSaveBar(); render(); return; }
+  if (el.dataset.rp) { const b = W.boats[editing], k = el.dataset.rp, v = el.value, inpP = $(`[data-rpp="${k}"]`, adm); if (v === 'def') delete b.rp[k]; else b.rp[k] = v === 'no' ? null : v === 'tbd' ? true : +inpP.value || +b.price || 0; inpP.hidden = v !== 'num'; if (v === 'num') { inpP.value = b.rp[k]; inpP.focus(); } refreshSaveBar(); return; }
+  if (el.dataset.dockok) { const b = W.boats[editing], all = W.docks.filter(d => !d.off && !d.custom).map(d => d.id); const on = $$('[data-dockok]', adm).filter(x => x.checked).map(x => x.dataset.dockok); if (!on.length) { el.checked = true; return toast('Debe poder salir de al menos un muelle'); } if (on.length === all.length) delete b.docks; else b.docks = on; refreshSaveBar(); return; }
+  if (el.dataset.rclosed != null) { const r = W.routes[+el.dataset.rclosed]; if (el.checked) r.open = false; else delete r.open; refreshSaveBar(); return; }
   if (el.dataset.pick) { const b = W.boats[editing], k = el.dataset.pick; if (el.value === 'std') delete b.pick[k]; else b.pick[k] = el.value === 'no' ? null : 0; refreshSaveBar(); return; }
   if (el.dataset.own != null) { W.boats.forEach((b, j) => { if (el.checked ? j !== +el.dataset.own : false) delete b.own; }); if (el.checked) { W.boats[+el.dataset.own].own = true; const [b] = W.boats.splice(+el.dataset.own, 1); W.boats.unshift(b); editing = 0; } else delete W.boats[+el.dataset.own].own; refreshSaveBar(); render(); boatEditor(editing); }
 });
@@ -3601,6 +4408,8 @@ adm.addEventListener('click', async e => {
   if (d.bka) {
     const code = t.closest('[data-code]').dataset.code, b = BK.find(x => x.code === code); if (!b) return;
     if (d.bka === 'edit') return bkForm(b);
+    if (d.bka === 'map') return pinSheet(b);
+    if (d.bka === 'owner') { window.open(`https://wa.me/${ownerOf(b)}?text=${encodeURIComponent(ownerMsg(b))}`, '_blank', 'noopener'); return; }
     if (d.bka === 'wa') { const n = String(b.phone).replace(/\D/g, '').replace(/^0/, '58'); window.open(`https://wa.me/${n}?text=${encodeURIComponent(`¡Hola ${b.name}! Te escribo de Tu Lancha Lechería por tu reserva ${b.code}.`)}`, '_blank', 'noopener'); return; }
     if (d.bka === 'del') { if (!confirm(`¿Borrar la reserva ${code}? No se puede deshacer.`)) return; try { await api('bk', { del: code }); BK = BK.filter(x => x !== b); toast('Reserva borrada'); render(); } catch (err) { toast(errMsg(err)); } return; }
     if (d.bka === 'cancel' && !confirm(`¿Cancelar la reserva ${code}?`)) return;
@@ -3609,13 +4418,13 @@ adm.addEventListener('click', async e => {
     return;
   }
   if (t.id === 'bk-csv') {
-    const rows = [['codigo', 'fecha', 'cliente', 'telefono', 'embarcacion', 'rumbo', 'muelle', 'personas', 'total', 'pagado', 'estado', 'canal', 'idioma', 'nota']].concat(BK.map(b => [b.code, dOf(b), b.name, b.phone, b.boat, b.route, b.dock, b.pax, b.total, b.paid, b.status, b.channel, b.lang, b.note]));
+    const rows = [['codigo', 'fecha', 'cliente', 'telefono', 'embarcacion', 'rumbo', 'muelle', 'ubicacion', 'personas', 'total', 'pagado', 'estado', 'canal', 'idioma', 'nota']].concat(BK.map(b => [b.code, dOf(b), b.name, b.phone, b.boat, b.route, b.dock, T.okPin(b.pin) ? T.gmapsUrl(b.pin) : '', b.pax, b.total, b.paid, b.status, b.channel, b.lang, b.note]));
     dl(`tulancha-reservas-${iso(today)}.csv`, '﻿' + rows.map(r => r.map(x => `"${String(x ?? '').replace(/"/g, '""')}"`).join(',')).join('\n'), 'text/csv'); return;
   }
   if (t.id === 'bk-json') { dl(`tulancha-catalogo-${iso(today)}.json`, JSON.stringify(W, null, 1), 'application/json'); return; }
   // embarcaciones
   if (d.boatEdit != null) { editing = +d.boatEdit; return boatEditor(editing); }
-  if (d.boatNew != null) { W.boats.push({ id: 'b' + Date.now().toString(36), name: 'Nueva embarcación', type: 'Lancha', ft: 30, pax: 8, price: 300, hue: 200, dock: 0, cabin: false, rating: 5, trips: 0, inc: [], opt: {}, amen: [], desc: '', photos: {}, pick: {}, hidden: true }); editing = W.boats.length - 1; refreshSaveBar(); render(); boatEditor(editing); toast('Queda oculta hasta que desmarques “Ocultar de la web”.'); return; }
+  if (d.boatNew != null) { W.boats.push({ id: 'b' + Date.now().toString(36), name: 'Nueva embarcación', type: 'Lancha', ft: 30, pax: 8, price: 300, hue: 200, dock: 0, cabin: false, rating: 5, trips: 0, inc: [], opt: {}, amen: [], desc: '', photos: {}, pick: {}, rp: {}, qty: {}, docs: {}, kx: 0, hidden: true }); editing = W.boats.length - 1; refreshSaveBar(); render(); boatEditor(editing); toast('Queda oculta hasta que desmarques “Ocultar de la web”.'); return; }
   if (d.boatUp != null || d.boatDown != null) { const i = +(d.boatUp ?? d.boatDown), j = d.boatUp != null ? i - 1 : i + 1; if (j < 0 || j >= W.boats.length) return; [W.boats[i], W.boats[j]] = [W.boats[j], W.boats[i]]; render(); return; }
   if (d.boatDup != null) { const b = clone(W.boats[+d.boatDup]); b.id = 'b' + Date.now().toString(36); b.name += ' (copia)'; delete b.own; b.hidden = true; W.boats.splice(+d.boatDup + 1, 0, b); editing = +d.boatDup + 1; render(); boatEditor(editing); toast('Copia creada (oculta)'); return; }
   if (d.boatDel != null) { const b = W.boats[+d.boatDel]; if (W.boats.length < 2) return toast('Debe quedar al menos una embarcación'); if (!confirm(`¿Eliminar ${b.name}? Si solo no está disponible por un tiempo, mejor ocúltala.`)) return; W.boats.splice(+d.boatDel, 1); if (b.own) W.boats[0].own = true; editing = null; closeSheet(); render(); return; }
@@ -3626,14 +4435,18 @@ adm.addEventListener('click', async e => {
   if (d.dockNew != null) {
     sheet(`<h3>Agregar</h3><p class="rating">¿Qué quieres agregar?</p><div class="ad-sheet-f"><button class="btn btn-sun" type="button" data-dock-add="m">Muelle sugerido</button><button class="btn btn-ghost" type="button" data-dock-add="p">Recogida en residencia</button></div>`, 'help'); return;
   }
-  if (d.dockAdd) { closeSheet(); W.docks.push(d.dockAdd === 'm' ? { id: 'd' + Date.now().toString(36), name: 'Nuevo muelle', fee: '', park: '' } : { id: 'd' + Date.now().toString(36), name: 'Nueva residencia', pickup: true, lancha: 20, other: 30 }); closeSheet(); render(); const ins = $$('[data-k$=".name"]', adm); ins[ins.length - 1].focus(); return; }
+  if (d.dockAdd) { closeSheet(); W.docks.push(d.dockAdd === 'm' ? { id: 'd' + Date.now().toString(36), name: 'Nuevo muelle', fee: '', park: '' } : { id: 'd' + Date.now().toString(36), name: 'Nueva residencia', pickup: true, cost: { s: 20, m: 20, my: 30, y: 30 } }); closeSheet(); render(); const ins = $$('[data-k$=".name"]', adm); ins[ins.length - 1].focus(); return; }
+  if (d.routeNew != null) { let n = W.routes.length + 1; while (W.routes.some(r => r.id === 'r' + n)) n++; W.routes.push({ id: 'r' + n, name: 'Rumbo ' + n, zone: '', min: 60, nm: 0, add: null, open: false, tags: [], desc: '', beaches: ['Nueva playa'] }); refreshSaveBar(); render(); const ins = $$('[data-k$=".name"]', adm); const l = ins[ins.length - 1]; if (l) { l.focus(); l.select(); } return; }
+  // portada y tienda
+  if (d.shopAdd != null) { W.shop.push({ id: 's' + Date.now().toString(36), name: '', price: 0 }); render(); const ins = $$('[data-k^="shop."][data-k$=".name"]', adm); const l = ins[ins.length - 1]; if (l) l.focus(); return; }
+  if (d.shopDel != null) { const x = W.shop[+d.shopDel]; if (x.name && !confirm(`¿Quitar ${x.name} de la tienda?`)) return; W.shop.splice(+d.shopDel, 1); render(); return; }
   // pagos
   if (d.zadd != null) { W.pay.zelles.push({ name: '', email: '' }); render(); const ins = $$('[data-k$=".name"]', adm); const l = ins[ins.length - 1]; if (l) l.focus(); return; }
   if (d.zdel != null) { const i = +d.zdel, z = W.pay.zelles[i]; if (!confirm(`¿Quitar la cuenta Zelle${z.name ? ' de ' + z.name : ''}?`)) return; W.pay.zelles.splice(i, 1); if (W.pay.zelleOn > i) W.pay.zelleOn--; if (W.pay.zelleOn >= W.pay.zelles.length) W.pay.zelleOn = 0; render(); return; }
   // aliados
-  if (d.allyAdd != null) { W.allies[+d.allyAdd].items.push(['Nuevo aliado', '', '', '#232843', '']); render(); return; }
+  if (d.allyAdd != null) { W.allies[+d.allyAdd].items.push(['Nuevo aliado', '', '', '#232843', '', '']); render(); return; }
   if (d.allyDel != null) { const [i, j] = d.allyDel.split('.').map(Number); if (!confirm(`¿Quitar ${W.allies[i].items[j][0]}?`)) return; W.allies[i].items.splice(j, 1); render(); return; }
-  if (d.catNew != null) { W.allies.push({ cat: 'Nueva categoría', items: [['Nuevo aliado', '', '', '#232843', '']] }); render(); return; }
+  if (d.catNew != null) { W.allies.push({ cat: 'Nueva categoría', items: [['Nuevo aliado', '', '', '#232843', '', '']] }); render(); return; }
   if (d.catDel != null) { W.allies.splice(+d.catDel, 1); render(); return; }
   // ajustes
   if (t.id === 'hist-load') {
@@ -3664,6 +4477,6 @@ async function enter() {
 function maybeOpen() { if (location.hash === '#capitan') enter(); }
 addEventListener('hashchange', maybeOpen); maybeOpen();
 let taps = 0, tapT;
-$('#foot-logo').addEventListener('click', e => { taps++; clearTimeout(tapT); tapT = setTimeout(() => taps = 0, 1500); if (taps >= 6) { e.preventDefault(); taps = 0; enter(); } });
+$('#foot-logo').addEventListener('click', e => { e.preventDefault(); taps++; clearTimeout(tapT); tapT = setTimeout(() => taps = 0, 1500); if (taps >= 6) { taps = 0; enter(); } });
 addEventListener('keydown', e => { if (e.key !== 'Escape' || adm.hidden) return; if ($('.ad-ov', adm)) closeTop(); else if (!W) closeAdm(); });
 })();
