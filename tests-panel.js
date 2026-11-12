@@ -23,6 +23,9 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
 
 (async () => {
   await fetch(BASE + '__reset');
+  // solo para correrlo en local sin la contraseña real: TLL_SEED=1 guarda USER/PASS en el Redis falso
+  if (process.env.TLL_SEED) { const cr = require('crypto'), salt = cr.randomBytes(16).toString('hex'), iter = 1000;
+    await fetch(BASE + 'fake-redis/pipeline', { method: 'POST', headers: { authorization: 'Bearer test-token' }, body: JSON.stringify([['SET', 'adm:cred', JSON.stringify({ user: USER.toLowerCase(), salt, iter, hash: cr.pbkdf2Sync(PASS, salt, iter, 32, 'sha256').toString('hex') })]]) }); }
   const b = await chromium.launch();
 
   console.log('== Acceso oculto y seguridad ==');
@@ -61,7 +64,7 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     if (await q.$('.ad-sheet.k-help')) await q.click('.ad-sheet.k-help [data-close]');
     await q.click('#a-demo'); ok((await q.textContent('.ad-head')).includes('datos de ejemplo'), 'Datos de ejemplo para conocer las gráficas');
     await q.click('[data-p="12m"]'); await q.screenshot({ path: OUT + 'panel-resumen.png' }); await q.click('#a-demo');
-    for (const t of ['inicio', 'reservas', 'flota', 'rumbos', 'muelles', 'pagos', 'aliados', 'ajustes']) {
+    for (const t of ['inicio', 'reservas', 'flota', 'rumbos', 'muelles', 'pagos', 'aliados', 'portada', 'ajustes']) {
       await q.click(`[data-adtab="${t}"]`); await q.click('.ad-head [data-help]'); const h = await q.textContent('.ad-sheet.k-help h3'); await q.keyboard.press('Escape');
       ok(h && !(await q.$('.ad-ov')), `Pestaña ${t}: la ayuda “${h}” se abre y se cierra`);
     }
@@ -73,7 +76,7 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     await q.click('.ad-sheet.k-boat h4 [data-help="fotos"]'); ok((await q.textContent('.ad-sheet.k-help')).includes('1600 × 1000'), 'La ayuda de fotos dice formato, medida y resolución');
     ok(await q.isVisible('.ad-sheet.k-boat'), 'La ayuda se abre encima del editor sin cerrarlo'); await q.click('.ad-sheet.k-help [data-close]');
     ok(await q.isVisible('.ad-sheet.k-boat'), 'Al cerrar la ayuda sigue el editor');
-    let fc = q.waitForEvent('filechooser'); await q.click('.ad-sheet.k-boat [data-up$=".photos.drone"]'); await (await fc).setFiles(await makeImg(q, 2000, 1300));
+    let fc = q.waitForEvent('filechooser'); await q.click('.ad-sheet.k-boat [data-up$=".photos.proa"]'); await (await fc).setFiles(await makeImg(q, 2000, 1300));
     await q.waitForSelector('.ad-sheet.k-crop canvas'); const cw = await q.evaluate(() => [document.querySelector('#crop-c').width, document.querySelector('#crop-c').height]);
     ok(cw[0] === 1600 && cw[1] === 1000, `Recorta la foto a 1600 × 1000 (${cw.join('×')})`);
     ok(await q.isVisible('#crop-r'), 'Permite mover el encuadre');
@@ -82,11 +85,15 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     const src = await q.getAttribute('.ad-sheet.k-boat .ad-photo img', 'src'); ok(/\/api\/admin\?a=img&id=[a-f0-9]{24}/.test(src), 'Foto subida y puesta en la embarcación');
     const img = await q.evaluate(u => fetch(u).then(async r => [r.status, r.headers.get('content-type'), (await r.arrayBuffer()).byteLength]), src);
     ok(img[0] === 200 && /image\/(webp|jpeg)/.test(img[1]) && img[2] < 650000, `La foto se sirve optimizada (${img[1]}, ${Math.round(img[2] / 1024)} KB)`);
-    fc = q.waitForEvent('filechooser'); await q.click('.ad-sheet.k-boat [data-up$=".photos.interior"]'); await (await fc).setFiles(await makeImg(q, 600, 900));
+    fc = q.waitForEvent('filechooser'); await q.click('.ad-sheet.k-boat [data-up$=".photos.social"]'); await (await fc).setFiles(await makeImg(q, 600, 900));
     await q.waitForSelector('.ad-sheet.k-crop'); const warn = await q.textContent('.ad-sheet.k-crop');
     ok(warn.includes('pequeña') && warn.includes('vertical'), 'Avisa si la foto es pequeña o vertical'); await q.click('.ad-sheet.k-crop [data-close]');
     ok(await q.isVisible('.ad-sheet.k-boat'), 'Cancelar el recorte vuelve al editor');
     await q.selectOption('.ad-sheet [data-acc="dron"]', 'opt'); await q.fill('.ad-sheet [data-accp="dron"]', '55');
+    ok(!(await q.textContent('.ad-sheet.k-boat .ad-photos')).includes('Dron') && (await q.$$('.ad-sheet.k-boat .ad-photo')).length === 4, 'Lancha: 4 espacios de foto (proa, popa, área social, camarote), sin “dron”');
+    await q.selectOption('.ad-sheet [data-rp="r2"]', 'num'); await q.fill('.ad-sheet [data-rpp="r2"]', '410'); await q.selectOption('.ad-sheet [data-rp="r3"]', 'no');
+    await q.fill('#i-boats-1-ownerWa', '584141112233'); await q.fill('#i-boats-1-docs-lic', new Date(Date.now() + 10 * 864e5).toISOString().slice(0, 10));
+    await q.fill('#i-boats-1-qty-snorkel', '6');
     await q.screenshot({ path: OUT + 'panel-editor.png' });
     await q.click('.ad-sheet.k-boat .ad-sheet-f [data-close]');
     ok((await q.textContent('.ad-boat[data-i="1"]')).includes('$999'), 'La lista muestra el precio nuevo');
@@ -94,7 +101,12 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     ok((await q.textContent('.ad-preview')).includes('administracion@avanteksolutions.com') && (await q.textContent('.ad-preview')).includes('ID 23928727'), 'Vienen cargadas las cuentas de Eduardo (Avantek principal y Binance)');
     ok((await q.$$('.ad-zelle')).length === 4, 'Las 4 cuentas Zelle están guardadas');
     await q.check('[data-zon="2"]'); ok((await q.textContent('.ad-preview')).includes('rrhh@avanteksolutions.com') && (await q.textContent('.ad-zelle.on')).includes('Principal'), 'Cambiar la Zelle principal');
+    await q.fill('#i-pay-paypal', 'paypal.me/tulanchaprueba'); ok((await q.inputValue('#i-pay-paypalFee')) === '4.5', 'PayPal con comisión de 4,5% por defecto');
     await q.screenshot({ path: OUT + "panel-pagos.png" });
+    await q.click('[data-adtab="portada"]'); ok((await q.$$('.ad-cards .ad-photo')).length === 18, 'Portada: las 18 pantallas del menú giratorio para subir su imagen');
+    fc = q.waitForEvent('filechooser'); await q.click('[data-up="home.hero"]'); await (await fc).setFiles(await makeImg(q, 2400, 1350));
+    await q.waitForSelector('.ad-sheet.k-crop canvas'); ok(await q.evaluate(() => document.querySelector('#crop-c').width === 1920), 'Foto principal a 1920 × 1080'); await q.click('#crop-ok'); await q.waitForFunction(() => !document.querySelector('.ad-sheet.k-crop'), null, { timeout: 8000 });
+    await q.fill('[data-k="shop.0.price"]', '12');
     await q.click('[data-adtab="rumbos"]'); await q.click('[data-beach-add="0"]'); await q.keyboard.type('Playa Prueba');
     await q.click('[data-adtab="aliados"]'); fc = q.waitForEvent('filechooser'); await q.click('[data-up="allies.0.items.0.4"]'); await (await fc).setFiles(await makeImg(q, 800, 500));
     await q.waitForSelector('.ad-sheet.k-crop canvas'); const lw = await q.evaluate(() => [document.querySelector('#crop-c').width, document.querySelector('#crop-c').height]);
@@ -104,9 +116,11 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     // la web de un cliente nuevo
     const c2 = await b.newContext({ locale: 'es-VE', viewport: { width: 1280, height: 860 }, deviceScaleFactor: 1 }); const w = await c2.newPage(); const e3 = []; w.on('pageerror', e => e3.push(e.message));
     await w.goto(BASE); await w.waitForFunction(n => { const x = window.TLL.BOATS.find(b => b.name === n); return x && x.price === 999; }, name, { timeout: 8000 });
-    const bt = await w.evaluate(n => { const x = window.TLL.BOATS.find(b => b.name === n); return { photo: x.photos && x.photos.drone, dron: x.opt.dron }; }, name);
+    const bt = await w.evaluate(n => { const x = window.TLL.BOATS.find(b => b.name === n); return { photo: x.photos && x.photos.proa, dron: x.opt.dron }; }, name);
     ok(bt.photo && bt.dron === 55, `El cliente ve el precio, la foto y el accesorio nuevos de ${name}`);
     ok(await w.evaluate(() => !!document.querySelector('img.ph')), 'La foto real aparece en la web');
+    ok(await w.evaluate(n => { const T = window.TLL, x = T.BOATS.find(b => b.name === n); return T.routePrice(x, T.ROUTES[1]).price === 410 && !T.routePrice(x, T.ROUTES[2]).ok && T.accName(x, 'snorkel') === 'Caretas de buceo (6)'; }, name), 'La web usa el precio por rumbo, el rumbo que no hace y la cantidad de caretas');
+    ok(await w.evaluate(() => /a=img/.test(document.querySelector('#hero-reel img').src) && window.TLL.CAT.pay.paypal === 'paypal.me/tulanchaprueba' && window.TLL.SHOP[0].price === 12), 'La web usa la foto principal, PayPal y el precio de la tienda');
     ok(await w.evaluate(() => !!document.querySelector('#allies .av.logo img')), 'El logo del aliado aparece en la web');
     ok(await w.evaluate(() => window.TLL.ROUTES[0].beaches.includes('Playa Prueba')), 'La playa nueva aparece en el rumbo');
     ok(await w.evaluate(() => window.TLL.CAT.pay.zelle === 'rrhh@avanteksolutions.com' && window.TLL.CAT.pay.binance === '23928727'), 'La web muestra solo la Zelle principal elegida');
@@ -121,6 +135,7 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     ok((await q.textContent('.ad-tabs [data-adtab="reservas"]')).includes('1'), 'La pestaña Reservas avisa que hay 1 nueva');
     await q.click('[data-adtab="reservas"]'); const card = await q.textContent('.ad-bk[data-code="TLL-4321"]');
     ok(card.includes('Ana Prueba') && card.includes('Nueva') && card.includes('Falta $400'), 'La reserva llega como Nueva y sin pago marcado');
+    ok(card.includes('Enviar al propietario'), 'Reserva de una embarcación con WhatsApp del propietario: botón “Enviar al propietario”');
     await q.click('.ad-bk[data-code="TLL-4321"] [data-bka="ok"]'); await q.waitForSelector('.ad-bk[data-code="TLL-4321"] .st.ok');
     await q.click('.ad-bk[data-code="TLL-4321"] [data-bka="half"]'); await q.waitForFunction(() => document.querySelector('.ad-bk[data-code="TLL-4321"]').textContent.includes('Falta $200'));
     ok(true, 'Confirmar y registrar abono del 50%');
@@ -128,7 +143,8 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     await q.waitForFunction(() => document.querySelector('.ad-bks') && document.querySelector('.ad-bks').textContent.includes('Familia Pérez'));
     ok(true, 'Registrar a mano una reserva de WhatsApp');
     await q.screenshot({ path: OUT + 'panel-reservas.png' });
-    await q.click('[data-adtab="inicio"]'); await q.click('[data-p="12m"]'); ok((await q.textContent('.adm-kpis')).includes('$850'), 'El resumen suma las reservas reales ($850)');
+    await q.click('[data-adtab="inicio"]'); ok(await q.isVisible('.ad-docs') && (await q.textContent('.ad-docs')).includes('Licencia de navegación'), 'Resumen: aviso de documentos por vencer');
+    await q.click('[data-p="12m"]'); ok((await q.textContent('.adm-kpis')).includes('$850'), 'El resumen suma las reservas reales ($850)');
     // versiones
     await q.click('[data-adtab="ajustes"]'); await q.click('#hist-load'); await q.waitForSelector('[data-undo]');
     ok(true, 'Muestra las versiones anteriores'); await q.click('[data-undo="0"]'); await q.waitForTimeout(800);
@@ -151,7 +167,7 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     await q.goto(BASE + '#capitan'); await q.waitForSelector('#lg'); await login(q, USER, PASS2); await q.waitForSelector('.adm-kpis', { timeout: 8000 });
     if (n === 'Pixel 7') await q.screenshot({ path: OUT + 'panel-movil-bienvenida.png' });
     if (await q.$('.ad-sheet.k-help')) await q.click('.ad-sheet.k-help [data-close]');
-    for (const t of ['inicio', 'reservas', 'flota', 'rumbos', 'muelles', 'pagos', 'aliados', 'ajustes']) {
+    for (const t of ['inicio', 'reservas', 'flota', 'rumbos', 'muelles', 'pagos', 'aliados', 'portada', 'ajustes']) {
       await q.click(`[data-adtab="${t}"]`); await q.waitForTimeout(80); const o = await noOverflow(q);
       ok(o <= 0, `${n} · ${t}: sin desborde horizontal (${o}px)`);
       if (n === 'Pixel 7') await q.screenshot({ path: OUT + `panel-movil-${t}.png` });

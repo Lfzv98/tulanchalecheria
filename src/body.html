@@ -2,12 +2,13 @@
 <header class="topbar" id="topbar">
   <div class="wrap">
     <a class="brand" href="#inicio" aria-label="Tu Lancha Lechería, inicio"><img src="{{LOGO}}" alt="" width="40" height="40"><span>Tu Lancha Lechería<small>Anzoátegui – Venezuela</small></span></a>
-    <nav class="mainnav" aria-label="Secciones">
-      <a href="#embarcaciones" data-nav="embarcaciones">Embarcaciones</a><a href="#playas" data-nav="playas">Playas</a><a href="#experiencias" data-nav="experiencias">Experiencias</a><a href="#regalos" data-nav="regalos">Regalos y Club</a><a href="#aliados" data-nav="aliados">Aliados</a><a href="#mi-viaje" data-nav="mi-viaje" data-trip-only>Mi viaje</a><a href="#nosotros" data-nav="nosotros">Nosotros</a>
-    </nav>
+    <div class="tsearch" id="tsearch" role="search">
+      <button type="button" class="ts-open" id="ts-open" aria-label="Buscar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
+      <form class="ts-form" id="ts-form" autocomplete="off"><span class="ts-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span><label class="sr" for="ts-q">Buscar en Tu Lancha</label><input type="search" id="ts-q" placeholder="Busca embarcaciones, playas, experiencias…" aria-controls="ts-res" aria-autocomplete="list" aria-expanded="false" enterkeyhint="search" spellcheck="false"><kbd class="ts-kbd" aria-hidden="true">⌘K</kbd><button type="button" class="ts-x" id="ts-x" aria-label="Cerrar búsqueda">×</button></form>
+      <div class="ts-res" id="ts-res" role="listbox" aria-label="Resultados" hidden></div>
+    </div>
     <div class="top-actions">
-      <a class="btn btn-sun btn-sm hide-sm" href="#reservar">Reservar</a>
-      <button class="menu-btn" type="button" id="menu-open" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span></button>
+      <button class="orb-btn" type="button" id="menu-open" aria-label="Abrir menú" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="5" height="10" rx="1.5" transform="rotate(-12 5.5 12)"/><rect x="9.5" y="5.5" width="5" height="13" rx="1.5"/><rect x="16" y="7" width="5" height="10" rx="1.5" transform="rotate(12 18.5 12)"/></svg><span>Explorar</span></button>
     </div>
   </div>
 </header>
@@ -33,62 +34,29 @@
         <div class="glass chip-f c2"><b>+1.000</b><span>clientes</span></div>
       </div>
     </div>
-    <a class="scroll-cue" href="#inicio-mas" aria-label="Ver más"><span></span></a>
-  </div>
-
-  <div class="press-strip" id="inicio-mas">
-    <div class="wrap"><span class="press-h">Nos han reseñado</span><a href="https://www.laguiavalentinaquintero.com/#/poi/alquiler-lanchas-yates-mochima" target="_blank" rel="noopener">Guía de Valentina Quintero</a><a href="https://www.youtube.com/watch?v=HD1ESvApfz8&amp;t=450s" target="_blank" rel="noopener">Viajando con BIVI · Venevisión <small>min 7:30</small></a><strong>Canal Viajero · IVC</strong></div>
+    <div class="press-strip hero-press" id="inicio-mas">
+      <div class="wrap"><span class="press-h">Nos han reseñado</span><a href="https://www.laguiavalentinaquintero.com/#/poi/alquiler-lanchas-yates-mochima" target="_blank" rel="noopener">Guía de Valentina Quintero</a><a href="https://www.youtube.com/watch?v=HD1ESvApfz8&amp;t=450s" target="_blank" rel="noopener">Viajando con BIVI · Venevisión <small>min 7:30</small></a><strong>Canal Viajero · IVC</strong></div>
+    </div>
   </div>
 
   <div class="band own-band"><div class="wrap" id="own-feature"></div></div>
 
-  <div class="band">
-    <div class="wrap">
-      <div class="head rv"><div><span class="eyebrow">Así de fácil</span><h2>Reserva en tres pasos</h2></div><a class="btn btn-ghost btn-sm" href="#reservar">Empezar ahora</a></div>
-      <ol class="steps3">
-        <li class="glass-card rv d1"><span class="num">1</span><h3>Elige</h3><p>Tu grupo y la fecha; luego embarcación, rumbo, playas y muelle. Ves el total al instante.</p></li>
-        <li class="glass-card rv d2"><span class="num">2</span><h3>Confirma</h3><p>Aceptas las condiciones, recibes tu código de reserva y nos avisas con un toque.</p></li>
-        <li class="glass-card rv d3"><span class="num">3</span><h3>Zarpa</h3><p>Sigue el viaje en vivo desde tierra y recibe el álbum del día al volver.</p></li>
-      </ol>
-    </div>
-  </div>
-
-  <div class="layers" id="layers" aria-hidden="true">
-    <div class="ly ly1 px" data-speed="0.25"></div>
-    <div class="ly ly2 px" data-speed="0.12"></div>
-    <div class="ly ly3 px" data-speed="-0.06"></div>
-    <div class="layers-copy wrap"><p class="big-quote">De Lechería a Mochima,<br>con el mar a tu favor.</p></div>
-  </div>
-
-  <div class="band">
-    <div class="wrap">
-      <div class="head rv"><div><span class="eyebrow">Explora</span><h2>Todo para tu salida</h2></div></div>
-      <div class="tiles">
-        <a class="tile t-flota rv" href="#embarcaciones"><span class="tile-ic"><svg viewBox="0 0 24 24"><path d="M3 17l2 3h14l2-3M5 17V9l7-5 7 5v8M12 4v13"/></svg></span><b>Embarcaciones</b><span>Lanchas, barcos, mini yates y yates</span></a>
-        <a class="tile t-playas rv d1" href="#playas"><span class="tile-ic"><svg viewBox="0 0 24 24"><path d="M2 18c3 0 3-2 6-2s3 2 6 2 3-2 6-2M12 3v9M12 3l6 4M12 3L6 7"/></svg></span><b>Playas</b><span>Cuatro rumbos por el Parque Mochima</span></a>
-        <a class="tile t-exp rv d2" href="#experiencias"><span class="tile-ic"><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg></span><b>Experiencias</b><span>Canales de El Morro, pesca y celebraciones</span></a>
-        <a class="tile t-reg rv" href="#regalos"><span class="tile-ic"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 12h18M12 8v13M12 8s-1-5-4-5-3 5 4 5zM12 8s1-5 4-5 3 5-4 5z"/></svg></span><b>Regalos y Club</b><span>Tarjetas de regalo y referidos</span></a>
-        <a class="tile t-ali rv d2" href="#aliados"><span class="tile-ic"><svg viewBox="0 0 24 24"><path d="M7 11a4 4 0 110-8 4 4 0 010 8zM17 11a4 4 0 110-8 4 4 0 010 8zM2 21c0-3 2-5 5-5s5 2 5 5M12 21c0-3 2-5 5-5s5 2 5 5"/></svg></span><b>Aliados VIP</b><span>Comida, estilo, música, estadía</span></a>
-      </div>
-    </div>
-  </div>
-
-  <div class="band cta-band">
-    <div class="wrap cta-in rv"><h2>¿Listo para zarpar?</h2><p>Escríbenos y te ayudamos a elegir la embarcación ideal para tu grupo.</p><div class="ctas"><a class="btn btn-sun btn-lg" href="#reservar">Armar mi salida</a><a class="btn btn-wa btn-lg" href="https://wa.me/584143083864?text=Hola%20Tu%20Lancha%2C%20quiero%20informaci%C3%B3n%20para%20un%20ch%C3%A1rter" target="_blank" rel="noopener">Escribir por WhatsApp</a></div></div>
-  </div>
+  <section class="orbit-band" aria-labelledby="orbit-t">
+    <div class="wrap"><div class="head"><div><span class="eyebrow">Explora</span><h2 id="orbit-t">Todo Tu Lancha, en un giro</h2></div><p class="orbit-hint">Desliza las pantallas o toca una sección</p></div></div>
+    <div class="orbit" data-orbit></div>
+  </section>
 </section>
 
 <!-- ===================== EMBARCACIONES ===================== -->
 <section class="page" data-view="embarcaciones" id="embarcaciones" aria-labelledby="flota-t" hidden>
-  <div class="view-hero"><div class="wrap"><span class="eyebrow">Catálogo</span><h1 id="flota-t">Embarcaciones</h1><p>Primero nuestra lancha, la más pedida. Luego, las embarcaciones de nuestros aliados, con su capacidad, extras y disponibilidad.</p></div></div>
+  <div class="view-hero"><div class="wrap"><span class="eyebrow">Lo mejor de la flota, filtrado para ti</span><h1 id="flota-t">Embarcaciones</h1><p>Presentamos nuestro panel principal de embarcaciones: unidades seleccionadas bajo estrictos estándares de mantenimiento, equipamiento, responsabilidad y tripulación de confianza.</p></div></div>
   <div class="band pt0"><div class="wrap">
     <div class="filters" id="filters">
       <button type="button" class="pill" data-type="all" aria-pressed="true">Todas</button><button type="button" class="pill" data-type="Lancha" aria-pressed="false">Lanchas</button><button type="button" class="pill" data-type="Barco" aria-pressed="false">Barcos</button><button type="button" class="pill" data-type="Mini yate" aria-pressed="false">Mini yates</button><button type="button" class="pill" data-type="Yate" aria-pressed="false">Yates</button>
       <select id="f-pax" aria-label="Personas"><option value="0">Cualquier grupo</option><option value="8">8+ personas</option><option value="12">12+ personas</option><option value="20">Grupos grandes (20+)</option></select>
-      <select id="f-dock" aria-label="Muelle"><option value="">Todos los muelles</option></select>
       <span class="count" id="f-count"></span>
     </div>
-    <p class="note-ex">Embarcaciones y tarifas de ejemplo hasta cargar los datos reales. Rumbos, muelles y horario ya son los reales.</p>
+    <p class="note-ex">Embarcaciones y tarifas de ejemplo hasta cargar los datos reales.</p>
     <div class="grid" id="boats"></div>
   </div></div>
 </section>
@@ -112,7 +80,11 @@
             <div class="cnt"><span class="cnt-l">Niños<small>de 7 años o menos</small></span><div class="qty"><button type="button" id="kid-m" aria-label="Menos niños">−</button><output id="kids" aria-live="polite">0</output><button type="button" id="kid-p" aria-label="Más niños">+</button></div></div>
             <div class="field cnt-date"><label for="b-date">Fecha</label><input type="date" id="b-date"></div>
           </div>
-          <p class="rating s1-note">Te mostramos solo las embarcaciones donde cabe tu grupo y que están libres ese día. En algunas, dos niños de 7 años o menos ocupan un solo puesto, con un pequeño recargo.</p>
+          <p class="rating s1-note">Te mostramos solo las embarcaciones donde cabe tu grupo y que están libres ese día.</p>
+          <div class="s1-tips">
+            <div class="s1-tip s1-tip-p"><span class="s1-tip-ic" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="17" cy="11" r="5"/><path d="M8 40V27a9 9 0 0118 0v13"/><circle cx="34" cy="13" r="4"/><path d="M27 40V29a7 7 0 0114 0v11"/><path d="M41 22h4M43 20v4" class="plus"/></svg></span><p><b>Grupos de gran contextura</b>Nuestro filtro de personas y niños está optimizado con un peso promedio por persona. Si tu grupo es de gran contextura, te recomendamos contemplar un puesto adicional.</p></div>
+            <div class="s1-tip s1-tip-d"><span class="s1-tip-ic" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M12 30c0-6 4-10 10-10h8l4-6 3 2-2 6c3 2 5 5 5 9v9h-5v-6H18v6h-5z"/><path d="M34 14l-2-5M37 16l3-3"/><circle cx="36" cy="22" r="1.2" class="dot"/><path d="M6 26l6 2"/></svg></span><p><b>Mascotas: solo perros pequeños (hasta 7 kg)</b>No somos 100% pet friendly por restricciones ambientales del Parque Nacional y por el cuidado de las embarcaciones. Agradecemos no llevar mascotas de mayor tamaño ni otros tipos de animales.</p></div>
+          </div>
           <div id="big-group"></div>
         </div>
         <div class="step" data-step="1" hidden><h3>Elige tu embarcación</h3><div id="b-boats"></div></div>
@@ -134,7 +106,7 @@
 
 <!-- ===================== PLAYAS ===================== -->
 <section class="page" data-view="playas" id="playas" aria-labelledby="playas-t" hidden>
-  <div class="view-hero"><div class="wrap"><span class="eyebrow">Conoce nuestras playas</span><h1 id="playas-t">Playas por rumbo</h1><p>Cuatro rumbos por el Parque Nacional Mochima. En cada salida eliges playas de un solo rumbo: hasta 3 en lancha y hasta 2 en barco, mini yate o yate.</p></div></div>
+  <div class="view-hero"><div class="wrap"><span class="eyebrow">Conoce nuestras playas</span><h1 id="playas-t">Playas por rumbo</h1><p>Seis rumbos por el Parque Nacional Mochima, con sus millas náuticas aproximadas. En cada salida eliges playas de un solo rumbo: hasta 3 en lancha y hasta 2 en barco, mini yate o yate.</p></div></div>
   <div class="band pt0"><div class="wrap">
     <div class="rumbos-list" id="beaches"></div>
   </div></div>
@@ -174,13 +146,13 @@
   </div></div>
 </section>
 
-<!-- ===================== ALIADOS ===================== -->
+<!-- ===================== SERVICIO A BORDO (aliados) ===================== -->
 <section class="page" data-view="aliados" id="aliados" aria-labelledby="ali-t" hidden>
-  <div class="view-hero"><div class="wrap"><span class="eyebrow">Aliados VIP · 100% recomendados</span><h1 id="ali-t">Haz tu experiencia aún mejor</h1><p>Comida y bebidas, estilo, entretenimiento y estadía. Pídelo con tu reserva.</p></div></div>
+  <div class="view-hero"><div class="wrap"><span class="eyebrow">Aliados VIP · 100% recomendados</span><h1 id="ali-t">Servicio a bordo</h1><p>Queremos que tu día en el mar sea perfecto: comida y bebidas, estilo, entretenimiento y estadía. Pídelo con tu reserva.</p></div></div>
   <div class="band pt0"><div class="wrap">
-    <div class="vrow ally-v" id="ally-videos"></div>
+    <div class="sab-v" id="ally-videos"></div>
     <div class="allies" id="allies"></div>
-    <div class="parks"><a class="btn btn-ghost btn-sm" href="https://mercadillo.lovable.app/" target="_blank" rel="noopener">Pedir en El Mercadillo</a></div>
+    <div class="parks"><a class="btn btn-ghost btn-sm" href="https://mercadillo.lovable.app/" target="_blank" rel="noopener">Pedir en El Mercadillo</a><a class="btn btn-ghost btn-sm" href="https://linktr.ee/Tulanchalecheria" target="_blank" rel="noopener">Ver todas las opciones</a></div>
   </div></div>
 </section>
 
@@ -260,6 +232,7 @@
         <button class="btn btn-wa" type="submit">Enviar postulación por WhatsApp</button>
       </form>
     </div>
+    <div class="owners-sv" id="owners-sv" hidden><div class="head"><div><span class="eyebrow">Para propietarios de embarcaciones</span><h2>Servicios que recomendamos</h2></div></div><div class="allies" id="owner-allies"></div></div>
     <div class="portal glass-card" id="portal">
       <div class="portal-top"><b>Portal del propietario · vista previa</b><select id="o-boat" aria-label="Embarcación del propietario"></select></div>
       <div class="portal-in">
@@ -279,6 +252,7 @@
 </main>
 
 <footer class="site">
+  <div class="ribbon" id="ribbon" hidden><div class="wrap"><span class="eyebrow">Servicio a bordo con nuestros aliados</span></div><div class="ribbon-track"><div class="ribbon-in" id="ribbon-in"></div></div></div>
   <div class="wrap">
     <div class="f-brand">
       <a class="brand" href="#inicio" id="foot-logo"><img src="{{LOGO}}" alt="" width="40" height="40"><span>Tu Lancha Lechería<small>Anzoátegui – Venezuela</small></span></a>
@@ -286,26 +260,25 @@
     </div>
     <div><h3>Contacto</h3><a href="tel:+584143083864" class="num">+58 414 308 3864</a><a href="https://wa.me/584143083864" target="_blank" rel="noopener">WhatsApp</a><a href="https://www.instagram.com/tulanchalecheria/" target="_blank" rel="noopener">Instagram @tulanchalecheria</a></div>
     <div><h3>Explora</h3><a href="#embarcaciones">Embarcaciones</a><a href="#reservar">Reservar</a><a href="#playas">Playas</a><a href="#regalos">Regalos y Club</a><a href="#mi-viaje" data-trip-only>Mi viaje</a></div>
-    <div><h3>Empresa</h3><a href="#nosotros">Nosotros</a><a href="#aliados">Aliados</a><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Lecher%C3%ADa%2C%20Anzo%C3%A1tegui%2C%20Venezuela" target="_blank" rel="noopener">Cómo llegar</a></div>
+    <div><h3>Empresa</h3><a href="#nosotros">Nosotros</a><a href="#aliados">Servicio a bordo</a><a href="#propietarios">Propietarios</a><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Lecher%C3%ADa%2C%20Anzo%C3%A1tegui%2C%20Venezuela" target="_blank" rel="noopener">Cómo llegar</a></div>
   </div>
 </footer>
 
 <div class="trip-chip" id="trip-chip" hidden></div>
 <nav class="tabbar" aria-label="Accesos rápidos" data-i18n-ctx="tab">
   <a href="#inicio" data-tab="inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Inicio</a>
-  <a href="#embarcaciones" data-tab="embarcaciones"><svg viewBox="0 0 24 24"><path d="M3 17l2 3h14l2-3M5 17V9l7-5 7 5v8M12 4v13"/></svg>Lanchas</a>
+  <a href="#embarcaciones" data-tab="embarcaciones"><svg viewBox="0 0 24 24"><path d="M3 17l2 3h14l2-3M5 17V9l7-5 7 5v8M12 4v13"/></svg>Embarcaciones</a>
   <a href="#reservar" data-tab="reservar" class="tab-main"><span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Reservar</a>
   <a href="#playas" data-tab="playas" data-no-trip><svg viewBox="0 0 24 24"><path d="M2 18c3 0 3-2 6-2s3 2 6 2 3-2 6-2M12 3v9M12 3l6 4M12 3L6 7"/></svg>Playas</a>
   <a href="#mi-viaje" data-tab="mi-viaje" data-trip-only><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Mi viaje</a>
   <button type="button" data-tab="menu" id="menu-open-2" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Más</button>
 </nav>
 
-<div class="sheet" id="sheet" hidden>
-  <div class="sheet-panel" role="dialog" aria-modal="true" aria-label="Menú">
+<div class="sheet side" id="sheet" hidden>
+  <div class="sheet-panel side-panel" role="dialog" aria-modal="true" aria-label="Menú">
     <div class="sheet-h"><b>Explora</b><button type="button" class="m-close" id="menu-close" aria-label="Cerrar menú">×</button></div>
-    <div class="sheet-grid">
-      <a href="#inicio">Inicio</a><a href="#embarcaciones">Embarcaciones</a><a href="#reservar">Reservar</a><a href="#playas">Playas</a><a href="#experiencias">Experiencias</a><a href="#regalos">Regalos y Club</a><a href="#aliados">Aliados</a><a href="#mi-viaje" data-trip-only>Mi viaje</a><a href="#nosotros">Nosotros</a>
-    </div>
+    <button type="button" class="side-search" data-side-search><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>Buscar en Tu Lancha</button>
+    <nav class="side-nav" aria-label="Secciones"><a href="#inicio" data-side="inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Inicio</a><a href="#embarcaciones" data-side="embarcaciones"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l2 3h14l2-3M5 17V9l7-5 7 5v8M12 4v13"/></svg>Embarcaciones</a><a href="#reservar" data-side="reservar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Reservar</a><a href="#playas" data-side="playas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18c3 0 3-2 6-2s3 2 6 2 3-2 6-2M12 3v9M12 3l6 4M12 3L6 7"/></svg>Playas</a><a href="#experiencias" data-side="experiencias"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg>Experiencias</a><a href="#regalos" data-side="regalos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 12h18M12 8v13M12 8s-1-5-4-5-3 5 4 5zM12 8s1-5 4-5 3 5-4 5z"/></svg>Regalos y Club</a><a href="#aliados" data-side="aliados"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h16l-1.5 9a2 2 0 01-2 1.7h-9a2 2 0 01-2-1.7zM8 10V7a4 4 0 018 0v3"/></svg>Servicio a bordo</a><a href="#mi-viaje" data-side="mi-viaje"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6-7-11a7 7 0 0114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Mi viaje</a><a href="#nosotros" data-side="nosotros"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Nosotros</a><a href="#propietarios" data-side="propietarios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 6 6 .9-4.5 4.3 1 6.3L12 16.6 6.5 19.5l1-6.3L3 8.9 9 8z"/></svg>Propietarios</a></nav>
     <a class="btn btn-wa" href="https://wa.me/584143083864?text=Hola%20Tu%20Lancha%2C%20quiero%20informaci%C3%B3n%20para%20un%20ch%C3%A1rter" target="_blank" rel="noopener">Escribir por WhatsApp</a>
   </div>
 </div>

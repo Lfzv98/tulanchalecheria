@@ -25,7 +25,7 @@ const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 
     const over = async where => {
       const r = await p.evaluate(() => {
         const W = document.documentElement.clientWidth, sw = Math.max(document.documentElement.scrollWidth, innerWidth) - W;
-        const bad = [...document.querySelectorAll('body *')].filter(e => { const s = getComputedStyle(e); if (s.position === 'fixed' || e.closest('svg') && e.tagName !== 'svg' || e.closest('.days,.tbl-wrap,.layers,.hero,.tabs,.filters,.thumbs,.skip')) return false; const r = e.getBoundingClientRect(); return r.width && (r.right > W + 1 || r.left < -1) && s.visibility !== 'hidden' && !e.closest('[hidden]'); });
+        const bad = [...document.querySelectorAll('body *')].filter(e => { const s = getComputedStyle(e); if (s.position === 'fixed' || e.closest('svg') && e.tagName !== 'svg' || e.closest('.days,.tbl-wrap,.layers,.hero,.tabs,.filters,.thumbs,.skip,.ribbon-track,.orb-stage,.orb-tabs')) return false; const r = e.getBoundingClientRect(); return r.width && (r.right > W + 1 || r.left < -1) && s.visibility !== 'hidden' && !e.closest('[hidden]'); });
         return { sw, bad: bad.slice(0, 3).map(e => e.tagName + '.' + (e.className.baseVal ?? e.className) + '#' + e.id) };
       });
       ok(r.sw <= 0 && !r.bad.length, `${name} · ${where}: sin desborde (${r.sw}px ${r.bad.join(', ')})`);
@@ -39,7 +39,16 @@ const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 
     // navegación: tabbar en móvil o menú
     const tab = await p.evaluate(() => getComputedStyle(document.querySelector('.tabbar')).display !== 'none');
     if (tab) { await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(300); await act('.tabbar [data-tab="embarcaciones"]'); await p.waitForTimeout(300); ok(await p.isVisible('#boats'), `${name}: barra inferior → Embarcaciones`); await act('#menu-open-2'); ok(await p.isVisible('#sheet'), `${name}: menú Más`); await act('#sheet a[href="#aliados"]'); await p.waitForTimeout(300); ok(await p.isVisible('#allies'), `${name}: menú → Aliados`); }
-    else { await act('.mainnav a[data-nav="embarcaciones"]'); await p.waitForTimeout(300); ok(await p.isVisible('#boats'), `${name}: menú superior → Embarcaciones`); }
+    else { await act('#menu-open'); await p.waitForTimeout(250); ok(await p.isVisible('#sheet .side-nav'), `${name}: menú lateral abre`); await act('#sheet a[href="#embarcaciones"]'); await p.waitForTimeout(300); ok(await p.isVisible('#boats'), `${name}: menú lateral → Embarcaciones`); }
+    // portada: menú giratorio con las 9 secciones y búsqueda del encabezado
+    await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(300);
+    ok(await p.evaluate(() => document.querySelectorAll('.orbit-band .orb-card').length === 18 && document.querySelectorAll('.orbit-band .orb-tabs [role=tab]').length === 9), `${name}: menú giratorio con 18 pantallas y 9 secciones`);
+    await p.evaluate(() => { document.querySelector('.orbit-band').scrollIntoView({ block: 'center' }); document.querySelector('.orbit-band .orb-tabs [data-sec="playas"]').click(); }); await p.waitForTimeout(1200);
+    ok(await p.evaluate(() => document.querySelector('.orbit-band .orb-tabs [data-sec="playas"]').getAttribute('aria-selected') === 'true'), `${name}: tocar una sección gira el menú`);
+    await p.evaluate(() => { const i = document.querySelector('#ts-q'); i.value = 'plata'; i.dispatchEvent(new Event('input', { bubbles: true })); }); await p.waitForTimeout(200);
+    ok(await p.evaluate(() => [...document.querySelectorAll('#ts-res .ts-o')].some(o => /Plata/.test(o.textContent))), `${name}: búsqueda encuentra Isla de Plata`);
+    await p.evaluate(() => { const i = document.querySelector('#ts-q'); i.value = ''; i.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); });
+    ok(await p.evaluate(() => document.querySelector('#ts-res').hidden && !document.body.classList.contains('ts-on')), `${name}: Escape cierra la búsqueda`);
     // inicio → lancha de la casa
     await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(300);
     await act('#own-feature [data-open="b0"]'); await p.waitForSelector('#dlg[open]'); await p.waitForTimeout(250); await dlgOver('detalle lancha de la casa');

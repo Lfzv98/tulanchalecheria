@@ -51,7 +51,7 @@ const ES_LEFT = ['Reservar mi salida', 'Embarcaciones y tarifas', 'Arma tu salid
     // 6) WhatsApp sale en el idioma elegido
     if (name === 'iPhone 13' || name === 'Laptop 1280') {
       await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(300);
-      await p.evaluate(() => document.querySelector('.cta-band .btn-wa').click()); await p.waitForTimeout(500);
+      await p.evaluate(() => document.querySelector('#sheet .btn-wa').click()); await p.waitForTimeout(500);
       ok(pops.some(u => u.includes("Hi Tu Lancha, I'd like information about a charter")), `${name}: WhatsApp en inglés (${pops.slice(-1)})`);
       // reserva completa → comprobante y mensaje
       await p.evaluate(() => location.hash = 'reservar'); await p.waitForTimeout(300);

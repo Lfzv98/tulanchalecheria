@@ -17,7 +17,7 @@ const PLACES = {
   borracha: [372, 150, 'La Borracha'], arapo: [690, 190, 'Isla de Arapo'], puinare: [360, 345, 'Puinare'],
   maritas: [520, 330, 'Las Maritas'], colorada: [740, 300, 'Playa Colorada'], mochima: [770, 240, 'Mochima']
 };
-const ROUTE_PLACE = { r1: 'chimana', r2: 'plata', r3: 'arapo', r4: 'mochima' };
+const ROUTE_PLACE = { r1: 'chimana', r2: 'plata', r3: 'arapo', r4: 'borracha', r5: 'mochima', r6: 'mochima' };
 // Carta náutica nocturna (esquemática, no apta para navegación): costas irregulares, bajos turquesa,
 // isobatas, sondas, cuadrícula dorada, rosa de los vientos y ruta luminosa.
 let mapN = 0;

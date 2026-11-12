@@ -34,7 +34,7 @@ function route() { const [v, a] = target(); closeSheet(); if (v !== current || a
 addEventListener('hashchange', route);
 
 /* ---------- reserva paso a paso ---------- */
-let step = 0;
+let step = 0, mbReady = false;
 const steps = $$('.step'), labels = $$('#stepper [data-go]');
 function goStep(n) {
   step = Math.max(0, Math.min(3, n));
@@ -44,6 +44,7 @@ function goStep(n) {
   $('#st-back').style.visibility = step === 0 ? 'hidden' : 'visible';
   const nx = $('#st-next');
   if (step === 3) { nx.textContent = 'Reservar ahora'; } else { nx.textContent = 'Siguiente'; }
+  if (mbReady) syncMinibar();
 }
 $('#stepper').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) goStep(+b.dataset.go); });
 $('#st-back').onclick = () => { goStep(step - 1); $('#stepper').scrollIntoView({ block: 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' }); };
@@ -60,12 +61,14 @@ $('#reservar').addEventListener('click', e => {
 goStep(0);
 
 /* ---------- barra de total en el móvil ---------- */
-const mb = $('#minibar');
+const mb = $('#minibar'); mbReady = true;
 let ticketIn = false;
 new IntersectionObserver(es => { ticketIn = es[0].isIntersecting; syncMinibar(); }, { threshold: .25 }).observe($('#ticket'));
 function syncMinibar() {
   const on = current === 'reservar' && !ticketIn && !!BOATS.find(x => x.id === Q.boat);
-  mb.classList.toggle('show', on); mb.setAttribute('aria-hidden', String(!on)); $('#mb-book').tabIndex = on ? 0 : -1;
+  // el botón de reservar solo aparece en el último paso (pedido de Eduardo); antes se ve solo el total
+  const last = step === 3;
+  mb.classList.toggle('show', on); mb.classList.toggle('no-btn', !last); mb.setAttribute('aria-hidden', String(!on)); $('#mb-book').hidden = !last; $('#mb-book').tabIndex = on && last ? 0 : -1;
 }
 
 /* ---------- menú ---------- */

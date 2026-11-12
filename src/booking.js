@@ -16,18 +16,24 @@ const PAY = {
     ic: '<path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>' },
   binance: { name: 'Binance Pay', tag: 'USDT · sin comisión', acct: '', how: 'Te enviamos nuestro ID de Binance Pay por WhatsApp. Pagas en USDT y nos mandas la captura.',
     ic: '<path d="M12 2l3 3-3 3-3-3 3-3zM5 9l3 3-3 3-3-3 3-3zm14 0l3 3-3 3-3-3 3-3zm-7 7l3 3-3 3-3-3 3-3zm0-7l3 3-3 3-3-3 3-3z"/>' },
+  paypal: { name: 'PayPal', tag: 'USD · +4,5% de comisión', acct: '', how: 'Te enviamos el enlace de PayPal por WhatsApp. Pagas el abono con la comisión y nos mandas la captura.',
+    ic: '<path d="M7 21l1.5-9h4.5c3.5 0 6-2 6-5.5C19 4 17 3 14 3H8L5 21h2z"/><path d="M9.5 12L8.5 18"/>' },
   efectivo: { name: 'Efectivo', tag: 'USD · se acuerda', acct: '', how: 'Acordamos contigo por WhatsApp cómo y dónde entregar el abono en efectivo.',
     ic: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9v.01M18 15v.01"/>' }
 };
 const payCard = (k, sel, total) => { const m = PAY[k]; return `<label class="pay-opt" data-pay="${k}"><input type="radio" name="bk-pay" value="${k}"${k === sel ? ' checked' : ''}>
   <span class="pay-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${m.ic}</svg></span><span class="pay-txt"><b>${m.name}</b><small>${m.tag}</small></span><span class="pay-chk" aria-hidden="true"></span></label>`; };
 // cuentas que Eduardo carga en su panel (correo Zelle, titular, ID de Binance Pay)
-const acctOf = k => { const P = (window.TLL.CAT && window.TLL.CAT.pay) || {}; return k === 'zelle' ? [P.zelle, P.zelleName] : k === 'binance' ? [P.binance, P.binanceUser] : ['', '']; };
-const HOW_ACCT = { zelle: 'Paga el abono a este Zelle y mándanos la captura por WhatsApp.', binance: 'Paga el abono en USDT a este ID de Binance Pay y mándanos la captura por WhatsApp.' };
+const acctOf = k => { const P = (window.TLL.CAT && window.TLL.CAT.pay) || {}; return k === 'zelle' ? [P.zelle, P.zelleName] : k === 'binance' ? [P.binance, P.binanceUser] : k === 'paypal' ? [P.paypal, ''] : ['', '']; };
+const HOW_ACCT = { zelle: 'Paga el abono a este Zelle y mándanos la captura por WhatsApp.', binance: 'Paga el abono en USDT a este ID de Binance Pay y mándanos la captura por WhatsApp.', paypal: 'Paga el abono con la comisión de PayPal a esta cuenta y mándanos la captura por WhatsApp.' };
+// PayPal suma su comisión (4,5% por defecto) al abono; el resto se paga en el muelle
+const ppFee = () => { const P = (window.TLL.CAT && window.TLL.CAT.pay) || {}; const f = +P.paypalFee; return f >= 0 && P.paypalFee !== '' && P.paypalFee != null ? f : 4.5; };
+const abono = (k, total) => k === 'paypal' ? Math.round(total / 2 * (1 + ppFee() / 100) * 100) / 100 : total / 2;
 const payInfo = (k, total) => { const m = PAY[k], [ac, holder] = acctOf(k), P = (window.TLL.CAT && window.TLL.CAT.pay) || {};
-  const bn = k === 'binance' && ac;
-  return `<div class="pay-info"><div class="pay-amt"><span>Abono para apartar</span><b>${money(total / 2)}</b><small>50% · el resto en el muelle antes de zarpar</small></div><p>${ac ? HOW_ACCT[k] : m.how}</p>${ac ? `<p class="pay-acct mono" translate="no">${bn ? "ID " : ""}${esc(ac).replace("@", "@<wbr>")}</p>${holder ? `<p class="rating">${bn ? 'Usuario:' : 'Titular:'} <b translate="no">${esc(holder)}</b></p>` : ''}` : ''}
-  ${bn && (P.binanceQR || P.binanceLink) ? `<div class="pay-qr">${P.binanceQR ? `<img src="${esc(P.binanceQR)}" alt="QR de Binance Pay" width="120" height="120" loading="lazy">` : ''}${P.binanceLink ? `<a class="btn btn-sun btn-sm" href="${esc(P.binanceLink)}" target="_blank" rel="noopener">Abrir en Binance</a>` : ''}</div>` : ''}</div>`; };
+  const bn = k === 'binance' && ac, pp = k === 'paypal', link = pp && /^https?:\/\/|paypal\.me/i.test(ac || '');
+  return `<div class="pay-info"><div class="pay-amt"><span>Abono para apartar</span><b>${money(abono(k, total))}</b><small>${pp ? `50% + ${String(ppFee()).replace('.', ',')}% de comisión de PayPal · el resto en el muelle` : '50% · el resto en el muelle antes de zarpar'}</small></div><p>${ac ? HOW_ACCT[k] : m.how}</p>${ac ? `<p class="pay-acct mono" translate="no">${bn ? "ID " : ""}${esc(ac).replace("@", "@<wbr>")}</p>${holder ? `<p class="rating">${bn ? 'Usuario:' : 'Titular:'} <b translate="no">${esc(holder)}</b></p>` : ''}` : ''}
+  ${bn && (P.binanceQR || P.binanceLink) ? `<div class="pay-qr">${P.binanceQR ? `<img src="${esc(P.binanceQR)}" alt="QR de Binance Pay" width="120" height="120" loading="lazy">` : ''}${P.binanceLink ? `<a class="btn btn-sun btn-sm" href="${esc(P.binanceLink)}" target="_blank" rel="noopener">Abrir en Binance</a>` : ''}</div>` : ''}
+  ${link ? `<div class="pay-qr"><a class="btn btn-sun btn-sm" href="${esc(/^https?:/i.test(ac) ? ac : 'https://' + ac)}" target="_blank" rel="noopener">Pagar con PayPal</a></div>` : ''}</div>`; };
 
 /* Condiciones y Política de Alquiler (Rev. 01 · sep. 2026). No se publica en la web:
    solo se muestra al confirmar una reserva, con casilla obligatoria. */
@@ -41,10 +47,10 @@ const POLICY_SHORT = [
 ];
 const POLICY_FULL = [
   ['Reserva y pago', ['Se reserva con 50% en temporada baja o 100% en temporada alta. En temporada alta y fines de semana no se aparta una embarcación más de 30 minutos: es del primero que pague.', 'El 50% restante se paga y se verifica antes de encender motores, después de revisar la embarcación en el muelle.', 'Las horas extra se pagan en efectivo a bordo. Las reservas de varios días se liquidan cada día.', 'Los reembolsos por Zelle tardan de 24 a 72 horas.']],
-  ['Normas a bordo', ['Uso exclusivo para tu grupo, con al menos una persona mayor de 18 años.', 'La capacidad es estricta y los niños cuentan como pasajeros. Excederla tiene una penalidad de $50 (lanchas) o $100 (yates) y se suspende la salida.', 'Solo perros pequeños, con aprobación previa.', 'Prohibidos la cachimba (hookah) y los vapers (Gaceta Oficial 42.682) y las drogas: el capitán puede terminar el paseo sin reembolso.', 'Se suman las tasas portuarias que apliquen.']],
+  ['Normas a bordo', ['Uso exclusivo para tu grupo, con al menos una persona mayor de 18 años.', 'La capacidad es estricta y los niños cuentan como pasajeros. Excederla tiene una penalidad de $50 (lanchas) o $100 (yates) y se suspende la salida.', 'Solo perros pequeños (hasta 7 kg), con aprobación previa.', 'Prohibidos la cachimba (hookah) y los vapers (Gaceta Oficial 42.682) y las drogas: el capitán puede terminar el paseo sin reembolso.', 'Se suman las tasas portuarias que apliquen.']],
   ['Cancelaciones', ['Todo reembolso tiene una retención del 20%.', 'Si cancelas con 24 h (lanchas) o 48 h (barcos y yates) de anticipación: reembolso menos 20%, o 100% en crédito para usar en 30 días.', 'Si cancelas después: reembolso menos 20% solo si la embarcación se vuelve a alquilar; si no, no hay reembolso.']],
   ['Fallas', ['Si la embarcación falla, te damos otra de condiciones similares (unas 1,5 h de espera, que se compensan al final del día). Si la nueva cuesta más de $70 por encima de la original, pagas la diferencia; si no hay opción, reembolso del 100%. En feriados casi no hay reemplazos.', 'Falla de motor ya en la playa: reembolso proporcional.', 'Falla de planta o aire acondicionado en yates: compensación de $70 si el paseo continúa.', 'Embarcaciones grandes (25 a 30 personas): no hay reemplazo inmediato, se reprograma la fecha. Los proveedores externos no están cubiertos.']],
-  ['Muelles y accesorios', ['Un solo punto de embarque para todo el grupo. El toque de muelle y la seguridad del vehículo dependen de cada establecimiento.', 'Cerro El Morro y Eurobuilding: regreso máximo a las 5:30 pm.', 'Los daños a accesorios se cobran a precio de mercado.', 'No alquilamos motos de agua ni inflables externos; si los contratas, se abordan desde la orilla.', 'No respondemos por objetos que caigan al agua.']],
+  ['Muelles y accesorios', ['Un solo punto de embarque para todo el grupo. El servicio por uso de muelle (se paga en sitio) y la seguridad del vehículo dependen de cada establecimiento.', 'Cerro El Morro y Eurobuilding: regreso máximo a las 5:30 pm.', 'Los daños a accesorios se cobran a precio de mercado.', 'No alquilamos motos de agua ni inflables externos; si los contratas, se abordan desde la orilla.', 'No respondemos por objetos que caigan al agua.']],
   ['Seguridad', ['Recomendamos pastillas para el mareo (por ejemplo, Viajesan).', 'Ante síntomas graves, la embarcación regresa de inmediato.', 'Eventos grandes (más de 20 personas): traslado con embarcaciones de apoyo, por cuenta del cliente.']],
   ['Clima', ['Las nubes o la lluvia pasajera no son motivo de cancelación.', 'Solo el cierre oficial del puerto (INEA o Capitanía) o condiciones extremas declaradas por el capitán permiten reprogramar al 100%, o reembolso si no puedes reprogramar.', 'Si decides no ir con el puerto abierto, cuenta como cancelación tardía.']]
 ];
@@ -53,7 +59,7 @@ const policyHtml = () => `<details class="bk-policy"><summary>Leer las condicion
 const reviewHtml = q => {
   const extras = (q.lines || []).slice(1).filter(l => l[1] >= 0).map(l => l[0]);
   const ck = [['Embarcación', `${q.boat}${q.type ? ' · ' + q.type : ''}`], ['Grupo', q.paxTxt || q.pax + ' personas'], ['Fecha y horario', `${q.date}${q.hours ? ' · ' + q.hours : ''}`],
-    ['Rumbo', q.route], ['Muelle', `${q.dock}${q.dockFee ? ' · toque de muelle aparte' : ''}`], ...(okPin(q.pin) ? [['Ubicación', `Marcada en el mapa · ${pinTxt(q.pin)}`]] : []), ['Extras', extras.length ? extras.join(', ') : 'Sin extras'], ['Incluido', 'Tripulación, chalecos, hielo y agua']];
+    ['Rumbo', q.route], ['Muelle', `${q.dock}${q.dockFee ? ' · servicio de muelle aparte (se paga en sitio)' : ''}`], ...(okPin(q.pin) ? [['Ubicación', `Marcada en el mapa · ${pinTxt(q.pin)}`]] : []), ['Extras', extras.length ? extras.join(', ') : 'Sin extras'], ['Incluido', 'Tripulación, chalecos, hielo y agua']];
   return `<section class="bk-review" aria-labelledby="bk-rv-t"><div class="bk-rv-h"><span class="eyebrow">Revisa tu pedido</span><b id="bk-rv-t">Todo lo que pediste</b></div>
     <ul class="bk-checks">${ck.map(([k, v]) => `<li><span class="bk-ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="bk-k">${k}</span><span class="bk-v">${esc(v)}</span></li>`).join('')}</ul>
     <dl class="bk-lines">${(q.lines || []).map(l => `<div><dt>${esc(l[0])}</dt><dd>${l[2] === 'tbd' ? 'por confirmar' : money(l[1])}</dd></div>`).join('')}</dl>
@@ -115,7 +121,7 @@ function showDone(r) {
     <h2 id="m-title">¡Reserva registrada!</h2>
     <p class="bk-code-l">Tu código de reserva</p><p class="bk-code mono" id="bk-code">${r.code}</p>
     <div class="bk-sum"><div><b>${esc(r.boat)}</b><span>${esc(r.date)} · ${esc(r.paxTxt || r.pax + ' personas')}</span><span>${esc(r.route)}</span></div><strong>${money(r.total)}</strong></div>
-    ${r.pay && PAY[r.pay] ? `<div class="pay-done"><span class="pay-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${PAY[r.pay].ic}</svg></span><div><span>Pagarás con</span><b>${PAY[r.pay].name}</b></div><strong>${money(r.total / 2)}<small>abono</small></strong></div>` : ''}
+    ${r.pay && PAY[r.pay] ? `<div class="pay-done"><span class="pay-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${PAY[r.pay].ic}</svg></span><div><span>Pagarás con</span><b>${PAY[r.pay].name}</b></div><strong>${money(abono(r.pay, r.total))}<small>abono</small></strong></div>` : ''}
     <ol class="bk-next"><li class="ok">Reserva guardada en tu app</li><li id="bk-li-send" class="${r.sent ? 'ok' : 'now'}">Enviar el comprobante a Tu Lancha por WhatsApp</li><li>Eduardo confirma la disponibilidad y te pasa ${r.pay === 'efectivo' ? 'cómo entregar el abono en efectivo' : 'los datos para el abono'}</li><li>Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el toque de muelle</li></ol>
     ${r.sent ? navPair() : `<button class="btn btn-wa btn-lg" type="button" id="bk-send">Enviar comprobante por WhatsApp</button>`}
     <div class="bk-pdf" id="bk-pdf"><div class="bk-pdf-doc" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/><path d="M9 13h7M9 17h5"/></svg></div>
@@ -237,7 +243,7 @@ async function makePdf(r) {
   // checklist
   col(GOLD); d.setFont('helvetica', 'bold'); d.setFontSize(8); d.setCharSpace(1); d.text('TU PASEO, PUNTO POR PUNTO', M, y); d.setCharSpace(0); y += 6;
   const extras = (r.lines || []).slice(1).filter(l => l[1] >= 0).map(l => clean(l[0]));
-  const checks = [['Rumbo y playas', r.route], ['Muelle de salida', `${r.dock}${r.dockFee ? ' · toque de muelle aparte: ' + r.dockFee : ''}`], ...(okPin(r.pin) ? [['Ubicación', `${pinTxt(r.pin)} · ${gmapsUrl(r.pin)}`]] : []), ['Extras', extras.length ? extras.join(', ') : 'Sin extras'],
+  const checks = [['Rumbo y playas', r.route], ['Muelle de salida', `${r.dock}${r.dockFee ? ' · servicio de muelle aparte (se paga en sitio): ' + r.dockFee : ''}`], ...(okPin(r.pin) ? [['Ubicación', `${pinTxt(r.pin)} · ${gmapsUrl(r.pin)}`]] : []), ['Extras', extras.length ? extras.join(', ') : 'Sin extras'],
     ['Incluido', 'Tripulación, chalecos salvavidas, hielo y agua'], ['Condiciones', `Aceptadas (${POLICY_REV})`]];
   checks.forEach(([k, v]) => {
     need(8); fill(GOLD); d.circle(M + 2.6, y - 1.2, 2.6, 'F'); draw([255, 255, 255]); d.setLineWidth(.6); d.lines([[1, 1], [1.9, -2.1]], M + 1.3, y - 1.2);
@@ -255,7 +261,7 @@ async function makePdf(r) {
   const pm = r.pay && PAY[r.pay] ? PAY[r.pay].name : 'Por acordar';
   fill([253, 248, 236]); draw([236, 220, 180]); d.roundedRect(M, y, W - 2 * M, 22, 3, 3, 'FD');
   col(MUT); d.setFont('helvetica', 'normal'); d.setFontSize(7.5); d.text('MÉTODO DE PAGO', M + 6, y + 6.5); d.text('ABONO PARA APARTAR (50%)', M + 70, y + 6.5); d.text('RESTO, EN EL MUELLE', M + 132, y + 6.5);
-  col(INK); d.setFont('helvetica', 'bold'); d.setFontSize(12); d.text(pm, M + 6, y + 14); d.text(money(r.total / 2), M + 70, y + 14); d.text(money(r.total - r.total / 2), M + 132, y + 14);
+  col(INK); d.setFont('helvetica', 'bold'); d.setFontSize(12); d.text(pm, M + 6, y + 14); d.text(money(abono(r.pay, r.total)), M + 70, y + 14); d.text(money(r.total - r.total / 2), M + 132, y + 14);
   col(MUT); d.setFont('helvetica', 'normal'); d.setFontSize(7.5); d.text(r.pay === 'efectivo' ? 'La entrega del abono en efectivo se acuerda por WhatsApp.' : 'Los datos para el abono te los envía Tu Lancha por WhatsApp.', M + 6, y + 19.2); y += 26;
   if (r.note) { need(14); col(MUT); d.setFontSize(7.5); d.text('NOTA DEL CLIENTE', M, y); col(INK); d.setFontSize(9.5); const t = d.splitTextToSize(clean(r.note), W - 2 * M); d.text(t, M, y + 5); y += 7 + t.length * 4.4; }
   // condiciones resumidas
