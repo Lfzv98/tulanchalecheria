@@ -38,7 +38,7 @@ const exact = [
 [`Empresa`, `Company`, `Empresa`],
 [`Cómo llegar`, `Directions`, `Como chegar`],
 [`Instagram @tulanchalecheria`, `Instagram @tulanchalecheria`, `Instagram @tulanchalecheria`],
-[`Chárters y paseos en lancha, barco, mini yate y yate a Mochima y las islas desde Lechería.`, `Charters and trips by speedboat, boat, mini yacht and yacht to Mochima and the islands, departing from Lechería.`, `Charters e passeios de lancha, barco, mini iate e iate para Mochima e as ilhas, saindo de Lechería.`],
+[`Chárters y paseos en lancha, barco, mini yate y yate desde Lechería a las islas del Parque Nacional Mochima.`, `Charters and trips by speedboat, boat, mini yacht and yacht from Lechería to the islands of Mochima National Park.`, `Charters e passeios de lancha, barco, mini iate e iate de Lechería para as ilhas do Parque Nacional Mochima.`],
 [`Tu Lancha Lechería · Paseos en lancha y yates a Mochima`, `Tu Lancha Lechería · Boat and yacht trips to Mochima`, `Tu Lancha Lechería · Passeios de lancha e iate para Mochima`],
 [`Paseos en lancha y yates a Mochima`, `Boat and yacht trips to Mochima`, `Passeios de lancha e iate para Mochima`],
 [`Ver más`, `See more`, `Ver mais`],
@@ -47,9 +47,9 @@ const exact = [
 [`10°11′N · 64°41′O · Lechería, Anzoátegui`, `10°11′N · 64°41′W · Lechería, Venezuela`, `10°11′N · 64°41′O · Lechería, Venezuela`],
 [`Tu día en el mar,`, `Your day at sea,`, `Seu dia no mar,`],
 [`sin complicaciones.`, `made effortless.`, `sem complicações.`],
-[`Lanchas, barcos, mini yates y yates con capitán a Mochima y las islas. Arma tu salida en un minuto y resérvala aquí mismo.`, `Speedboats, boats, mini yachts and yachts with a captain to Mochima and the islands. Plan your trip in a minute and book it right here.`, `Lanchas, barcos, mini iates e iates com capitão para Mochima e as ilhas. Monte seu passeio em um minuto e reserve aqui mesmo.`],
+[`Lanchas, barcos, mini yates y yates a las islas del Parque Nacional Mochima. Arma tu salida en un minuto y resérvala aquí mismo.`, `Speedboats, boats, mini yachts and yachts to the islands of Mochima National Park. Plan your trip in a minute and book it right here.`, `Lanchas, barcos, mini iates e iates para as ilhas do Parque Nacional Mochima. Monte seu passeio em um minuto e reserve aqui mesmo.`],
 [`Reservar mi salida`, `Book my trip`, `Reservar meu passeio`],
-[`Conoce nuestra lancha`, `Meet our boat`, `Conheça nossa lancha`],
+[`Conoce nuestra lancha prémium`, `Meet our premium boat`, `Conheça nossa lancha premium`],
 [`chárters realizados`, `charters completed`, `charters realizados`],
 [`clientes`, `clients`, `clientes`],
 [`Nos han reseñado`, `As featured in`, `Destaque na mídia`],
@@ -94,7 +94,14 @@ const exact = [
 [`Recomendación de la casa`, `House pick`, `Recomendação da casa`],
 [`Ver disponibilidad`, `See availability`, `Ver disponibilidade`],
 [`consúltanos`, `ask us`, `consulte-nos`],
-[`Corneta Bose S1 Pro`, `Bose S1 Pro speaker`, `Caixa de som Bose S1 Pro`],
+[`Internet a bordo`, `Onboard internet`, `Internet a bordo`],
+[`Flotadores de lujo`, `Luxury pool floats`, `Boias de luxo`],
+[`Alfombra en el agua`, `Floating water mat`, `Tapete flutuante na água`],
+[`Sonido JL Audio`, `JL Audio sound system`, `Som JL Audio`],
+[`Internet`, `Internet`, `Internet`],
+[`a bordo`, `on board`, `a bordo`],
+[`reseñas en medios`, `media features`, `destaques na mídia`],
+[`y Canal Viajero (IVC)`, `and Canal Viajero (IVC)`, `e Canal Viajero (IVC)`],
 [`Parrillera sin costo`, `Free grill`, `Churrasqueira grátis`],
 [`Toldo`, `Sun canopy`, `Toldo`],
 
@@ -133,10 +140,10 @@ const exact = [
 [`Lancha amplia para recorrer islas y hacer snorkel. Por su tamaño, visita hasta 2 playas por salida.`, `Spacious boat for island hopping and snorkeling. Because of its size, it visits up to 2 beaches per trip.`, `Lancha ampla para percorrer ilhas e fazer snorkel. Pelo tamanho, visita até 2 praias por passeio.`],
 [`La opción práctica para grupos pequeños. Ágil, económica y siempre puntual.`, `The practical choice for small groups. Nimble, affordable and always on time.`, `A opção prática para grupos pequenos. Ágil, econômica e sempre pontual.`],
 [`Bowrider con mucho espacio en proa. Buena relación precio/capacidad para grupos medianos.`, `Bowrider with lots of bow space. Great value for medium-sized groups.`, `Bowrider com muito espaço na proa. Ótimo custo-benefício para grupos médios.`],
-[`Mini yate con camarote y baño. Muy cómodo para familias y para quien quiere pernoctar en la bahía.`, `Mini yacht with cabin and bathroom. Very comfortable for families and for an overnight stay in the bay.`, `Mini iate com cabine e banheiro. Muito confortável para famílias e para quem quer pernoitar na baía.`],
+[`Mini yate con camarote y baño. Muy cómodo para familias y grupos que buscan sombra y privacidad.`, `Mini yacht with cabin and bathroom. Very comfortable for families and groups who want shade and privacy.`, `Mini iate com cabine e banheiro. Muito confortável para famílias e grupos que buscam sombra e privacidade.`],
 [`Barco estable y amplio, perfecto para celebraciones y grupos grandes. Malla de proa para tomar sol sobre el mar.`, `Stable, roomy boat, perfect for celebrations and large groups. Bow trampoline net for sunbathing over the sea.`, `Barco estável e espaçoso, perfeito para celebrações e grupos grandes. Rede de proa para tomar sol sobre o mar.`],
 [`Barco de eventos, el más grande. Pensado para fiestas en el mar con DJ y servicio de barra.`, `Our largest event boat. Designed for parties at sea with a DJ and bar service.`, `Barco de eventos, o maior. Pensado para festas no mar com DJ e serviço de bar.`],
-[`Yate con flybridge y salón climatizado. Para salidas premium, pernoctas y eventos corporativos.`, `Yacht with flybridge and air-conditioned salon. For premium trips, overnight stays and corporate events.`, `Iate com flybridge e salão climatizado. Para passeios premium, pernoites e eventos corporativos.`],
+[`Yate con flybridge y salón climatizado. Para salidas premium y eventos corporativos.`, `Yacht with flybridge and air-conditioned salon. For premium trips and corporate events.`, `Iate com flybridge e salão climatizado. Para passeios premium e eventos corporativos.`],
 [`Yate clásico de crucero con salón amplio y plataforma de baño a nivel del agua.`, `Classic cruising yacht with a large salon and a swim platform at water level.`, `Iate clássico de cruzeiro com salão amplo e plataforma de banho no nível da água.`],
 [`Cava`, `Cooler`, `Caixa térmica`],
 [`Escalera`, `Ladder`, `Escada`],
@@ -1050,6 +1057,6 @@ const pat = [
 ];
 
 // nombres propios y textos que no se traducen (solo para que las pruebas no los marquen como pendientes)
-const keep = ['Tu Lancha', 'Tu Lancha Lechería', 'TU LANCHA LECHERÍA', 'WhatsApp', 'Instagram', 'Zelle', 'Binance Pay', 'USD', 'USDT', 'VIP', 'IVC', 'Venevisión', 'Viajando con BIVI', 'Canal Viajero', 'Mochima', 'Morrocoy', 'Los Roques', 'Lechería', 'Anzoátegui', 'Margarita', 'Eurobuilding', '@tulanchalecheria', 'tulanchalecheria.vercel.app', 'El Mercadillo', 'El Rincón Marino', 'Cervecería Regional', 'Arena Swim', 'Brisa Deco', 'DJ Oleaje', 'Foto Proa', 'Posada Mochima'];
+const keep = ['Tu Lancha', 'Tu Lancha Lechería', 'TU LANCHA LECHERÍA', 'WhatsApp', 'Instagram', 'Zelle', 'Binance Pay', 'USD', 'USDT', 'VIP', 'IVC', 'Venevisión', 'Viajando con BIVI', 'Canal Viajero', 'Mochima', 'Morrocoy', 'Los Roques', 'Lechería', 'Anzoátegui', 'Anzoátegui – Venezuela', 'Viajando con BIVI (Venevisión)', 'min 7:30', 'Margarita', 'Eurobuilding', '@tulanchalecheria', 'tulanchalecheria.vercel.app', 'El Mercadillo', 'El Rincón Marino', 'Cervecería Regional', 'Arena Swim', 'Brisa Deco', 'DJ Oleaje', 'Foto Proa', 'Posada Mochima'];
 return { exact, pat, keep };
 })();
