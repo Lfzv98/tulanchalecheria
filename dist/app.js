@@ -3629,10 +3629,37 @@ function nextSlide() {
   a.classList.add('out'); a.classList.remove('on'); b.classList.remove('out'); b.classList.add('on');
   setTimeout(() => { if (!a.classList.contains('on')) a.classList.remove('out'); }, 3200);
 }
+/* Video del dron (12 nov): siempre rueda en bucle en el hero (pedido de Luis), también en iPhone (autoplay, muted,
+   playsinline). Se elige la versión según la pantalla (vertical en celulares, 1080p o 1440p) y arranca de una vez.
+   Solo se pausa cuando no se ve (otra sección, pestaña oculta) para no gastar batería; al volver sigue.
+   Mientras carga se ve su primer cuadro, así el cambio a video no se nota. */
+const hv = $('#hero-vid'); let hvKind = '';
+function heroVideoKind() {
+  if (matchMedia('(orientation: portrait) and (max-width: 700px)').matches) return 'port';
+  return Math.max(screen.width, screen.height) * (devicePixelRatio || 1) >= 2200 && innerWidth >= 1280 ? '1440' : '1080';
+}
+function loadHeroVideo() {
+  const k = heroVideoKind(); if (k === hvKind) return; hvKind = k;
+  const webm = k === '1440' ? '1080' : k;
+  hv.innerHTML = `<source src="media/hero2-${k}.mp4" type="video/mp4"><source src="media/hero2-${webm}.webm" type="video/webm">`;
+  reel.classList.remove('vid-on'); hv.preload = 'auto'; hv.load();
+}
+if (hv) {
+  hv.muted = true;
+  hv.addEventListener('playing', () => reel.classList.add('vid-on'));
+  hv.addEventListener('error', () => reel.classList.remove('vid-on'), true);
+  addEventListener('resize', () => { if (hvKind && heroVideoKind() !== hvKind) { loadHeroVideo(); syncVideo(); } });
+  loadHeroVideo(); const p0 = hv.play(); if (p0 && p0.catch) p0.catch(() => {});
+  // iPhone en modo de bajo consumo puede bloquear el autoplay: arranca con el primer toque o desplazamiento
+  const kickVid = () => { if (hv.paused && current === 'inicio') { const p = hv.play(); if (p && p.catch) p.catch(() => {}); } };
+  ['touchstart', 'pointerdown', 'scroll'].forEach(ev => addEventListener(ev, kickVid, { passive: true, once: true }));
+}
 function syncVideo() {
   if (!reel) return;
   const want = current === 'inicio' && !reduce.matches && !saveData && document.visibilityState === 'visible' && reelSeen;
   reel.classList.toggle('paused', !want);
+  const vidWant = current === 'inicio' && document.visibilityState === 'visible' && reelSeen;   // el video rueda siempre que se vea
+  if (hv) { if (vidWant) { loadHeroVideo(); if (hv.paused) { const p = hv.play(); if (p && p.catch) p.catch(() => {}); } } else if (!hv.paused) hv.pause(); }
   if (want && !reelT && slides.length > 1) reelT = setInterval(nextSlide, 7000);
   if (!want && reelT) { clearInterval(reelT); reelT = 0; }
 }
@@ -4318,7 +4345,7 @@ VIEW.aliados = () => `<div class="ad-head"><div><h2>Servicio a bordo</h2><p clas
 
 /* ---------------- portada y tienda ---------------- */
 VIEW.portada = () => { const C = T.NAV_CARDS || []; return `<div class="ad-head"><div><h2>Portada y tienda</h2><p class="rating">La foto principal de la web, las pantallas del menú giratorio y los accesorios que vendes.</p></div><div class="adm-tools">${helpBtn('portada')}</div></div>
-  <section class="panel"><h3>Foto principal <small>vacía = la foto actual de Mochima</small></h3><div class="ad-photos">${photoSlot('home.hero', 'hero', 'Portada (Isla de Plata, por ejemplo)')}</div></section>
+  <section class="panel"><h3>Foto principal <small>la portada muestra el video del dron; esta foto se ve solo si el video no se puede reproducir (ahorro de datos o “reducir movimiento”). Vacía = primer cuadro del video</small></h3><div class="ad-photos">${photoSlot('home.hero', 'hero', 'Portada (Isla de Plata, por ejemplo)')}</div></section>
   <section class="panel"><h3>Menú giratorio <small>${C.filter(c => W.home.cards[c.id]).length} de ${C.length} con foto · las vacías se ven difuminadas</small></h3><div class="ad-photos ad-cards">${C.map(c => photoSlot('home.cards.' + c.id, 'card', `${esc(c.secName || '')} · ${esc(c.t)}`, true)).join('')}</div></section>
   <section class="panel"><h3>Tienda Tu Lancha <small>accesorios en stock que el cliente suma a su salida</small></h3><p class="rating">Solo se muestran los que tengan precio.</p>
     <div class="ad-accs">${W.shop.map((x, i) => `<div class="ad-acc ad-shop">${inp(`shop.${i}.name`, 'Artículo')}${inp(`shop.${i}.price`, 'Precio (USD)', { t: 'num' })}<button type="button" class="icon-btn ad-danger" data-shop-del="${i}">Quitar</button></div>`).join('')}</div>
