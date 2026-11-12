@@ -950,6 +950,8 @@ const exact = [
 [`Cuatro pasos y listo`, `Four steps and done`],
 [`Tu total al instante`, `Your total, instantly`],
 [`Sin pagar nada ahora`, `No payment now`],
+[`Reserva por WhatsApp`, `Book on WhatsApp`],
+[`Te respondemos al instante`, `We reply right away`],
 [`Únete al pool`, `Join the pool`],
 [`Pon tu embarcación a trabajar`, `Put your boat to work`],
 [`Servicios para propietarios`, `Services for owners`],

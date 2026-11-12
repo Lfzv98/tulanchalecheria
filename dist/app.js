@@ -950,6 +950,8 @@ const exact = [
 [`Cuatro pasos y listo`, `Four steps and done`],
 [`Tu total al instante`, `Your total, instantly`],
 [`Sin pagar nada ahora`, `No payment now`],
+[`Reserva por WhatsApp`, `Book on WhatsApp`],
+[`Te respondemos al instante`, `We reply right away`],
 [`Únete al pool`, `Join the pool`],
 [`Pon tu embarcación a trabajar`, `Put your boat to work`],
 [`Servicios para propietarios`, `Services for owners`],
@@ -3488,7 +3490,7 @@ function renderChip() {
   const el = $('#trip-chip'); if (!el) return;
   const r = featured(); const s = r ? stateOf(r) : 'none';
   const t = r && times(r), soonish = s === 'soon' && t.start - Date.now() < 3 * DAY;
-  const show = r && r.plan && (s === 'today' || s === 'album' || soonish) && store.get('chip-off', '') !== `${r.code}:${s}` && !['#mi-viaje', '#reservar'].includes(location.hash);
+  const show = r && r.plan && (s === 'today' || s === 'album' || soonish) && store.get('chip-off', '') !== `${r.code}:${s}` && !['#mi-viaje', '#reservar', '', '#inicio'].includes(location.hash);
   if (!show) { el.hidden = true; document.body.classList.remove('has-chip'); return; }
   const k = s === 'today' ? ['sos', now() >= t.start ? 'Estás a bordo' : 'Hoy zarpas', 'Abrir modo a bordo'] : s === 'album' ? ['album', 'Tu álbum del día', 'Ver fotos'] : ['cal', 'Tu paseo', countTxt(t.start - Date.now())];
   el.className = `trip-chip tc-${s}`; el.hidden = false; document.body.classList.add('has-chip');
@@ -3683,7 +3685,7 @@ const SECS = [
   ['aliados', 'Servicio a bordo', [['c-comida', 'Comida y bebidas', 'Te lo llevan al muelle', '#aliados', 'interior', 30], ['c-vip', 'DJ, estilo y estadía', 'Aliados VIP', '#aliados', 'hero', 280]]],
   ['mi-viaje', 'Mi viaje', [['c-vivo', 'Seguimiento en vivo', 'Tu familia te sigue desde tierra', '#mi-viaje', 'drone', 190], ['c-sos', 'Modo a bordo y SOS', 'GPS y botón de emergencia', '#mi-viaje', 'exterior', 230]]],
   ['nosotros', 'Nosotros', [['c-somos', 'Quiénes somos', 'Gente de mar de Lechería', '#nosotros', 'hero', 200], ['c-muelles', 'Muelles y horario', 'Dónde y a qué hora salimos', '#nosotros', 'exterior', 195]]],
-  ['reservar', 'Reservar', [['c-arma', 'Arma tu salida', 'Cuatro pasos y listo', '#reservar', 'drone', 210], ['c-cotiza', 'Tu total al instante', 'Sin pagar nada ahora', '#reservar', 'beach', 190]]],
+  ['reservar', 'Reservar', [['c-arma', 'Arma tu salida', 'Cuatro pasos y listo', '#reservar', 'drone', 210], ['c-cotiza', 'Tu total al instante', 'Sin pagar nada ahora', '#reservar', 'beach', 190], ['c-wa', 'Reserva por WhatsApp', 'Te respondemos al instante', '#reservar', 'hero', 170]]],
   ['propietarios', 'Propietarios', [['c-pool', 'Únete al pool', 'Pon tu embarcación a trabajar', '#propietarios', 'exterior', 220], ['c-servi', 'Servicios para propietarios', 'Capitán, inflables y más', '#propietarios', 'interior', 205]]]
 ];
 const CARDS = SECS.flatMap(([sec, name, cards], si) => cards.map(c => ({ sec, si, secName: name, id: c[0], t: c[1], s: c[2], href: c[3], kind: c[4], hue: c[5] })));
@@ -3700,27 +3702,38 @@ function mount(host) {
   const small = host.classList.contains('sm');
   host.innerHTML = `<div class="orb-stage" tabindex="-1"><div class="orb-ring">${CARDS.map((c, i) => `<a class="orb-card" href="${c.href}" data-i="${i}" data-sec="${c.sec}" aria-label="${esc(c.t)}: ${esc(c.s)}">${fill(c)}<span class="orb-sheen" aria-hidden="true"></span><span class="orb-tx"><small>${esc(SECS[c.si][1])}</small><b>${esc(c.t)}</b><span>${esc(c.s)}</span></span></a>`).join('')}</div></div>
     <div class="orb-tabs" role="tablist" aria-label="Secciones">${SECS.map(([k, n], i) => `<button type="button" role="tab" data-sec="${k}" data-si="${i}" aria-selected="false">${esc(n)}</button>`).join('')}<span class="orb-ink" aria-hidden="true"></span></div>`;
-  const stage = $('.orb-stage', host), cards = $$('.orb-card', host), tabs = $$('.orb-tabs [data-si]', host), ink = $('.orb-ink', host), tabRow = $('.orb-tabs', host);
+  const stage = $('.orb-stage', host), ring = $('.orb-ring', host), cards = $$('.orb-card', host), tabs = $$('.orb-tabs [data-si]', host), ink = $('.orb-ink', host), tabRow = $('.orb-tabs', host);
   const N = cards.length, STEP = 360 / N;
   let rot = 0, vel = 0, target = null, drag = null, hover = false, seen = false, last = 0, active = -1, raf = 0, idleUntil = 0;
-  const geo = () => { const w = stage.clientWidth, cw = Math.max(118, Math.min(small ? 170 : 214, w * (w < 600 ? .36 : .17))); return { cw, R: (cw * 1.2) / (2 * Math.tan(Math.PI / N)), w }; };
+  /* Un cilindro de verdad, como en el video: las pantallas del frente se ven grandes, giran hacia atrás y por
+     detrás siguen visibles (más pequeñas y al revés) entre los huecos de las de adelante. El número de
+     pantallas es impar para que las de atrás no queden escondidas justo detrás de las del frente.
+     La pantalla del frente queda en z = 0 (escala 1, texto nítido); el centro del cilindro está en z = -R. */
+  const geo = () => {
+    const w = stage.clientWidth, phone = w < 600;
+    const cw = Math.round(phone ? Math.max(112, Math.min(170, w * .33)) : Math.max(170, Math.min(small ? 200 : 250, w * .19)));
+    const R = N * cw * 1.28 / (2 * Math.PI);
+    return { cw, ch: Math.round(cw * (phone ? 1.5 : 1.42)), R, P: R * 2, w };
+  };
   let G = geo();
+  const SEC_START = SECS.map((_, si) => CARDS.findIndex(c => c.si === si)), SEC_LEN = SECS.map(x => x[2].length);
   function place() {
-    host.style.setProperty('--cw', G.cw + 'px');
+    host.style.setProperty('--cw', G.cw + 'px'); host.style.setProperty('--ch', G.ch + 'px');
+    stage.style.perspective = G.P.toFixed(0) + 'px'; ring.style.transform = `translateZ(${(-G.R).toFixed(1)}px)`;
     for (let i = 0; i < N; i++) {
-      let a = ((i * STEP - rot) % 360 + 540) % 360 - 180;           // ángulo respecto al frente, -180..180
-      const c = cards[i], vis = Math.abs(a) < 78;
-      if (!vis) { if (c.style.visibility !== 'hidden') { c.style.visibility = 'hidden'; c.tabIndex = -1; } continue; }
-      const r = a * Math.PI / 180, x = Math.sin(r) * G.R, z = (1 - Math.cos(r)) * G.R * .38;
-      c.style.visibility = ''; c.tabIndex = Math.abs(a) < STEP * 2 ? 0 : -1;
-      c.style.transform = `translate3d(${x.toFixed(1)}px,0,${z.toFixed(1)}px) rotateY(${(-a * .9).toFixed(2)}deg)`;
-      c.style.opacity = Math.min(1, (78 - Math.abs(a)) / 22).toFixed(3);
-      c.style.zIndex = 200 - Math.round(Math.abs(a));
-      c.style.setProperty('--glow', Math.max(0, 1 - Math.abs(a) / 26).toFixed(3));
+      const a = ((i * STEP - rot) % 360 + 540) % 360 - 180;           // ángulo respecto al frente, -180..180
+      const c = cards[i], back = Math.abs(a) > 90;
+      c.style.transform = `rotateY(${a.toFixed(2)}deg) translateZ(${G.R.toFixed(1)}px)`;
+      c.style.zIndex = 400 - Math.round(Math.abs(a));
+      c.style.setProperty('--glow', Math.max(0, 1 - Math.abs(a) / (STEP * 1.2)).toFixed(3));
+      c.style.setProperty('--back', Math.max(0, Math.min(1, (Math.abs(a) - 70) / 60)).toFixed(3));
+      if (back !== (c.dataset.back === '1')) { c.dataset.back = back ? '1' : ''; c.tabIndex = back ? -1 : 0; c.setAttribute('aria-hidden', String(back)); }
     }
-    // sección al frente
-    const front = Math.round(((rot % 360) + 360) % 360 / STEP) % N, si = CARDS[front].si;
-    if (si !== active) { active = si; tabs.forEach((t, j) => t.setAttribute('aria-selected', String(j === si))); moveInk(); }
+    // sección al frente y cuánto lleva recorrido (la raya de la pestaña se llena mientras gira)
+    const f = (((rot / STEP) % N) + N + .5) % N, front = Math.floor(f) % N, si = CARDS[front].si;
+    if (si !== active) { active = si; tabs.forEach((t, j) => { t.setAttribute('aria-selected', String(j === si)); if (j !== si) t.style.setProperty('--p', '0'); }); moveInk(); }
+    const p = Math.max(0, Math.min(1, (f - SEC_START[si]) / SEC_LEN[si]));
+    tabs[si].style.setProperty('--p', p.toFixed(3));
   }
   function moveInk() {
     const t = tabs[active]; if (!t) return;
@@ -3734,7 +3747,7 @@ function mount(host) {
     if (!drag) {
       if (target != null) { const d = target - rot; rot += d * Math.min(1, dt / 140); if (Math.abs(d) < .05) { rot = target; target = null; } vel = 0; }
       else if (Math.abs(vel) > .01) { rot += vel * dt; vel *= Math.pow(.94, dt / 16); }
-      else if (!hover && !reduce.matches && t > idleUntil) rot += dt * .0065;   // giro lento continuo
+      else if (!hover && !reduce.matches && t > idleUntil) rot += dt * .013;   // giro continuo (una pantalla cada ~1,5 s)
       else if (t <= idleUntil || hover) { const s = nearest(Math.round(rot / STEP) * STEP); if (Math.abs(s - rot) > .05 && t > idleUntil - 5000) rot += (s - rot) * Math.min(1, dt / 220); }
     }
     place();
@@ -3747,7 +3760,7 @@ function mount(host) {
     if (!drag || e.pointerId !== drag.id) return;
     const dx = e.clientX - drag.x; if (Math.abs(dx) > 6 && !drag.moved) { drag.moved = true; try { stage.setPointerCapture(e.pointerId); } catch {} }
     if (!drag.moved) return;
-    const now = performance.now(), nr = drag.r - dx * (STEP / G.cw) * 1.1;
+    const now = performance.now(), nr = drag.r - dx * (STEP / (G.cw * 1.28));
     drag.vx = (nr - rot) / Math.max(1, now - (drag.lt || now - 16)); drag.lt = now; rot = nr;
   }, { passive: true });
   const end = e => { if (!drag || (e && e.pointerId !== drag.id)) return; if (drag.moved) { vel = Math.max(-.6, Math.min(.6, drag.vx || 0)); stage.dataset.dragged = Date.now(); } drag = null; idleUntil = performance.now() + 5000; kick(); };
@@ -3756,6 +3769,7 @@ function mount(host) {
   host.addEventListener('click', e => {
     const tab = e.target.closest('[data-si]'); if (tab) { goSec(+tab.dataset.si); return; }
     const c = e.target.closest('.orb-card'); if (!c) return;
+    if (c.dataset.back === '1') { e.preventDefault(); return; }
     if (Date.now() - (+stage.dataset.dragged || 0) < 250) { e.preventDefault(); return; }
     if (c.getAttribute('href') === '#embarcaciones' && CARDS[+c.dataset.i].id === 'c-premium' && OWN) { e.preventDefault(); location.hash = 'embarcaciones'; setTimeout(() => T.openBoat(OWN.id), 60); }
   });
@@ -3772,7 +3786,7 @@ function mount(host) {
   document.addEventListener('visibilitychange', kick);
   addEventListener('hashchange', () => setTimeout(() => { G = geo(); kick(); moveInk(); }, 60));
   host.orbit = { goSec, refresh: () => { cards.forEach((c, i) => { const im = $('.orb-img', c); im.outerHTML = fill(CARDS[i]); }); }, kick: () => { G = geo(); kick(); } };
-  rot = STEP / 2; place(); requestAnimationFrame(() => { G = geo(); place(); moveInk(); });
+  rot = 0; place(); requestAnimationFrame(() => { G = geo(); place(); moveInk(); });
 }
 const hosts = $$('[data-orbit]'); hosts.forEach(mount);
 addEventListener('tll:cat', () => hosts.forEach(h => h.orbit && h.orbit.refresh()));
