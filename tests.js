@@ -162,11 +162,12 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok(await p.evaluate(() => { const a = document.querySelector('#bk-home').getBoundingClientRect(), b = document.querySelector('#bk-trip').getBoundingClientRect(); return Math.abs(a.top - b.top) < 2 && a.right <= b.left; }), '"Volver al inicio" y "Ver mi viaje" van lado a lado');
   await tap('#bk-home'); await p.waitForTimeout(600);
   ok(await p.evaluate(() => location.hash) === '#inicio' && !(await p.evaluate(() => document.querySelector('#dlg').open)), '"Volver al inicio" cierra y lleva a la portada');
-  ok(await p.isVisible('#hero-trip') && (await p.textContent('#hero-trip')).includes(bcode), 'Portada: aparece el acceso discreto a la reserva');
-  await tap('#hero-trip [data-mt-open]'); await p.waitForSelector('#dlg[open] #bk-code');
-  ok((await p.textContent('#bk-code')).trim() === bcode && await p.isVisible('#bk-trip'), 'Portada: "Comprobante" vuelve a mostrar la reserva registrada');
-  await tap('#bk-trip'); await p.waitForTimeout(600);
+  await go('mi-viaje'); await p.waitForTimeout(400);
   ok(await p.isVisible('#my-trips') && (await p.textContent('#my-trips')).includes(bcode) && (await p.textContent('#my-trips')).includes('Enviada'), 'Mi viaje muestra la reserva y su estado');
+  await tap('#my-trips [data-mt-open]'); await p.waitForSelector('#dlg[open] #bk-code');
+  ok((await p.textContent('#bk-code')).trim() === bcode && await p.isVisible('#bk-trip'), 'Mi viaje: "Comprobante" vuelve a mostrar la reserva registrada');
+  await p.evaluate(() => document.querySelector('#dlg').close()); await p.waitForTimeout(200);
+  await go('mi-viaje'); await p.waitForTimeout(300);
   ok(await p.inputValue('#code-live') === bcode, 'Mi viaje usa el código de la reserva');
   await go('embarcaciones'); await tap('[data-book="b3"]'); await p.waitForTimeout(500);
   ok(await p.evaluate(() => location.hash) === '#reservar' && await p.getAttribute('[data-boat="b3"]', 'aria-pressed') === 'true', 'Botón Reservar de Embarcaciones lleva al asistente con esa embarcación');

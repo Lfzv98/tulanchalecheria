@@ -48,8 +48,6 @@ const exact = [
 [`Tu día en el mar,`, `Your day at sea,`, `Seu dia no mar,`],
 [`sin complicaciones.`, `made effortless.`, `sem complicações.`],
 [`Lanchas, barcos, mini yates y yates a las islas del Parque Nacional Mochima. Arma tu salida en un minuto y resérvala aquí mismo.`, `Speedboats, boats, mini yachts and yachts to the islands of Mochima National Park. Plan your trip in a minute and book it right here.`, `Lanchas, barcos, mini iates e iates para as ilhas do Parque Nacional Mochima. Monte seu passeio em um minuto e reserve aqui mesmo.`],
-[`Reservar mi salida`, `Book my trip`, `Reservar meu passeio`],
-[`Conoce nuestra lancha prémium`, `Meet our premium boat`, `Conheça nossa lancha premium`],
 [`chárters realizados`, `charters completed`, `charters realizados`],
 [`clientes`, `clients`, `clientes`],
 [`Nos han reseñado`, `As featured in`, `Destaque na mídia`],

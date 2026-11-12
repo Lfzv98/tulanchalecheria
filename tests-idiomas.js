@@ -9,7 +9,7 @@ const DEV = [
   ['iPad Mini', devices['iPad Mini']], ['Laptop 1280', { viewport: { width: 1280, height: 720 } }], ['Escritorio 1920', { viewport: { width: 1920, height: 1080 } }]
 ];
 // palabras que no deben quedar en pantalla en inglés (de la portada y la reserva)
-const ES_LEFT = ['Reservar mi salida', 'Embarcaciones y tarifas', 'Arma tu salida', 'Siguiente', 'Tu cotización', 'por persona', 'Preguntas frecuentes', 'Quiénes somos', 'Elige tu'];
+const ES_LEFT = ['Embarcaciones y tarifas', 'Arma tu salida', 'Siguiente', 'Tu cotización', 'por persona', 'Preguntas frecuentes', 'Quiénes somos', 'Elige tu'];
 (async () => {
   const b = await chromium.launch();
   // 1) siempre abre en español, sin importar el idioma del teléfono; el botón ofrece EN
@@ -33,8 +33,8 @@ const ES_LEFT = ['Reservar mi salida', 'Embarcaciones y tarifas', 'Arma tu salid
     // 3) un toque cambia a inglés y el botón pasa a ofrecer ES
     await tap('#lang-btn'); await p.waitForTimeout(300);
     ok((await p.textContent('#lang-btn b')) === 'ES', `${name}: un toque cambia a inglés y el botón ofrece volver a ES`);
-    const home = await p.evaluate(() => ({ h1: document.querySelector('.hero h1').textContent, lang: document.documentElement.lang, cta: document.querySelector('.hero .ctas a').textContent }));
-    ok(home.h1.includes('Your day at sea') && home.cta === 'Book my trip' && home.lang === 'en', `${name}: portada en inglés (${home.h1})`);
+    const home = await p.evaluate(() => ({ h1: document.querySelector('.hero h1').textContent, lang: document.documentElement.lang }));
+    ok(home.h1.includes('Your day at sea') && home.lang === 'en', `${name}: portada en inglés (${home.h1})`);
     // 4) recorrido por las vistas sin restos en español
     for (const v of ['embarcaciones', 'reservar', 'playas', 'experiencias', 'regalos', 'aliados', 'mi-viaje', 'nosotros', 'propietarios']) {
       await p.evaluate(v => location.hash = v, v); await p.waitForTimeout(250);
