@@ -13,7 +13,6 @@ const SHOTS = process.env.TLL_SHOTS || '';
     if (share) await c.addInitScript(() => { window.__shared = null; navigator.canShare = o => !!(o && o.files); navigator.share = async o => { window.__shared = { n: o.files.length, name: o.files[0].name, type: o.files[0].type, size: o.files[0].size, text: o.text }; }; });
     const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL + '#reservar'); await p.waitForTimeout(600);
-    ok(await p.$eval('#hero-trip', e => e.hidden), `${name}: sin reserva no hay acceso a Mi viaje en la portada`);
     await p.evaluate(() => window.TLL.openBooking());
     await p.waitForSelector('#dlg[open] #bk-form');
     // revisión antes de pagar

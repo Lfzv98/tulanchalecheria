@@ -48,8 +48,6 @@ const exact = [
 [`Tu día en el mar,`, `Your day at sea,`, `Seu dia no mar,`],
 [`sin complicaciones.`, `made effortless.`, `sem complicações.`],
 [`Lanchas, barcos, mini yates y yates a las islas del Parque Nacional Mochima. Arma tu salida en un minuto y resérvala aquí mismo.`, `Speedboats, boats, mini yachts and yachts to the islands of Mochima National Park. Plan your trip in a minute and book it right here.`, `Lanchas, barcos, mini iates e iates para as ilhas do Parque Nacional Mochima. Monte seu passeio em um minuto e reserve aqui mesmo.`],
-[`Reservar mi salida`, `Book my trip`, `Reservar meu passeio`],
-[`Conoce nuestra lancha prémium`, `Meet our premium boat`, `Conheça nossa lancha premium`],
 [`chárters realizados`, `charters completed`, `charters realizados`],
 [`clientes`, `clients`, `clientes`],
 [`Nos han reseñado`, `As featured in`, `Destaque na mídia`],
@@ -3505,21 +3503,10 @@ $('#trip-chip')?.addEventListener('click', e => {
   if (s === 'today') window.TLL.openAbordo(r.code); else if (s === 'album') window.TLL.openAlbum(r.code); else location.hash = 'mi-viaje';
 });
 
-/* ---------- acceso discreto en el inicio: solo con una reserva vigente ---------- */
-function renderHome() {
-  const el = $('#hero-trip'); if (!el) return;
-  const r = featured() || mine().find(x => !times(x)); if (!r) { el.hidden = true; el.innerHTML = ''; return; }
-  const s = stateOf(r);
-  const sub = s === 'today' ? 'Hoy zarpas' : s === 'album' ? 'Tu álbum del día está listo' : r.sent ? 'Enviada a Tu Lancha' : 'Falta enviar el comprobante';
-  el.hidden = false;
-  el.innerHTML = `<span class="ht-ic">${ic(s === 'album' ? 'album' : 'cal')}</span><span class="ht-tx"><small>Tu reserva <b class="mono">${esc(r.code)}</b></small><b>${esc(r.boat)} · ${esc(r.date)}</b><small class="ht-st ${!r.sent && (s === 'soon' || s === 'none') ? 'warn' : 'ok'}">${sub}</small></span>
-    <span class="ht-acts"><button type="button" class="btn btn-glass btn-sm" data-mt-open="${esc(r.code)}">Comprobante</button><a class="btn btn-sun btn-sm" href="#mi-viaje">Ver mi viaje</a></span>`;
-}
-
 /* ---------- Mi viaje solo aparece cuando hay una reserva ---------- */
 function render() {
   document.body.classList.toggle('has-trip', mine().length > 0);
-  renderCard(); renderChip(); renderHome();
+  renderCard(); renderChip();
   $$('[data-plan]').forEach(refresh);
 }
 
