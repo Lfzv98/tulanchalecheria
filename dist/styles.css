@@ -1874,3 +1874,18 @@ footer.site .f-brand .brand{display:flex;align-items:center;gap:12px;width:max-c
 .orb-tabs button::after{right:auto;width:calc((100% - 16px) * var(--p,0));background:linear-gradient(90deg,#f6e13c,#ff6b4a);transition:width .12s linear}
 .orb-ink{display:none}
 @media (max-width:600px){.orb-stage{height:calc(var(--ch) + 30px)}.orb-tx{padding:9px 9px 10px;gap:3px}.orb-tx small{font-size:.5rem;letter-spacing:.14em}.orb-tx span{font-size:.62rem}.orb-tabs button{min-width:0;padding:12px 12px 13px}}
+
+/* menú giratorio: rendimiento (12 nov). Sin blur, sin máscara y sin sombras que cambien por cuadro. */
+.orb-soft{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;filter:none;transform:none}
+.orb-stage{-webkit-mask-image:none;mask-image:none}
+.orb-stage .orb-fade{position:absolute;top:0;bottom:0;width:5%;z-index:3;pointer-events:none}
+.orb-card{box-shadow:0 22px 40px -26px rgba(13,27,46,.6),0 0 0 1px rgba(255,255,255,.55) inset;will-change:transform;contain:layout paint style}
+.orb-card::after{display:none}
+.orb-card::before{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 2.5px rgba(246,225,60,.9) inset;opacity:0;transition:opacity .5s;pointer-events:none;z-index:2}
+.orb-card.is-front::before{opacity:1}
+.orb-dim{position:absolute;inset:0;background:#dfe8f2;opacity:0;transition:opacity .6s;pointer-events:none}
+.orb-card[data-back="1"] .orb-dim{opacity:.26}
+.orb-tabs button::after{display:none}
+.orb-bar{position:absolute;left:8px;right:8px;bottom:2px;height:2px;border-radius:2px;background:linear-gradient(90deg,#f6e13c,#ff6b4a);transform:scaleX(0);transform-origin:0 50%;pointer-events:none}
+.orb-fade.l{left:0;background:linear-gradient(90deg,#edf2f8,rgba(237,242,248,0))}.orb-fade.r{right:0;background:linear-gradient(270deg,#edf2f8,rgba(237,242,248,0))}
+.orb-ring{will-change:transform}
