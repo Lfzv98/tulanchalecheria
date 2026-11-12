@@ -5,7 +5,7 @@ App web instalable, de diseño claro, para Tu Lancha Lechería: chárters, paseo
 Sitio: https://tulanchalecheria.vercel.app
 
 ## Navegación (versión 5, 12 nov)
-- **Portada compacta, pensada para el celular:** header, hero con el **video del dron de Mochima** siempre en bucle (1440p, 1080p o vertical según la pantalla; `video/hero2.sh` lo genera) y la franja de prensa, la lancha de la casa (galería que rota sola, “+500 viajes exitosos · 5.0”) y el **menú giratorio**; abajo el footer con el cintillo de aliados.
+- **Portada compacta, pensada para el celular:** header, hero con el **video del dron de Mochima** siempre en bucle (1080p nítido, MP4 y WebM; `video/hero2.sh` lo genera) y la franja de prensa, la lancha de la casa (galería que rota sola, “+500 viajes exitosos · 5.0”) y el **menú giratorio**; abajo el footer con el cintillo de aliados.
 - **Menú giratorio (`src/nav.js`):** 19 pantallas flotantes en 3D (2 por sección, 3 en Reservar: Embarcaciones, Playas, Experiencias, Regalos y Club, Servicio a bordo, Mi viaje, Nosotros, Reservar, Propietarios). Gira solo y despacio, se arrastra con el dedo con inercia, y las pestañas de abajo giran a cada sección. Con “reducir movimiento” queda quieto. Las imágenes son de relleno difuminado hasta que Eduardo suba las reales en **Portada y tienda**; entonces se ven nítidas.
 - **Búsqueda del header:** busca secciones, embarcaciones, rumbos, playas, aliados, experiencias y preguntas frecuentes, sin importar acentos. Atajos Ctrl/⌘ K y “/”; con flechas y Enter. En el celular se abre a pantalla completa.
 - **Menú lateral** (botón Explorar): todas las secciones con ícono, buscar y WhatsApp. En el celular sigue la barra inferior.

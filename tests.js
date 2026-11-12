@@ -31,10 +31,9 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
     const src = await m.evaluate(() => document.querySelector('#hero-reel .slide.on img').currentSrc.split('/').pop());
     const hi = await m.evaluate(() => { const i = document.querySelector('#hero-reel .slide.on img'); return i.naturalWidth; });
     ok(src.startsWith('hero2') && hi > 500, `${n}: primer cuadro del video cargado con su recorte (${src}, ${hi}px)`);
-    const t0 = await m.evaluate(() => getComputedStyle(document.querySelector('#hero-reel img')).transform); await m.waitForTimeout(1500);
-    const t1 = await m.evaluate(() => getComputedStyle(document.querySelector('#hero-reel img')).transform);
-    const anim = await m.evaluate(() => getComputedStyle(document.querySelector('#hero-reel img')).animationName);
-    ok(t0 !== t1 && anim === 'drone', `${n}: la foto se mueve lento, tipo toma de dron (${anim})`);
+    await m.waitForTimeout(1500);
+    const vid = await m.evaluate(() => { const v = document.querySelector('#hero-vid'); return { has: !!v, auto: v && v.autoplay, loop: v && v.loop, muted: v && v.muted, inline: v && v.playsInline, playing: v && !v.paused && v.currentTime > 0 }; });
+    ok(vid.has && vid.auto && vid.loop && vid.muted && vid.inline && vid.playing, `${n}: el video del dron rueda en bucle en el hero`);
     await m.evaluate(() => scrollTo(0, 400)); await m.waitForTimeout(400);
     const tr = await m.evaluate(() => ['.hero-media', '.hero-copy'].map(x => document.querySelector(x).style.transform));
     ok(tr.every(t => /translate3d\(0px, -?[1-9]/.test(t)) && tr[0] !== tr[1], `${n}: parallax con capas a distinta velocidad (${tr.join(' / ')})`);

