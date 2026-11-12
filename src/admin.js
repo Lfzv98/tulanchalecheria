@@ -149,9 +149,10 @@ function readVal(el) {
   return el.value;
 }
 const helpBtn = (k, txt = 'Cómo funciona') => `<button type="button" class="ad-help" data-help="${k}"><span aria-hidden="true">?</span>${txt}</button>`;
-const photoSlot = (path, kind, label, small) => { const u = getPath(W, path);
+const specText = kind => { const s = IMG[kind]; return s ? `${s.size} · ${s.label}${s.min ? ` · mín. ${s.min} px` : ''}${s.png ? ' · PNG' : ''}` : ''; };
+const photoSlot = (path, kind, label, small) => { const u = getPath(W, path); const spec = specText(kind);
   return `<div class="ad-photo k-${kind}${small ? ' sm' : ''}"><div class="ad-ph-img">${u ? `<img src="${esc(u)}" alt="">` : `<span class="ad-ph-empty">Sin foto</span>`}</div>
-    <div class="ad-ph-b"><b>${label}</b><div class="adm-tools"><button type="button" class="icon-btn" data-up="${path}" data-kind="${kind}">${u ? 'Cambiar' : 'Subir foto'}</button>${u ? `<button type="button" class="icon-btn" data-rmph="${path}">Quitar</button>` : ''}</div></div></div>`; };
+    <div class="ad-ph-b">${label ? `<b>${label}</b>` : ''}${spec ? `<small class="ad-ph-spec" title="Tamaño recomendado para que se vea nítida, sin recortes ni pixeleo">📐 ${spec}</small>` : ''}<div class="adm-tools"><button type="button" class="icon-btn" data-up="${path}" data-kind="${kind}">${u ? 'Cambiar' : 'Subir foto'}</button>${u ? `<button type="button" class="icon-btn" data-rmph="${path}">Quitar</button>` : ''}</div></div></div>`; };
 
 /* ---------------- estructura del panel ---------------- */
 const TABS = [['inicio', 'Resumen'], ['reservas', 'Reservas'], ['flota', 'Embarcaciones'], ['rumbos', 'Rumbos y playas'], ['muelles', 'Muelles'], ['pagos', 'Pagos'], ['aliados', 'Servicio a bordo'], ['portada', 'Portada y tienda'], ['ajustes', 'Ajustes']];
@@ -394,7 +395,9 @@ VIEW.aliados = () => `<div class="ad-head"><div><h2>Servicio a bordo</h2><p clas
 /* ---------------- portada y tienda ---------------- */
 VIEW.portada = () => { const C = T.NAV_CARDS || []; return `<div class="ad-head"><div><h2>Portada y tienda</h2><p class="rating">La foto principal de la web, las pantallas del menú giratorio y los accesorios que vendes.</p></div><div class="adm-tools">${helpBtn('portada')}</div></div>
   <section class="panel"><h3>Foto principal <small>la portada muestra el video del dron; esta foto se ve solo si el video no se puede reproducir (ahorro de datos o “reducir movimiento”). Vacía = primer cuadro del video</small></h3><div class="ad-photos">${photoSlot('home.hero', 'hero', 'Portada (Isla de Plata, por ejemplo)')}</div></section>
-  <section class="panel"><h3>Menú giratorio <small>${C.filter(c => W.home.cards[c.id]).length} de ${C.length} con foto · las vacías se ven difuminadas</small></h3><div class="ad-photos ad-cards">${C.map(c => photoSlot('home.cards.' + c.id, 'card', `${esc(c.secName || '')} · ${esc(c.t)}`, true)).join('')}</div></section>
+  <section class="panel"><h3>Menú giratorio <small>${C.filter(c => W.home.cards[c.id]).length} de ${C.length} con foto · las vacías se ven difuminadas</small></h3>
+    <p class="rating">La portada de cada pantalla del menú giratorio, agrupadas por sección. Sube cada imagen en <b>${IMG.card.size}</b> (${IMG.card.label}, mínimo ${IMG.card.min} px de ancho) para que se vea nítida, sin recortes ni pixeleo. El panel la ajusta sola a ese tamaño.</p>
+    ${[...new Map(C.map(c => [c.secName || '', c])).keys()].map(sec => `<div class="ad-cardsec"><h4>${esc(sec)}</h4><div class="ad-photos ad-cards">${C.filter(c => (c.secName || '') === sec).map(c => photoSlot('home.cards.' + c.id, 'card', esc(c.t), true)).join('')}</div></div>`).join('')}</section>
   <section class="panel"><h3>Tienda Tu Lancha <small>accesorios en stock que el cliente suma a su salida</small></h3><p class="rating">Solo se muestran los que tengan precio.</p>
     <div class="ad-accs">${W.shop.map((x, i) => `<div class="ad-acc ad-shop">${inp(`shop.${i}.name`, 'Artículo')}${inp(`shop.${i}.price`, 'Precio (USD)', { t: 'num' })}<button type="button" class="icon-btn ad-danger" data-shop-del="${i}">Quitar</button></div>`).join('')}</div>
     <button type="button" class="ad-add" data-shop-add>+ Agregar artículo</button></section>`; };

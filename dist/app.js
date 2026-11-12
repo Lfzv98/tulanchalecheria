@@ -3629,37 +3629,26 @@ function nextSlide() {
   a.classList.add('out'); a.classList.remove('on'); b.classList.remove('out'); b.classList.add('on');
   setTimeout(() => { if (!a.classList.contains('on')) a.classList.remove('out'); }, 3200);
 }
-/* Video del dron (12 nov): siempre rueda en bucle en el hero (pedido de Luis), también en iPhone (autoplay, muted,
-   playsinline). Se elige la versión según la pantalla (vertical en celulares, 1080p o 1440p) y arranca de una vez.
-   Solo se pausa cuando no se ve (otra sección, pestaña oculta) para no gastar batería; al volver sigue.
-   Mientras carga se ve su primer cuadro, así el cambio a video no se nota. */
-const hv = $('#hero-vid'); let hvKind = '';
-function heroVideoKind() {
-  if (matchMedia('(orientation: portrait) and (max-width: 700px)').matches) return 'port';
-  return Math.max(screen.width, screen.height) * (devicePixelRatio || 1) >= 2200 && innerWidth >= 1280 ? '1440' : '1080';
-}
-function loadHeroVideo() {
-  const k = heroVideoKind(); if (k === hvKind) return; hvKind = k;
-  const webm = k === '1440' ? '1080' : k;
-  hv.innerHTML = `<source src="media/hero2-${k}.mp4" type="video/mp4"><source src="media/hero2-${webm}.webm" type="video/webm">`;
-  reel.classList.remove('vid-on'); hv.preload = 'auto'; hv.load();
-}
+/* Video del dron (12 nov): siempre rueda en bucle en el hero (pedido de Luis), también en iPhone.
+   Las etiquetas <source> y autoplay van en el HTML, así que arranca solo sin depender de este script.
+   Aquí solo se pausa cuando no se ve (otra sección o pestaña oculta) para no gastar batería, y se reintenta
+   el play por si el navegador bloqueó el autoplay. Mientras carga se ve su primer cuadro (poster). */
+const hv = $('#hero-vid');
+const playHero = () => { if (hv && hv.paused) { const p = hv.play(); if (p && p.catch) p.catch(() => {}); } };
 if (hv) {
   hv.muted = true;
   hv.addEventListener('playing', () => reel.classList.add('vid-on'));
-  hv.addEventListener('error', () => reel.classList.remove('vid-on'), true);
-  addEventListener('resize', () => { if (hvKind && heroVideoKind() !== hvKind) { loadHeroVideo(); syncVideo(); } });
-  loadHeroVideo(); const p0 = hv.play(); if (p0 && p0.catch) p0.catch(() => {});
-  // iPhone en modo de bajo consumo puede bloquear el autoplay: arranca con el primer toque o desplazamiento
-  const kickVid = () => { if (hv.paused && current === 'inicio') { const p = hv.play(); if (p && p.catch) p.catch(() => {}); } };
-  ['touchstart', 'pointerdown', 'scroll'].forEach(ev => addEventListener(ev, kickVid, { passive: true, once: true }));
+  hv.addEventListener('loadeddata', () => { if (hv.readyState >= 2) reel.classList.add('vid-on'); });
+  playHero();
+  // por si el navegador (iPhone en bajo consumo) bloquea el autoplay hasta el primer gesto
+  ['touchstart', 'pointerdown', 'scroll', 'click'].forEach(ev => addEventListener(ev, () => { if (current === 'inicio') playHero(); }, { passive: true, once: true }));
 }
 function syncVideo() {
   if (!reel) return;
   const want = current === 'inicio' && !reduce.matches && !saveData && document.visibilityState === 'visible' && reelSeen;
   reel.classList.toggle('paused', !want);
   const vidWant = current === 'inicio' && document.visibilityState === 'visible' && reelSeen;   // el video rueda siempre que se vea
-  if (hv) { if (vidWant) { loadHeroVideo(); if (hv.paused) { const p = hv.play(); if (p && p.catch) p.catch(() => {}); } } else if (!hv.paused) hv.pause(); }
+  if (hv) { if (vidWant) playHero(); else if (!hv.paused) hv.pause(); }
   if (want && !reelT && slides.length > 1) reelT = setInterval(nextSlide, 7000);
   if (!want && reelT) { clearInterval(reelT); reelT = 0; }
 }
@@ -4101,9 +4090,10 @@ function readVal(el) {
   return el.value;
 }
 const helpBtn = (k, txt = 'Cómo funciona') => `<button type="button" class="ad-help" data-help="${k}"><span aria-hidden="true">?</span>${txt}</button>`;
-const photoSlot = (path, kind, label, small) => { const u = getPath(W, path);
+const specText = kind => { const s = IMG[kind]; return s ? `${s.size} · ${s.label}${s.min ? ` · mín. ${s.min} px` : ''}${s.png ? ' · PNG' : ''}` : ''; };
+const photoSlot = (path, kind, label, small) => { const u = getPath(W, path); const spec = specText(kind);
   return `<div class="ad-photo k-${kind}${small ? ' sm' : ''}"><div class="ad-ph-img">${u ? `<img src="${esc(u)}" alt="">` : `<span class="ad-ph-empty">Sin foto</span>`}</div>
-    <div class="ad-ph-b"><b>${label}</b><div class="adm-tools"><button type="button" class="icon-btn" data-up="${path}" data-kind="${kind}">${u ? 'Cambiar' : 'Subir foto'}</button>${u ? `<button type="button" class="icon-btn" data-rmph="${path}">Quitar</button>` : ''}</div></div></div>`; };
+    <div class="ad-ph-b">${label ? `<b>${label}</b>` : ''}${spec ? `<small class="ad-ph-spec" title="Tamaño recomendado para que se vea nítida, sin recortes ni pixeleo">📐 ${spec}</small>` : ''}<div class="adm-tools"><button type="button" class="icon-btn" data-up="${path}" data-kind="${kind}">${u ? 'Cambiar' : 'Subir foto'}</button>${u ? `<button type="button" class="icon-btn" data-rmph="${path}">Quitar</button>` : ''}</div></div></div>`; };
 
 /* ---------------- estructura del panel ---------------- */
 const TABS = [['inicio', 'Resumen'], ['reservas', 'Reservas'], ['flota', 'Embarcaciones'], ['rumbos', 'Rumbos y playas'], ['muelles', 'Muelles'], ['pagos', 'Pagos'], ['aliados', 'Servicio a bordo'], ['portada', 'Portada y tienda'], ['ajustes', 'Ajustes']];
@@ -4346,7 +4336,9 @@ VIEW.aliados = () => `<div class="ad-head"><div><h2>Servicio a bordo</h2><p clas
 /* ---------------- portada y tienda ---------------- */
 VIEW.portada = () => { const C = T.NAV_CARDS || []; return `<div class="ad-head"><div><h2>Portada y tienda</h2><p class="rating">La foto principal de la web, las pantallas del menú giratorio y los accesorios que vendes.</p></div><div class="adm-tools">${helpBtn('portada')}</div></div>
   <section class="panel"><h3>Foto principal <small>la portada muestra el video del dron; esta foto se ve solo si el video no se puede reproducir (ahorro de datos o “reducir movimiento”). Vacía = primer cuadro del video</small></h3><div class="ad-photos">${photoSlot('home.hero', 'hero', 'Portada (Isla de Plata, por ejemplo)')}</div></section>
-  <section class="panel"><h3>Menú giratorio <small>${C.filter(c => W.home.cards[c.id]).length} de ${C.length} con foto · las vacías se ven difuminadas</small></h3><div class="ad-photos ad-cards">${C.map(c => photoSlot('home.cards.' + c.id, 'card', `${esc(c.secName || '')} · ${esc(c.t)}`, true)).join('')}</div></section>
+  <section class="panel"><h3>Menú giratorio <small>${C.filter(c => W.home.cards[c.id]).length} de ${C.length} con foto · las vacías se ven difuminadas</small></h3>
+    <p class="rating">La portada de cada pantalla del menú giratorio, agrupadas por sección. Sube cada imagen en <b>${IMG.card.size}</b> (${IMG.card.label}, mínimo ${IMG.card.min} px de ancho) para que se vea nítida, sin recortes ni pixeleo. El panel la ajusta sola a ese tamaño.</p>
+    ${[...new Map(C.map(c => [c.secName || '', c])).keys()].map(sec => `<div class="ad-cardsec"><h4>${esc(sec)}</h4><div class="ad-photos ad-cards">${C.filter(c => (c.secName || '') === sec).map(c => photoSlot('home.cards.' + c.id, 'card', esc(c.t), true)).join('')}</div></div>`).join('')}</section>
   <section class="panel"><h3>Tienda Tu Lancha <small>accesorios en stock que el cliente suma a su salida</small></h3><p class="rating">Solo se muestran los que tengan precio.</p>
     <div class="ad-accs">${W.shop.map((x, i) => `<div class="ad-acc ad-shop">${inp(`shop.${i}.name`, 'Artículo')}${inp(`shop.${i}.price`, 'Precio (USD)', { t: 'num' })}<button type="button" class="icon-btn ad-danger" data-shop-del="${i}">Quitar</button></div>`).join('')}</div>
     <button type="button" class="ad-add" data-shop-add>+ Agregar artículo</button></section>`; };

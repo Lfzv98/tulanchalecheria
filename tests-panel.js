@@ -60,6 +60,12 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     const c = await b.newContext({ locale: 'es-VE', viewport: { width: 1366, height: 860 }, deviceScaleFactor: 1, reducedMotion: 'reduce' }); const q = await c.newPage(); const errs = []; q.on('pageerror', e => errs.push(e.message));
     q.on('dialog', d => d.accept());
     await q.goto(BASE); await q.evaluate(() => localStorage.setItem('tll:adm-welcome', 'true'));
+    // acceso de mantenimiento de Luis, aparte del de Eduardo y oculto en el panel.
+    // La contraseña no va en el repo: se pasa por la variable TLL_EXTRA_PASS al correr la prueba.
+    if (process.env.TLL_EXTRA_PASS) { const lz = await c.newPage(); await lz.goto(BASE + '#capitan'); await lz.waitForSelector('#lg'); await login(lz, 'luiszeav', process.env.TLL_EXTRA_PASS); await lz.waitForSelector('.adm-kpis', { timeout: 8000 });
+      ok(true, 'Acceso de mantenimiento entra al panel con los mismos permisos');
+      await lz.click('[data-adtab="ajustes"]'); ok((await lz.inputValue('#pw-u')) === 'tulanchalecheria' && !(await lz.textContent('#adm')).toLowerCase().includes('luiszeav'), 'El panel no muestra el acceso de mantenimiento en ninguna parte');
+      await lz.close(); }
     await q.goto(BASE + '#capitan'); await q.waitForSelector('#lg'); await login(q); await q.waitForSelector('.adm-kpis', { timeout: 8000 });
     if (await q.$('.ad-sheet.k-help')) await q.click('.ad-sheet.k-help [data-close]');
     await q.click('#a-demo'); ok((await q.textContent('.ad-head')).includes('datos de ejemplo'), 'Datos de ejemplo para conocer las gráficas');
@@ -104,6 +110,8 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     await q.fill('#i-pay-paypal', 'paypal.me/tulanchaprueba'); ok((await q.inputValue('#i-pay-paypalFee')) === '4.5', 'PayPal con comisión de 4,5% por defecto');
     await q.screenshot({ path: OUT + "panel-pagos.png" });
     await q.click('[data-adtab="portada"]'); ok((await q.$$('.ad-cards .ad-photo')).length === 19, 'Portada: las 19 pantallas del menú giratorio para subir su imagen');
+    ok((await q.$$('.ad-cardsec')).length >= 8 && (await q.textContent('.ad-cardsec h4')).length > 0, 'Las pantallas del menú se agrupan por sección');
+    ok((await q.textContent('#adm')).includes('900 × 1200 px') && (await q.$$('.ad-ph-spec')).length > 10, 'Cada foto muestra la medida recomendada (p. ej. 900 × 1200 px)');
     fc = q.waitForEvent('filechooser'); await q.click('[data-up="home.hero"]'); await (await fc).setFiles(await makeImg(q, 2400, 1350));
     await q.waitForSelector('.ad-sheet.k-crop canvas'); ok(await q.evaluate(() => document.querySelector('#crop-c').width === 1920), 'Foto principal a 1920 × 1080'); await q.click('#crop-ok'); await q.waitForFunction(() => !document.querySelector('.ad-sheet.k-crop'), null, { timeout: 8000 });
     await q.fill('[data-k="shop.0.price"]', '12');
