@@ -3747,7 +3747,7 @@ function mount(host) {
     if (!drag) {
       if (target != null) { const d = target - rot; rot += d * Math.min(1, dt / 140); if (Math.abs(d) < .05) { rot = target; target = null; } vel = 0; }
       else if (Math.abs(vel) > .01) { rot += vel * dt; vel *= Math.pow(.94, dt / 16); }
-      else if (!hover && !reduce.matches && t > idleUntil) rot += dt * .013;   // giro continuo (una pantalla cada ~1,5 s)
+      else if (!hover && !reduce.matches && t > idleUntil) rot += dt * .0065;   // giro continuo y pausado para poder leer (una pantalla cada ~3 s)
       else if (t <= idleUntil || hover) { const s = nearest(Math.round(rot / STEP) * STEP); if (Math.abs(s - rot) > .05 && t > idleUntil - 5000) rot += (s - rot) * Math.min(1, dt / 220); }
     }
     place();
