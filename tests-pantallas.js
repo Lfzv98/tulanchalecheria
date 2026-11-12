@@ -42,7 +42,7 @@ const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 
     else { await act('#menu-open'); await p.waitForTimeout(250); ok(await p.isVisible('#sheet .side-nav'), `${name}: menú lateral abre`); await act('#sheet a[href="#embarcaciones"]'); await p.waitForTimeout(300); ok(await p.isVisible('#boats'), `${name}: menú lateral → Embarcaciones`); }
     // portada: menú giratorio con las 9 secciones y búsqueda del encabezado
     await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(300);
-    ok(await p.evaluate(() => document.querySelectorAll('.orbit-band .orb-card').length === 18 && document.querySelectorAll('.orbit-band .orb-tabs [role=tab]').length === 9), `${name}: menú giratorio con 18 pantallas y 9 secciones`);
+    ok(await p.evaluate(() => document.querySelectorAll('.orbit-band .orb-card').length === 19 && document.querySelectorAll('.orbit-band .orb-tabs [role=tab]').length === 9), `${name}: menú giratorio con 19 pantallas y 9 secciones`);
     await p.evaluate(() => { document.querySelector('.orbit-band').scrollIntoView({ block: 'center' }); document.querySelector('.orbit-band .orb-tabs [data-sec="playas"]').click(); }); await p.waitForTimeout(1200);
     ok(await p.evaluate(() => document.querySelector('.orbit-band .orb-tabs [data-sec="playas"]').getAttribute('aria-selected') === 'true'), `${name}: tocar una sección gira el menú`);
     await p.evaluate(() => { const i = document.querySelector('#ts-q'); i.value = 'plata'; i.dispatchEvent(new Event('input', { bubbles: true })); }); await p.waitForTimeout(200);

@@ -1844,3 +1844,31 @@ dialog.nopic .m-grid{grid-template-columns:1fr}
 .ad-shop .field{min-width:0}.ad-shop input{width:100%;min-width:0}
 .ribbon{overflow:hidden;max-width:100%}
 @media (max-width:330px){.topbar .brand span,.topbar .brand small{display:none}}
+/* celular: el contenido del hero empieza debajo del header (la franja de prensa y la reserva lo hacen más alto) */
+@media (max-width:900px){.hero-in{padding-top:calc(86px + env(safe-area-inset-top,0px))}}
+body.has-chip footer.site{padding-bottom:calc(190px + env(safe-area-inset-bottom,0px))}
+@media (max-width:600px){
+  .ribbon .eyebrow{font-size:.66rem;letter-spacing:.14em;margin-bottom:8px}
+  footer.site .rb-i{height:36px;padding:0 16px}
+  .rb-i span{font-size:.92rem}
+  .rb-i img{max-height:28px;max-width:96px}
+  .ribbon{padding-bottom:22px;margin-bottom:24px}
+}
+footer.site .ribbon .wrap{display:block}
+footer.site .f-brand .brand{display:flex;align-items:center;gap:12px;width:max-content;max-width:100%}footer.site .f-brand .brand>span{display:block}
+
+/* menú giratorio v2 (12 nov): cilindro completo como el video; atrás se ven al revés entre los huecos */
+.orb-stage{height:calc(var(--ch) + 46px);perspective-origin:50% 50%;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%)}
+.orb-ring{top:calc(50% - 6px)}
+.orb-card{top:calc(var(--ch) / -2);height:var(--ch);border-radius:calc(var(--cw) * .09);backface-visibility:visible;-webkit-backface-visibility:visible;will-change:transform;box-shadow:0 26px 50px -30px rgba(13,27,46,.7),0 0 0 1px rgba(255,255,255,.55) inset,0 0 0 calc(var(--glow,0) * 2.5px) rgba(246,225,60,calc(var(--glow,0) * .9))}
+.orb-card::after{content:"";position:absolute;inset:0;background:#dfe8f2;opacity:calc(var(--back,0) * .28);pointer-events:none}
+.orb-card[data-back="1"]{pointer-events:none}
+.orb-stage::after{bottom:4px}
+.orb-tx b{font-size:calc(var(--cw) * .095)}
+.orb-tabs{gap:6px}
+.orb-tabs::before{display:none}
+.orb-tabs button{position:relative;min-width:max(96px,calc(var(--cw) * .7))}
+.orb-tabs button::before,.orb-tabs button::after{content:"";position:absolute;left:8px;right:8px;bottom:2px;height:2px;border-radius:2px;background:rgba(21,26,51,.14)}
+.orb-tabs button::after{right:auto;width:calc((100% - 16px) * var(--p,0));background:linear-gradient(90deg,#f6e13c,#ff6b4a);transition:width .12s linear}
+.orb-ink{display:none}
+@media (max-width:600px){.orb-stage{height:calc(var(--ch) + 30px)}.orb-tx{padding:9px 9px 10px;gap:3px}.orb-tx small{font-size:.5rem;letter-spacing:.14em}.orb-tx span{font-size:.62rem}.orb-tabs button{min-width:0;padding:12px 12px 13px}}

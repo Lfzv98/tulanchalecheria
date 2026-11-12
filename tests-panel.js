@@ -103,7 +103,7 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     await q.check('[data-zon="2"]'); ok((await q.textContent('.ad-preview')).includes('rrhh@avanteksolutions.com') && (await q.textContent('.ad-zelle.on')).includes('Principal'), 'Cambiar la Zelle principal');
     await q.fill('#i-pay-paypal', 'paypal.me/tulanchaprueba'); ok((await q.inputValue('#i-pay-paypalFee')) === '4.5', 'PayPal con comisión de 4,5% por defecto');
     await q.screenshot({ path: OUT + "panel-pagos.png" });
-    await q.click('[data-adtab="portada"]'); ok((await q.$$('.ad-cards .ad-photo')).length === 18, 'Portada: las 18 pantallas del menú giratorio para subir su imagen');
+    await q.click('[data-adtab="portada"]'); ok((await q.$$('.ad-cards .ad-photo')).length === 19, 'Portada: las 19 pantallas del menú giratorio para subir su imagen');
     fc = q.waitForEvent('filechooser'); await q.click('[data-up="home.hero"]'); await (await fc).setFiles(await makeImg(q, 2400, 1350));
     await q.waitForSelector('.ad-sheet.k-crop canvas'); ok(await q.evaluate(() => document.querySelector('#crop-c').width === 1920), 'Foto principal a 1920 × 1080'); await q.click('#crop-ok'); await q.waitForFunction(() => !document.querySelector('.ad-sheet.k-crop'), null, { timeout: 8000 });
     await q.fill('[data-k="shop.0.price"]', '12');

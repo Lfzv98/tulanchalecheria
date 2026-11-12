@@ -258,7 +258,7 @@ function renderChip() {
   const el = $('#trip-chip'); if (!el) return;
   const r = featured(); const s = r ? stateOf(r) : 'none';
   const t = r && times(r), soonish = s === 'soon' && t.start - Date.now() < 3 * DAY;
-  const show = r && r.plan && (s === 'today' || s === 'album' || soonish) && store.get('chip-off', '') !== `${r.code}:${s}` && !['#mi-viaje', '#reservar'].includes(location.hash);
+  const show = r && r.plan && (s === 'today' || s === 'album' || soonish) && store.get('chip-off', '') !== `${r.code}:${s}` && !['#mi-viaje', '#reservar', '', '#inicio'].includes(location.hash);
   if (!show) { el.hidden = true; document.body.classList.remove('has-chip'); return; }
   const k = s === 'today' ? ['sos', now() >= t.start ? 'Estás a bordo' : 'Hoy zarpas', 'Abrir modo a bordo'] : s === 'album' ? ['album', 'Tu álbum del día', 'Ver fotos'] : ['cal', 'Tu paseo', countTxt(t.start - Date.now())];
   el.className = `trip-chip tc-${s}`; el.hidden = false; document.body.classList.add('has-chip');
