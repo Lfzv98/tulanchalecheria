@@ -3694,14 +3694,44 @@ T.NAV_CARDS = CARDS;   // el panel las lista en Portada para subir la imagen de 
 function fill(c) {
   const u = CAT.home && CAT.home.cards && CAT.home.cards[c.id];
   if (u) return `<img class="orb-img" src="${esc(u)}" alt="" loading="lazy" decoding="async">`;
-  const svg = c.kind === 'beach' ? beachArt({ id: c.id, hue: c.hue }) : art(c.kind, c.hue, c.id);
-  return `<span class="orb-img orb-blur">${svg}</span>`;
+  return `<span class="orb-img orb-soft" data-soft="${esc(c.id)}" style="background-color:hsl(${c.hue} 45% 55%)"></span>`;
+}
+/* Relleno difuminado sin filtros CSS (blur en 19 tarjetas 3D es lo que trababa el giro en el celular):
+   la ilustración se dibuja una vez en un lienzo diminuto y se muestra ampliada, que se ve suave como un desenfoque
+   y no cuesta nada al girar. Se guarda en memoria para no repetirlo. */
+const SOFT = {};
+function softSrc(c) {
+  if (SOFT[c.id]) return SOFT[c.id];
+  return SOFT[c.id] = new Promise(res => {
+    let svg = c.kind === 'beach' ? beachArt({ id: c.id, hue: c.hue }) : art(c.kind, c.hue, c.id);
+    svg = svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" ');
+    const im = new Image();
+    im.onload = () => {
+      try {
+        const W = 120, H = 172, cv = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; return [c, x]; };
+        const [a, x] = cv(W, H), sc = Math.max(W / im.width, H / im.height) * 1.12, w = im.width * sc, h = im.height * sc;
+        if ('filter' in x) {   // desenfoque real, dibujado una sola vez
+          x.filter = 'blur(7px) saturate(1.3)'; x.drawImage(im, (W - w) / 2, (H - h) / 2, w, h);
+        } else {               // navegadores sin filtro de lienzo: reducir y volver a ampliar en pasos suaves
+          x.drawImage(im, (W - w) / 2, (H - h) / 2, w, h);
+          let src = a; for (const f of [2, 4, 8, 4, 2, 1]) { const [c, y] = cv(Math.round(W / f), Math.round(H / f)); y.drawImage(src, 0, 0, c.width, c.height); src = c; }
+          x.clearRect(0, 0, W, H); x.drawImage(src, 0, 0);
+        }
+        res(a.toDataURL('image/jpeg', .82));
+      } catch { res(''); }
+    };
+    im.onerror = () => res('');
+    im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  });
+}
+function soften(root) {
+  $$('[data-soft]', root).forEach(el => { const c = CARDS.find(k => k.id === el.dataset.soft); if (!c) return; softSrc(c).then(u => { if (u && el.isConnected) { el.style.backgroundImage = `url(${u})`; el.removeAttribute('data-soft'); } }); });
 }
 
 function mount(host) {
   const small = host.classList.contains('sm');
-  host.innerHTML = `<div class="orb-stage" tabindex="-1"><div class="orb-ring">${CARDS.map((c, i) => `<a class="orb-card" href="${c.href}" data-i="${i}" data-sec="${c.sec}" aria-label="${esc(c.t)}: ${esc(c.s)}">${fill(c)}<span class="orb-sheen" aria-hidden="true"></span><span class="orb-tx"><small>${esc(SECS[c.si][1])}</small><b>${esc(c.t)}</b><span>${esc(c.s)}</span></span></a>`).join('')}</div></div>
-    <div class="orb-tabs" role="tablist" aria-label="Secciones">${SECS.map(([k, n], i) => `<button type="button" role="tab" data-sec="${k}" data-si="${i}" aria-selected="false">${esc(n)}</button>`).join('')}<span class="orb-ink" aria-hidden="true"></span></div>`;
+  host.innerHTML = `<div class="orb-stage" tabindex="-1"><div class="orb-ring">${CARDS.map((c, i) => `<a class="orb-card" href="${c.href}" data-i="${i}" data-sec="${c.sec}" aria-label="${esc(c.t)}: ${esc(c.s)}">${fill(c)}<span class="orb-sheen" aria-hidden="true"></span><span class="orb-dim" aria-hidden="true"></span><span class="orb-tx"><small>${esc(SECS[c.si][1])}</small><b>${esc(c.t)}</b><span>${esc(c.s)}</span></span></a>`).join('')}</div></div>
+    <div class="orb-tabs" role="tablist" aria-label="Secciones">${SECS.map(([k, n], i) => `<button type="button" role="tab" data-sec="${k}" data-si="${i}" aria-selected="false">${esc(n)}<i class="orb-bar" aria-hidden="true"></i></button>`).join('')}<span class="orb-ink" aria-hidden="true"></span></div>`;
   const stage = $('.orb-stage', host), ring = $('.orb-ring', host), cards = $$('.orb-card', host), tabs = $$('.orb-tabs [data-si]', host), ink = $('.orb-ink', host), tabRow = $('.orb-tabs', host);
   const N = cards.length, STEP = 360 / N;
   let rot = 0, vel = 0, target = null, drag = null, hover = false, seen = false, last = 0, active = -1, raf = 0, idleUntil = 0;
@@ -3717,23 +3747,33 @@ function mount(host) {
   };
   let G = geo();
   const SEC_START = SECS.map((_, si) => CARDS.findIndex(c => c.si === si)), SEC_LEN = SECS.map(x => x[2].length);
-  function place() {
+  const bars = tabs.map(t => $('.orb-bar', t));
+  let sized = '', frontCard = -1, lastP = -1;
+  /* Rendimiento: por cuadro solo se cambia el transform de cada tarjeta (lo hace la tarjeta gráfica).
+     Tamaños, perspectiva y estados se tocan solo cuando cambian, nunca variables CSS por cuadro. */
+  function size() {
+    const k = G.cw + '|' + G.ch + '|' + G.R.toFixed(1);
+    if (k === sized) return; sized = k;
     host.style.setProperty('--cw', G.cw + 'px'); host.style.setProperty('--ch', G.ch + 'px');
-    stage.style.perspective = G.P.toFixed(0) + 'px'; ring.style.transform = `translateZ(${(-G.R).toFixed(1)}px)`;
+    stage.style.perspective = G.P.toFixed(0) + 'px';
+    const Rz = G.R.toFixed(1);
+    cards.forEach((c, i) => { c.style.transform = `rotateY(${(i * STEP).toFixed(3)}deg) translateZ(${Rz}px)`; });   // fijas en el cilindro
+  }
+  function place() {
+    size();
+    // un solo transform por cuadro: gira el cilindro entero, no las 19 tarjetas una por una
+    ring.style.transform = `translateZ(${(-G.R).toFixed(1)}px) rotateY(${(-rot).toFixed(3)}deg)`;
     for (let i = 0; i < N; i++) {
       const a = ((i * STEP - rot) % 360 + 540) % 360 - 180;           // ángulo respecto al frente, -180..180
       const c = cards[i], back = Math.abs(a) > 90;
-      c.style.transform = `rotateY(${a.toFixed(2)}deg) translateZ(${G.R.toFixed(1)}px)`;
-      c.style.zIndex = 400 - Math.round(Math.abs(a));
-      c.style.setProperty('--glow', Math.max(0, 1 - Math.abs(a) / (STEP * 1.2)).toFixed(3));
-      c.style.setProperty('--back', Math.max(0, Math.min(1, (Math.abs(a) - 70) / 60)).toFixed(3));
       if (back !== (c.dataset.back === '1')) { c.dataset.back = back ? '1' : ''; c.tabIndex = back ? -1 : 0; c.setAttribute('aria-hidden', String(back)); }
     }
     // sección al frente y cuánto lleva recorrido (la raya de la pestaña se llena mientras gira)
     const f = (((rot / STEP) % N) + N + .5) % N, front = Math.floor(f) % N, si = CARDS[front].si;
-    if (si !== active) { active = si; tabs.forEach((t, j) => { t.setAttribute('aria-selected', String(j === si)); if (j !== si) t.style.setProperty('--p', '0'); }); moveInk(); }
-    const p = Math.max(0, Math.min(1, (f - SEC_START[si]) / SEC_LEN[si]));
-    tabs[si].style.setProperty('--p', p.toFixed(3));
+    if (front !== frontCard) { if (cards[frontCard]) cards[frontCard].classList.remove('is-front'); cards[front].classList.add('is-front'); frontCard = front; }
+    if (si !== active) { active = si; lastP = -1; tabs.forEach((t, j) => { t.setAttribute('aria-selected', String(j === si)); if (j !== si) bars[j].style.transform = 'scaleX(0)'; }); moveInk(); }
+    const p = Math.round(Math.max(0, Math.min(1, (f - SEC_START[si]) / SEC_LEN[si])) * 200) / 200;
+    if (p !== lastP) { lastP = p; bars[si].style.transform = `scaleX(${p})`; }
   }
   function moveInk() {
     const t = tabs[active]; if (!t) return;
@@ -3785,8 +3825,8 @@ function mount(host) {
   addEventListener('resize', () => { G = geo(); place(); moveInk(); });
   document.addEventListener('visibilitychange', kick);
   addEventListener('hashchange', () => setTimeout(() => { G = geo(); kick(); moveInk(); }, 60));
-  host.orbit = { goSec, refresh: () => { cards.forEach((c, i) => { const im = $('.orb-img', c); im.outerHTML = fill(CARDS[i]); }); }, kick: () => { G = geo(); kick(); } };
-  rot = 0; place(); requestAnimationFrame(() => { G = geo(); place(); moveInk(); });
+  host.orbit = { goSec, refresh: () => { cards.forEach((c, i) => { const im = $('.orb-img', c); im.outerHTML = fill(CARDS[i]); }); soften(host); }, kick: () => { G = geo(); kick(); } };
+  soften(host); rot = 0; place(); requestAnimationFrame(() => { G = geo(); place(); moveInk(); });
 }
 const hosts = $$('[data-orbit]'); hosts.forEach(mount);
 addEventListener('tll:cat', () => hosts.forEach(h => h.orbit && h.orbit.refresh()));
