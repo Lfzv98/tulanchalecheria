@@ -3624,8 +3624,12 @@ const hv = $('#hero-vid');
 const playHero = () => { if (hv && hv.paused) { const p = hv.play(); if (p && p.catch) p.catch(() => {}); } };
 if (hv) {
   hv.muted = true;
+  // Solo se muestra cuando de verdad está rodando: si iOS bloquea el autoplay (modo de bajo consumo),
+  // el video queda invisible y se ve el póster limpio, sin el botón de play nativo encima del título.
   hv.addEventListener('playing', () => reel.classList.add('vid-on'));
-  hv.addEventListener('loadeddata', () => { if (hv.readyState >= 2) reel.classList.add('vid-on'); });
+  // si el sistema lo detiene por su cuenta (no nosotros), volver al póster en vez de mostrar un video congelado con botón
+  hv.addEventListener('pause', () => { if (!hv.__ownPause) reel.classList.remove('vid-on'); hv.__ownPause = false; });
+  hv.setAttribute('webkit-playsinline', ''); hv.controls = false;
   playHero();
   // por si el navegador (iPhone en bajo consumo) bloquea el autoplay hasta el primer gesto
   ['touchstart', 'pointerdown', 'scroll', 'click'].forEach(ev => addEventListener(ev, () => { if (current === 'inicio') playHero(); }, { passive: true, once: true }));
@@ -3635,7 +3639,7 @@ function syncVideo() {
   const want = current === 'inicio' && !reduce.matches && !saveData && document.visibilityState === 'visible' && reelSeen;
   reel.classList.toggle('paused', !want);
   const vidWant = current === 'inicio' && document.visibilityState === 'visible' && reelSeen;   // el video rueda siempre que se vea
-  if (hv) { if (vidWant) playHero(); else if (!hv.paused) hv.pause(); }
+  if (hv) { if (vidWant) playHero(); else if (!hv.paused) { hv.__ownPause = true; hv.pause(); } }
   if (want && !reelT && slides.length > 1) reelT = setInterval(nextSlide, 7000);
   if (!want && reelT) { clearInterval(reelT); reelT = 0; }
 }

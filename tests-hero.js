@@ -20,4 +20,18 @@ for (const [n, d] of [['iPhone 13', devices['iPhone 13']], ['Galaxy S9+', device
   ok(!errs.length, `${n}: sin errores ${errs.join('|')}`);
   await c.close();
 }
+// iPhone en bajo consumo: el autoplay queda bloqueado. Nunca debe verse el botón de play nativo (video oculto, póster limpio),
+// y al primer toque arranca solo.
+{ const c = await b.newContext({ ...devices['iPhone 13'], locale: 'es-VE' });
+  await c.addInitScript(() => { const real = HTMLMediaElement.prototype.play; window.__allow = false;
+    HTMLMediaElement.prototype.play = function () { return window.__allow ? real.call(this) : Promise.reject(new DOMException('bloqueado', 'NotAllowedError')); };
+    new MutationObserver(() => { const v = document.querySelector('#hero-vid'); if (v && v.autoplay) v.autoplay = false; }).observe(document, { childList: true, subtree: true }); });
+  const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+  await p.goto('http://127.0.0.1:8765/index.html'); await p.waitForTimeout(2500);
+  const s = await p.evaluate(() => { const v = document.querySelector('#hero-vid'); return { op: +getComputedStyle(v).opacity, ctl: v.controls, img: +getComputedStyle(document.querySelector('#hero-reel img')).opacity }; });
+  ok(s.op === 0 && !s.ctl && s.img > .9, 'Autoplay bloqueado (bajo consumo): sin botón de play, se ve el póster limpio');
+  await p.evaluate(() => { window.__allow = true; }); await p.touchscreen.tap(200, 500); await p.waitForTimeout(2000);
+  ok(await p.evaluate(() => { const v = document.querySelector('#hero-vid'); return !v.paused && v.currentTime > .5 && document.querySelector('#hero-reel').classList.contains('vid-on'); }), 'Autoplay bloqueado: al primer toque el video arranca y aparece');
+  ok(!errs.length, 'Autoplay bloqueado: sin errores ' + errs.join('|'));
+  await c.close(); }
 await b.close(); console.log(f ? `\n${f} FALLAS` : '\nTODO OK'); process.exit(f ? 1 : 0); })();
