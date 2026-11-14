@@ -22,7 +22,7 @@ const ES_LEFT = ['Embarcaciones y tarifas', 'Arma tu salida', 'Siguiente', 'Tu c
   }
   for (const [name, d] of DEV) {
     const c = await b.newContext({ ...d, locale: 'es-VE', deviceScaleFactor: 1, acceptDownloads: true });
-    await c.route(/open-meteo|youtu|instagram|wa\.me/, r => r.fulfill({ status: 200, body: 'ok' }));
+    await c.route(/open-meteo|youtu|instagram|wa\.me|whatsapp\.com/, r => r.fulfill({ status: 200, body: 'ok' }));
     const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     const pops = []; p.on('popup', async x => { pops.push(decodeURIComponent(x.url())); await x.close().catch(() => {}); });
     await p.goto(URL); await p.waitForTimeout(600);
@@ -60,9 +60,9 @@ const ES_LEFT = ['Embarcaciones y tarifas', 'Arma tu salida', 'Siguiente', 'Tu c
       ok(bk.includes('Confirm your booking') && bk.includes('How would you like to pay the deposit?') && bk.includes('Main terms'), `${name}: confirmación y pago en inglés`);
       await p.fill('#bk-name', 'Ana Test'); await p.check('#bk-ok'); await p.click('#bk-go'); await p.waitForSelector('#dlg[open] #bk-code');
       ok((await p.textContent('#dlg')).includes('Booking registered!'), `${name}: pantalla final en inglés`);
-      await p.evaluate(() => document.querySelector('#bk-send').click()); await p.waitForTimeout(500);
-      const msg = pops.find(u => u.includes('here is the receipt for my booking'));
-      ok(!!msg && /TLL-\d{4}/.test(msg), `${name}: mensaje corto del comprobante en inglés`);
+      await p.waitForTimeout(500);
+      const msg = pops.find(u => /TLL-\d{4}/.test(u) && u.includes('Total'));
+      ok(!!msg && msg.includes('Ana Test'), `${name}: al confirmar se abre el WhatsApp de Tu Lancha con los datos (para Eduardo, en español)`);
       ok((await p.textContent('#dlg')).includes('Back to home') && (await p.textContent('#dlg')).includes('See my trip'), `${name}: "Back to home" y "See my trip" en inglés`);
       const pdf = await p.evaluate(async () => { const r = JSON.parse(localStorage.getItem('tll:mine'))[0]; const bl = await TLL.pdfFor(r); return bl.size; });
       ok(pdf > 20000, `${name}: comprobante PDF generado en inglés (${Math.round(pdf / 1024)} KB)`);

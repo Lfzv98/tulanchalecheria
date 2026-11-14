@@ -555,6 +555,18 @@ const exact = [
 [`Comprobante de reserva`, `Booking receipt`, `Comprovante de reserva`],
 [`Descargar PDF`, `Download PDF`, `Baixar PDF`],
 [`Preparando tu PDF…`, `Preparing your PDF…`, `Preparando seu PDF…`],
+[`Reserva guardada con tu código`, `Booking saved with your code`, `Reserva salva com o seu código`],
+[`Tus datos se enviaron al WhatsApp de Tu Lancha`, `Your details were sent to Tu Lancha on WhatsApp`, `Seus dados foram enviados ao WhatsApp da Tu Lancha`],
+[`Envía tus datos al WhatsApp de Tu Lancha`, `Send your details to Tu Lancha on WhatsApp`, `Envie seus dados ao WhatsApp da Tu Lancha`],
+[`Enviar mis datos por WhatsApp`, `Send my details on WhatsApp`, `Enviar meus dados pelo WhatsApp`],
+[`¿No se abrió WhatsApp o no enviaste el mensaje?`, `WhatsApp didn't open or you didn't send the message?`, `O WhatsApp não abriu ou você não enviou a mensagem?`],
+[`Descargar comprobante (PDF)`, `Download receipt (PDF)`, `Baixar comprovante (PDF)`],
+[`Con tu código entras luego a Mi viaje.`, `Use your code later in My trip.`, `Com o seu código você entra depois em Minha viagem.`],
+[`Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el servicio de muelle`, `We'll send you the dock location, a video on how to get there and how to pay the dock fee`, `Enviamos a localização do píer, um vídeo de como chegar e como pagar a taxa do píer`],
+[`No pagas nada en la app. Al confirmar, tus datos le llegan a Tu Lancha por WhatsApp y ahí acordamos el pago.`, `You don't pay anything in the app. When you confirm, your details reach Tu Lancha on WhatsApp and we arrange payment there.`, `Você não paga nada no app. Ao confirmar, seus dados chegam à Tu Lancha pelo WhatsApp e lá combinamos o pagamento.`],
+[`Temporada alta: se aparta con el 100%`, `High season: 100% to hold your date`, `Alta temporada: reserva com 100%`],
+[`100% · temporada alta`, `100% · high season`, `100% · alta temporada`],
+[`Temporada alta`, `High season`, `Alta temporada`],
 [`No se pudo preparar el PDF. Intenta de nuevo.`, `Couldn't prepare the PDF. Please try again.`, `Não foi possível preparar o PDF. Tente de novo.`],
 [`Comprobante descargado`, `Receipt downloaded`, `Comprovante baixado`],
 [`No se pudo crear el PDF`, `Couldn't create the PDF`, `Não foi possível criar o PDF`],
@@ -1071,6 +1083,7 @@ const pat = [
 [/^(\d+) horas?$/, m => `${m[1]} hour${m[1] === '1' ? '' : 's'}`, m => `${m[1]} hora${m[1] === '1' ? '' : 's'}`],
 [/^(\$[\d.,]+) \/ día$/, `{1} / day`, `{1} / dia`],
 [/^(\$[\d.,]+) por persona$/, `{1} per person`, `{1} por pessoa`],
+[/^(.+\.pdf) descargado$/, `{1} downloaded`, `{1} baixado`],
 [/^abono para apartar (\$[\d.,]+)$/, `deposit to hold {1}`, `sinal para reservar {1}`],
 [/^abono (\$[\d.,]+)$/, `deposit {1}`, `sinal {1}`],
 [/^\$([\d.,]+) a tasa BCV$/, m => `$${m[1].replace(',', '.')} at the BCV rate`, `\${1} à taxa BCV`],
@@ -1462,7 +1475,11 @@ if (document.body) start(); else document.addEventListener('DOMContentLoaded', s
 let WA = '584143083864';
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const wa = t => `https://wa.me/${WA}?text=${encodeURIComponent(t)}`;
+/* En el celular wa.me abre la app de WhatsApp. En la computadora wa.me muestra una página que pide instalar la app
+   (lo que confundió a Eduardo), así que ahí se abre WhatsApp Web directo en el chat de Tu Lancha. */
+const MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform || '')) || (matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 820);
+const waTo = (num, t) => MOBILE ? `https://wa.me/${num}${t ? '?text=' + encodeURIComponent(t) : ''}` : `https://web.whatsapp.com/send?phone=${num}${t ? '&text=' + encodeURIComponent(t) : ''}`;
+const wa = t => waTo(WA, t);
 const store = {
   get(k, d) { try { const v = localStorage.getItem('tll:' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem('tll:' + k, JSON.stringify(v)); } catch {} }
@@ -1616,10 +1633,15 @@ const DEF_HOME = { hero: '', cards: {} };
 const DEF = { boats: clone(DEF_BOATS_SRC), routes: clone(ROUTES), docks: clone(DOCKS), allies: clone(ALLIES), basic: clone(BASIC), special: clone(SPECIAL), wa: WA, pay: clone(DEF_PAY), shop: clone(DEF_SHOP), home: clone(DEF_HOME) };
 /* Catálogos publicados antes del 12 nov: se pasan al formato nuevo sin perder lo que Eduardo ya cargó
    (fotos, precios, playas, aliados). Lo usan la web y el panel; al publicar desde el panel queda guardado. */
-const CAT_V = 2;
+const CAT_V = 3;
 function migrateCat(c) {
   c = c && typeof c === 'object' ? clone(c) : {};
-  if ((c.v || 1) >= CAT_V) return c;
+  /* El servidor guardaba todo catálogo como v1, así que la conversión vieja se repetía en cada carga y deshacía
+     cambios de Eduardo (p. ej. la tarifa de recogida de Cerro El Morro · Eurobuilding). Un catálogo que ya pasó
+     por el panel nuevo (tiene el muelle "rem" o se publicó desde el 13 nov) cuenta como v2. */
+  const v0 = c.v >= 2 ? c.v : (Array.isArray(c.docks) && c.docks.some(d => d && d.id === 'rem')) || +c.t > Date.UTC(2026, 10, 13) ? 2 : 1;
+  if (v0 >= CAT_V) return c;
+  if (v0 < 2) {
   const PH = { drone: 'proa', exterior: 'popa', interior: 'social' };
   if (Array.isArray(c.boats)) c.boats.forEach(b => {
     const P = b.photos || {}; Object.entries(PH).forEach(([o, n]) => { if (P[o] && !P[n]) P[n] = P[o]; delete P[o]; }); b.photos = P;
@@ -1657,6 +1679,9 @@ function migrateCat(c) {
   }
   if (Array.isArray(c.special)) c.special = c.special.filter(x => !/p[ií]ritu/i.test(x));
   if (Array.isArray(c.allies) && !c.allies.some(x => x.owners)) c.allies.push(clone(DEF.allies.find(x => x.owners)));
+  }
+  // v3: temporada alta (fechas y tarifas) y precio según niños; nada que convertir, solo dejar los campos listos
+  if (!Array.isArray(c.seasons)) c.seasons = [];
   c.v = CAT_V;
   return c;
 }
@@ -1664,7 +1689,7 @@ const normPay = p => { p = p && typeof p === 'object' ? clone(p) : {}; const o =
   if (!Array.isArray(p.zelles)) { o.zelles = clone(DEF_PAY.zelles); if (p.zelle) { o.zelles.unshift({ name: p.zelleName || '', email: p.zelle }); o.zelleOn = 0; } }
   o.zelles = o.zelles.filter(z => z && z.email); if (!(o.zelleOn >= 0 && o.zelleOn < o.zelles.length)) o.zelleOn = 0;
   const z = o.zelles[o.zelleOn] || {}; o.zelle = z.email || ''; o.zelleName = z.name || ''; return o; };
-const CAT = { pay: {}, beachPhotos: {}, ig: 'tulanchalecheria', home: { hero: '', cards: {} } };
+const CAT = { pay: {}, beachPhotos: {}, ig: 'tulanchalecheria', home: { hero: '', cards: {} }, seasons: [], hiPct: 0 };
 const SHOP = [];
 const shopOn = () => SHOP.filter(x => x && x.name && +x.price > 0);
 const PICK_NOTE = 'Te buscamos siempre que tu residencia tenga muelle o escalera de acceso al agua y profundidad suficiente para la embarcación.';
@@ -1687,6 +1712,8 @@ function applyCat(c) {
   CAT.pay = normPay(c.pay);
   CAT.beachPhotos = c.beachPhotos && typeof c.beachPhotos === 'object' ? c.beachPhotos : {};
   CAT.ig = c.ig || 'tulanchalecheria';
+  CAT.seasons = (Array.isArray(c.seasons) ? c.seasons : []).filter(x => x && /^\d{4}-\d\d-\d\d$/.test(x.from || ''));
+  CAT.hiPct = Math.max(0, +c.hiPct || 0);
   fill(SHOP, (Array.isArray(c.shop) ? clone(c.shop) : clone(DEF.shop)).filter(x => x && x.name));
   CAT.home = { ...clone(DEF.home), ...(c.home && typeof c.home === 'object' ? clone(c.home) : {}) }; CAT.home.cards ||= {};
   // foto principal subida desde el panel (si no hay, queda la de Mochima)
@@ -1810,9 +1837,30 @@ function busyDefault(b, d) { const r = rnd(b.id + iso(d)); return r() < .22; }
 function isBusy(b, d) { const o = owner[b.id]?.busy; const k = iso(d); return o && k in o ? o[k] : busyDefault(b, d); }
 function rateOf(b) { return owner[b.id]?.rate ?? b.price; }
 function wkOf(b) { return owner[b.id]?.wk ?? b.wk ?? 10; }
-function priceOn(b, d, r) { const wkend = d && (d.getDay() === 0 || d.getDay() === 6); const base = r ? routePrice(b, r).price : rateOf(b); return base * (wkend ? 1 + wkOf(b) / 100 : 1); }
+/* Temporada alta: Eduardo marca rangos de fechas en el panel. En esas fechas vale la tarifa de temporada alta
+   de cada embarcación (o, si no la tiene, la normal más el % general). El recargo de fin de semana es solo para temporada normal. */
+const seasonOf = d => { if (!d) return null; const k = iso(d); return CAT.seasons.find(x => k >= x.from && k <= (x.to && x.to >= x.from ? x.to : x.from)) || null; };
+const isHigh = d => !!seasonOf(d);
+function priceOn(b, d, r, kids = Q.kids) { const hi = isHigh(d), wkend = !hi && d && (d.getDay() === 0 || d.getDay() === 6); const base = routePrice(b, r, d, kids).price; return base * (wkend ? 1 + wkOf(b) / 100 : 1); }
 function nextFree(b) { for (let i = 1; i < 60; i++) { const d = new Date(today.getTime() + i * 864e5); if (!isBusy(b, d)) return d; } }
 const fmtDay = d => d.toLocaleDateString(TLL_I18N.loc(), { weekday: 'short', day: 'numeric', month: 'short' });
+/* Fechas día/mes/año (pedido de Eduardo): el campo de fecha nativo sale en formato del sistema (mm/dd en una Mac
+   en inglés). Se deja el selector nativo, pero lo que se ve encima es "14/11/2026". Aplica a todo input de fecha. */
+const dmy = v => { const [y, m, d] = String(v || '').split('-').map(Number); if (!y || !m || !d) return '';
+  const dt = new Date(y, m - 1, d); return TLL_I18N.lang === 'en' ? dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`; };
+function niceDate(inp) {
+  if (!inp || inp.dataset.nice || !inp.parentNode) return; inp.dataset.nice = '1';
+  const w = document.createElement('span'); w.className = 'dfield'; inp.parentNode.insertBefore(w, inp); w.appendChild(inp);
+  const out = document.createElement('span'); out.className = 'dfield-v'; out.setAttribute('aria-hidden', 'true'); out.setAttribute('translate', 'no'); w.appendChild(out);
+  const paint = () => { const t = dmy(inp.value); out.textContent = t || (TLL_I18N.lang === 'en' ? 'dd/mm/yyyy' : 'dd/mm/aaaa'); out.classList.toggle('ph', !t); };
+  ['input', 'change', 'blur'].forEach(ev => inp.addEventListener(ev, paint));
+  inp.addEventListener('click', () => { try { inp.showPicker && inp.showPicker(); } catch { /* algunos navegadores no lo permiten */ } });
+  inp._paint = paint; paint();
+}
+const niceAll = root => (root.querySelectorAll ? root.querySelectorAll('input[type="date"]') : []).forEach(niceDate);
+niceAll(document);
+new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType !== 1) return; if (n.matches && n.matches('input[type="date"]')) niceDate(n); else niceAll(n); }))).observe(document.documentElement, { childList: true, subtree: true });
+addEventListener('tll:lang', () => document.querySelectorAll('input[data-nice]').forEach(i => i._paint && i._paint()));
 
 function calendar(el, b, opts) {
   let view = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -1822,10 +1870,10 @@ function calendar(el, b, opts) {
     for (let i = 1; i <= n; i++) {
       const d = new Date(y, m, i), past = d < today, busy = isBusy(b, d), sel = opts.selected && iso(opts.selected) === iso(d);
       const wk = d.getDay() === 0 || d.getDay() === 6;
-      cells += `<button type="button" data-d="${iso(d)}" class="${past ? 'past' : ''} ${busy ? 'busy' : ''} ${sel ? 'sel' : ''} ${wk && !busy && !past ? 'promo' : ''}" ${past || (busy && !opts.owner) ? 'disabled' : ''} aria-label="${fmtDay(d)}${busy ? ', ocupado' : ', libre'}">${i}</button>`;
+      cells += `<button type="button" data-d="${iso(d)}" class="${past ? 'past' : ''} ${busy ? 'busy' : ''} ${sel ? 'sel' : ''} ${wk && !busy && !past && !isHigh(d) ? 'promo' : ''} ${isHigh(d) && !past ? 'hi' : ''}" ${past || (busy && !opts.owner) ? 'disabled' : ''} aria-label="${fmtDay(d)}${busy ? ', ocupado' : ', libre'}">${i}</button>`;
     }
     el.innerHTML = `<div class="cal-h"><button type="button" data-nav="-1" aria-label="Mes anterior">‹</button><span>${view.toLocaleDateString(TLL_I18N.loc(), { month: 'long', year: 'numeric' })}</span><button type="button" data-nav="1" aria-label="Mes siguiente">›</button></div><div class="cal-g">${cells}</div>
-    <div class="legend"><span><i style="background:var(--card);border:1px solid var(--line)"></i>Libre</span><span><i style="background:repeating-linear-gradient(135deg,var(--muted) 0 2px,transparent 2px 4px)"></i>Ocupado</span><span><i style="background:var(--sun);border-radius:50%"></i>Fin de semana${opts.owner ? '' : ` (+${wkOf(b)}%)`}</span></div>`;
+    <div class="legend"><span><i style="background:var(--card);border:1px solid var(--line)"></i>Libre</span><span><i style="background:repeating-linear-gradient(135deg,var(--muted) 0 2px,transparent 2px 4px)"></i>Ocupado</span><span><i style="background:var(--sun);border-radius:50%"></i>Fin de semana${opts.owner ? '' : ` (+${wkOf(b)}%)`}</span>${CAT.seasons.length ? '<span><i class="lg-hi"></i>Temporada alta</span>' : ''}</div>`;
   };
   el.onclick = e => {
     const nav = e.target.closest('[data-nav]'); if (nav) { view = new Date(view.getFullYear(), view.getMonth() + +nav.dataset.nav, 1); return draw(); }
@@ -1858,15 +1906,22 @@ function dockFor(b, d) {
 }
 /* Precio por rumbo: cada embarcación tiene su tarifa para cada rumbo (no es un recargo).
    Devuelve {ok, price, tbd}: tbd = el precio de ese rumbo se confirma por WhatsApp. */
-function routePrice(b, r) {
-  const base = rateOf(b);
-  if (!r) return { ok: true, price: base };
+/* Con fecha (d) y niños (kids) aplica la temporada alta y la tabla de precios por niños de la embarcación:
+   kp[rumbo][n] = precio con n niños (kpH en temporada alta). Sin tabla, los niños no cambian el precio. */
+const num = v => typeof v === 'number' && v > 0 ? v : 0;
+function routePrice(b, r, d, kids) {
+  const hi = isHigh(d), up = x => Math.round(x * (1 + CAT.hiPct / 100));
+  const rate = rateOf(b), base = hi ? num(b.priceH) || up(rate) : rate;
+  const k = Math.max(0, Math.min(+kids || 0, +b.kx || 0)), rk = r ? r.id : '_';
+  const kidP = k && (num(((hi ? b.kpH : null) || {})[rk]?.[k]) || (num((b.kp || {})[rk]?.[k]) && (hi ? up(b.kp[rk][k]) : b.kp[rk][k])));
+  if (!r) return { ok: true, price: kidP || base, hi };
   const v = b.rp ? b.rp[r.id] : undefined;
   if (v === null || v === false) return { ok: false };
-  if (typeof v === 'number' && v > 0) return { ok: true, price: v };
+  if (kidP) return { ok: true, price: kidP, hi };
+  if (typeof v === 'number' && v > 0) return { ok: true, price: hi ? num((b.rpH || {})[r.id]) || up(v) : v, hi };
   if (v === undefined && r.open === false) return { ok: false };
-  if (typeof r.add === 'number') return { ok: true, price: base + r.add };
-  return { ok: true, price: base, tbd: true };
+  if (typeof r.add === 'number') return { ok: true, price: base + r.add, hi };
+  return { ok: true, price: base, tbd: true, hi };
 }
 const routeOk = (b, r) => !r || !r.id || routePrice(b, r).ok;
 const hh = h => `${h > 12 ? h - 12 : h}:00 ${h >= 12 ? 'pm' : 'am'}`;
@@ -1995,7 +2050,7 @@ function renderBuilder() {
   const ownMsg = !OWN || ownOk ? '' : `<p class="own-off">${!fitsOn(OWN) ? `Para tu grupo te recomendamos estas embarcaciones, donde todos van cómodos.` : `La ${OWN.name.toLowerCase()} ya está reservada el ${fmtDay(d)}.`} Estas embarcaciones de nuestros aliados están disponibles:</p>`;
   $('#b-boats').innerHTML = (ownOk ? `<div class="opts own-row">${boatOpt(OWN, d)}</div><h4 class="opts-h">Otras opciones disponibles</h4>` : ownMsg) + `<div class="opts">${others.map(b => boatOpt(b, d)).join('')}</div>`;
   const b = BOATS.find(x => x.id === Q.boat);
-  $('#b-date').value = Q.date; $('#b-date').min = iso(today);
+  $('#b-date').value = Q.date; $('#b-date').min = iso(today); $('#b-date')._paint?.();
   if (b) renderPlan(b);
   renderTicket(); store.set('quote2', Q);
 }
@@ -2051,7 +2106,7 @@ function renderTicket() {
   if (!b) { window.TLL_LAST = null; $('#ticket').innerHTML = '<h3>Tu cotización</h3><p class="empty">Para grupos de más de 30 personas armamos una flotilla a la medida. Escríbenos.</p>'; return; }
   const r = ROUTES.find(x => x.id === Q.route) || ROUTES[0], d = qDate(), busy = isBusy(b, d), dk = dockById(Q.dock), dc = dockFor(b, dk);
   const rp = routePrice(b, r);
-  const lines = [[`${b.name} · ${r.name} · ${fmtDay(d)}`, priceOn(b, d, r)]];
+  const lines = [[`${b.name} · ${r.name} · ${fmtDay(d)}${isHigh(d) ? ' · temporada alta' : ''}`, priceOn(b, d, r)]];
   if (rp.tbd) lines.push([`Tarifa del ${r.name}`, 0, 'tbd']);
   if (dc.ok && dc.cost) lines.push([`Recogida en ${dk.name}`, dc.cost]);
   if (dc.ok && dc.tbd) lines.push(['Recogida en tu muelle', 0, 'tbd']);
@@ -2078,7 +2133,7 @@ function renderTicket() {
     <button class="btn btn-sun btn-lg" type="button" id="t-book">Reservar ahora</button>
     <p class="note">No pagas nada ahora: te confirmamos disponibilidad y abono. Fines de semana +${wkOf(b)}%.</p>`;
   $('#mb-total').textContent = money(total);
-  window.TLL_LAST = { boat: b.name, type: b.type, route: routeTxt, dock: dk.custom && Q.pin && Q.pin.ref ? `${dk.name} · ${Q.pin.ref}` : dk.name, pin: dk.custom && okPin(Q.pin) ? { lat: +Q.pin.lat, lng: +Q.pin.lng, ref: Q.pin.ref || '' } : null, dockFee: dc.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
+  window.TLL_LAST = { hi: isHigh(d), boat: b.name, type: b.type, route: routeTxt, dock: dk.custom && Q.pin && Q.pin.ref ? `${dk.name} · ${Q.pin.ref}` : dk.name, pin: dk.custom && okPin(Q.pin) ? { lat: +Q.pin.lat, lng: +Q.pin.lng, ref: Q.pin.ref || '' } : null, dockFee: dc.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
 }
 const GIFT_VALUES = { A: 180, B: 320, C: 950, D: 1650 };
 const AL = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -2312,7 +2367,7 @@ renderOwnerOpts();
 function ownerKpis() {
   const y = today.getFullYear(), m = today.getMonth(), n = new Date(y, m + 1, 0).getDate();
   let busy = 0, inc = 0;
-  for (let i = 1; i <= n; i++) { const d = new Date(y, m, i); if (isBusy(ob, d)) { busy++; inc += priceOn(ob, d); } }
+  for (let i = 1; i <= n; i++) { const d = new Date(y, m, i); if (isBusy(ob, d)) { busy++; inc += priceOn(ob, d, null, 0); } }
   $('#k-res').textContent = busy; $('#k-inc').textContent = money(inc * .8); $('#k-occ').textContent = Math.round(busy / n * 100) + '%';
 }
 function renderOwner() {
@@ -2358,7 +2413,7 @@ loadCatalog();
 // al cambiar de idioma: volver a pintar lo que lleva fechas, días y montos con formato local
 addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); window.TLL.renderMine && window.TLL.renderMine(); });
 
-window.TLL = { routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
+window.TLL = { waTo, isHigh, seasonOf, routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
 document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; fitTo(b); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); });
 })();
 
@@ -2967,10 +3022,12 @@ const acctOf = k => { const P = (window.TLL.CAT && window.TLL.CAT.pay) || {}; re
 const HOW_ACCT = { zelle: 'Paga el abono a este Zelle y mándanos la captura por WhatsApp.', binance: 'Paga el abono en USDT a este ID de Binance Pay y mándanos la captura por WhatsApp.', paypal: 'Paga el abono con la comisión de PayPal a esta cuenta y mándanos la captura por WhatsApp.' };
 // PayPal suma su comisión (4,5% por defecto) al abono; el resto se paga en el muelle
 const ppFee = () => { const P = (window.TLL.CAT && window.TLL.CAT.pay) || {}; const f = +P.paypalFee; return f >= 0 && P.paypalFee !== '' && P.paypalFee != null ? f : 4.5; };
-const abono = (k, total) => k === 'paypal' ? Math.round(total / 2 * (1 + ppFee() / 100) * 100) / 100 : total / 2;
+let HI = false;   // temporada alta: se aparta con el 100%
+const depPct = () => HI ? 1 : .5;
+const abono = (k, total) => k === 'paypal' ? Math.round(total * depPct() * (1 + ppFee() / 100) * 100) / 100 : total * depPct();
 const payInfo = (k, total) => { const m = PAY[k], [ac, holder] = acctOf(k), P = (window.TLL.CAT && window.TLL.CAT.pay) || {};
   const bn = k === 'binance' && ac, pp = k === 'paypal', link = pp && /^https?:\/\/|paypal\.me/i.test(ac || '');
-  return `<div class="pay-info"><div class="pay-amt"><span>Abono para apartar</span><b>${money(abono(k, total))}</b><small>${pp ? `50% + ${String(ppFee()).replace('.', ',')}% de comisión de PayPal · el resto en el muelle` : '50% · el resto en el muelle antes de zarpar'}</small></div><p>${ac ? HOW_ACCT[k] : m.how}</p>${ac ? `<p class="pay-acct mono" translate="no">${bn ? "ID " : ""}${esc(ac).replace("@", "@<wbr>")}</p>${holder ? `<p class="rating">${bn ? 'Usuario:' : 'Titular:'} <b translate="no">${esc(holder)}</b></p>` : ''}` : ''}
+  return `<div class="pay-info"><div class="pay-amt"><span>Abono para apartar</span><b>${money(abono(k, total))}</b><small>${HI ? (pp ? `100% (temporada alta) + ${String(ppFee()).replace('.', ',')}% de comisión de PayPal` : '100% · temporada alta') : pp ? `50% + ${String(ppFee()).replace('.', ',')}% de comisión de PayPal · el resto en el muelle` : '50% · el resto en el muelle antes de zarpar'}</small></div><p>${ac ? HOW_ACCT[k] : m.how}</p>${ac ? `<p class="pay-acct mono" translate="no">${bn ? "ID " : ""}${esc(ac).replace("@", "@<wbr>")}</p>${holder ? `<p class="rating">${bn ? 'Usuario:' : 'Titular:'} <b translate="no">${esc(holder)}</b></p>` : ''}` : ''}
   ${bn && (P.binanceQR || P.binanceLink) ? `<div class="pay-qr">${P.binanceQR ? `<img src="${esc(P.binanceQR)}" alt="QR de Binance Pay" width="120" height="120" loading="lazy">` : ''}${P.binanceLink ? `<a class="btn btn-sun btn-sm" href="${esc(P.binanceLink)}" target="_blank" rel="noopener">Abrir en Binance</a>` : ''}</div>` : ''}
   ${link ? `<div class="pay-qr"><a class="btn btn-sun btn-sm" href="${esc(/^https?:/i.test(ac) ? ac : 'https://' + ac)}" target="_blank" rel="noopener">Pagar con PayPal</a></div>` : ''}</div>`; };
 
@@ -3003,7 +3060,7 @@ const reviewHtml = q => {
     <ul class="bk-checks">${ck.map(([k, v]) => `<li><span class="bk-ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="bk-k">${k}</span><span class="bk-v">${esc(v)}</span></li>`).join('')}</ul>
     <dl class="bk-lines">${(q.lines || []).map(l => `<div><dt>${esc(l[0])}</dt><dd>${l[2] === 'tbd' ? 'por confirmar' : money(l[1])}</dd></div>`).join('')}</dl>
     <div class="bk-total"><span>Total de tu pedido</span><strong id="bk-total">${money(q.total)}</strong></div>
-    <div class="bk-split"><div><span>Abono para apartar (50%)</span><b>${money(q.total / 2)}</b></div><div><span>Resto, en el muelle</span><b>${money(q.total - q.total / 2)}</b></div></div>
+    ${q.hi ? `<div class="bk-split"><div><span>Temporada alta: se aparta con el 100%</span><b>${money(q.total)}</b></div></div>` : `<div class="bk-split"><div><span>Abono para apartar (50%)</span><b>${money(q.total / 2)}</b></div><div><span>Resto, en el muelle</span><b>${money(q.total - q.total / 2)}</b></div></div>`}
   </section>`;
 };
 const closeOn = dlg => { dlg.onchange = null; dlg.onclick = e => { if (e.target === dlg || e.target.closest('.m-close')) dlg.close(); }; };
@@ -3011,6 +3068,7 @@ const closeOn = dlg => { dlg.onchange = null; dlg.onclick = e => { if (e.target 
 function openBooking() {
   const q = window.TLL_LAST; if (!q) { toast('Para grupos tan grandes, escríbenos y armamos una flotilla.'); return; }
   if (q.block) { toast(q.block); return; }
+  HI = !!q.hi;
   const dlg = $('#dlg'); if (dlg.open) dlg.close();
   const p = me();
   dlg.className = 'sheetish';
@@ -3025,7 +3083,7 @@ function openBooking() {
     <fieldset class="pay"><legend><span class="eyebrow">Pago</span><b>¿Cómo prefieres pagar el abono?</b></legend>
       <div class="pay-opts" role="radiogroup">${Object.keys(PAY).map(k => payCard(k, p.pay || 'zelle', q.total)).join('')}</div>
       <div id="bk-payinfo">${payInfo(p.pay || 'zelle', q.total)}</div>
-      <p class="pay-secure"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>No pagas nada en la app. Confirmamos disponibilidad por WhatsApp y ahí acordamos el pago con Eduardo.</p>
+      <p class="pay-secure"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>No pagas nada en la app. Al confirmar, tus datos le llegan a Tu Lancha por WhatsApp y ahí acordamos el pago.</p>
     </fieldset>
     <div class="bk-terms"><h4>Condiciones principales</h4><ul>${POLICY_SHORT.map(x => `<li>${x}</li>`).join('')}</ul>${policyHtml()}
       <label class="bk-ok"><input type="checkbox" id="bk-ok" required> <span>Leí y acepto las condiciones de alquiler</span></label></div>
@@ -3041,6 +3099,7 @@ function openBooking() {
     if (!$('#bk-ok', dlg).checked) { $('#bk-ok', dlg).focus(); toast('Para reservar, acepta las condiciones de alquiler'); return; }
     store.set('me', { name, phone, pay: payNow() });
     const r = { ...q, code: newCode(), name, phone, pay: payNow(), note: $('#bk-note', dlg).value.trim(), created: Date.now(), accepted: Date.now(), sent: false };
+    r.sent = openWa(r);
     saveMine([r, ...mine()].slice(0, 20));
     // aviso al panel de Eduardo (si no hay conexión, no pasa nada: la reserva sigue en el teléfono y en WhatsApp)
     try { fetch('/api/admin?a=book', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: r.code, created: r.created, iso: r.iso, date: r.date, boat: r.boat, route: r.route, dock: okPin(r.pin) ? 'Muelle del cliente' + (r.pin.ref ? ' · ' + r.pin.ref : '') : r.dock, pin: okPin(r.pin) ? r.pin : undefined, hours: r.hours, pax: r.pax, kids: r.kids, total: r.total, pay: r.pay, name: r.name, phone: r.phone, note: r.note, lang: (window.TLL_I18N && TLL_I18N.lang) || 'es' }) }).catch(() => {}); } catch {}
@@ -3049,11 +3108,31 @@ function openBooking() {
   dlg.showModal();
 }
 
-// Mensaje corto que acompaña al PDF: los detalles van en el comprobante, no en el texto
-const shortText = r => TLL_I18N.tr(`Hola Tu Lancha, te envío el comprobante de mi reserva ${r.code}.`);
+/* Mensaje completo de la reserva: le llega a Tu Lancha por WhatsApp apenas el cliente confirma (pedido de Eduardo).
+   No hace falta adjuntar nada; el PDF queda como respaldo para descargar. */
+const fullText = r => {
+  const extras = (r.lines || []).slice(1).map(l => `• ${clean(l[0])}${l[2] === 'tbd' ? ' (por confirmar)' : l[1] ? ': ' + money(l[1]) : ''}`);
+  const pay = PAY[r.pay] ? PAY[r.pay].name : '';
+  return [`Hola Tu Lancha 👋 Quiero confirmar mi reserva *${r.code}*`, '',
+    `👤 ${r.name}${r.phone ? ' · ' + r.phone : ''}`,
+    `🛥️ ${r.boat}${r.type ? ' (' + r.type + ')' : ''}`,
+    `📅 ${r.date}${r.hours ? ' · ' + r.hours : ''}${r.hi ? ' · temporada alta' : ''}`,
+    `👥 ${r.paxTxt || r.pax + ' personas'}`,
+    `🧭 ${r.route}`,
+    `⚓ ${r.dock}${r.dockFee ? ' · servicio de muelle ' + r.dockFee + ' (en sitio)' : ''}`,
+    ...(okPin(r.pin) ? [`📍 ${gmapsUrl(r.pin)}`] : []),
+    ...(extras.length ? ['', 'Extras:', ...extras] : []),
+    '', `💵 Total: ${money(r.total)}`, `Abono para apartar${r.hi ? ' (100%, temporada alta)' : ' (50%)'}: ${money(abono(r.pay, r.total))}${pay ? ' por ' + pay : ''}`,
+    ...(r.note ? ['', `📝 ${r.note}`] : []),
+    '', 'Acepté las condiciones de alquiler.'].join('\n');
+};
+// abre WhatsApp en el chat de Tu Lancha con todos los datos; devuelve si se pudo abrir
+function openWa(r) { HI = !!r.hi; let w = null; try { w = window.open(wa(fullText(r)), '_blank'); if (w) w.opener = null; } catch { /* bloqueado */ } return !!w; }
 const navPair = () => `<div class="bk-nav" id="bk-nav"><a class="btn btn-ghost" href="#inicio" id="bk-home">Volver al inicio</a><a class="btn btn-sun" href="#mi-viaje" id="bk-trip">Ver mi viaje</a></div>`;
+const WA_HINT = '<p class="bk-wa-hint">¿No se abrió WhatsApp o no enviaste el mensaje? <button class="linkish" type="button" id="bk-resend">Enviar de nuevo</button></p>';
 function showDone(r) {
-  const dlg = $('#dlg'); const share = canShareFiles();
+  HI = !!r.hi;
+  const dlg = $('#dlg');
   dlg.className = 'sheetish';
   dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="view book done">
     <div class="bk-check" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l7 7 15-16"/></svg></div>
@@ -3061,43 +3140,20 @@ function showDone(r) {
     <p class="bk-code-l">Tu código de reserva</p><p class="bk-code mono" id="bk-code">${r.code}</p>
     <div class="bk-sum"><div><b>${esc(r.boat)}</b><span>${esc(r.date)} · ${esc(r.paxTxt || r.pax + ' personas')}</span><span>${esc(r.route)}</span></div><strong>${money(r.total)}</strong></div>
     ${r.pay && PAY[r.pay] ? `<div class="pay-done"><span class="pay-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${PAY[r.pay].ic}</svg></span><div><span>Pagarás con</span><b>${PAY[r.pay].name}</b></div><strong>${money(abono(r.pay, r.total))}<small>abono</small></strong></div>` : ''}
-    <ol class="bk-next"><li class="ok">Reserva guardada en tu app</li><li id="bk-li-send" class="${r.sent ? 'ok' : 'now'}">Enviar el comprobante a Tu Lancha por WhatsApp</li><li>Eduardo confirma la disponibilidad y te pasa ${r.pay === 'efectivo' ? 'cómo entregar el abono en efectivo' : 'los datos para el abono'}</li><li>Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el toque de muelle</li></ol>
-    ${r.sent ? navPair() : `<button class="btn btn-wa btn-lg" type="button" id="bk-send">Enviar comprobante por WhatsApp</button>`}
-    <div class="bk-pdf" id="bk-pdf"><div class="bk-pdf-doc" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/><path d="M9 13h7M9 17h5"/></svg></div>
-      <div class="bk-pdf-t"><b>Comprobante de reserva</b><span id="bk-pdf-st">Preparando tu PDF…</span></div>
-      <p class="bk-pdf-how">${share ? 'Al tocar Enviar se abre el menú de compartir: elige WhatsApp y el chat de Tu Lancha. Si no lo ves en la lista, descarga el PDF y adjúntalo en el chat.' : 'Al tocar Enviar se descarga el PDF y se abre el chat de Tu Lancha: adjunta el PDF ahí (arrástralo o usa el clip).'}</p>
-      <div class="bk-pdf-acts"><button class="btn btn-ghost btn-sm" type="button" id="bk-pdf-dl">Descargar PDF</button><a class="btn btn-ghost btn-sm" id="bk-pdf-chat" target="_blank" rel="noopener" href="${wa(shortText(r))}">Abrir chat de Tu Lancha</a>${r.sent ? '<button class="btn btn-ghost btn-sm" type="button" id="bk-resend">Enviar de nuevo</button>' : ''}</div></div>
-    ${window.TLL.planBlock ? window.TLL.planBlock(r) : ''}
-    ${r.sent ? '' : navPair()}
+    <ol class="bk-next"><li class="ok">Reserva guardada con tu código</li><li id="bk-li-send" class="${r.sent ? 'ok' : 'now'}">${r.sent ? 'Tus datos se enviaron al WhatsApp de Tu Lancha' : 'Envía tus datos al WhatsApp de Tu Lancha'}</li><li>Eduardo confirma la disponibilidad y te pasa ${r.pay === 'efectivo' ? 'cómo entregar el abono en efectivo' : 'los datos para el abono'}</li><li>Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el servicio de muelle</li></ol>
+    ${r.sent ? `${WA_HINT}${navPair()}` : `<button class="btn btn-wa btn-lg" type="button" id="bk-send">Enviar mis datos por WhatsApp</button>${navPair()}`}
+    <p class="bk-pdf-mini"><button class="linkish" type="button" id="bk-pdf-dl">Descargar comprobante (PDF)</button> · <span id="bk-pdf-st">Con tu código entras luego a Mi viaje.</span></p>
   </div>`;
   closeOn(dlg);
-  window.TLL.wirePlan && window.TLL.wirePlan(dlg);
-  // el PDF se prepara apenas se abre esta pantalla, así el toque de "Enviar" conserva el gesto del usuario
-  const st = $('#bk-pdf-st', dlg); let blob = null;
-  pdfFor(r).then(b => { blob = b; st.textContent = `${pdfName(r)} · ${Math.max(1, Math.round(b.size / 1024))} KB`; $('#bk-pdf', dlg).classList.add('ready'); })
-    .catch(() => { st.textContent = 'No se pudo preparar el PDF. Intenta de nuevo.'; });
+  let blob = null;
   const getBlob = async () => blob || (blob = await pdfFor(r));
   // una vez enviado, "Volver al inicio" y "Ver mi viaje" toman el lugar del botón verde
   const sent = () => {
-    markSent(r.code); $('#bk-li-send', dlg).className = 'ok';
+    markSent(r.code); const li = $('#bk-li-send', dlg); li.className = 'ok'; li.textContent = 'Tus datos se enviaron al WhatsApp de Tu Lancha';
     const btn = $('#bk-send', dlg); if (!btn) return;
-    $('#bk-nav', dlg)?.remove(); btn.insertAdjacentHTML('afterend', navPair()); btn.remove(); wireNav();
-    const acts = $('.bk-pdf-acts', dlg); if (acts && !$('#bk-resend', dlg)) { acts.insertAdjacentHTML('beforeend', '<button class="btn btn-ghost btn-sm" type="button" id="bk-resend">Enviar de nuevo</button>'); $('#bk-resend', dlg).addEventListener('click', send); }
+    btn.insertAdjacentHTML('beforebegin', WA_HINT); btn.remove(); $('#bk-resend', dlg).addEventListener('click', send);
   };
-  async function send() {
-    if (share) {
-      try {
-        const file = new File([await getBlob()], pdfName(r), { type: 'application/pdf' });
-        await navigator.share({ files: [file], title: TLL_I18N.tr(`Comprobante ${r.code}`), text: shortText(r) });
-        sent(); toast('¡Listo! Eduardo recibe tu comprobante');
-        return;
-      } catch (e) { if (e && e.name === 'AbortError') return; }
-    }
-    // sin hoja de compartir con archivos (computadora): se descarga el PDF y se abre el chat con un mensaje corto
-    window.open(wa(shortText(r)), '_blank', 'noopener');
-    try { saveBlob(await getBlob(), pdfName(r)); } catch { toast('No se pudo crear el PDF'); return; }
-    sent(); toast('Descargamos el PDF: adjúntalo en el chat de WhatsApp');
-  }
+  function send() { openWa(r); sent(); }
   function wireNav() {
     $('#bk-home', dlg).addEventListener('click', e => { e.preventDefault(); dlg.close(); location.hash = 'inicio'; scrollTo(0, 0); });
     $('#bk-trip', dlg).addEventListener('click', () => dlg.close());
@@ -3105,7 +3161,7 @@ function showDone(r) {
   wireNav();
   $('#bk-send', dlg)?.addEventListener('click', send);
   $('#bk-resend', dlg)?.addEventListener('click', send);
-  $('#bk-pdf-dl', dlg).addEventListener('click', async () => { try { saveBlob(await getBlob(), pdfName(r)); toast('Comprobante descargado'); } catch { toast('No se pudo crear el PDF'); } });
+  $('#bk-pdf-dl', dlg).addEventListener('click', async () => { const st = $('#bk-pdf-st', dlg); st.textContent = 'Preparando tu PDF…'; try { saveBlob(await getBlob(), pdfName(r)); st.textContent = `${pdfName(r)} descargado`; toast('Comprobante descargado'); } catch { st.textContent = 'No se pudo crear el PDF. Intenta de nuevo.'; } });
   if (!dlg.open) dlg.showModal();
 }
 function markSent(code) { saveMine(mine().map(x => x.code === code ? { ...x, sent: true } : x)); renderMine(); }
@@ -3838,93 +3894,6 @@ function mount(host) {
 const hosts = $$('[data-orbit]'); hosts.forEach(mount);
 addEventListener('tll:cat', () => hosts.forEach(h => h.orbit && h.orbit.refresh()));
 
-/* ---------------- búsqueda del encabezado ---------------- */
-const box = $('#tsearch'), q = $('#ts-q'), res = $('#ts-res'), form = $('#ts-form');
-const SEC_KW = {
-  embarcaciones: 'lancha lanchas yate yates mini yate barco barcos flota catalogo boat boats yacht premium capitan',
-  reservar: 'reservar reserva cotizar precio precios tarifa book booking quote total abono pagar',
-  playas: 'playa playas rumbo rumbos islas isla millas beach beaches mochima parque',
-  experiencias: 'experiencias canales morro pesca cumpleanos pedida corporativo celebracion fishing',
-  regalos: 'regalo regalos tarjeta club referido codigo gift card',
-  aliados: 'servicio a bordo aliados comida bebidas mercadillo dj fotografo estadia posada restaurante partners food',
-  'mi-viaje': 'mi viaje gps seguimiento en vivo sos emergencia album fotos dron ubicacion tracking',
-  nosotros: 'nosotros quienes somos contacto telefono whatsapp horario ubicacion muelles preguntas faq about',
-  propietarios: 'propietarios pool propietario embarcacion postular dueno owners capitan servicios'
-};
-const SEC_N = { embarcaciones: 'Embarcaciones', reservar: 'Reservar', playas: 'Playas y rumbos', experiencias: 'Experiencias', regalos: 'Regalos y Club', aliados: 'Servicio a bordo', 'mi-viaje': 'Mi viaje', nosotros: 'Nosotros', propietarios: 'Propietarios' };
-const IC = {
-  sec: '<path d="M4 6h16M4 12h16M4 18h10"/>', boat: '<path d="M3 17l2 3h14l2-3M5 17V9l7-5 7 5v8"/>', beach: '<path d="M2 18c3 0 3-2 6-2s3 2 6 2 3-2 6-2M12 3v9M12 3l6 4M12 3L6 7"/>',
-  ally: '<path d="M4 10h16l-1.5 9a2 2 0 01-2 1.7h-9a2 2 0 01-2-1.7zM8 10V7a4 4 0 018 0v3"/>', faq: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 015 0c0 2-2.5 2-2.5 4M12 17h.01"/>', exp: '<path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/>'
-};
-const KIND_N = { sec: 'Sección', boat: 'Embarcación', beach: 'Playa', route: 'Rumbo', ally: 'Servicio a bordo', faq: 'Pregunta frecuente', exp: 'Experiencia' };
-function index() {
-  const L = [];
-  Object.keys(SEC_N).forEach(k => L.push({ k: 'sec', t: SEC_N[k], s: '', kw: SEC_KW[k], go: '#' + k }));
-  BOATS.forEach(b => L.push({ k: 'boat', t: b.name, s: `${b.type} · ${b.ft} pies${b.own ? ' · recomendación de la casa' : ''}`, kw: `${b.type} ${b.own ? 'premium casa recomendada' : ''} ${(b.amen || []).join(' ')}`, boat: b.id }));
-  ROUTES.forEach(r => {
-    L.push({ k: 'route', ic: 'beach', t: `${r.name} · ${r.zone}`, s: `${r.nm ? '~' + r.nm + ' millas náuticas · ' : ''}${r.beaches.length} playas`, kw: r.beaches.join(' '), go: '#playas', el: 'rumbo-' + r.id });
-    r.beaches.forEach(n => L.push({ k: 'beach', t: n, s: `${r.name} · ${r.zone}`, kw: r.zone, go: '#playas', el: 'rumbo-' + r.id }));
-  });
-  ALLIES.forEach(c => (c.items || []).forEach(it => L.push({ k: 'ally', t: it[0], s: it[1] || c.cat, kw: c.cat, go: c.owners ? '#propietarios' : '#aliados' })));
-  [['Paseo por los canales de El Morro', 'Desde las 5:30 pm'], ['Pesca deportiva', 'Con capitán pescador'], ['Pedida de mano', 'Celebraciones a bordo'], ['Cumpleaños en el mar', 'Celebraciones a bordo'], ['Corporativo', 'Celebraciones a bordo']].forEach(([t, s]) => L.push({ k: 'exp', t, s, kw: '', go: '#experiencias' }));
-  $$('#nosotros .faq details').forEach((d, i) => { const sm = $('summary', d); if (sm) L.push({ k: 'faq', t: sm.textContent.trim(), s: ($('p', d) || {}).textContent || '', kw: '', go: '#nosotros', faq: i }); });
-  [['Modo a bordo y botón SOS', 'GPS del teléfono durante el paseo', '#mi-viaje', 'sos emergencia gps'], ['Álbum del día', 'Fotos y videos de dron de tu paseo', '#mi-viaje', 'album fotos dron'], ['Escoge tu muelle en el mapa', 'Marca tu punto de salida', '#reservar', 'muelle mapa residencia recogida'], ['Tarjeta de regalo', 'Regala un día en el mar', '#regalos', 'regalo gift'], ['Quiero formar parte del pool', 'Para propietarios', '#propietarios', 'pool propietario']].forEach(([t, s, go, kw]) => L.push({ k: 'sec', ic: 'exp', t, s, go, kw }));
-  L.forEach(x => { x.nt = norm(x.t); x.nk = norm(x.kw + ' ' + x.s); });
-  return L;
-}
-let IDX = null, hits = [], sel = -1;
-addEventListener('tll:cat', () => { IDX = null; });
-function search(term) {
-  IDX ||= index();
-  const w = norm(term).split(/\s+/).filter(Boolean);
-  if (!w.length) return IDX.filter(x => ['Lancha de la casa', 'Isla de Plata', 'Reservar', 'Paseo por los canales de El Morro', 'Modo a bordo y botón SOS'].includes(x.t) || (x.boat && OWN && x.boat === OWN.id)).slice(0, 5);
-  return IDX.map(x => {
-    let sc = 0;
-    for (const t of w) {
-      if (x.nt.startsWith(t)) sc += 6; else if (x.nt.includes(' ' + t)) sc += 5; else if (x.nt.includes(t)) sc += 3; else if (x.nk.includes(t)) sc += 1.5; else return null;
-    }
-    return [sc + (x.k === 'sec' ? .5 : 0), x];
-  }).filter(Boolean).sort((a, b) => b[0] - a[0]).slice(0, 8).map(a => a[1]);
-}
-// en inglés el nombre se traduce antes de resaltar (si no, el resaltado parte la frase y no se traduce)
-const L = t => window.TLL_I18N && TLL_I18N.tr ? TLL_I18N.tr(t) : t;
-const hl = (t, term) => { const w = norm(term).split(/\s+/).filter(Boolean)[0]; if (!w) return esc(t); const i = norm(t).indexOf(w); return i < 0 ? esc(t) : esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + w.length)) + '</mark>' + esc(t.slice(i + w.length)); };
-function draw() {
-  const term = q.value.trim(); hits = search(term); sel = hits.length ? 0 : -1;
-  res.innerHTML = (term ? '' : '<p class="ts-h">Sugerencias</p>') + (hits.length ? hits.map((x, i) => `<button type="button" role="option" id="ts-o${i}" class="ts-o" data-o="${i}" aria-selected="${i === sel}"><span class="ts-oi" aria-hidden="true"><svg viewBox="0 0 24 24">${IC[x.ic || (x.k === 'route' ? 'beach' : x.k)] || IC.sec}</svg></span><span class="ts-ot"><b translate="no">${hl(L(x.t), term)}</b>${x.s ? `<small>${esc(x.s.slice(0, 90))}</small>` : ''}</span><span class="ts-ok">${KIND_N[x.k]}</span></button>`).join('') : `<p class="ts-none">No encontramos “${esc(term)}”. Prueba con una playa, una embarcación o escríbenos por WhatsApp.</p>`);
-  res.hidden = false; q.setAttribute('aria-expanded', 'true'); q.setAttribute('aria-activedescendant', sel >= 0 ? 'ts-o0' : '');
-}
-function pickSel() { $$('.ts-o', res).forEach((b, i) => b.setAttribute('aria-selected', String(i === sel))); q.setAttribute('aria-activedescendant', sel >= 0 ? 'ts-o' + sel : ''); const b = $(`#ts-o${sel}`); if (b) b.scrollIntoView({ block: 'nearest' }); }
-function closeRes() { res.hidden = true; q.setAttribute('aria-expanded', 'false'); }
-function closeBox() { closeRes(); box.classList.remove('open'); document.body.classList.remove('ts-on'); q.blur(); }
-function go(x) {
-  closeBox(); q.value = '';
-  if (x.boat) { location.hash = 'embarcaciones'; setTimeout(() => T.openBoat(x.boat), 80); return; }
-  const same = location.hash === x.go;
-  location.hash = x.go.slice(1);
-  setTimeout(() => {
-    if (x.faq != null) { const d = $$('#nosotros .faq details')[x.faq]; if (d) { d.open = true; d.scrollIntoView({ block: 'center', behavior: reduce.matches ? 'auto' : 'smooth' }); } }
-    else if (x.el && document.getElementById(x.el)) document.getElementById(x.el).scrollIntoView({ block: 'start', behavior: reduce.matches ? 'auto' : 'smooth' });
-    else if (same) scrollTo({ top: 0, behavior: 'smooth' });
-  }, 120);
-}
-q.addEventListener('focus', draw);
-q.addEventListener('input', draw);
-q.addEventListener('keydown', e => {
-  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (!hits.length) return; sel = (sel + (e.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length; pickSel(); }
-  else if (e.key === 'Enter') { e.preventDefault(); if (hits[sel]) go(hits[sel]); }
-  else if (e.key === 'Escape') { e.preventDefault(); closeBox(); }
-});
-form.addEventListener('submit', e => { e.preventDefault(); if (hits[sel]) go(hits[sel]); });
-res.addEventListener('mousedown', e => e.preventDefault());
-res.addEventListener('click', e => { const o = e.target.closest('[data-o]'); if (o) go(hits[+o.dataset.o]); });
-document.addEventListener('pointerdown', e => { if (!box.contains(e.target) && !e.target.closest('[data-side-search]')) { closeRes(); if (box.classList.contains('open') && !q.value) closeBox(); } });
-function openBox() { box.classList.add('open'); document.body.classList.add('ts-on'); setTimeout(() => q.focus(), 30); }
-$('#ts-open').addEventListener('click', openBox);
-$('#ts-x').addEventListener('click', closeBox);
-document.addEventListener('click', e => { if (e.target.closest('[data-side-search]')) { const c = $('#menu-close'); if (c) c.click(); setTimeout(openBox, 60); } });
-addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openBox(); } else if (e.key === '/' && !/input|textarea|select/i.test((document.activeElement || {}).tagName || '') && !document.querySelector('dialog[open]')) { e.preventDefault(); openBox(); } });
-if (!/Mac|iP(hone|ad|od)/.test(navigator.platform || navigator.userAgent)) { const k = $('.ts-kbd'); if (k) k.textContent = 'Ctrl K'; }
 // en el menú lateral se marca la sección actual
 const markSide = () => { const h = (location.hash.slice(1) || 'inicio').split('/')[0]; $$('[data-side]').forEach(a => a.toggleAttribute('aria-current', a.dataset.side === h)); };
 addEventListener('hashchange', markSide); markSide();
@@ -4042,6 +4011,8 @@ function fromCat(c) {
     shop: Array.isArray(c.shop) ? c.shop : clone(DEF.shop),
     home: { hero: '', cards: {}, ...(c.home && typeof c.home === 'object' ? c.home : {}) },
     beachPhotos: c.beachPhotos || {},
+    seasons: Array.isArray(c.seasons) ? c.seasons : [],
+    hiPct: +c.hiPct || 0,
     tr: c.tr || []
   };
   // campos que el editor necesita, listos desde el inicio para que abrir algo no cuente como cambio
@@ -4063,7 +4034,7 @@ async function boot() {
 
 /* ---------------- utilidades de interfaz ---------------- */
 const getPath = (o, p) => p.split('.').reduce((x, k) => x == null ? x : x[k], o);
-function setPath(o, p, v) { const ks = p.split('.'), last = ks.pop(); const t = ks.reduce((x, k) => x[k], o); if (v === undefined) delete t[last]; else t[last] = v; }
+function setPath(o, p, v) { const ks = p.split('.'), last = ks.pop(); const t = ks.reduce((x, k) => x[k] == null || typeof x[k] !== 'object' ? (x[k] = {}) : x[k], o); if (v === undefined || (v === null && /\.(rpH|kp|kpH)\./.test(p))) delete t[last]; else t[last] = v; }
 const inp = (k, label, o = {}) => { const v = getPath(W, k); const id = 'i-' + k.replace(/\./g, '-');
   if (o.area) return `<div class="field${o.cls ? ' ' + o.cls : ''}"><label for="${id}">${label}</label><textarea id="${id}" data-k="${k}" rows="${o.rows || 3}" placeholder="${esc(o.ph || '')}">${esc(v ?? '')}</textarea>${o.hint ? `<small class="hint">${o.hint}</small>` : ''}</div>`;
   if (o.sel) return `<div class="field${o.cls ? ' ' + o.cls : ''}"><label for="${id}">${label}</label><select id="${id}" data-k="${k}" data-t="${o.t || ''}">${o.sel.map(([val, l]) => `<option value="${esc(val)}"${String(val) === String(v ?? o.def ?? '') ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>${o.hint ? `<small class="hint">${o.hint}</small>` : ''}</div>`;
@@ -4252,10 +4223,19 @@ function pinSheet(b) {
 /* ---------------- embarcaciones ---------------- */
 const thumb = b => { const P = b.photos || {}, u = P.proa || P.popa || P.social || Object.values(P).find(Boolean); return u ? `<img src="${esc(u)}" alt="">` : art('drone', b.hue || 200, b.id); };
 VIEW.flota = () => `<div class="ad-head"><div><h2>Embarcaciones</h2><p class="rating">${W.boats.length} en total · ${W.boats.filter(b => !b.hidden).length} visibles en la web. La primera de la lista es la que destacas como “Recomendación de la casa”.</p></div><div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-boat-new>+ Agregar embarcación</button>${helpBtn('flota')}</div></div>
+  ${seasonPanel()}
   <div class="ad-boats">${W.boats.map((b, i) => `<article class="ad-boat${b.hidden ? ' off' : ''}" data-i="${i}"><div class="ad-boat-ph">${thumb(b)}${b.own ? '<span class="badge own-badge">De la casa</span>' : ''}${b.hidden ? '<span class="badge">Oculta</span>' : ''}</div>
     <div class="ad-boat-b"><h4>${esc(b.name)}</h4><p class="rating">${esc(b.type)} · ${b.ft} pies · ${b.pax} pers.</p><p><b>${money(+b.price || 0)}</b> <span class="rating">por día</span></p>
     <p class="rating">${T.viewsOf(b).filter(([k]) => b.photos && b.photos[k]).length} de ${T.viewsOf(b).length} fotos${b.hidden ? '' : ' · las que falten no se muestran'}</p>
     <div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-boat-edit="${i}">Editar</button><button class="icon-btn" type="button" data-boat-up="${i}" aria-label="Subir en la lista" ${i ? '' : 'disabled'}>↑</button><button class="icon-btn" type="button" data-boat-down="${i}" aria-label="Bajar en la lista" ${i < W.boats.length - 1 ? '' : 'disabled'}>↓</button></div></div></article>`).join('')}</div>`;
+/* Temporada alta: rangos de fechas (desde, hasta). En esas fechas la web usa la tarifa de temporada alta de cada
+   embarcación; si una no la tiene, usa la normal más el % de abajo. El cliente paga 100% para apartar. */
+function seasonPanel() {
+  return `<section class="panel ad-season"><h3>Temporada alta <small>${W.seasons.length ? W.seasons.length + (W.seasons.length === 1 ? ' rango de fechas' : ' rangos de fechas') : 'sin fechas marcadas'}</small></h3>
+    <p class="rating">Marca las fechas de temporada alta (Navidad, Carnaval, Semana Santa, agosto…). Para un solo día, deja “Hasta” igual que “Desde”. En esas fechas la web cobra la tarifa de temporada alta que pones en cada embarcación (Editar → Precio) y pide el 100% para apartar.</p>
+    <div class="ad-seasons">${W.seasons.map((x, i) => `<div class="ad-srow">${inp(`seasons.${i}.name`, 'Nombre', { ph: 'Navidad y Año Nuevo' })}${inp(`seasons.${i}.from`, 'Desde', { type: 'date' })}${inp(`seasons.${i}.to`, 'Hasta', { type: 'date' })}<button type="button" class="icon-btn ad-danger" data-season-del="${i}" aria-label="Quitar este rango">Quitar</button></div>`).join('')}</div>
+    <div class="adm-form" style="margin-top:10px"><div class="field"><button type="button" class="btn btn-ghost btn-sm" data-season-add>+ Agregar fechas de temporada alta</button></div>${inp('hiPct', 'Sin tarifa de temporada alta: % sobre la normal', { t: 'num', ph: '0', hint: 'Para las embarcaciones que no tengan su tarifa de temporada alta. 0 = cobran lo mismo.' })}</div></section>`;
+}
 function boatEditor(i) {
   const b = W.boats[i]; if (!b) return; const p = 'boats.' + i;
   b.photos ??= {}; b.inc ??= []; b.opt ??= {}; b.amen ??= []; b.pick ??= {}; b.rp ??= {}; b.qty ??= {}; b.docs ??= {};
@@ -4265,18 +4245,24 @@ function boatEditor(i) {
   // precio por rumbo: según el rumbo (tarifa base), un precio propio, por confirmar o no lo hace
   const rpRow = r => { const v = b.rp[r.id], st = v === null || v === false ? 'no' : v === true ? 'tbd' : typeof v === 'number' ? 'num' : 'def';
     const defTxt = r.open === false ? 'No lo hace (rumbo bajo pedido)' : typeof r.add === 'number' ? `Tarifa base${r.add ? ` + $${r.add}` : ''}` : 'Tarifa base · por confirmar';
-    return `<div class="ad-acc"><span>${esc(r.name)}<small class="rating"> ${esc(r.zone || '')}</small></span><select data-rp="${esc(r.id)}" aria-label="Precio en ${esc(r.name)}"><option value="def"${st === 'def' ? ' selected' : ''}>${defTxt}</option><option value="num"${st === 'num' ? ' selected' : ''}>Precio propio</option><option value="tbd"${st === 'tbd' ? ' selected' : ''}>Lo hace · precio por confirmar</option><option value="no"${st === 'no' ? ' selected' : ''}>No lo hace</option></select><input type="number" min="0" inputmode="decimal" data-rpp="${esc(r.id)}" value="${st === 'num' ? v : ''}" placeholder="$" aria-label="Precio en ${esc(r.name)}" ${st === 'num' ? '' : 'hidden'}></div>`; };
+    return `<div class="ad-acc"><span>${esc(r.name)}<small class="rating"> ${esc(r.zone || '')}</small></span><select data-rp="${esc(r.id)}" aria-label="Precio en ${esc(r.name)}"><option value="def"${st === 'def' ? ' selected' : ''}>${defTxt}</option><option value="num"${st === 'num' ? ' selected' : ''}>Precio propio</option><option value="tbd"${st === 'tbd' ? ' selected' : ''}>Lo hace · precio por confirmar</option><option value="no"${st === 'no' ? ' selected' : ''}>No lo hace</option></select><input type="number" min="0" inputmode="decimal" data-rpp="${esc(r.id)}" value="${st === 'num' ? v : ''}" placeholder="$" aria-label="Precio en ${esc(r.name)}" ${st === 'num' ? '' : 'hidden'}><input type="number" min="0" inputmode="decimal" class="ad-hi" data-k="${p}.rpH.${esc(r.id)}" data-t="numn" data-rph="${esc(r.id)}" value="${b.rpH && b.rpH[r.id] > 0 ? b.rpH[r.id] : ''}" placeholder="Temp. alta $" title="Precio en temporada alta (vacío = normal${W.hiPct ? ' + ' + W.hiPct + '%' : ''})" aria-label="Precio en ${esc(r.name)} en temporada alta" ${st === 'num' ? '' : 'hidden'}></div>`; };
+  // precio según niños (solo si lleva niños además de los puestos): kp[rumbo][n] = precio total con n niños
+  const kx = Math.max(0, +b.kx || 0), kRoutes = W.routes.filter(r => b.rp[r.id] !== null && b.rp[r.id] !== false && !(b.rp[r.id] === undefined && r.open === false));
+  const kidCell = (k, rid, n) => { const v = b[k] && b[k][rid] ? b[k][rid][n] : ''; return `<td><input type="number" min="0" inputmode="decimal" data-k="${p}.${k}.${rid}.${n}" data-t="numn" value="${v > 0 ? v : ''}" placeholder="$" aria-label="${k === 'kpH' ? 'Temporada alta, ' : ''}${n} ${n === 1 ? 'niño' : 'niños'}"></td>`; };
+  const kidTable = k => `<div class="ad-ktable-w"><table class="ad-ktable"><thead><tr><th>Rumbo</th>${Array.from({ length: kx }, (_, j) => `<th>+${j + 1} ${j ? 'niños' : 'niño'}</th>`).join('')}</tr></thead><tbody>${kRoutes.map(r => `<tr><th>${esc(r.name)}</th>${Array.from({ length: kx }, (_, j) => kidCell(k, r.id, j + 1)).join('')}</tr>`).join('')}</tbody></table></div>`;
+  const kidSec = kx ? `<section><h4>Precio según niños <small class="rating">opcional</small></h4><p class="hint">Si el precio cambia cuando el grupo suma niños, escribe el precio total del paseo con esa cantidad de niños. Vacío = el niño no cambia el precio.</p><h5>Temporada normal</h5>${kidTable('kp')}<h5>Temporada alta</h5>${kidTable('kpH')}<p class="hint">Vacío en temporada alta = el precio normal con niños${W.hiPct ? ` + ${W.hiPct}%` : ''}.</p></section>` : '';
   const okDocks = W.docks.filter(d => !d.off && !d.custom), allow = Array.isArray(b.docks) && b.docks.length ? b.docks : null;
   sheet(`<div class="ad-sheet-h"><h3>${esc(b.name || 'Nueva embarcación')}</h3>${helpBtn('barco', 'Ayuda')}</div>
     <section><h4>Fotos ${helpBtn('fotos', 'Qué fotos subir')}</h4><div class="ad-photos">${T.viewsOf(b).map(([k, l]) => photoSlot(`${p}.photos.${k}`, 'boat', l)).join('')}</div><p class="hint">La primera que tenga foto es la principal. Los espacios sin foto no se muestran en la web; si no hay ninguna, sale una ilustración. ${lancha ? 'Habitación, baño y accesorios aparecen al elegir mini yate, barco o yate.' : ''}</p></section>
     <section><h4>Datos</h4><div class="adm-form">${inp(p + '.name', 'Nombre')}${inp(p + '.type', 'Tipo', { sel: TYPES.map(t => [t, t]) })}${inp(p + '.ft', 'Pies', { t: 'num' })}${inp(p + '.size', 'Tamaño (para muelles y recogidas)', { sel: SIZE_L })}${inp(p + '.pax', 'Capacidad (puestos de la licencia)', { t: 'num', min: 1 })}${inp(p + '.kx', 'Niños de 7 años o menos además de esos puestos', { t: 'num', hint: '0 = los niños ocupan puesto. El filtro de la reserva usa los dos números.' })}${lancha ? '' : inp(p + '.kts', 'Velocidad de navegación (nudos)', { t: 'num', ph: '20' })}${inp(p + '.trips', 'Viajes realizados', { t: 'num', hint: 'Se muestra como “+N viajes”.' })}${inp(p + '.ownerWa', 'WhatsApp del propietario', { ph: '58414xxxxxxx', hint: 'Para enviarle cada reserva con un toque desde Reservas. No se muestra en la web.' })}${inp(p + '.promo', 'Promoción (opcional)', { ph: 'Ej. 10% de descuento entre semana', cls: 'ad-wide' })}</div>
       <div class="ad-checks">${inp(p + '.cabin', 'Tiene camarote', { t: 'bool' })}<label class="ad-check"><input type="checkbox" data-own="${i}"${b.own ? ' checked' : ''}> Es la lancha de la casa (sale destacada)</label>${inp(p + '.hidden', 'Ocultar de la web (no se puede reservar)', { t: 'bool' })}</div></section>
-    <section><h4>Precio y horario</h4><div class="adm-form">${inp(p + '.price', 'Tarifa base por día (USD)', { t: 'num' })}${inp(p + '.wk', 'Recargo fin de semana (%)', { t: 'num', ph: '10', hint: 'Se suma sábados y domingos. Vacío = 10%.' })}${inp(p + '.late', 'Hora extra', { sel: LATE, t: 'int', def: 0 })}${inp(p + '.hx', 'Costo de cada hora extra (USD)', { t: 'num', hint: 'Se paga en efectivo a bordo.' })}</div></section>
+    <section><h4>Precio y horario</h4><div class="adm-form">${inp(p + '.price', 'Tarifa base por día (USD)', { t: 'num' })}${inp(p + '.priceH', 'Tarifa base en temporada alta (USD)', { t: 'numn', ph: W.hiPct ? `Normal + ${W.hiPct}%` : 'Igual que la normal', hint: 'Se usa en las fechas de temporada alta (Embarcaciones → Temporada alta).' })}${inp(p + '.wk', 'Recargo fin de semana (%)', { t: 'num', ph: '10', hint: 'Se suma sábados y domingos en temporada normal. Vacío = 10%.' })}${inp(p + '.late', 'Hora extra', { sel: LATE, t: 'int', def: 0 })}${inp(p + '.hx', 'Costo de cada hora extra (USD)', { t: 'num', hint: 'Se paga en efectivo a bordo.' })}</div></section>
     <section><h4>Precio por rumbo ${helpBtn('precios', 'Ayuda')}</h4><div class="ad-accs">${W.routes.map(rpRow).join('')}</div><div class="adm-form" style="margin-top:10px">${inp(p + '.maxBeaches', 'Playas por salida', { sel: [[1, '1 playa'], [2, '2 playas'], [3, '3 playas'], [4, '4 playas']], t: 'int', def: lancha ? 3 : 2 })}</div></section>
+    ${kidSec}
     <section><h4>Muelles</h4><div class="adm-form">${inp(p + '.dock', 'Muelle base (no se muestra en la web)', { sel: W.docks.map((d, j) => [j, d.name]).filter(([j]) => !W.docks[j].pickup && !W.docks[j].off), t: 'int', hint: 'Si el muelle no cobra a las embarcaciones que tienen ahí su base (Marina Américo Vespucio), el cliente no paga servicio de muelle.' })}</div>
       <h5>Desde dónde puede salir</h5><div class="ad-checks">${okDocks.map(d => `<label class="ad-check"><input type="checkbox" data-dockok="${esc(d.id)}"${!allow || allow.includes(d.id) ? ' checked' : ''}> ${esc(d.name)}</label>`).join('')}</div><p class="hint">Todas marcadas = puede salir de cualquiera.</p>
-      ${pickups.length ? `<h5>Excepciones de recogida</h5><div class="ad-picks">${pickups.map(d => { const v = b.pick[d.id]; const st = v === null ? 'no' : v === 0 ? 'free' : 'std';
-        return `<div class="ad-acc"><span>${esc(d.name)}</span><select data-pick="${esc(d.id)}" aria-label="${esc(d.name)}"><option value="std"${st === 'std' ? ' selected' : ''}>Costo normal según tamaño</option><option value="free"${st === 'free' ? ' selected' : ''}>Sin costo</option><option value="no"${st === 'no' ? ' selected' : ''}>No llega (calado)</option></select></div>`; }).join('')}</div>` : ''}</section>
+      ${pickups.length ? `<h5>Excepciones de recogida</h5><div class="ad-picks">${pickups.map(d => { const v = b.pick[d.id]; const st = v === null ? 'no' : v === 0 ? 'free' : typeof v === 'number' ? 'own' : 'std';
+        return `<div class="ad-acc"><span>${esc(d.name)}</span><select data-pick="${esc(d.id)}" aria-label="${esc(d.name)}"><option value="std"${st === 'std' ? ' selected' : ''}>Costo normal del muelle</option><option value="own"${st === 'own' ? ' selected' : ''}>Costo propio de esta embarcación</option><option value="free"${st === 'free' ? ' selected' : ''}>Sin costo</option><option value="no"${st === 'no' ? ' selected' : ''}>No llega (calado)</option></select><input type="number" min="0" inputmode="decimal" data-pickp="${esc(d.id)}" value="${st === 'own' ? v : ''}" placeholder="$" aria-label="Costo propio en ${esc(d.name)}" ${st === 'own' ? '' : 'hidden'}></div>`; }).join('')}</div><p class="hint">“Costo normal” es el de Muelles y recogidas. “Costo propio” lo reemplaza solo para esta embarcación.</p>` : ''}</section>
     <section><h4>Accesorios ${helpBtn('accesorios', 'Ayuda')}</h4><div class="ad-accs">${Object.entries(ACC).map(accRow).join('')}</div>
       <div class="adm-form" style="margin-top:10px">${inp(p + '.qty.snorkel', 'Cantidad de caretas de buceo', { t: 'num', hint: 'Se muestra como “Caretas de buceo (4)”.' })}${inp(p + '.amen', 'Lo que la distingue (separado por comas)', { t: 'list', ph: 'Toldo, Baño, Aire acondicionado', cls: 'ad-wide' })}</div></section>
     <section><h4>Documentos <small class="rating">solo los ves tú</small></h4><div class="adm-form">${DOCS.map(([k, l]) => inp(`${p}.docs.${k}`, `${l} · vence`, { type: 'date' })).join('')}</div><p class="hint">Te avisamos en el Resumen 30 días antes de que venzan.</p></section>
@@ -4301,6 +4287,7 @@ VIEW.muelles = () => `<div class="ad-head"><div><h2>Muelles y recogidas</h2><p c
     <div class="adm-form">${inp(p + '.name', 'Nombre')}
     ${d.pickup ? `${COST_L.filter(([z]) => !d.lanchaOnly || z === 's' || z === 'm').map(([z, l]) => inp(`${p}.cost.${z}`, `${l} (USD)`, { t: 'numn', ph: 'No llega', hint: z === 's' ? 'Vacío = ese tamaño no llega. 0 = sin costo.' : '' })).join('')}${inp(p + '.back', 'Regreso máximo', { ph: '5:30 pm', hint: 'Vacío = horario normal.' })}` : `${inp(p + '.fee', 'Servicio por uso de muelle', { ph: '$30', hint: 'Lo cobra el establecimiento y se paga en sitio.' })}${inp(p + '.park', 'Estacionamiento', { cls: 'ad-wide' })}`}
     ${d.off ? inp(p + '.why', 'Por qué no está disponible', { ph: 'Muelle deshabilitado', cls: 'ad-wide' }) : ''}</div>
+    ${d.pickup ? (() => { const ex = W.boats.filter(b => b.pick && d.id in b.pick); return ex.length ? `<p class="hint ad-pickex"><b>Excepciones:</b> ${ex.map(b => `${esc(b.name)} ${b.pick[d.id] === null ? 'no llega' : b.pick[d.id] === 0 ? 'sin costo' : `cobra $${b.pick[d.id]} (costo propio)`}`).join(' · ')}. Se cambian en Embarcaciones → Editar → Muelles.</p>` : ''; })() : ''}
     <div class="ad-checks">${d.pickup ? inp(p + '.lanchaOnly', 'Solo lanchas (por baja profundidad)', { t: 'bool' }) : inp(p + '.baseFree', 'Sin costo para las embarcaciones que tienen aquí su base', { t: 'bool' })}${inp(p + '.off', 'No disponible por ahora (se muestra deshabilitado)', { t: 'bool' })}</div></section>`; }).join('')}</div>`;
 
 /* ---------------- pagos ---------------- */
@@ -4433,6 +4420,7 @@ adm.addEventListener('input', e => {
   if (el.dataset.k && W) { setPath(W, el.dataset.k, readVal(el)); refreshSaveBar(); if (el.dataset.k.startsWith('pay.')) { const pv = $('.ad-preview', adm); if (pv) pv.innerHTML = payPreview(); } if (el.dataset.k.endsWith('.name')) { const h = el.closest('.ad-sheet,.panel'); const t = h && $('h3', h); if (t && el.closest('.ad-sheet')) t.textContent = el.value; } return; }
   if (el.dataset.beach) { const [i, j] = el.dataset.beach.split('.').map(Number), r = W.routes[i], old = r.beaches[j], nw = el.value; r.beaches[j] = nw; const ko = old.replace(/\./g, '·'), kn = nw.replace(/\./g, '·'); if (W.beachPhotos[ko] && ko !== kn) { W.beachPhotos[kn] = W.beachPhotos[ko]; delete W.beachPhotos[ko]; } refreshSaveBar(); return; }
   if (el.dataset.rpp) { W.boats[editing].rp[el.dataset.rpp] = +el.value || 0; refreshSaveBar(); return; }
+  if (el.dataset.pickp) { W.boats[editing].pick[el.dataset.pickp] = +el.value || 0; refreshSaveBar(); return; }
   if (el.dataset.accp) { const b = W.boats[editing]; b.opt[el.dataset.accp] = +el.value || 0; refreshSaveBar(); return; }
   if (el.id === 'basic-ta') { W.basic = el.value.split('\n').map(x => x.trim()).filter(Boolean); refreshSaveBar(); return; }
   if (el.id === 's-comm') { store.set('adm-comm', Math.min(100, Math.max(0, +el.value || 0))); }
@@ -4442,10 +4430,10 @@ adm.addEventListener('change', e => {
   if (el.dataset.k && W && (el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'color')) { setPath(W, el.dataset.k, readVal(el)); refreshSaveBar(); if (el.closest('.ad-sheet') && /\.(hidden|type)$/.test(el.dataset.k)) { const sc = $('.ad-sheet.k-boat', adm), st = sc ? sc.scrollTop : 0; render(); boatEditor(editing); const n = $('.ad-sheet.k-boat', adm); if (n) n.scrollTop = st; } return; }
   if (el.dataset.acc) { const b = W.boats[editing], k = el.dataset.acc, v = el.value; b.inc = b.inc.filter(x => x !== k); delete b.opt[k]; if (v === 'inc') b.inc.push(k); if (v === 'opt') b.opt[k] = 0; const p = $(`[data-accp="${k}"]`, adm); p.hidden = v !== 'opt'; if (v === 'opt') p.focus(); refreshSaveBar(); return; }
   if (el.dataset.zon != null) { W.pay.zelleOn = +el.dataset.zon; refreshSaveBar(); render(); return; }
-  if (el.dataset.rp) { const b = W.boats[editing], k = el.dataset.rp, v = el.value, inpP = $(`[data-rpp="${k}"]`, adm); if (v === 'def') delete b.rp[k]; else b.rp[k] = v === 'no' ? null : v === 'tbd' ? true : +inpP.value || +b.price || 0; inpP.hidden = v !== 'num'; if (v === 'num') { inpP.value = b.rp[k]; inpP.focus(); } refreshSaveBar(); return; }
+  if (el.dataset.rp) { const b = W.boats[editing], k = el.dataset.rp, v = el.value, inpP = $(`[data-rpp="${k}"]`, adm); if (v === 'def') delete b.rp[k]; else b.rp[k] = v === 'no' ? null : v === 'tbd' ? true : +inpP.value || +b.price || 0; inpP.hidden = v !== 'num'; const ph = $(`[data-rph="${k}"]`, adm); if (ph) ph.hidden = v !== 'num'; if (v === 'num') { inpP.value = b.rp[k]; inpP.focus(); } refreshSaveBar(); return; }
   if (el.dataset.dockok) { const b = W.boats[editing], all = W.docks.filter(d => !d.off && !d.custom).map(d => d.id); const on = $$('[data-dockok]', adm).filter(x => x.checked).map(x => x.dataset.dockok); if (!on.length) { el.checked = true; return toast('Debe poder salir de al menos un muelle'); } if (on.length === all.length) delete b.docks; else b.docks = on; refreshSaveBar(); return; }
   if (el.dataset.rclosed != null) { const r = W.routes[+el.dataset.rclosed]; if (el.checked) r.open = false; else delete r.open; refreshSaveBar(); return; }
-  if (el.dataset.pick) { const b = W.boats[editing], k = el.dataset.pick; if (el.value === 'std') delete b.pick[k]; else b.pick[k] = el.value === 'no' ? null : 0; refreshSaveBar(); return; }
+  if (el.dataset.pick) { const b = W.boats[editing], k = el.dataset.pick, ip = $(`[data-pickp="${k}"]`, adm); if (el.value === 'std') delete b.pick[k]; else b.pick[k] = el.value === 'no' ? null : el.value === 'own' ? +ip.value || 0 : 0; ip.hidden = el.value !== 'own'; if (el.value === 'own') ip.focus(); refreshSaveBar(); return; }
   if (el.dataset.own != null) { W.boats.forEach((b, j) => { if (el.checked ? j !== +el.dataset.own : false) delete b.own; }); if (el.checked) { W.boats[+el.dataset.own].own = true; const [b] = W.boats.splice(+el.dataset.own, 1); W.boats.unshift(b); editing = 0; } else delete W.boats[+el.dataset.own].own; refreshSaveBar(); render(); boatEditor(editing); }
 });
 adm.addEventListener('click', async e => {
@@ -4492,6 +4480,9 @@ adm.addEventListener('click', async e => {
   if (d.boatUp != null || d.boatDown != null) { const i = +(d.boatUp ?? d.boatDown), j = d.boatUp != null ? i - 1 : i + 1; if (j < 0 || j >= W.boats.length) return; [W.boats[i], W.boats[j]] = [W.boats[j], W.boats[i]]; render(); return; }
   if (d.boatDup != null) { const b = clone(W.boats[+d.boatDup]); b.id = 'b' + Date.now().toString(36); b.name += ' (copia)'; delete b.own; b.hidden = true; W.boats.splice(+d.boatDup + 1, 0, b); editing = +d.boatDup + 1; render(); boatEditor(editing); toast('Copia creada (oculta)'); return; }
   if (d.boatDel != null) { const b = W.boats[+d.boatDel]; if (W.boats.length < 2) return toast('Debe quedar al menos una embarcación'); if (!confirm(`¿Eliminar ${b.name}? Si solo no está disponible por un tiempo, mejor ocúltala.`)) return; W.boats.splice(+d.boatDel, 1); if (b.own) W.boats[0].own = true; editing = null; closeSheet(); render(); return; }
+  // temporada alta
+  if (d.seasonAdd != null) { const y = new Date().getFullYear(); W.seasons.push({ name: '', from: `${y}-12-15`, to: `${y + 1}-01-15` }); refreshSaveBar(); render(); return; }
+  if (d.seasonDel != null) { W.seasons.splice(+d.seasonDel, 1); refreshSaveBar(); render(); return; }
   // rumbos
   if (d.beachAdd != null) { W.routes[+d.beachAdd].beaches.push('Nueva playa'); render(); const ins = $$(`[data-beach^="${d.beachAdd}."]`, adm); const l = ins[ins.length - 1]; if (l) { l.focus(); l.select(); } return; }
   if (d.beachDel != null) { const [i, j] = d.beachDel.split('.').map(Number), r = W.routes[i]; if (r.beaches.length < 2) return toast('Cada rumbo necesita al menos una playa'); if (!confirm(`¿Quitar ${r.beaches[j]} del ${r.name}?`)) return; r.beaches.splice(j, 1); render(); return; }
