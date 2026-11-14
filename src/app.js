@@ -3,7 +3,11 @@
 let WA = '584143083864';
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const wa = t => `https://wa.me/${WA}?text=${encodeURIComponent(t)}`;
+/* En el celular wa.me abre la app de WhatsApp. En la computadora wa.me muestra una página que pide instalar la app
+   (lo que confundió a Eduardo), así que ahí se abre WhatsApp Web directo en el chat de Tu Lancha. */
+const MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform || '')) || (matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 820);
+const waTo = (num, t) => MOBILE ? `https://wa.me/${num}${t ? '?text=' + encodeURIComponent(t) : ''}` : `https://web.whatsapp.com/send?phone=${num}${t ? '&text=' + encodeURIComponent(t) : ''}`;
+const wa = t => waTo(WA, t);
 const store = {
   get(k, d) { try { const v = localStorage.getItem('tll:' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem('tll:' + k, JSON.stringify(v)); } catch {} }
@@ -157,10 +161,15 @@ const DEF_HOME = { hero: '', cards: {} };
 const DEF = { boats: clone(DEF_BOATS_SRC), routes: clone(ROUTES), docks: clone(DOCKS), allies: clone(ALLIES), basic: clone(BASIC), special: clone(SPECIAL), wa: WA, pay: clone(DEF_PAY), shop: clone(DEF_SHOP), home: clone(DEF_HOME) };
 /* Catálogos publicados antes del 12 nov: se pasan al formato nuevo sin perder lo que Eduardo ya cargó
    (fotos, precios, playas, aliados). Lo usan la web y el panel; al publicar desde el panel queda guardado. */
-const CAT_V = 2;
+const CAT_V = 3;
 function migrateCat(c) {
   c = c && typeof c === 'object' ? clone(c) : {};
-  if ((c.v || 1) >= CAT_V) return c;
+  /* El servidor guardaba todo catálogo como v1, así que la conversión vieja se repetía en cada carga y deshacía
+     cambios de Eduardo (p. ej. la tarifa de recogida de Cerro El Morro · Eurobuilding). Un catálogo que ya pasó
+     por el panel nuevo (tiene el muelle "rem" o se publicó desde el 13 nov) cuenta como v2. */
+  const v0 = c.v >= 2 ? c.v : (Array.isArray(c.docks) && c.docks.some(d => d && d.id === 'rem')) || +c.t > Date.UTC(2026, 10, 13) ? 2 : 1;
+  if (v0 >= CAT_V) return c;
+  if (v0 < 2) {
   const PH = { drone: 'proa', exterior: 'popa', interior: 'social' };
   if (Array.isArray(c.boats)) c.boats.forEach(b => {
     const P = b.photos || {}; Object.entries(PH).forEach(([o, n]) => { if (P[o] && !P[n]) P[n] = P[o]; delete P[o]; }); b.photos = P;
@@ -198,6 +207,9 @@ function migrateCat(c) {
   }
   if (Array.isArray(c.special)) c.special = c.special.filter(x => !/p[ií]ritu/i.test(x));
   if (Array.isArray(c.allies) && !c.allies.some(x => x.owners)) c.allies.push(clone(DEF.allies.find(x => x.owners)));
+  }
+  // v3: temporada alta (fechas y tarifas) y precio según niños; nada que convertir, solo dejar los campos listos
+  if (!Array.isArray(c.seasons)) c.seasons = [];
   c.v = CAT_V;
   return c;
 }
@@ -205,7 +217,7 @@ const normPay = p => { p = p && typeof p === 'object' ? clone(p) : {}; const o =
   if (!Array.isArray(p.zelles)) { o.zelles = clone(DEF_PAY.zelles); if (p.zelle) { o.zelles.unshift({ name: p.zelleName || '', email: p.zelle }); o.zelleOn = 0; } }
   o.zelles = o.zelles.filter(z => z && z.email); if (!(o.zelleOn >= 0 && o.zelleOn < o.zelles.length)) o.zelleOn = 0;
   const z = o.zelles[o.zelleOn] || {}; o.zelle = z.email || ''; o.zelleName = z.name || ''; return o; };
-const CAT = { pay: {}, beachPhotos: {}, ig: 'tulanchalecheria', home: { hero: '', cards: {} } };
+const CAT = { pay: {}, beachPhotos: {}, ig: 'tulanchalecheria', home: { hero: '', cards: {} }, seasons: [], hiPct: 0 };
 const SHOP = [];
 const shopOn = () => SHOP.filter(x => x && x.name && +x.price > 0);
 const PICK_NOTE = 'Te buscamos siempre que tu residencia tenga muelle o escalera de acceso al agua y profundidad suficiente para la embarcación.';
@@ -228,6 +240,8 @@ function applyCat(c) {
   CAT.pay = normPay(c.pay);
   CAT.beachPhotos = c.beachPhotos && typeof c.beachPhotos === 'object' ? c.beachPhotos : {};
   CAT.ig = c.ig || 'tulanchalecheria';
+  CAT.seasons = (Array.isArray(c.seasons) ? c.seasons : []).filter(x => x && /^\d{4}-\d\d-\d\d$/.test(x.from || ''));
+  CAT.hiPct = Math.max(0, +c.hiPct || 0);
   fill(SHOP, (Array.isArray(c.shop) ? clone(c.shop) : clone(DEF.shop)).filter(x => x && x.name));
   CAT.home = { ...clone(DEF.home), ...(c.home && typeof c.home === 'object' ? clone(c.home) : {}) }; CAT.home.cards ||= {};
   // foto principal subida desde el panel (si no hay, queda la de Mochima)
@@ -351,9 +365,30 @@ function busyDefault(b, d) { const r = rnd(b.id + iso(d)); return r() < .22; }
 function isBusy(b, d) { const o = owner[b.id]?.busy; const k = iso(d); return o && k in o ? o[k] : busyDefault(b, d); }
 function rateOf(b) { return owner[b.id]?.rate ?? b.price; }
 function wkOf(b) { return owner[b.id]?.wk ?? b.wk ?? 10; }
-function priceOn(b, d, r) { const wkend = d && (d.getDay() === 0 || d.getDay() === 6); const base = r ? routePrice(b, r).price : rateOf(b); return base * (wkend ? 1 + wkOf(b) / 100 : 1); }
+/* Temporada alta: Eduardo marca rangos de fechas en el panel. En esas fechas vale la tarifa de temporada alta
+   de cada embarcación (o, si no la tiene, la normal más el % general). El recargo de fin de semana es solo para temporada normal. */
+const seasonOf = d => { if (!d) return null; const k = iso(d); return CAT.seasons.find(x => k >= x.from && k <= (x.to && x.to >= x.from ? x.to : x.from)) || null; };
+const isHigh = d => !!seasonOf(d);
+function priceOn(b, d, r, kids = Q.kids) { const hi = isHigh(d), wkend = !hi && d && (d.getDay() === 0 || d.getDay() === 6); const base = routePrice(b, r, d, kids).price; return base * (wkend ? 1 + wkOf(b) / 100 : 1); }
 function nextFree(b) { for (let i = 1; i < 60; i++) { const d = new Date(today.getTime() + i * 864e5); if (!isBusy(b, d)) return d; } }
 const fmtDay = d => d.toLocaleDateString(TLL_I18N.loc(), { weekday: 'short', day: 'numeric', month: 'short' });
+/* Fechas día/mes/año (pedido de Eduardo): el campo de fecha nativo sale en formato del sistema (mm/dd en una Mac
+   en inglés). Se deja el selector nativo, pero lo que se ve encima es "14/11/2026". Aplica a todo input de fecha. */
+const dmy = v => { const [y, m, d] = String(v || '').split('-').map(Number); if (!y || !m || !d) return '';
+  const dt = new Date(y, m - 1, d); return TLL_I18N.lang === 'en' ? dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`; };
+function niceDate(inp) {
+  if (!inp || inp.dataset.nice || !inp.parentNode) return; inp.dataset.nice = '1';
+  const w = document.createElement('span'); w.className = 'dfield'; inp.parentNode.insertBefore(w, inp); w.appendChild(inp);
+  const out = document.createElement('span'); out.className = 'dfield-v'; out.setAttribute('aria-hidden', 'true'); out.setAttribute('translate', 'no'); w.appendChild(out);
+  const paint = () => { const t = dmy(inp.value); out.textContent = t || (TLL_I18N.lang === 'en' ? 'dd/mm/yyyy' : 'dd/mm/aaaa'); out.classList.toggle('ph', !t); };
+  ['input', 'change', 'blur'].forEach(ev => inp.addEventListener(ev, paint));
+  inp.addEventListener('click', () => { try { inp.showPicker && inp.showPicker(); } catch { /* algunos navegadores no lo permiten */ } });
+  inp._paint = paint; paint();
+}
+const niceAll = root => (root.querySelectorAll ? root.querySelectorAll('input[type="date"]') : []).forEach(niceDate);
+niceAll(document);
+new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType !== 1) return; if (n.matches && n.matches('input[type="date"]')) niceDate(n); else niceAll(n); }))).observe(document.documentElement, { childList: true, subtree: true });
+addEventListener('tll:lang', () => document.querySelectorAll('input[data-nice]').forEach(i => i._paint && i._paint()));
 
 function calendar(el, b, opts) {
   let view = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -363,10 +398,10 @@ function calendar(el, b, opts) {
     for (let i = 1; i <= n; i++) {
       const d = new Date(y, m, i), past = d < today, busy = isBusy(b, d), sel = opts.selected && iso(opts.selected) === iso(d);
       const wk = d.getDay() === 0 || d.getDay() === 6;
-      cells += `<button type="button" data-d="${iso(d)}" class="${past ? 'past' : ''} ${busy ? 'busy' : ''} ${sel ? 'sel' : ''} ${wk && !busy && !past ? 'promo' : ''}" ${past || (busy && !opts.owner) ? 'disabled' : ''} aria-label="${fmtDay(d)}${busy ? ', ocupado' : ', libre'}">${i}</button>`;
+      cells += `<button type="button" data-d="${iso(d)}" class="${past ? 'past' : ''} ${busy ? 'busy' : ''} ${sel ? 'sel' : ''} ${wk && !busy && !past && !isHigh(d) ? 'promo' : ''} ${isHigh(d) && !past ? 'hi' : ''}" ${past || (busy && !opts.owner) ? 'disabled' : ''} aria-label="${fmtDay(d)}${busy ? ', ocupado' : ', libre'}">${i}</button>`;
     }
     el.innerHTML = `<div class="cal-h"><button type="button" data-nav="-1" aria-label="Mes anterior">‹</button><span>${view.toLocaleDateString(TLL_I18N.loc(), { month: 'long', year: 'numeric' })}</span><button type="button" data-nav="1" aria-label="Mes siguiente">›</button></div><div class="cal-g">${cells}</div>
-    <div class="legend"><span><i style="background:var(--card);border:1px solid var(--line)"></i>Libre</span><span><i style="background:repeating-linear-gradient(135deg,var(--muted) 0 2px,transparent 2px 4px)"></i>Ocupado</span><span><i style="background:var(--sun);border-radius:50%"></i>Fin de semana${opts.owner ? '' : ` (+${wkOf(b)}%)`}</span></div>`;
+    <div class="legend"><span><i style="background:var(--card);border:1px solid var(--line)"></i>Libre</span><span><i style="background:repeating-linear-gradient(135deg,var(--muted) 0 2px,transparent 2px 4px)"></i>Ocupado</span><span><i style="background:var(--sun);border-radius:50%"></i>Fin de semana${opts.owner ? '' : ` (+${wkOf(b)}%)`}</span>${CAT.seasons.length ? '<span><i class="lg-hi"></i>Temporada alta</span>' : ''}</div>`;
   };
   el.onclick = e => {
     const nav = e.target.closest('[data-nav]'); if (nav) { view = new Date(view.getFullYear(), view.getMonth() + +nav.dataset.nav, 1); return draw(); }
@@ -399,15 +434,22 @@ function dockFor(b, d) {
 }
 /* Precio por rumbo: cada embarcación tiene su tarifa para cada rumbo (no es un recargo).
    Devuelve {ok, price, tbd}: tbd = el precio de ese rumbo se confirma por WhatsApp. */
-function routePrice(b, r) {
-  const base = rateOf(b);
-  if (!r) return { ok: true, price: base };
+/* Con fecha (d) y niños (kids) aplica la temporada alta y la tabla de precios por niños de la embarcación:
+   kp[rumbo][n] = precio con n niños (kpH en temporada alta). Sin tabla, los niños no cambian el precio. */
+const num = v => typeof v === 'number' && v > 0 ? v : 0;
+function routePrice(b, r, d, kids) {
+  const hi = isHigh(d), up = x => Math.round(x * (1 + CAT.hiPct / 100));
+  const rate = rateOf(b), base = hi ? num(b.priceH) || up(rate) : rate;
+  const k = Math.max(0, Math.min(+kids || 0, +b.kx || 0)), rk = r ? r.id : '_';
+  const kidP = k && (num(((hi ? b.kpH : null) || {})[rk]?.[k]) || (num((b.kp || {})[rk]?.[k]) && (hi ? up(b.kp[rk][k]) : b.kp[rk][k])));
+  if (!r) return { ok: true, price: kidP || base, hi };
   const v = b.rp ? b.rp[r.id] : undefined;
   if (v === null || v === false) return { ok: false };
-  if (typeof v === 'number' && v > 0) return { ok: true, price: v };
+  if (kidP) return { ok: true, price: kidP, hi };
+  if (typeof v === 'number' && v > 0) return { ok: true, price: hi ? num((b.rpH || {})[r.id]) || up(v) : v, hi };
   if (v === undefined && r.open === false) return { ok: false };
-  if (typeof r.add === 'number') return { ok: true, price: base + r.add };
-  return { ok: true, price: base, tbd: true };
+  if (typeof r.add === 'number') return { ok: true, price: base + r.add, hi };
+  return { ok: true, price: base, tbd: true, hi };
 }
 const routeOk = (b, r) => !r || !r.id || routePrice(b, r).ok;
 const hh = h => `${h > 12 ? h - 12 : h}:00 ${h >= 12 ? 'pm' : 'am'}`;
@@ -536,7 +578,7 @@ function renderBuilder() {
   const ownMsg = !OWN || ownOk ? '' : `<p class="own-off">${!fitsOn(OWN) ? `Para tu grupo te recomendamos estas embarcaciones, donde todos van cómodos.` : `La ${OWN.name.toLowerCase()} ya está reservada el ${fmtDay(d)}.`} Estas embarcaciones de nuestros aliados están disponibles:</p>`;
   $('#b-boats').innerHTML = (ownOk ? `<div class="opts own-row">${boatOpt(OWN, d)}</div><h4 class="opts-h">Otras opciones disponibles</h4>` : ownMsg) + `<div class="opts">${others.map(b => boatOpt(b, d)).join('')}</div>`;
   const b = BOATS.find(x => x.id === Q.boat);
-  $('#b-date').value = Q.date; $('#b-date').min = iso(today);
+  $('#b-date').value = Q.date; $('#b-date').min = iso(today); $('#b-date')._paint?.();
   if (b) renderPlan(b);
   renderTicket(); store.set('quote2', Q);
 }
@@ -592,7 +634,7 @@ function renderTicket() {
   if (!b) { window.TLL_LAST = null; $('#ticket').innerHTML = '<h3>Tu cotización</h3><p class="empty">Para grupos de más de 30 personas armamos una flotilla a la medida. Escríbenos.</p>'; return; }
   const r = ROUTES.find(x => x.id === Q.route) || ROUTES[0], d = qDate(), busy = isBusy(b, d), dk = dockById(Q.dock), dc = dockFor(b, dk);
   const rp = routePrice(b, r);
-  const lines = [[`${b.name} · ${r.name} · ${fmtDay(d)}`, priceOn(b, d, r)]];
+  const lines = [[`${b.name} · ${r.name} · ${fmtDay(d)}${isHigh(d) ? ' · temporada alta' : ''}`, priceOn(b, d, r)]];
   if (rp.tbd) lines.push([`Tarifa del ${r.name}`, 0, 'tbd']);
   if (dc.ok && dc.cost) lines.push([`Recogida en ${dk.name}`, dc.cost]);
   if (dc.ok && dc.tbd) lines.push(['Recogida en tu muelle', 0, 'tbd']);
@@ -619,7 +661,7 @@ function renderTicket() {
     <button class="btn btn-sun btn-lg" type="button" id="t-book">Reservar ahora</button>
     <p class="note">No pagas nada ahora: te confirmamos disponibilidad y abono. Fines de semana +${wkOf(b)}%.</p>`;
   $('#mb-total').textContent = money(total);
-  window.TLL_LAST = { boat: b.name, type: b.type, route: routeTxt, dock: dk.custom && Q.pin && Q.pin.ref ? `${dk.name} · ${Q.pin.ref}` : dk.name, pin: dk.custom && okPin(Q.pin) ? { lat: +Q.pin.lat, lng: +Q.pin.lng, ref: Q.pin.ref || '' } : null, dockFee: dc.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
+  window.TLL_LAST = { hi: isHigh(d), boat: b.name, type: b.type, route: routeTxt, dock: dk.custom && Q.pin && Q.pin.ref ? `${dk.name} · ${Q.pin.ref}` : dk.name, pin: dk.custom && okPin(Q.pin) ? { lat: +Q.pin.lat, lng: +Q.pin.lng, ref: Q.pin.ref || '' } : null, dockFee: dc.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
 }
 const GIFT_VALUES = { A: 180, B: 320, C: 950, D: 1650 };
 const AL = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -853,7 +895,7 @@ renderOwnerOpts();
 function ownerKpis() {
   const y = today.getFullYear(), m = today.getMonth(), n = new Date(y, m + 1, 0).getDate();
   let busy = 0, inc = 0;
-  for (let i = 1; i <= n; i++) { const d = new Date(y, m, i); if (isBusy(ob, d)) { busy++; inc += priceOn(ob, d); } }
+  for (let i = 1; i <= n; i++) { const d = new Date(y, m, i); if (isBusy(ob, d)) { busy++; inc += priceOn(ob, d, null, 0); } }
   $('#k-res').textContent = busy; $('#k-inc').textContent = money(inc * .8); $('#k-occ').textContent = Math.round(busy / n * 100) + '%';
 }
 function renderOwner() {
@@ -899,6 +941,6 @@ loadCatalog();
 // al cambiar de idioma: volver a pintar lo que lleva fechas, días y montos con formato local
 addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); window.TLL.renderMine && window.TLL.renderMine(); });
 
-window.TLL = { routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
+window.TLL = { waTo, isHigh, seasonOf, routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
 document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; fitTo(b); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); });
 })();

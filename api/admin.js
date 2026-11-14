@@ -159,7 +159,7 @@ async function handler(req, res) {
       const b = await readBody(req, MAX_CAT + 5000);
       const cat = b && b.cat;
       if (!cat || typeof cat !== 'object' || Array.isArray(cat)) return send(res, 400, { error: 'bad_request' });
-      cat.v = 1; cat.t = Date.now();
+      cat.v = Number.isInteger(cat.v) && cat.v > 0 && cat.v < 100 ? cat.v : 1; cat.t = Date.now();   // respeta la versión del panel (antes siempre 1: la conversión vieja se repetía)
       const s = JSON.stringify(cat);
       if (s.length > MAX_CAT) return send(res, 413, { error: 'too_big' });
       const [prev] = await redis([['GET', 'adm:cat']]);

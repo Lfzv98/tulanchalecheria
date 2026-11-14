@@ -7,7 +7,9 @@ Sitio: https://tulanchalecheria.vercel.app
 ## Navegación (versión 5, 12 nov)
 - **Portada compacta, pensada para el celular:** header, hero con el **video del dron de Mochima** siempre en bucle (1080p nítido, MP4 y WebM; `video/hero2.sh` lo genera) y la franja de prensa, la lancha de la casa (galería que rota sola, “+500 viajes exitosos · 5.0”) y el **menú giratorio**; abajo el footer con el cintillo de aliados.
 - **Menú giratorio (`src/nav.js`):** 19 pantallas flotantes en 3D (2 por sección, 3 en Reservar: Embarcaciones, Playas, Experiencias, Regalos y Club, Servicio a bordo, Mi viaje, Nosotros, Reservar, Propietarios). Gira solo y despacio, se arrastra con el dedo con inercia, y las pestañas de abajo giran a cada sección. Con “reducir movimiento” queda quieto. Las imágenes son de relleno difuminado hasta que Eduardo suba las reales en **Portada y tienda**; entonces se ven nítidas.
-- **Búsqueda del header:** busca secciones, embarcaciones, rumbos, playas, aliados, experiencias y preguntas frecuentes, sin importar acentos. Atajos Ctrl/⌘ K y “/”; con flechas y Enter. En el celular se abre a pantalla completa.
+- **Menú de arriba:** en computadora, las secciones (Embarcaciones, Playas, Experiencias, Regalos y Club, Servicio a bordo, Nosotros), Reservar y Explorar (menú lateral). En el celular, Explorar y la barra inferior. La búsqueda del header se quitó (14 nov, pedido de Eduardo).
+- **Precios:** tarifa por rumbo de cada embarcación; temporada alta (rangos de fechas en el panel, tarifa propia por embarcación o un % general; se aparta con el 100%); precio según niños para embarcaciones que llevan niños aparte (tabla por rumbo y cantidad de niños, normal y temporada alta).
+- **Fechas:** los campos de fecha muestran día/mes/año en cualquier equipo (el selector sigue siendo el nativo).
 - **Menú lateral** (botón Explorar): todas las secciones con ícono, buscar y WhatsApp. En el celular sigue la barra inferior.
 
 ## Secciones (cada una es su propia pantalla)
@@ -46,8 +48,8 @@ En el modo a bordo, "Compartir en vivo" crea un enlace `#sigue/<id>` que se pued
 
 **Activarlo (una vez, gratis):** en Vercel, abre el proyecto › Storage › Create Database › Upstash (Redis), plan Free, y conéctalo al proyecto. Vercel crea solas las variables `KV_REST_API_URL` y `KV_REST_API_TOKEN`. Después, Redeploy. Sin esas variables, la app avisa que el seguimiento aún no está activado. El plan gratis de Upstash da 500.000 comandos al mes: un viaje de 4 horas usa unos 15.000 al publicar y unos 7.000 por cada persona que lo mira (unos 20 viajes al mes con 2 personas mirando). Si se pasa, Upstash cobra unos $0,20 por cada 100.000 comandos extra.
 
-## Comprobante de reserva
-Al confirmar, la app genera en el teléfono un PDF con el resumen, el checklist, el total y el abono (jsPDF, en `src/vendor/`). En el celular se envía como archivo con la hoja de compartir (WhatsApp u otra app); en computadora se descarga para adjuntarlo. Es un comprobante de reserva, no una factura fiscal.
+## Confirmación y comprobante de reserva
+Al tocar “Confirmar reserva” se abre de una vez el WhatsApp de Tu Lancha con todos los datos (en el celular la app de WhatsApp con wa.me; en computadora WhatsApp Web directo, sin la página que pide instalar la app). La pantalla final no tiene pasos extra: “Enviar de nuevo” por si WhatsApp no se abrió, “Volver al inicio”, “Ver mi viaje” y un enlace para descargar el comprobante en PDF (jsPDF, en `src/vendor/`). El modo a bordo y el álbum quedan en Mi viaje con el código. Es un comprobante de reserva, no una factura fiscal.
 
 ## Idiomas (español e inglés de EE. UU.)
 - La web abre siempre en español, sin importar el idioma del teléfono. El botón de la barra superior (EN) la cambia a inglés y, ya en inglés, muestra ES para volver. La elección se recuerda en ese teléfono. También se puede abrir en inglés con `?lang=en`.
@@ -62,5 +64,5 @@ Las embarcaciones, tarifas y muelles del catálogo son de ejemplo y así se indi
 - `src/`: fuentes (body.html, styles.css, app.js, features.js, booking.js, plan.js, shell.js, nav.js, admin.js, i18n.js, i18n-dict.js).
 - `video/`: escena (`scene.html`) y render (`render.js`) del video del hero; `video/out/` tiene los archivos codificados.
 - `build.py`: genera `dist/` (necesita Python + Pillow). `dist/` se publica tal cual en Vercel (ver `vercel.json`).
-- `tests.js`, `tests-pantallas.js`, `tests-idiomas.js`, `tests-pdf.js`, `tests-sos.js`, `tests-videos.js`, `tests-hero.js`: verificaciones con Playwright en iPhone, Pixel, Galaxy, iPad, Galaxy Tab, laptop y escritorio (motor Chromium). Uso: `node tests.js` con el sitio servido en el puerto 8765.
+- `tests.js`, `tests-pantallas.js`, `tests-idiomas.js`, `tests-pdf.js`, `tests-sos.js`, `tests-videos.js`, `tests-hero.js`, `tests-precios.js`: verificaciones con Playwright en iPhone, Pixel, Galaxy, iPad, Galaxy Tab, laptop y escritorio (motor Chromium). Uso: `node tests.js` con el sitio servido en el puerto 8765.
 - `tests-panel.js`: el panel de punta a punta (acceso, bloqueo, fotos, publicar, reservas, versiones, contraseña, teléfono) contra la API real con un Redis falso: `node tests-vivo-servidor.js dist api/live.js 8766 &` y luego `TLL_USER=... TLL_PASS=... node tests-panel.js`.

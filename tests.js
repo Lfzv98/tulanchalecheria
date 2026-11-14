@@ -43,7 +43,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   console.log('== Flujo cliente en móvil (iPhone) ==');
   const ctx = await b.newContext({ locale: 'es-VE', ...devices['iPhone 13'], deviceScaleFactor: 1, reducedMotion: 'reduce' });
   const popups = [];
-  await ctx.route(/wa\.me|instagram|youtube|open-meteo/, r => r.fulfill({ status: 200, body: 'ok' }));
+  await ctx.route(/wa\.me|whatsapp\.com|instagram|youtube|open-meteo/, r => r.fulfill({ status: 200, body: 'ok' }));
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('popup', async pg => { popups.push(pg.url()); await pg.close().catch(() => {}); });
   await p.goto(URL); await p.waitForTimeout(500);
   const tap = async sel => { const h = typeof sel === 'string' ? await p.waitForSelector(sel) : sel; await h.evaluate(e => e.scrollIntoView({ block: 'center' })); await p.waitForTimeout(60); await h.tap(); };
@@ -59,7 +59,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok(await p.$('#cur-ves') === null, 'Sin selector de bolívares');
   ok((await p.textContent('.press-strip')).includes('Viajando con BIVI') && (await p.textContent('.press-strip')).includes('Canal Viajero'), 'Prensa: Viajando con BIVI y Canal Viajero');
   ok(await p.$('#sheet .side-nav a[href="#propietarios"]') !== null && await p.$('#sheet .side-nav a[href="#aliados"]') !== null, 'Menú lateral con todas las secciones (Servicio a bordo y Propietarios incluidos)');
-  ok(await p.evaluate(() => !document.querySelector('.mainnav') && document.querySelectorAll('.orbit-band .orb-card').length === 19), 'Portada sin menú de texto en el header: las secciones van en el menú giratorio');
+  ok(await p.evaluate(() => !document.querySelector('#tsearch') && !document.querySelector('[data-side-search]') && getComputedStyle(document.querySelector('.mainnav')).display === 'none' && document.querySelectorAll('.orbit-band .orb-card').length === 19), 'Sin búsqueda en el header; en el celular las secciones van en el menú y el menú giratorio');
   ok(await p.evaluate(() => ['.steps3', '.tiles', '#layers', '.cta-band'].every(s => !document.querySelector('[data-view="inicio"] ' + s))), 'Portada compacta: header, hero, lancha de la casa, menú giratorio y footer');
   ok((await p.textContent('#own-feature')).includes('+500 viajes exitosos'), 'Portada destaca la lancha de la casa con +500 viajes exitosos');
   await go('flota'); ok(await p.evaluate(() => location.hash) === '#flota' && await p.isVisible('#boats'), 'Enlace viejo #flota abre Embarcaciones');
@@ -154,11 +154,12 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await tap('#bk-go'); ok(await p.isVisible('#bk-form'), 'Sin nombre no deja confirmar');
   await p.fill('#bk-name', 'Familia Pérez'); await p.fill('#bk-phone', '0414 555 1234'); await tap('#bk-go'); await p.waitForTimeout(200);
   ok(await p.isVisible('#bk-form') && await p.$('#bk-code') === null, 'Sin aceptar las condiciones no deja confirmar');
-  await tap('#bk-ok'); await tap('#bk-go'); await p.waitForSelector('#bk-code');
+  const qBoat = await p.evaluate(() => TLL_LAST.boat);
+  await tap('#bk-ok'); await tap('#bk-go'); await p.waitForSelector('#bk-code'); await p.waitForTimeout(500);
   const bcode = (await p.textContent('#bk-code')).trim(); ok(/^TLL-\d{4}$/.test(bcode), 'Reserva registrada con código ' + bcode);
-  await tap('#bk-send'); await p.waitForTimeout(500);
-  ok(popups.some(u => { const d = decodeURIComponent(u); return d.includes(bcode) && d.includes('comprobante') && !d.includes('Familia Pérez'); }), 'Sin hoja de compartir: abre el chat de Tu Lancha con un mensaje corto (los datos van en el PDF)');
-  ok(await p.$('#bk-send') === null && await p.isVisible('#bk-home') && await p.isVisible('#bk-trip'), 'Tras enviar: "Volver al inicio" y "Ver mi viaje" toman el lugar del botón verde');
+  ok(popups.some(u => { const d = decodeURIComponent(u); return /wa\.me\/58/.test(d) && d.includes(bcode) && d.includes('Familia Pérez') && d.includes(qBoat) && d.includes('Total'); }), 'Al confirmar se abre de una vez el WhatsApp de Tu Lancha con todos los datos de la reserva');
+  ok(await p.$('#bk-send') === null && await p.$('#dlg .pl-box') === null && await p.isVisible('#bk-home') && await p.isVisible('#bk-trip'), 'Pantalla final sin pasos extra ni promoción del modo viaje: "Volver al inicio" y "Ver mi viaje"');
+  ok(await p.isVisible('#bk-resend') && await p.isVisible('#bk-pdf-dl'), 'Si WhatsApp no se abrió, se puede enviar de nuevo; el PDF queda como respaldo');
   ok(await p.evaluate(() => { const a = document.querySelector('#bk-home').getBoundingClientRect(), b = document.querySelector('#bk-trip').getBoundingClientRect(); return Math.abs(a.top - b.top) < 2 && a.right <= b.left; }), '"Volver al inicio" y "Ver mi viaje" van lado a lado');
   await tap('#bk-home'); await p.waitForTimeout(600);
   ok(await p.evaluate(() => location.hash) === '#inicio' && !(await p.evaluate(() => document.querySelector('#dlg').open)), '"Volver al inicio" cierra y lleva a la portada');

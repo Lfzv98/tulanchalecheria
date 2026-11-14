@@ -17,7 +17,7 @@ const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 
   const b = await chromium.launch();
   for (const [name, d] of DEV) {
     const ctx = await b.newContext({ locale: 'es-VE', ...d, deviceScaleFactor: 1, reducedMotion: 'reduce' });
-    await ctx.route(/wa\.me|open-meteo|youtu|instagram|mercadillo/, r => r.fulfill({ status: 200, body: 'ok' }));
+    await ctx.route(/wa\.me|whatsapp\.com|open-meteo|youtu|instagram|mercadillo/, r => r.fulfill({ status: 200, body: 'ok' }));
     const p = await ctx.newPage(); const errs = []; const pops = [];
     p.on('pageerror', e => errs.push(e.message)); p.on('popup', async x => { pops.push(decodeURIComponent(x.url())); await x.close().catch(() => {}); });
     const touch = !!d.hasTouch;
@@ -40,15 +40,12 @@ const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 
     const tab = await p.evaluate(() => getComputedStyle(document.querySelector('.tabbar')).display !== 'none');
     if (tab) { await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(300); await act('.tabbar [data-tab="embarcaciones"]'); await p.waitForTimeout(300); ok(await p.isVisible('#boats'), `${name}: barra inferior → Embarcaciones`); await act('#menu-open-2'); ok(await p.isVisible('#sheet'), `${name}: menú Más`); await act('#sheet a[href="#aliados"]'); await p.waitForTimeout(300); ok(await p.isVisible('#allies'), `${name}: menú → Aliados`); }
     else { await act('#menu-open'); await p.waitForTimeout(250); ok(await p.isVisible('#sheet .side-nav'), `${name}: menú lateral abre`); await act('#sheet a[href="#embarcaciones"]'); await p.waitForTimeout(300); ok(await p.isVisible('#boats'), `${name}: menú lateral → Embarcaciones`); }
-    // portada: menú giratorio con las 9 secciones y búsqueda del encabezado
+    // portada: menú giratorio con las 9 secciones y encabezado sin búsqueda
     await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(300);
     ok(await p.evaluate(() => document.querySelectorAll('.orbit-band .orb-card').length === 19 && document.querySelectorAll('.orbit-band .orb-tabs [role=tab]').length === 9), `${name}: menú giratorio con 19 pantallas y 9 secciones`);
     await p.evaluate(() => { document.querySelector('.orbit-band').scrollIntoView({ block: 'center' }); document.querySelector('.orbit-band .orb-tabs [data-sec="playas"]').click(); }); await p.waitForTimeout(1200);
     ok(await p.evaluate(() => document.querySelector('.orbit-band .orb-tabs [data-sec="playas"]').getAttribute('aria-selected') === 'true'), `${name}: tocar una sección gira el menú`);
-    await p.evaluate(() => { const i = document.querySelector('#ts-q'); i.value = 'plata'; i.dispatchEvent(new Event('input', { bubbles: true })); }); await p.waitForTimeout(200);
-    ok(await p.evaluate(() => [...document.querySelectorAll('#ts-res .ts-o')].some(o => /Plata/.test(o.textContent))), `${name}: búsqueda encuentra Isla de Plata`);
-    await p.evaluate(() => { const i = document.querySelector('#ts-q'); i.value = ''; i.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); });
-    ok(await p.evaluate(() => document.querySelector('#ts-res').hidden && !document.body.classList.contains('ts-on')), `${name}: Escape cierra la búsqueda`);
+    ok(await p.evaluate(() => !document.querySelector('#tsearch') && ![...document.querySelectorAll('#topbar .brand, #topbar .mainnav a, #topbar .top-actions > *')].filter(e => e.offsetParent).some((e, i, A) => { const a = e.getBoundingClientRect(); return A.some((f, j) => { if (j <= i) return false; const b = f.getBoundingClientRect(); return a.right > b.left + 1 && b.right > a.left + 1 && a.bottom > b.top && b.bottom > a.top; }); })), `${name}: encabezado sin búsqueda y sin elementos encimados`);
     // inicio → lancha de la casa
     await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(300);
     await act('#own-feature [data-open="b0"]'); await p.waitForSelector('#dlg[open]'); await p.waitForTimeout(250); await dlgOver('detalle lancha de la casa');
@@ -77,9 +74,8 @@ const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 
     await act('#bk-ok'); await act('#bk-go'); await p.waitForSelector('#bk-code', { timeout: 4000 }).catch(() => {});
     const code = (await p.textContent('#bk-code').catch(() => '')).trim(); ok(/^TLL-\d{4}$/.test(code), `${name}: reserva con código ${code}`);
     await dlgOver('reserva registrada');
-    await act('#bk-send'); await p.waitForTimeout(400);
-    const shared = await p.evaluate(() => window.__shared || null);
-    ok(pops.some(u => u.includes(code)) || (shared && shared.text && shared.text.includes(code)), `${name}: el comprobante sale a WhatsApp con el código`);
+    await p.waitForTimeout(400);
+    ok(pops.some(u => { let d = u; try { d = decodeURIComponent(u); } catch {} return d.includes(code) && d.includes('Ana Prueba'); }), `${name}: al confirmar, los datos salen a WhatsApp con el código`);
     await dlgOver('reserva enviada');
     await act('#bk-trip'); await p.waitForTimeout(500); await over('mi viaje con reserva');
     ok((await p.textContent('#my-trips')).includes(code), `${name}: Mi viaje lista la reserva`);

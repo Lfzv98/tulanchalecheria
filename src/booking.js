@@ -28,10 +28,12 @@ const acctOf = k => { const P = (window.TLL.CAT && window.TLL.CAT.pay) || {}; re
 const HOW_ACCT = { zelle: 'Paga el abono a este Zelle y mándanos la captura por WhatsApp.', binance: 'Paga el abono en USDT a este ID de Binance Pay y mándanos la captura por WhatsApp.', paypal: 'Paga el abono con la comisión de PayPal a esta cuenta y mándanos la captura por WhatsApp.' };
 // PayPal suma su comisión (4,5% por defecto) al abono; el resto se paga en el muelle
 const ppFee = () => { const P = (window.TLL.CAT && window.TLL.CAT.pay) || {}; const f = +P.paypalFee; return f >= 0 && P.paypalFee !== '' && P.paypalFee != null ? f : 4.5; };
-const abono = (k, total) => k === 'paypal' ? Math.round(total / 2 * (1 + ppFee() / 100) * 100) / 100 : total / 2;
+let HI = false;   // temporada alta: se aparta con el 100%
+const depPct = () => HI ? 1 : .5;
+const abono = (k, total) => k === 'paypal' ? Math.round(total * depPct() * (1 + ppFee() / 100) * 100) / 100 : total * depPct();
 const payInfo = (k, total) => { const m = PAY[k], [ac, holder] = acctOf(k), P = (window.TLL.CAT && window.TLL.CAT.pay) || {};
   const bn = k === 'binance' && ac, pp = k === 'paypal', link = pp && /^https?:\/\/|paypal\.me/i.test(ac || '');
-  return `<div class="pay-info"><div class="pay-amt"><span>Abono para apartar</span><b>${money(abono(k, total))}</b><small>${pp ? `50% + ${String(ppFee()).replace('.', ',')}% de comisión de PayPal · el resto en el muelle` : '50% · el resto en el muelle antes de zarpar'}</small></div><p>${ac ? HOW_ACCT[k] : m.how}</p>${ac ? `<p class="pay-acct mono" translate="no">${bn ? "ID " : ""}${esc(ac).replace("@", "@<wbr>")}</p>${holder ? `<p class="rating">${bn ? 'Usuario:' : 'Titular:'} <b translate="no">${esc(holder)}</b></p>` : ''}` : ''}
+  return `<div class="pay-info"><div class="pay-amt"><span>Abono para apartar</span><b>${money(abono(k, total))}</b><small>${HI ? (pp ? `100% (temporada alta) + ${String(ppFee()).replace('.', ',')}% de comisión de PayPal` : '100% · temporada alta') : pp ? `50% + ${String(ppFee()).replace('.', ',')}% de comisión de PayPal · el resto en el muelle` : '50% · el resto en el muelle antes de zarpar'}</small></div><p>${ac ? HOW_ACCT[k] : m.how}</p>${ac ? `<p class="pay-acct mono" translate="no">${bn ? "ID " : ""}${esc(ac).replace("@", "@<wbr>")}</p>${holder ? `<p class="rating">${bn ? 'Usuario:' : 'Titular:'} <b translate="no">${esc(holder)}</b></p>` : ''}` : ''}
   ${bn && (P.binanceQR || P.binanceLink) ? `<div class="pay-qr">${P.binanceQR ? `<img src="${esc(P.binanceQR)}" alt="QR de Binance Pay" width="120" height="120" loading="lazy">` : ''}${P.binanceLink ? `<a class="btn btn-sun btn-sm" href="${esc(P.binanceLink)}" target="_blank" rel="noopener">Abrir en Binance</a>` : ''}</div>` : ''}
   ${link ? `<div class="pay-qr"><a class="btn btn-sun btn-sm" href="${esc(/^https?:/i.test(ac) ? ac : 'https://' + ac)}" target="_blank" rel="noopener">Pagar con PayPal</a></div>` : ''}</div>`; };
 
@@ -64,7 +66,7 @@ const reviewHtml = q => {
     <ul class="bk-checks">${ck.map(([k, v]) => `<li><span class="bk-ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="bk-k">${k}</span><span class="bk-v">${esc(v)}</span></li>`).join('')}</ul>
     <dl class="bk-lines">${(q.lines || []).map(l => `<div><dt>${esc(l[0])}</dt><dd>${l[2] === 'tbd' ? 'por confirmar' : money(l[1])}</dd></div>`).join('')}</dl>
     <div class="bk-total"><span>Total de tu pedido</span><strong id="bk-total">${money(q.total)}</strong></div>
-    <div class="bk-split"><div><span>Abono para apartar (50%)</span><b>${money(q.total / 2)}</b></div><div><span>Resto, en el muelle</span><b>${money(q.total - q.total / 2)}</b></div></div>
+    ${q.hi ? `<div class="bk-split"><div><span>Temporada alta: se aparta con el 100%</span><b>${money(q.total)}</b></div></div>` : `<div class="bk-split"><div><span>Abono para apartar (50%)</span><b>${money(q.total / 2)}</b></div><div><span>Resto, en el muelle</span><b>${money(q.total - q.total / 2)}</b></div></div>`}
   </section>`;
 };
 const closeOn = dlg => { dlg.onchange = null; dlg.onclick = e => { if (e.target === dlg || e.target.closest('.m-close')) dlg.close(); }; };
@@ -72,6 +74,7 @@ const closeOn = dlg => { dlg.onchange = null; dlg.onclick = e => { if (e.target 
 function openBooking() {
   const q = window.TLL_LAST; if (!q) { toast('Para grupos tan grandes, escríbenos y armamos una flotilla.'); return; }
   if (q.block) { toast(q.block); return; }
+  HI = !!q.hi;
   const dlg = $('#dlg'); if (dlg.open) dlg.close();
   const p = me();
   dlg.className = 'sheetish';
@@ -86,7 +89,7 @@ function openBooking() {
     <fieldset class="pay"><legend><span class="eyebrow">Pago</span><b>¿Cómo prefieres pagar el abono?</b></legend>
       <div class="pay-opts" role="radiogroup">${Object.keys(PAY).map(k => payCard(k, p.pay || 'zelle', q.total)).join('')}</div>
       <div id="bk-payinfo">${payInfo(p.pay || 'zelle', q.total)}</div>
-      <p class="pay-secure"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>No pagas nada en la app. Confirmamos disponibilidad por WhatsApp y ahí acordamos el pago con Eduardo.</p>
+      <p class="pay-secure"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>No pagas nada en la app. Al confirmar, tus datos le llegan a Tu Lancha por WhatsApp y ahí acordamos el pago.</p>
     </fieldset>
     <div class="bk-terms"><h4>Condiciones principales</h4><ul>${POLICY_SHORT.map(x => `<li>${x}</li>`).join('')}</ul>${policyHtml()}
       <label class="bk-ok"><input type="checkbox" id="bk-ok" required> <span>Leí y acepto las condiciones de alquiler</span></label></div>
@@ -102,6 +105,7 @@ function openBooking() {
     if (!$('#bk-ok', dlg).checked) { $('#bk-ok', dlg).focus(); toast('Para reservar, acepta las condiciones de alquiler'); return; }
     store.set('me', { name, phone, pay: payNow() });
     const r = { ...q, code: newCode(), name, phone, pay: payNow(), note: $('#bk-note', dlg).value.trim(), created: Date.now(), accepted: Date.now(), sent: false };
+    r.sent = openWa(r);
     saveMine([r, ...mine()].slice(0, 20));
     // aviso al panel de Eduardo (si no hay conexión, no pasa nada: la reserva sigue en el teléfono y en WhatsApp)
     try { fetch('/api/admin?a=book', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: r.code, created: r.created, iso: r.iso, date: r.date, boat: r.boat, route: r.route, dock: okPin(r.pin) ? 'Muelle del cliente' + (r.pin.ref ? ' · ' + r.pin.ref : '') : r.dock, pin: okPin(r.pin) ? r.pin : undefined, hours: r.hours, pax: r.pax, kids: r.kids, total: r.total, pay: r.pay, name: r.name, phone: r.phone, note: r.note, lang: (window.TLL_I18N && TLL_I18N.lang) || 'es' }) }).catch(() => {}); } catch {}
@@ -110,11 +114,31 @@ function openBooking() {
   dlg.showModal();
 }
 
-// Mensaje corto que acompaña al PDF: los detalles van en el comprobante, no en el texto
-const shortText = r => TLL_I18N.tr(`Hola Tu Lancha, te envío el comprobante de mi reserva ${r.code}.`);
+/* Mensaje completo de la reserva: le llega a Tu Lancha por WhatsApp apenas el cliente confirma (pedido de Eduardo).
+   No hace falta adjuntar nada; el PDF queda como respaldo para descargar. */
+const fullText = r => {
+  const extras = (r.lines || []).slice(1).map(l => `• ${clean(l[0])}${l[2] === 'tbd' ? ' (por confirmar)' : l[1] ? ': ' + money(l[1]) : ''}`);
+  const pay = PAY[r.pay] ? PAY[r.pay].name : '';
+  return [`Hola Tu Lancha 👋 Quiero confirmar mi reserva *${r.code}*`, '',
+    `👤 ${r.name}${r.phone ? ' · ' + r.phone : ''}`,
+    `🛥️ ${r.boat}${r.type ? ' (' + r.type + ')' : ''}`,
+    `📅 ${r.date}${r.hours ? ' · ' + r.hours : ''}${r.hi ? ' · temporada alta' : ''}`,
+    `👥 ${r.paxTxt || r.pax + ' personas'}`,
+    `🧭 ${r.route}`,
+    `⚓ ${r.dock}${r.dockFee ? ' · servicio de muelle ' + r.dockFee + ' (en sitio)' : ''}`,
+    ...(okPin(r.pin) ? [`📍 ${gmapsUrl(r.pin)}`] : []),
+    ...(extras.length ? ['', 'Extras:', ...extras] : []),
+    '', `💵 Total: ${money(r.total)}`, `Abono para apartar${r.hi ? ' (100%, temporada alta)' : ' (50%)'}: ${money(abono(r.pay, r.total))}${pay ? ' por ' + pay : ''}`,
+    ...(r.note ? ['', `📝 ${r.note}`] : []),
+    '', 'Acepté las condiciones de alquiler.'].join('\n');
+};
+// abre WhatsApp en el chat de Tu Lancha con todos los datos; devuelve si se pudo abrir
+function openWa(r) { HI = !!r.hi; let w = null; try { w = window.open(wa(fullText(r)), '_blank'); if (w) w.opener = null; } catch { /* bloqueado */ } return !!w; }
 const navPair = () => `<div class="bk-nav" id="bk-nav"><a class="btn btn-ghost" href="#inicio" id="bk-home">Volver al inicio</a><a class="btn btn-sun" href="#mi-viaje" id="bk-trip">Ver mi viaje</a></div>`;
+const WA_HINT = '<p class="bk-wa-hint">¿No se abrió WhatsApp o no enviaste el mensaje? <button class="linkish" type="button" id="bk-resend">Enviar de nuevo</button></p>';
 function showDone(r) {
-  const dlg = $('#dlg'); const share = canShareFiles();
+  HI = !!r.hi;
+  const dlg = $('#dlg');
   dlg.className = 'sheetish';
   dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="view book done">
     <div class="bk-check" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l7 7 15-16"/></svg></div>
@@ -122,43 +146,20 @@ function showDone(r) {
     <p class="bk-code-l">Tu código de reserva</p><p class="bk-code mono" id="bk-code">${r.code}</p>
     <div class="bk-sum"><div><b>${esc(r.boat)}</b><span>${esc(r.date)} · ${esc(r.paxTxt || r.pax + ' personas')}</span><span>${esc(r.route)}</span></div><strong>${money(r.total)}</strong></div>
     ${r.pay && PAY[r.pay] ? `<div class="pay-done"><span class="pay-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${PAY[r.pay].ic}</svg></span><div><span>Pagarás con</span><b>${PAY[r.pay].name}</b></div><strong>${money(abono(r.pay, r.total))}<small>abono</small></strong></div>` : ''}
-    <ol class="bk-next"><li class="ok">Reserva guardada en tu app</li><li id="bk-li-send" class="${r.sent ? 'ok' : 'now'}">Enviar el comprobante a Tu Lancha por WhatsApp</li><li>Eduardo confirma la disponibilidad y te pasa ${r.pay === 'efectivo' ? 'cómo entregar el abono en efectivo' : 'los datos para el abono'}</li><li>Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el toque de muelle</li></ol>
-    ${r.sent ? navPair() : `<button class="btn btn-wa btn-lg" type="button" id="bk-send">Enviar comprobante por WhatsApp</button>`}
-    <div class="bk-pdf" id="bk-pdf"><div class="bk-pdf-doc" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/><path d="M9 13h7M9 17h5"/></svg></div>
-      <div class="bk-pdf-t"><b>Comprobante de reserva</b><span id="bk-pdf-st">Preparando tu PDF…</span></div>
-      <p class="bk-pdf-how">${share ? 'Al tocar Enviar se abre el menú de compartir: elige WhatsApp y el chat de Tu Lancha. Si no lo ves en la lista, descarga el PDF y adjúntalo en el chat.' : 'Al tocar Enviar se descarga el PDF y se abre el chat de Tu Lancha: adjunta el PDF ahí (arrástralo o usa el clip).'}</p>
-      <div class="bk-pdf-acts"><button class="btn btn-ghost btn-sm" type="button" id="bk-pdf-dl">Descargar PDF</button><a class="btn btn-ghost btn-sm" id="bk-pdf-chat" target="_blank" rel="noopener" href="${wa(shortText(r))}">Abrir chat de Tu Lancha</a>${r.sent ? '<button class="btn btn-ghost btn-sm" type="button" id="bk-resend">Enviar de nuevo</button>' : ''}</div></div>
-    ${window.TLL.planBlock ? window.TLL.planBlock(r) : ''}
-    ${r.sent ? '' : navPair()}
+    <ol class="bk-next"><li class="ok">Reserva guardada con tu código</li><li id="bk-li-send" class="${r.sent ? 'ok' : 'now'}">${r.sent ? 'Tus datos se enviaron al WhatsApp de Tu Lancha' : 'Envía tus datos al WhatsApp de Tu Lancha'}</li><li>Eduardo confirma la disponibilidad y te pasa ${r.pay === 'efectivo' ? 'cómo entregar el abono en efectivo' : 'los datos para el abono'}</li><li>Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el servicio de muelle</li></ol>
+    ${r.sent ? `${WA_HINT}${navPair()}` : `<button class="btn btn-wa btn-lg" type="button" id="bk-send">Enviar mis datos por WhatsApp</button>${navPair()}`}
+    <p class="bk-pdf-mini"><button class="linkish" type="button" id="bk-pdf-dl">Descargar comprobante (PDF)</button> · <span id="bk-pdf-st">Con tu código entras luego a Mi viaje.</span></p>
   </div>`;
   closeOn(dlg);
-  window.TLL.wirePlan && window.TLL.wirePlan(dlg);
-  // el PDF se prepara apenas se abre esta pantalla, así el toque de "Enviar" conserva el gesto del usuario
-  const st = $('#bk-pdf-st', dlg); let blob = null;
-  pdfFor(r).then(b => { blob = b; st.textContent = `${pdfName(r)} · ${Math.max(1, Math.round(b.size / 1024))} KB`; $('#bk-pdf', dlg).classList.add('ready'); })
-    .catch(() => { st.textContent = 'No se pudo preparar el PDF. Intenta de nuevo.'; });
+  let blob = null;
   const getBlob = async () => blob || (blob = await pdfFor(r));
   // una vez enviado, "Volver al inicio" y "Ver mi viaje" toman el lugar del botón verde
   const sent = () => {
-    markSent(r.code); $('#bk-li-send', dlg).className = 'ok';
+    markSent(r.code); const li = $('#bk-li-send', dlg); li.className = 'ok'; li.textContent = 'Tus datos se enviaron al WhatsApp de Tu Lancha';
     const btn = $('#bk-send', dlg); if (!btn) return;
-    $('#bk-nav', dlg)?.remove(); btn.insertAdjacentHTML('afterend', navPair()); btn.remove(); wireNav();
-    const acts = $('.bk-pdf-acts', dlg); if (acts && !$('#bk-resend', dlg)) { acts.insertAdjacentHTML('beforeend', '<button class="btn btn-ghost btn-sm" type="button" id="bk-resend">Enviar de nuevo</button>'); $('#bk-resend', dlg).addEventListener('click', send); }
+    btn.insertAdjacentHTML('beforebegin', WA_HINT); btn.remove(); $('#bk-resend', dlg).addEventListener('click', send);
   };
-  async function send() {
-    if (share) {
-      try {
-        const file = new File([await getBlob()], pdfName(r), { type: 'application/pdf' });
-        await navigator.share({ files: [file], title: TLL_I18N.tr(`Comprobante ${r.code}`), text: shortText(r) });
-        sent(); toast('¡Listo! Eduardo recibe tu comprobante');
-        return;
-      } catch (e) { if (e && e.name === 'AbortError') return; }
-    }
-    // sin hoja de compartir con archivos (computadora): se descarga el PDF y se abre el chat con un mensaje corto
-    window.open(wa(shortText(r)), '_blank', 'noopener');
-    try { saveBlob(await getBlob(), pdfName(r)); } catch { toast('No se pudo crear el PDF'); return; }
-    sent(); toast('Descargamos el PDF: adjúntalo en el chat de WhatsApp');
-  }
+  function send() { openWa(r); sent(); }
   function wireNav() {
     $('#bk-home', dlg).addEventListener('click', e => { e.preventDefault(); dlg.close(); location.hash = 'inicio'; scrollTo(0, 0); });
     $('#bk-trip', dlg).addEventListener('click', () => dlg.close());
@@ -166,7 +167,7 @@ function showDone(r) {
   wireNav();
   $('#bk-send', dlg)?.addEventListener('click', send);
   $('#bk-resend', dlg)?.addEventListener('click', send);
-  $('#bk-pdf-dl', dlg).addEventListener('click', async () => { try { saveBlob(await getBlob(), pdfName(r)); toast('Comprobante descargado'); } catch { toast('No se pudo crear el PDF'); } });
+  $('#bk-pdf-dl', dlg).addEventListener('click', async () => { const st = $('#bk-pdf-st', dlg); st.textContent = 'Preparando tu PDF…'; try { saveBlob(await getBlob(), pdfName(r)); st.textContent = `${pdfName(r)} descargado`; toast('Comprobante descargado'); } catch { st.textContent = 'No se pudo crear el PDF. Intenta de nuevo.'; } });
   if (!dlg.open) dlg.showModal();
 }
 function markSent(code) { saveMine(mine().map(x => x.code === code ? { ...x, sent: true } : x)); renderMine(); }

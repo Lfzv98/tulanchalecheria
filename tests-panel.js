@@ -119,8 +119,37 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     await q.click('[data-adtab="aliados"]'); fc = q.waitForEvent('filechooser'); await q.click('[data-up="allies.0.items.0.4"]'); await (await fc).setFiles(await makeImg(q, 800, 500));
     await q.waitForSelector('.ad-sheet.k-crop canvas'); const lw = await q.evaluate(() => [document.querySelector('#crop-c').width, document.querySelector('#crop-c').height]);
     ok(lw[0] === 512 && lw[1] === 512, 'El logo se ajusta a 512 × 512 sin recortarlo'); await q.click('#crop-ok'); await q.waitForFunction(() => !document.querySelector('.ad-sheet.k-crop'), null, { timeout: 8000 });
+    // pedido de Eduardo (14 nov): temporada alta, precio según niños, costo propio de recogida y tarifa del muelle que se guarde
+    await q.click('[data-adtab="flota"]'); ok(await q.isVisible('.ad-season'), 'Embarcaciones: panel de Temporada alta');
+    await q.click('[data-season-add]'); await q.waitForSelector('[data-k="seasons.0.from"]');
+    const hiDay = await q.evaluate(() => { const d = new Date(); d.setDate(d.getDate() + 40); return d.toISOString().slice(0, 10); });
+    await q.fill('[data-k="seasons.0.name"]', 'Navidad'); await q.fill('[data-k="seasons.0.from"]', hiDay); await q.fill('[data-k="seasons.0.to"]', hiDay); await q.fill('[data-k="hiPct"]', '15');
+    ok(await q.evaluate(() => /\d\d\/\d\d\/\d{4}/.test(document.querySelector('[data-k="seasons.0.from"]').parentNode.querySelector('.dfield-v').textContent)), 'Las fechas del panel se ven día/mes/año');
+    await q.click('[data-boat-edit="0"]'); await q.waitForSelector('.ad-sheet.k-boat');
+    ok(await q.isVisible('.ad-ktable') && (await q.$$('.ad-ktable')).length === 2, 'Lancha de la casa: tabla de precio según niños (normal y temporada alta)');
+    await q.fill('[data-k="boats.0.kp.r1.1"]', '380'); await q.fill('[data-k="boats.0.priceH"]', '520');
+    ok(await q.$eval('[data-pick="em"]', e => e.value) === 'own' && await q.$eval('[data-pickp="em"]', e => !e.hidden && +e.value === 20), 'El costo propio de recogida en Eurobuilding ($20) ahora se ve en el panel');
+    await q.fill('[data-pickp="em"]', '25');
+    await q.click('.ad-sheet.k-boat [data-close]');
+    await q.click('[data-adtab="muelles"]'); const emI = await q.evaluate(() => [...document.querySelectorAll('[data-k$=".name"]')].findIndex(e => /Eurobuilding/.test(e.value)));
+    await q.fill(`[data-k="docks.${emI}.cost.m"]`, '33');
+    ok((await q.textContent('.ad-docks')).includes('cobra $25 (costo propio)'), 'Muelles: se listan las embarcaciones con costo propio de recogida');
     await q.click('#a-pub'); await q.waitForFunction(() => document.querySelector('.ad-save').hidden, null, { timeout: 8000 });
     ok(true, 'Publicar guarda y oculta la barra');
+    {
+      const cat = await (await fetch(BASE + 'api/admin?a=cat')).json();
+      ok(cat.v === 3, `El catálogo se guarda con su versión (v${cat.v}), así la conversión vieja no se repite`);
+      const c3 = await b.newContext({ locale: 'es-VE', viewport: { width: 1280, height: 860 } }); const w3 = await c3.newPage();
+      await w3.goto(BASE); await w3.waitForFunction(() => window.TLL && window.TLL.CAT.seasons.length === 1, null, { timeout: 8000 });
+      await w3.reload(); await w3.waitForFunction(() => window.TLL && window.TLL.CAT.seasons.length === 1, null, { timeout: 8000 });
+      const v = await w3.evaluate(d => { const T = window.TLL, own = T.BOATS.find(x => x.own), b4 = T.BOATS.find(x => x.id === 'b4'), em = T.DOCKS.find(x => x.id === 'em'), r1 = T.ROUTES.find(x => x.id === 'r1');
+        const [y, m, dd] = d.split('-').map(Number), hi = new Date(y, m - 1, dd);
+        return { m: em.cost.m, b4: T.dockFor(b4, em).cost, own: T.dockFor(own, em).cost, hi: T.isHigh(hi), k1: T.routePrice(own, r1, null, 1).price, base: T.routePrice(own, null, hi, 0).price }; }, hiDay);
+      ok(v.m === 33 && v.b4 === 33, `Tras recargar, la recogida en Eurobuilding usa la tarifa nueva ($${v.b4})`);
+      ok(v.own === 25, 'La lancha de la casa usa su costo propio de recogida ($25)');
+      ok(v.hi && v.base === 520 && v.k1 === 380, `La web aplica la temporada alta ($${v.base}) y el precio con 1 niño ($${v.k1})`);
+      await c3.close();
+    }
     // la web de un cliente nuevo
     const c2 = await b.newContext({ locale: 'es-VE', viewport: { width: 1280, height: 860 }, deviceScaleFactor: 1 }); const w = await c2.newPage(); const e3 = []; w.on('pageerror', e => e3.push(e.message));
     await w.goto(BASE); await w.waitForFunction(n => { const x = window.TLL.BOATS.find(b => b.name === n); return x && x.price === 999; }, name, { timeout: 8000 });

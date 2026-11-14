@@ -2,12 +2,11 @@
 <header class="topbar" id="topbar">
   <div class="wrap">
     <a class="brand" href="#inicio" aria-label="Tu Lancha Lechería, inicio"><img src="{{LOGO}}" alt="" width="40" height="40"><span>Tu Lancha Lechería<small>Anzoátegui – Venezuela</small></span></a>
-    <div class="tsearch" id="tsearch" role="search">
-      <button type="button" class="ts-open" id="ts-open" aria-label="Buscar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
-      <form class="ts-form" id="ts-form" autocomplete="off"><span class="ts-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span><label class="sr" for="ts-q">Buscar en Tu Lancha</label><input type="search" id="ts-q" placeholder="Busca embarcaciones, playas, experiencias…" aria-controls="ts-res" aria-autocomplete="list" aria-expanded="false" enterkeyhint="search" spellcheck="false"><kbd class="ts-kbd" aria-hidden="true">⌘K</kbd><button type="button" class="ts-x" id="ts-x" aria-label="Cerrar búsqueda">×</button></form>
-      <div class="ts-res" id="ts-res" role="listbox" aria-label="Resultados" hidden></div>
-    </div>
+    <nav class="mainnav" aria-label="Secciones">
+      <a href="#embarcaciones" data-nav="embarcaciones">Embarcaciones</a><a href="#playas" data-nav="playas">Playas</a><a href="#experiencias" data-nav="experiencias">Experiencias</a><a href="#regalos" data-nav="regalos">Regalos y Club</a><a href="#aliados" data-nav="aliados">Servicio a bordo</a><a href="#mi-viaje" data-nav="mi-viaje" data-trip-only>Mi viaje</a><a href="#nosotros" data-nav="nosotros">Nosotros</a>
+    </nav>
     <div class="top-actions">
+      <a class="btn btn-sun btn-sm hide-sm top-book" href="#reservar">Reservar</a>
       <button class="orb-btn" type="button" id="menu-open" aria-label="Abrir menú" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="5" height="10" rx="1.5" transform="rotate(-12 5.5 12)"/><rect x="9.5" y="5.5" width="5" height="13" rx="1.5"/><rect x="16" y="7" width="5" height="10" rx="1.5" transform="rotate(12 18.5 12)"/></svg><span>Explorar</span></button>
     </div>
   </div>
@@ -275,7 +274,6 @@
 <div class="sheet side" id="sheet" hidden>
   <div class="sheet-panel side-panel" role="dialog" aria-modal="true" aria-label="Menú">
     <div class="sheet-h"><b>Explora</b><button type="button" class="m-close" id="menu-close" aria-label="Cerrar menú">×</button></div>
-    <button type="button" class="side-search" data-side-search><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>Buscar en Tu Lancha</button>
     <nav class="side-nav" aria-label="Secciones"><a href="#inicio" data-side="inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Inicio</a><a href="#embarcaciones" data-side="embarcaciones"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l2 3h14l2-3M5 17V9l7-5 7 5v8M12 4v13"/></svg>Embarcaciones</a><a href="#reservar" data-side="reservar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Reservar</a><a href="#playas" data-side="playas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18c3 0 3-2 6-2s3 2 6 2 3-2 6-2M12 3v9M12 3l6 4M12 3L6 7"/></svg>Playas</a><a href="#experiencias" data-side="experiencias"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg>Experiencias</a><a href="#regalos" data-side="regalos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 12h18M12 8v13M12 8s-1-5-4-5-3 5 4 5zM12 8s1-5 4-5 3 5-4 5z"/></svg>Regalos y Club</a><a href="#aliados" data-side="aliados"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h16l-1.5 9a2 2 0 01-2 1.7h-9a2 2 0 01-2-1.7zM8 10V7a4 4 0 018 0v3"/></svg>Servicio a bordo</a><a href="#mi-viaje" data-side="mi-viaje"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6-7-11a7 7 0 0114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Mi viaje</a><a href="#nosotros" data-side="nosotros"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Nosotros</a><a href="#propietarios" data-side="propietarios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 6 6 .9-4.5 4.3 1 6.3L12 16.6 6.5 19.5l1-6.3L3 8.9 9 8z"/></svg>Propietarios</a></nav>
     <a class="btn btn-wa" href="https://wa.me/584143083864?text=Hola%20Tu%20Lancha%2C%20quiero%20informaci%C3%B3n%20para%20un%20ch%C3%A1rter" target="_blank" rel="noopener">Escribir por WhatsApp</a>
   </div>
