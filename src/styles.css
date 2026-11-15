@@ -1920,3 +1920,64 @@ footer.site .f-brand .brand{display:flex;align-items:center;gap:12px;width:max-c
 /* menú de arriba en pantallas medianas (iPad apaisado, laptops chicas): cabe con "Mi viaje" incluido */
 @media (min-width:1081px) and (max-width:1400px){.topbar .mainnav a{padding:8px 7px;font-size:.86rem}.topbar .orb-btn span{display:none}.topbar .orb-btn{padding:0 12px}.topbar .wrap{gap:10px}.topbar .brand small{display:none}}
 @media (min-width:1081px) and (max-width:1400px){body.has-trip .topbar .mainnav a[data-nav=nosotros]{display:none}}
+
+/* ---------- pie de página v2 (15 nov): contacto con WhatsApp e Instagram, columnas con íconos ---------- */
+footer.site{position:relative;overflow:hidden;background:radial-gradient(120% 80% at 100% 0%,rgba(134,205,228,.09),transparent 55%),radial-gradient(90% 70% at 0% 100%,rgba(246,225,60,.06),transparent 60%),#0a0e21;border-top:0}
+footer.site::before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(134,205,228,.55),rgba(246,225,60,.55),transparent)}
+footer.site .wrap.f-grid{display:grid;grid-template-columns:1.25fr 1.35fr .9fr .9fr;gap:clamp(24px,3.4vw,48px);align-items:start}
+footer.site .f-grid>*{min-width:0}
+footer.site h3{font-family:var(--f-mono);font-size:.72rem;font-weight:500;letter-spacing:.18em;color:var(--reef-ink);margin:0 0 16px;display:flex;align-items:center;gap:10px}
+footer.site h3::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.16),transparent)}
+footer.site .f-brand{display:grid;gap:16px;align-content:start}
+footer.site .f-brand p{margin:0;font-size:.93rem;line-height:1.6;max-width:36ch}
+.f-stats{display:flex;gap:10px;flex-wrap:wrap}
+.f-stats span{display:grid;gap:2px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font-size:.74rem;line-height:1.25;color:var(--on-sea-muted)}
+.f-stats b{font-family:var(--f-display);font-size:1.35rem;font-weight:800;color:var(--sun);letter-spacing:.01em;line-height:1}
+/* tarjetas de contacto */
+.f-contact{display:grid;gap:10px;align-content:start}
+footer.site .f-card{display:grid;grid-template-columns:46px minmax(0,1fr) 18px;align-items:center;gap:14px;padding:12px 16px 12px 12px;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.075),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.12);color:var(--on-sea);text-decoration:none;transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .25s,background .25s,box-shadow .25s}
+.f-card i{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:#fff}
+.f-card i svg{width:26px;height:26px}
+.f-wa i{background:linear-gradient(160deg,#5cf38b,#1fae53);box-shadow:0 10px 24px -10px rgba(37,211,102,.75)}
+.f-ig i{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285aeb 92%);box-shadow:0 10px 24px -10px rgba(214,36,159,.75)}
+.f-card>span{display:grid;gap:1px;min-width:0}
+.f-card b{font-weight:700;font-size:1rem;letter-spacing:.01em}
+.f-card small{font-size:.8rem;line-height:1.35;color:var(--on-sea-muted);overflow-wrap:anywhere}
+.f-ig small{font-family:var(--f-mono);font-size:.76rem}
+footer.site .f-go{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.45;transition:transform .25s,opacity .25s}
+footer.site .f-card:hover,footer.site .f-card:focus-visible{transform:translateY(-2px);background:linear-gradient(135deg,rgba(255,255,255,.11),rgba(255,255,255,.04))}
+.f-wa:hover{border-color:rgba(37,211,102,.55);box-shadow:0 18px 40px -24px rgba(37,211,102,.7)}
+.f-ig:hover{border-color:rgba(214,36,159,.55);box-shadow:0 18px 40px -24px rgba(214,36,159,.7)}
+footer.site a:hover .f-go,footer.site a:focus-visible .f-go{opacity:1;transform:translate(2px,-2px)}
+footer.site .f-tel{display:inline-flex;align-items:center;gap:10px;padding:6px 4px 0;width:max-content;max-width:100%;color:var(--on-sea-muted)}
+.f-tel i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.12)}
+.f-tel svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+footer.site .f-tel .num{font-size:.9rem;color:var(--on-sea);letter-spacing:.02em}
+footer.site .f-tel:hover{color:var(--sun)}
+/* columnas Explora y Empresa */
+.f-col{display:grid;gap:2px;align-content:start}
+footer.site .f-col a{display:grid;grid-template-columns:30px minmax(0,1fr) 16px;align-items:center;gap:10px;padding:7px 8px 7px 0;margin-left:-2px;border-radius:12px;color:var(--on-sea);font-size:.94rem;font-weight:500;text-decoration:none;transition:color .2s,background .2s,padding .25s}
+.f-col i{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--reef);transition:background .2s,color .2s,border-color .2s}
+.f-col i svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+footer.site .f-col .f-go{width:14px;height:14px}
+footer.site .f-col a:hover,footer.site .f-col a:focus-visible{color:var(--sun);background:rgba(255,255,255,.035);padding-left:6px}
+.f-col a:hover i,.f-col a:focus-visible i{background:var(--sun);border-color:var(--sun);color:#151a33}
+/* franja inferior */
+footer.site .wrap.f-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px 22px;flex-wrap:wrap;margin-top:clamp(30px,4vw,46px);padding-top:20px;border-top:1px solid rgba(255,255,255,.08);font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;color:var(--on-sea-muted)}
+.f-made{margin-right:auto}
+.f-made::before{content:"·";margin-right:22px;opacity:.5}
+.f-top{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--on-sea);font:inherit;letter-spacing:.06em;padding:8px 14px;border-radius:999px;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.f-top svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.f-top:hover{background:var(--sun);color:#151a33;border-color:var(--sun)}
+@media (max-width:1080px){footer.site .wrap.f-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:620px){
+  footer.site .wrap.f-grid{grid-template-columns:1fr 1fr;gap:30px 18px}
+  footer.site .f-brand,footer.site .f-contact{grid-column:1/-1}
+  footer.site .f-col a{grid-template-columns:28px minmax(0,1fr);font-size:.9rem;gap:9px}
+  footer.site .f-col .f-go{display:none}
+  .f-col i{width:28px;height:28px}
+  footer.site .wrap.f-bottom{justify-content:center;text-align:center}
+  .f-made{margin-right:0}.f-made::before{display:none}
+  .f-bottom>span:first-child{width:100%}.f-made{width:100%}
+}
+@media (prefers-reduced-motion:reduce){footer.site .f-card,footer.site .f-col a,footer.site .f-go{transition:none}}

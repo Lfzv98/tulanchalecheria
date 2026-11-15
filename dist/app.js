@@ -34,6 +34,10 @@ const exact = [
 [`Video`, `Video`, `Vídeo`],
 [`Cerrar`, `Close`, `Fechar`],
 [`Cerrar video`, `Close video`, `Fechar vídeo`],
+[`clientes felices`, `happy clients`],
+[`Escríbenos y te respondemos al momento`, `Message us and we'll reply right away`],
+[`Hecho en Lechería, Venezuela`, `Made in Lechería, Venezuela`],
+[`Volver arriba`, `Back to top`],
 [`Contacto`, `Contact`, `Contato`],
 [`Empresa`, `Company`, `Empresa`],
 [`Cómo llegar`, `Directions`, `Como chegar`],
@@ -3725,6 +3729,9 @@ addEventListener('scroll', () => topbar.classList.toggle('solid', scrollY > 40),
 
 /* enlaces que llevan a otra vista con un destino o embarcación ya elegidos (los maneja app.js) */
 route(); if (!current) show('inicio');
+/* pie de página: año actual y volver arriba dentro de la misma vista */
+{ const y = $('#f-year'); if (y) y.textContent = new Date().getFullYear(); }
+$('#f-top')?.addEventListener('click', () => scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' }));
 window.TLL.goStep = goStep;
 })();
 
