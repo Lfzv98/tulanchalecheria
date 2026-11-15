@@ -141,5 +141,8 @@ addEventListener('scroll', () => topbar.classList.toggle('solid', scrollY > 40),
 
 /* enlaces que llevan a otra vista con un destino o embarcación ya elegidos (los maneja app.js) */
 route(); if (!current) show('inicio');
+/* pie de página: año actual y volver arriba dentro de la misma vista */
+{ const y = $('#f-year'); if (y) y.textContent = new Date().getFullYear(); }
+$('#f-top')?.addEventListener('click', () => scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' }));
 window.TLL.goStep = goStep;
 })();
