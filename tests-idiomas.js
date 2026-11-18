@@ -34,9 +34,9 @@ const ES_LEFT = ['Embarcaciones y tarifas', 'Arma tu salida', 'Siguiente', 'Tu c
     await tap('#lang-btn'); await p.waitForTimeout(300);
     ok((await p.textContent('#lang-btn b')) === 'ES', `${name}: un toque cambia a inglés y el botón ofrece volver a ES`);
     const home = await p.evaluate(() => ({ h1: document.querySelector('.hero h1').textContent, lang: document.documentElement.lang }));
-    ok(home.h1.includes('Your day at sea') && home.lang === 'en', `${name}: portada en inglés (${home.h1})`);
+    ok(home.h1.includes('Your perfect day at sea') && home.lang === 'en', `${name}: portada en inglés (${home.h1})`);
     // 4) recorrido por las vistas sin restos en español
-    for (const v of ['embarcaciones', 'reservar', 'playas', 'experiencias', 'regalos', 'aliados', 'mi-viaje', 'nosotros', 'propietarios']) {
+    for (const v of ['embarcaciones', 'reservar', 'playas', 'experiencias', 'aliados', 'mi-viaje', 'nosotros', 'propietarios']) {
       await p.evaluate(v => location.hash = v, v); await p.waitForTimeout(250);
       const t = await p.evaluate(v => document.querySelector(`[data-view="${v}"]`).innerText, v);
       const left = ES_LEFT.filter(w => t.includes(w));
@@ -52,7 +52,7 @@ const ES_LEFT = ['Embarcaciones y tarifas', 'Arma tu salida', 'Siguiente', 'Tu c
     if (name === 'iPhone 13' || name === 'Laptop 1280') {
       await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(300);
       await p.evaluate(() => document.querySelector('#sheet .btn-wa').click()); await p.waitForTimeout(500);
-      ok(pops.some(u => u.includes("Hi Tu Lancha, I'd like information about a charter")), `${name}: WhatsApp en inglés (${pops.slice(-1)})`);
+      ok(pops.some(u => u.includes("Hi Tu Lancha Lechería, I'd like information about a charter")), `${name}: WhatsApp en inglés (${pops.slice(-1)})`);
       // reserva completa → comprobante y mensaje
       await p.evaluate(() => location.hash = 'reservar'); await p.waitForTimeout(300);
       await p.evaluate(() => TLL.openBooking()); await p.waitForSelector('#dlg[open] #bk-form');
@@ -82,10 +82,10 @@ const ES_LEFT = ['Embarcaciones y tarifas', 'Arma tu salida', 'Siguiente', 'Tu c
     // 7) vuelta al español sin recargar
     await p.evaluate(() => location.hash = 'reservar'); await p.waitForTimeout(250);
     await tap('#lang-btn');
-    ok((await p.textContent('#ticket')).includes('Tu cotización') && (await p.textContent('.hero h1')).includes('Tu día en el mar'), `${name}: vuelve al español`);
+    ok((await p.textContent('#ticket')).includes('Tu cotización') && (await p.textContent('.hero h1')).includes('Tu día perfecto en el mar'), `${name}: vuelve al español`);
     // 8) se recuerda la elección
     await tap('#lang-btn'); await p.reload(); await p.waitForTimeout(500);
-    ok(await p.evaluate(() => TLL_I18N.lang === 'en' && document.querySelector('.hero h1').textContent.includes('Your day at sea')), `${name}: recuerda el inglés al volver a abrir`);
+    ok(await p.evaluate(() => TLL_I18N.lang === 'en' && document.querySelector('.hero h1').textContent.includes('Your perfect day at sea')), `${name}: recuerda el inglés al volver a abrir`);
     ok(!errs.length, `${name}: sin errores de JavaScript (${errs.join(' | ')})`);
     await c.close();
   }

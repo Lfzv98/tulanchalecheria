@@ -156,6 +156,7 @@ function setLang(c) {
   try { localStorage.setItem(KEY, JSON.stringify(c)); } catch {}
   meta(); sync();
   busy = true; try { walk(document.body); } finally { mo.takeRecords(); busy = false; }
+  watch();
   if (changed) window.dispatchEvent(new CustomEvent('tll:lang', { detail: c }));
 }
 
@@ -198,10 +199,15 @@ window.TLL_I18N = {
   add(rows) { (rows || []).forEach(r => { if (!r || !r[0]) return; if (r[1]) EX.en.set(norm(r[0]), r[1]); }); }
 };
 
+/* Rendimiento: en español (el texto original) no hace falta recorrer ni vigilar la página; solo en inglés */
+function watch() {
+  if (lang === 'es') { mo.disconnect(); return; }
+  mo.observe(document.documentElement, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+}
 function start() {
   meta();
-  busy = true; try { walk(document.body); } finally { busy = false; }
-  mo.observe(document.documentElement, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+  if (lang !== 'es') { busy = true; try { walk(document.body); } finally { busy = false; } }
+  watch();
   picker();
   document.documentElement.classList.remove('i18n-wait');
 }

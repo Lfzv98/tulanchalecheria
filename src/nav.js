@@ -11,16 +11,16 @@ const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLow
 
 /* ---------- pantallas por sección (2 por sección) ---------- */
 const SECS = [
-  ['embarcaciones', 'Embarcaciones', [['c-premium', 'Lancha prémium', 'La recomendación de la casa', '#embarcaciones', 'drone', 200], ['c-flota', 'Lanchas, mini yates y yates', 'Toda la flota con capitán', '#embarcaciones', 'exterior', 215]]],
+  ['embarcaciones', 'Embarcaciones', [['c-premium', 'Lancha prémium', 'La más solicitada', '#embarcaciones', 'drone', 200], ['c-flota', 'Lanchas, mini yates y yates', 'Toda la flota con capitán', '#embarcaciones', 'exterior', 215]]],
   ['playas', 'Playas', [['c-rumbos', 'Seis rumbos', 'Por el Parque Nacional Mochima', '#playas', 'beach', 185], ['c-plata', 'Isla de Plata', 'Aguas cristalinas', '#playas', 'beach', 175]]],
   ['experiencias', 'Experiencias', [['c-canales', 'Canales de El Morro', 'Al caer la tarde', '#experiencias', 'hero', 25], ['c-celebra', 'Celebraciones a bordo', 'Cumpleaños, pedidas y corporativos', '#experiencias', 'interior', 330]]],
-  ['regalos', 'Regalos y Club', [['c-regalo', 'Regala un día en el mar', 'Tarjetas de regalo', '#regalos', 'hero', 340], ['c-club', 'Club Tu Lancha', 'Invita y ganan los dos', '#club', 'exterior', 160]]],
+  ['regalos', 'Regalos y Club', [['c-regalo', 'Regala un día en el mar', 'Tarjetas de regalo', '#regalos', 'hero', 340], ['c-club', 'Club Tu Lancha Lechería', 'Invita y ganan los dos', '#club', 'exterior', 160]]],
   ['aliados', 'Servicio a bordo', [['c-comida', 'Comida y bebidas', 'Te lo llevan al muelle', '#aliados', 'interior', 30], ['c-vip', 'DJ, estilo y estadía', 'Aliados VIP', '#aliados', 'hero', 280]]],
   ['mi-viaje', 'Mi viaje', [['c-vivo', 'Seguimiento en vivo', 'Tu familia te sigue desde tierra', '#mi-viaje', 'drone', 190], ['c-sos', 'Modo a bordo y SOS', 'GPS y botón de emergencia', '#mi-viaje', 'exterior', 230]]],
   ['nosotros', 'Nosotros', [['c-somos', 'Quiénes somos', 'Gente de mar de Lechería', '#nosotros', 'hero', 200], ['c-muelles', 'Muelles y horario', 'Dónde y a qué hora salimos', '#nosotros', 'exterior', 195]]],
   ['reservar', 'Reservar', [['c-arma', 'Arma tu salida', 'Cuatro pasos y listo', '#reservar', 'drone', 210], ['c-cotiza', 'Tu total al instante', 'Sin pagar nada ahora', '#reservar', 'beach', 190], ['c-wa', 'Reserva por WhatsApp', 'Te respondemos al instante', '#reservar', 'hero', 170]]],
   ['propietarios', 'Propietarios', [['c-pool', 'Únete al pool', 'Pon tu embarcación a trabajar', '#propietarios', 'exterior', 220], ['c-servi', 'Servicios para propietarios', 'Capitán, inflables y más', '#propietarios', 'interior', 205]]]
-];
+].filter(([sec]) => !(T.OFF || {})[sec]);   // secciones apagadas (Regalos y Club, por ahora) no salen en el menú giratorio
 const CARDS = SECS.flatMap(([sec, name, cards], si) => cards.map(c => ({ sec, si, secName: name, id: c[0], t: c[1], s: c[2], href: c[3], kind: c[4], hue: c[5] })));
 T.NAV_CARDS = CARDS;   // el panel las lista en Portada para subir la imagen de cada pantalla
 // imagen de relleno: ilustración generada y difuminada (cuando Eduardo suba la real, se ve nítida)
@@ -57,8 +57,14 @@ function softSrc(c) {
     im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   });
 }
+/* Rendimiento: los rellenos se dibujan de a uno, en los ratos libres del teléfono, para no trabar la carga ni el giro */
+const idle = window.requestIdleCallback ? f => requestIdleCallback(f, { timeout: 1200 }) : f => setTimeout(f, 60);
 function soften(root) {
-  $$('[data-soft]', root).forEach(el => { const c = CARDS.find(k => k.id === el.dataset.soft); if (!c) return; softSrc(c).then(u => { if (u && el.isConnected) { el.style.backgroundImage = `url(${u})`; el.removeAttribute('data-soft'); } }); });
+  const q = $$('[data-soft]', root);
+  const next = () => { const el = q.shift(); if (!el) return; const c = CARDS.find(k => k.id === el.dataset.soft);
+    if (!c) return idle(next);
+    softSrc(c).then(u => { if (u && el.isConnected) { el.style.backgroundImage = `url(${u})`; el.removeAttribute('data-soft'); } idle(next); }); };
+  idle(next);
 }
 
 function mount(host) {
@@ -92,10 +98,49 @@ function mount(host) {
     const Rz = G.R.toFixed(1);
     cards.forEach((c, i) => { c.style.transform = `rotateY(${(i * STEP).toFixed(3)}deg) translateZ(${Rz}px)`; });   // fijas en el cilindro
   }
+  /* Giro continuo sin JavaScript por cuadro (fluidez en el celular): mientras nadie lo toca, el cilindro gira con una
+     animación CSS que corre en la tarjeta gráfica. Solo cada 250 ms se calcula qué pantalla está al frente (pestañas,
+     accesibilidad). Al arrastrar, tocar una pestaña o enfocar, vuelve el control por cuadro y al soltar retoma el giro. */
+  /* Ritmo de lectura (pedido de Eduardo, 18 nov): gira solo, continuo y despacio, para leer cada pantalla mientras pasa:
+     PER ms por pantalla (vuelta completa = N × PER). La animación CSS corre en la tarjeta gráfica. */
+  const PER = 5200, TURN = N * PER, SPEED = STEP / PER;
+  let css = null, cssTimer = 0;
+  const cssRot = () => css ? css.r0 + ((css.pausedAt || performance.now()) - css.t0) * SPEED : rot;
+  function startCss() {
+    if (css || reduce.matches) return;
+    const r0 = Math.round(rot / STEP) * STEP;   // siempre arranca con una pantalla bien al frente
+    css = { r0, t0: performance.now(), pausedAt: 0 }; rot = r0;
+    ring.style.setProperty('--tz', (-G.R).toFixed(1) + 'px'); ring.style.setProperty('--r0', (-r0).toFixed(3) + 'deg');
+    ring.style.animation = `orbSpin ${TURN}ms linear infinite`;
+    if (!seen || document.hidden) { css.pausedAt = performance.now(); ring.style.animationPlayState = 'paused'; }
+    status();
+    clearInterval(cssTimer); cssTimer = setInterval(() => { if (!css || css.pausedAt) return; rot = cssRot(); status(); }, 250);
+  }
+  // ángulo real en este instante, leído de la animación (así al tocarlo no salta)
+  function liveRot() {
+    const est = cssRot(), m = getComputedStyle(ring).transform.match(/matrix3d\(([^)]+)\)/); if (!m) return est;
+    const v = m[1].split(',').map(Number), a = Math.atan2(v[2], v[0]) * 180 / Math.PI;   // rotateY(-rot): m11 = cos, m13 = sen
+    return a + Math.round((est - a) / 360) * 360;
+  }
+  function stopCss() {
+    if (!css) return;
+    rot = liveRot(); css = null; clearInterval(cssTimer);
+    ring.style.animation = ''; ring.style.animationPlayState = '';
+    ring.style.transform = `translateZ(${(-G.R).toFixed(1)}px) rotateY(${(-rot).toFixed(3)}deg)`;
+  }
+  // en pausa (fuera de pantalla o con la pestaña oculta), la animación CSS se detiene y el reloj se corre para no saltar
+  function pauseCss(on) {
+    if (!css) return;
+    if (on && ring.style.animationPlayState !== 'paused') { css.pausedAt = performance.now(); ring.style.animationPlayState = 'paused'; }
+    if (!on && ring.style.animationPlayState === 'paused') { if (css.pausedAt) css.t0 += performance.now() - css.pausedAt; css.pausedAt = 0; ring.style.animationPlayState = 'running'; }
+  }
   function place() {
     size();
-    // un solo transform por cuadro: gira el cilindro entero, no las 19 tarjetas una por una
+    // un solo transform por cuadro: gira el cilindro entero, no las pantallas una por una
     ring.style.transform = `translateZ(${(-G.R).toFixed(1)}px) rotateY(${(-rot).toFixed(3)}deg)`;
+    status();
+  }
+  function status() {
     for (let i = 0; i < N; i++) {
       const a = ((i * STEP - rot) % 360 + 540) % 360 - 180;           // ángulo respecto al frente, -180..180
       const c = cards[i], back = Math.abs(a) > 90;
@@ -120,13 +165,14 @@ function mount(host) {
     if (!drag) {
       if (target != null) { const d = target - rot; rot += d * Math.min(1, dt / 140); if (Math.abs(d) < .05) { rot = target; target = null; } vel = 0; }
       else if (Math.abs(vel) > .01) { rot += vel * dt; vel *= Math.pow(.94, dt / 16); }
-      else if (!hover && !reduce.matches && t > idleUntil) rot += dt * .0065;   // giro continuo y pausado para poder leer (una pantalla cada ~3 s)
-      else if (t <= idleUntil || hover) { const s = nearest(Math.round(rot / STEP) * STEP); if (Math.abs(s - rot) > .05 && t > idleUntil - 5000) rot += (s - rot) * Math.min(1, dt / 220); }
+      else if (!hover && !reduce.matches && t > idleUntil) { place(); last = 0; startCss(); return; }   // giro continuo: lo hace CSS
+      else if (t <= idleUntil || hover) { const s = nearest(Math.round(rot / STEP) * STEP); if (Math.abs(s - rot) > .05 && t > idleUntil - 5000) rot += (s - rot) * Math.min(1, dt / 220); else if (!drag && target == null && t <= idleUntil) { place(); raf = 0; last = 0; clearTimeout(wake); wake = setTimeout(kick, Math.max(50, idleUntil - performance.now() + 20)); return; } else if (hover) { place(); last = 0; return; } }
     }
     place();
     if (seen && !document.hidden && host.offsetParent) raf = requestAnimationFrame(tick); else last = 0;
   }
-  const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
+  let wake = 0;
+  const kick = () => { stopCss(); if (!raf) raf = requestAnimationFrame(tick); };
   // arrastrar con el dedo o el mouse
   stage.addEventListener('pointerdown', e => { if (e.button > 0) return; drag = { x: e.clientX, r: rot, t: performance.now(), moved: false, id: e.pointerId, vx: 0 }; target = null; vel = 0; kick(); });
   addEventListener('pointermove', e => {
@@ -146,7 +192,7 @@ function mount(host) {
     if (Date.now() - (+stage.dataset.dragged || 0) < 250) { e.preventDefault(); return; }
     if (c.getAttribute('href') === '#embarcaciones' && CARDS[+c.dataset.i].id === 'c-premium' && OWN) { e.preventDefault(); location.hash = 'embarcaciones'; setTimeout(() => T.openBoat(OWN.id), 60); }
   });
-  host.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { hover = true; idleUntil = performance.now() + 400; } });
+  host.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { hover = true; idleUntil = performance.now() + 400; kick(); } });
   host.addEventListener('pointerleave', () => { hover = false; kick(); });
   host.addEventListener('focusin', e => { const c = e.target.closest('.orb-card'); if (c) { target = nearest(+c.dataset.i * STEP); idleUntil = performance.now() + 8000; kick(); } });
   host.addEventListener('keydown', e => {
@@ -154,9 +200,9 @@ function mount(host) {
     const n = (active + (e.key === 'ArrowRight' ? 1 : -1) + SECS.length) % SECS.length; goSec(n);
     const t = tabs[n]; if (t && e.target.closest('.orb-tabs')) t.focus();
   });
-  new IntersectionObserver(es => { seen = es[0].isIntersecting; if (seen) kick(); }).observe(host);
-  addEventListener('resize', () => { G = geo(); place(); moveInk(); });
-  document.addEventListener('visibilitychange', kick);
+  new IntersectionObserver(es => { seen = es[0].isIntersecting; if (css) pauseCss(!seen || document.hidden); else if (seen) kick(); }).observe(host);
+  addEventListener('resize', () => { const was = !!css; stopCss(); G = geo(); place(); moveInk(); if (was) kick(); });
+  document.addEventListener('visibilitychange', () => { if (css) pauseCss(!seen || document.hidden); else kick(); });
   addEventListener('hashchange', () => setTimeout(() => { G = geo(); kick(); moveInk(); }, 60));
   host.orbit = { goSec, refresh: () => { cards.forEach((c, i) => { const im = $('.orb-img', c); im.outerHTML = fill(CARDS[i]); }); soften(host); }, kick: () => { G = geo(); kick(); } };
   soften(host); rot = 0; place(); requestAnimationFrame(() => { G = geo(); place(); moveInk(); });

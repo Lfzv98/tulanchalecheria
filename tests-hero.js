@@ -6,9 +6,11 @@ const { chromium, devices } = require('playwright');
 for (const [n, d] of [['iPhone 13', devices['iPhone 13']], ['Galaxy S9+', devices['Galaxy S9+']], ['Pixel 7 apaisado', devices['Pixel 7 landscape']], ['Escritorio 1366', { viewport: { width: 1366, height: 800 } }], ['Escritorio 2560', { viewport: { width: 2560, height: 1440 } }], ['Reducir movimiento', { ...devices['iPhone 13'], reducedMotion: 'reduce' }]]) {
   const c = await b.newContext({ locale: 'es-VE', ...d }); const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto('http://127.0.0.1:8765/index.html'); await p.waitForTimeout(3000);
-  const st = await p.evaluate(() => { const v = document.querySelector('#hero-vid'); return { has: !!v, auto: v && v.autoplay, muted: v && v.muted, loop: v && v.loop, inline: v && v.playsInline, src: v && v.currentSrc.split('/').pop(), t: v ? v.currentTime : 0, paused: v && v.paused, w: v ? v.videoWidth : 0, on: document.querySelector('#hero-reel').classList.contains('vid-on'), op: v ? getComputedStyle(v).opacity : '0' }; });
+  const st = await p.evaluate(() => { const v = document.querySelector('#hero-vid'); return { has: !!v, auto: v && v.autoplay, muted: v && v.muted, loop: v && v.loop, inline: v && v.playsInline, src: v && v.currentSrc.split('/').pop(), t: v ? v.currentTime : 0, paused: v && v.paused, w: v ? v.videoWidth : 0, h: v ? v.videoHeight : 0, on: document.querySelector('#hero-reel').classList.contains('vid-on'), op: v ? getComputedStyle(v).opacity : '0' }; });
   ok(st.has && st.auto && st.muted && st.loop && st.inline, `${n}: el video está en el hero con autoplay, muted, loop y playsinline`);
-  ok(st.src && st.src.startsWith('hero2-1080') && st.w >= 1080, `${n}: usa el video 1080p nítido (${st.src}, ${st.w}px)`);
+  const portrait = await p.evaluate(() => matchMedia('(max-aspect-ratio: 4/5)').matches);
+  const want = await p.evaluate(() => matchMedia('(max-aspect-ratio: 4/5)').matches ? 'port' : Math.max(innerWidth, innerHeight) * devicePixelRatio <= 1400 ? '720' : '1080');
+  ok(st.src === `hero3-${want}.mp4` && Math.max(st.w, st.h) >= (want === '720' ? 1280 : 1080), `${n}: usa el video justo para su pantalla (${st.src}, ${st.w}×${st.h})`);
   ok(!st.paused && st.t > .5 && st.on && +st.op > .9, `${n}: el video rueda y se ve encima del poster (t=${st.t.toFixed(1)}s)`);
   // se pausa al salir de la portada y sigue al volver
   await p.evaluate(() => { location.hash = 'playas'; }); await p.waitForTimeout(500);

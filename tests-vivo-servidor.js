@@ -20,6 +20,7 @@ const run = c => { const [cmd, k, ...a] = c; const now = Date.now(); const get =
     case 'HSETNX': { const v = get() || { v: {}, exp: 0 }; if (a[0] in v.v) return 0; v.v[a[0]] = a[1]; db.set(k, v); return 1; }
     case 'HSET': { const v = get() || { v: {}, exp: 0 }; v.v[a[0]] = a[1]; db.set(k, v); return 1; }
     case 'HGET': return get()?.v[a[0]] ?? null;
+    case 'HMGET': { const v = get(); return a.map(f => v && f in v.v ? v.v[f] : null); }
     case 'HDEL': { const v = get(); if (v && a[0] in v.v) { delete v.v[a[0]]; return 1; } return 0; }
     case 'HGETALL': { const v = get(); return v ? Object.entries(v.v).flat() : []; }
     case 'EXPIRE': { const v = get(); if (v) v.exp = now + a[0] * 1000; return v ? 1 : 0; }

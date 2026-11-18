@@ -84,8 +84,9 @@ function mapSvg(dest, withBoat = true) {
   ${withBoat ? `<g id="boat"><circle r="10" fill="none" stroke="#7fe3f0" stroke-width="1.5"><animate attributeName="r" values="10;26" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="2s" repeatCount="indefinite"/></circle><circle r="13" fill="rgba(127,227,240,.18)"/><g class="hdg"><path d="M0 -11L7 8L0 4L-7 8Z" fill="#fff" stroke="#0b2236" stroke-width="1.5" stroke-linejoin="round"/></g></g>` : ''}
   </svg>`;
 }
-$('#trip-map-thumb').innerHTML = mapSvg('plata', false).replace('<svg', '<svg preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"');
-$('#trip-album-thumb').innerHTML = '<img src="media/hero-mochima-land.webp" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:55% 55%">';
+// miniatura estática: sin animaciones SVG (corrían en cada cuadro aunque Mi viaje estuviera oculto)
+$('#trip-map-thumb').innerHTML = mapSvg('plata', false).replace(/<animate[^>]*\/>/g, '').replace('<svg', '<svg preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"');
+if ($('#trip-album-thumb')) $('#trip-album-thumb').innerHTML = '<img src="media/hero-mochima-land.webp" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:55% 55%">';
 
 /* ---------------- vista: ubicación en vivo ---------------- */
 let liveTimer;
@@ -272,7 +273,7 @@ function wireSos(root, ctx, signal) {
   const ack = q('[data-sos-ack]'); let pending = null, askT = 0;
   const hhmm = () => new Date().toLocaleTimeString(TLL_I18N.loc(), { hour: '2-digit', minute: '2-digit' });
   const app = k => k === 'sms' ? 'Mensajes' : 'WhatsApp';
-  const showGo = k => { ack.hidden = false; ack.className = 'sos-ack go'; ack.innerHTML = `<b class="ack-big">Toca ENVIAR en ${app(k)} <span aria-hidden="true">↗</span></b><span>Tu alerta ya está escrita${k === 'sms' ? ' con el número de Tu Lancha' : ''}. Solo falta tocar el botón de enviar (la flecha) para que salga.</span>`; ack.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
+  const showGo = k => { ack.hidden = false; ack.className = 'sos-ack go'; ack.innerHTML = `<b class="ack-big">Toca ENVIAR en ${app(k)} <span aria-hidden="true">↗</span></b><span>Tu alerta ya está escrita${k === 'sms' ? ' con el número de Tu Lancha Lechería' : ''}. Solo falta tocar el botón de enviar (la flecha) para que salga.</span>`; ack.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
   const showAsk = k => { ack.hidden = false; ack.className = 'sos-ack ask'; ack.innerHTML = `<b>¿Se envió tu alerta por ${k === 'sms' ? 'SMS' : 'WhatsApp'}?</b><div class="ack-row"><button class="btn btn-sun btn-sm" type="button" data-ack-yes>Sí, se envió</button><button class="btn btn-sos btn-sm" type="button" data-ack-no>No, intentar de nuevo</button></div><span>Si no sale, copia el mensaje o llama a Guardacostas.</span>`; ack.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
   const launch = (k, el) => { pending = k; showGo(k); clearTimeout(askT); askT = setTimeout(() => { if (pending && document.visibilityState === 'visible') showAsk(pending); }, 6000); };
   q('[data-sos-sms]').addEventListener('click', e => launch('sms', e.currentTarget), { signal });
@@ -349,7 +350,7 @@ setInterval(() => { if (LS.s && (LS.q.length || LS.state !== 'ok')) lsFlush(); }
 async function lsShareLink() {
   if (!LS.s) return;
   const url = followUrl(LS.s.id), text = `Sigue nuestra lancha en vivo 🚤${LS.s.boat ? ' (' + LS.s.boat + ')' : ''}. Toca el enlace y verás dónde vamos en el mapa, en tiempo real:`;
-  if (navigator.share) { try { await navigator.share({ title: TLL_I18N.tr('Tu Lancha en vivo'), text: TLL_I18N.tr(text), url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  if (navigator.share) { try { await navigator.share({ title: TLL_I18N.tr('Tu Lancha Lechería en vivo'), text: TLL_I18N.tr(text), url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
   const a = document.createElement('a'); a.href = `https://wa.me/?text=${encodeURIComponent(TLL_I18N.tr(text) + ' ' + url)}`; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
 }
 function lsStart(ctx) {
@@ -369,7 +370,7 @@ if (LS.s) { LS.state = 'wait'; gpsStart(); setTimeout(lsFlush, 500); }
 
 const lsBlock = () => `<section class="lshare" data-lshare aria-labelledby="ls-t">
   <div class="ls-h"><span class="live-dot" aria-hidden="true"></span><b id="ls-t">Compartir mi ubicación en vivo</b></div>
-  <p class="rating">Quien abra el enlace ve la lancha moverse en el mapa en tiempo real. Lo envías a quien quieras: familia, amigos o Tu Lancha.</p>
+  <p class="rating">Quien abra el enlace ve la lancha moverse en el mapa en tiempo real. Lo envías a quien quieras: familia, amigos o Tu Lancha Lechería.</p>
   <div class="ls-st" data-ls-st role="status" aria-live="polite"></div>
   <button class="btn btn-wa" type="button" data-ls-start>Compartir en vivo</button>
   <div class="ls-on" data-ls-on hidden>
@@ -425,7 +426,7 @@ function openFollow(id) {
   const q = s => dlg.querySelector(s);
   let map = null, line = null, boat = null, pts = [], lastT = 0, follow = true, timer = null, data = null, skew = 0, dist = 0;
   // marcador estilo "ubicación en tiempo real": disco blanco con el logo, punto exacto debajo, rumbo y nombre con 🚤
-  const pinName = n => String(n || 'Tu Lancha').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const pinName = n => String(n || 'Tu Lancha Lechería').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const icon = hdg => window.L.divIcon({ className: 'f-boat', iconSize: [56, 70], iconAnchor: [28, 64], html: `<span class="f-pulse"></span><span class="f-hdg" style="transform:rotate(${Math.round(hdg || 0)}deg)"></span><span class="f-disc"><img src="icons/logo-128.png" alt="" width="44" height="44"></span><span class="f-stem"></span><span class="f-dot"></span><span class="f-tag" translate="no">${pinName(data && data.boat)} <span aria-hidden="true">🚤</span></span>` });
   const bearing = (a, b) => { const r = Math.PI / 180, y = Math.sin((b.lng - a.lng) * r) * Math.cos(b.lat * r), x = Math.cos(a.lat * r) * Math.sin(b.lat * r) - Math.sin(a.lat * r) * Math.cos(b.lat * r) * Math.cos((b.lng - a.lng) * r); return (Math.atan2(y, x) / r + 360) % 360; };
   const hm = t => new Date(t).toLocaleTimeString(TLL_I18N.loc(), { hour: '2-digit', minute: '2-digit' });
@@ -467,7 +468,7 @@ function openFollow(id) {
     try {
       const r = await fetch(`${LIVE_API}?id=${id}&after=${lastT}`, { cache: 'no-store', signal: sig });
       if (r.status === 404) { setNote('bad', 'Este enlace ya no está activo: el viaje terminó hace más de 24 horas o el enlace está incompleto.', 'Inactivo'); return; }
-      if (r.status === 503) { setNote('bad', 'El seguimiento en vivo aún no está activado en el servidor de Tu Lancha.', 'No disponible'); return; }
+      if (r.status === 503) { setNote('bad', 'El seguimiento en vivo aún no está activado en el servidor de Tu Lancha Lechería.', 'No disponible'); return; }
       if (!r.ok) throw new Error(r.status);
       apply(await r.json());
       timer = setTimeout(poll, data && data.ended ? 60000 : 4000);
@@ -516,7 +517,7 @@ function openAlbum(code) {
     const b = e.target.closest('[data-i]');
     if (b) { const x = items[+b.dataset.i]; const lb = document.createElement('div'); lb.className = 'lightbox'; lb.tabIndex = -1; lb.innerHTML = art(x.k, x.hue, x.seed) + '<button class="m-close" type="button" aria-label="Cerrar foto">×</button>'; lb.onclick = () => lb.remove(); lb.onkeydown = ev => ev.key === 'Escape' && (ev.stopPropagation(), ev.preventDefault(), lb.remove()); dlg.appendChild(lb); lb.focus(); }
     if (e.target.closest('#al-copy')) copy($('#al-cap', dlg).value, $('#al-cap', dlg));
-    if (e.target.closest('#al-review')) openWa(`Hola Tu Lancha 👋 Les dejo mi reseña del paseo (reserva ${code}): ⭐⭐⭐⭐⭐ `);
+    if (e.target.closest('#al-review')) openWa(`Hola Tu Lancha Lechería 👋 Les dejo mi reseña del paseo (reserva ${code}): ⭐⭐⭐⭐⭐ `);
   };
   dlg.onchange = null;
   dlg.showModal();
@@ -527,7 +528,7 @@ $$('.trip-code').forEach(f => f.addEventListener('submit', e => {
   if (!validTrip(c)) { toast('Escribe el código que te enviamos, por ejemplo TLL-1105'); return; }
   f.dataset.go === 'viaje' ? openLive(c) : openAlbum(c);
 }));
-function route() { if (location.hash === '#viaje') openLive('TLL-1105'); if (location.hash === '#album') openAlbum('TLL-1105'); if (location.hash === '#a-bordo' && !$('#dlg').open) openAbordo(''); const f = location.hash.match(/^#sigue\/([a-z2-9]{20})$/); if (f && !$('#dlg.follow-dlg[open]')) openFollow(f[1]); }
+function route() { if (location.hash === '#viaje') openLive('TLL-1105'); if (location.hash === '#a-bordo' && !$('#dlg').open) openAbordo(''); const f = location.hash.match(/^#sigue\/([a-z2-9]{20})$/); if (f && !$('#dlg.follow-dlg[open]')) openFollow(f[1]); }
 addEventListener('hashchange', route); route();
 Object.assign(window.TLL, { openAbordo, openAlbum });
 
@@ -557,7 +558,7 @@ $('#g-occ').addEventListener('click', e => { const b = e.target.closest('.pill')
 $('#gift-form').addEventListener('input', renderGift);
 $('#gift-form').addEventListener('submit', e => {
   e.preventDefault(); const { amt, g } = renderGift();
-  openWa(`Hola Tu Lancha 👋 Quiero comprar una tarjeta de regalo 🎁\n🎉 Ocasión: ${gOcc}\n🚤 ${g[0] === 'M' ? 'Monto libre' : g[1]}\n💵 ${money(amt)}\n👤 Para: ${$('#g-to').value}\n✍️ De: ${$('#g-from').value}\n💬 "${$('#g-msg').value}"\n🔖 Código: ${giftCode()}\n¿Cómo hago el pago?`);
+  openWa(`Hola Tu Lancha Lechería 👋 Quiero comprar una tarjeta de regalo 🎁\n🎉 Ocasión: ${gOcc}\n🚤 ${g[0] === 'M' ? 'Monto libre' : g[1]}\n💵 ${money(amt)}\n👤 Para: ${$('#g-to').value}\n✍️ De: ${$('#g-from').value}\n💬 "${$('#g-msg').value}"\n🔖 Código: ${giftCode()}\n¿Cómo hago el pago?`);
   toast('Abrimos WhatsApp con tu tarjeta lista para enviar');
 });
 renderGift();

@@ -21,8 +21,8 @@ buf = io.BytesIO(); c.resize((112, 112), Image.LANCZOS).save(buf, 'WEBP', qualit
 logo_uri = 'data:image/webp;base64,' + base64.b64encode(buf.getvalue()).decode()
 
 # ---------- video y póster ----------
-for f in ('poster.jpg', 'hero2-1080.mp4', 'hero2-1080.webm', 'hero2-land.webp'):
-    shutil.copy(f'video/out/{f}', f'dist/media/{f}')   # hero2-*: video del dron de Mochima (12 nov), ver video/hero2.sh
+for f in ('poster.jpg', 'hero3-1080.mp4', 'hero3-720.mp4', 'hero3-port.mp4', 'hero3-land.webp', 'hero3-port.webp'):   # video del hero (18 nov): 1080p, 720p y vertical; ver video/hero3.sh
+    shutil.copy(f'video/out/{f}', f'dist/media/{f}')   # video del dron de Mochima, ver video/hero3.sh
 # portada: foto real de Mochima (dron), horizontal completa y recorte vertical centrado en el yate
 ph = Image.open('video/photos/mochima.webp').convert('RGB')
 ph.save('dist/media/hero-mochima-land.webp', 'WEBP', quality=86, method=6)
@@ -72,7 +72,7 @@ head = f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title_txt}"><meta name="twitter:description" content="{desc}"><meta name="twitter:image" content="{SITE}/og.jpg">
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="favicon.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="preload" as="image" href="media/hero2-land.webp" fetchpriority="high"><link rel="preload" as="video" href="media/hero2-1080.mp4">
+<link rel="preload" as="image" href="media/hero3-land.webp" fetchpriority="high" media="(min-aspect-ratio: 4/5)"><link rel="preload" as="image" href="media/hero3-port.webp" fetchpriority="high" media="(max-aspect-ratio: 4/5)">
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
 {fonts}<link rel="stylesheet" href="styles.css?v={VER}"></head><body>'''
 open('dist/index.html', 'w').write(head + body.replace('{{LOGO}}', 'icons/logo-128.png') + f'<script src="app.js?v={VER}" defer></script></body></html>')

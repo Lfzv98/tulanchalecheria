@@ -30,13 +30,15 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
     await m.goto(URL); await m.waitForTimeout(800);
     const src = await m.evaluate(() => document.querySelector('#hero-reel .slide.on img').currentSrc.split('/').pop());
     const hi = await m.evaluate(() => { const i = document.querySelector('#hero-reel .slide.on img'); return i.naturalWidth; });
-    ok(src.startsWith('hero2') && hi > 500, `${n}: primer cuadro del video cargado con su recorte (${src}, ${hi}px)`);
+    ok(src.startsWith('hero3') && hi > 500, `${n}: primer cuadro del video cargado con su recorte (${src}, ${hi}px)`);
     await m.waitForTimeout(1500);
     const vid = await m.evaluate(() => { const v = document.querySelector('#hero-vid'); return { has: !!v, auto: v && v.autoplay, loop: v && v.loop, muted: v && v.muted, inline: v && v.playsInline, playing: v && !v.paused && v.currentTime > 0 }; });
     ok(vid.has && vid.auto && vid.loop && vid.muted && vid.inline && vid.playing, `${n}: el video del dron rueda en bucle en el hero`);
     await m.evaluate(() => scrollTo(0, 400)); await m.waitForTimeout(400);
     const tr = await m.evaluate(() => ['.hero-media', '.hero-copy'].map(x => document.querySelector(x).style.transform));
-    ok(tr.every(t => /translate3d\(0px, -?[1-9]/.test(t)) && tr[0] !== tr[1], `${n}: parallax con capas a distinta velocidad (${tr.join(' / ')})`);
+    // en el celular no hay parallax (fluidez); en la computadora sí, con capas a distinta velocidad
+    if (n === 'iPhone') ok(tr.every(t => !t), `${n}: sin parallax en el celular (el hero baja con la página, sin trabajo por scroll)`);
+    else ok(tr.every(t => /translate3d\(0px, -?[1-9]/.test(t)) && tr[0] !== tr[1], `${n}: parallax con capas a distinta velocidad (${tr.join(' / ')})`);
     await cm.close();
   }
 
@@ -49,7 +51,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   const tap = async sel => { const h = typeof sel === 'string' ? await p.waitForSelector(sel) : sel; await h.evaluate(e => e.scrollIntoView({ block: 'center' })); await p.waitForTimeout(60); await h.tap(); };
   const go = async v => { await p.evaluate(v => { location.hash = v; }, v); await p.waitForTimeout(450); };
   // inicio: video, parallax, menú
-  ok(await p.evaluate(() => document.querySelectorAll('#hero-reel .slide.on').length === 1 && document.querySelector('#hero-reel img').getAttribute('src').includes('hero2')), 'Portada con la foto real de Mochima');
+  ok(await p.evaluate(() => document.querySelectorAll('#hero-reel .slide.on').length === 1 && document.querySelector('#hero-reel img').getAttribute('src').includes('hero3')), 'Portada con la foto real de Mochima');
   ok(await p.evaluate(() => getComputedStyle(document.querySelector('#hero-reel img')).animationName === 'none'), 'Movimiento reducido: la foto queda quieta');
   await p.evaluate(() => scrollTo(0, 400)); await p.waitForTimeout(300);
   ok(!/translate3d\(0px, [1-9]/.test(await p.evaluate(() => document.querySelector('.hero-media').style.transform)), 'Movimiento reducido: parallax desactivado');
@@ -59,11 +61,11 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok(await p.$('#cur-ves') === null, 'Sin selector de bolívares');
   ok((await p.textContent('.press-strip')).includes('Viajando con BIVI') && (await p.textContent('.press-strip')).includes('Canal Viajero'), 'Prensa: Viajando con BIVI y Canal Viajero');
   ok(await p.$('#sheet .side-nav a[href="#propietarios"]') !== null && await p.$('#sheet .side-nav a[href="#aliados"]') !== null, 'Menú lateral con todas las secciones (Servicio a bordo y Propietarios incluidos)');
-  ok(await p.evaluate(() => !document.querySelector('#tsearch') && !document.querySelector('[data-side-search]') && getComputedStyle(document.querySelector('.mainnav')).display === 'none' && document.querySelectorAll('.orbit-band .orb-card').length === 19), 'Sin búsqueda en el header; en el celular las secciones van en el menú y el menú giratorio');
+  ok(await p.evaluate(() => !document.querySelector('#tsearch') && !document.querySelector('[data-side-search]') && getComputedStyle(document.querySelector('.mainnav')).display === 'none' && document.querySelectorAll('.orbit-band .orb-card').length === 17), 'Sin búsqueda en el header; en el celular las secciones van en el menú y el menú giratorio');
   ok(await p.evaluate(() => ['.steps3', '.tiles', '#layers', '.cta-band'].every(s => !document.querySelector('[data-view="inicio"] ' + s))), 'Portada compacta: header, hero, lancha de la casa, menú giratorio y footer');
   ok((await p.textContent('#own-feature')).includes('+500 viajes exitosos'), 'Portada destaca la lancha de la casa con +500 viajes exitosos');
   await go('flota'); ok(await p.evaluate(() => location.hash) === '#flota' && await p.isVisible('#boats'), 'Enlace viejo #flota abre Embarcaciones');
-  ok(await p.getAttribute('#boats .boat:first-of-type', 'data-id') === 'b0' && (await p.textContent('#boats .boat:first-of-type')).includes('Recomendación de la casa'), 'La lancha de la casa va primero con su insignia');
+  ok(await p.getAttribute('#boats .boat:first-of-type', 'data-id') === 'b0' && (await p.textContent('#boats .boat:first-of-type')).includes('La más solicitada'), 'La más solicitada va primero con su insignia');
   ok((await p.textContent('#boats')).includes('Otras opciones disponibles'), 'El resto aparece como "Otras opciones disponibles"');
   ok(!(await p.textContent('#boats')).includes('/ día'), 'El catálogo no muestra precios (solo al reservar)');
   // filtros
@@ -114,7 +116,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok(await p.evaluate(() => TLL_LAST.paxTxt.includes('2 niños') && TLL_LAST.pax === 6), 'El mensaje de WhatsApp incluye adultos y niños');
   await p.evaluate(() => { TLL.Q.pax = 5; TLL.Q.kids = 4; TLL.renderBuilder(); });
   ok(await p.evaluate(() => TLL.Q.boat !== 'b0'), '5 adultos + 4 niños ya no caben en la lancha de la casa (los niños cuentan en el filtro)');
-  ok(await p.isVisible('.s1-tip-p') && await p.isVisible('.s1-tip-d') && (await p.textContent('.s1-tips')).includes('hasta 7 kg'), 'Paso 1: avisos de contextura y mascotas con ícono');
+  ok(await p.isVisible('.s1-tip-p') && await p.isVisible('.s1-tip-d') && (await p.textContent('.s1-tips')).includes('hasta 6 kg') && (await p.textContent('.s1-tips')).includes('No permitimos mascotas'), 'Paso 1: avisos de contextura y mascotas (hasta 6 kg) con ícono');
   await p.evaluate(() => { TLL.Q.pax = 12; TLL.Q.kids = 0; TLL.renderBuilder(); }); ok(!(await p.textContent('#big-group')).trim(), '12 adultos: sin aviso de grupo grande');
   await tap('#pax-p'); const big = await p.textContent('#big-group');
   ok(big.includes('Nuestros yates tienen una capacidad máxima de 12 personas y lanchas para 10p') && big.includes('quedo atento a la opción que les gustaría'), 'Más de 12 adultos: aparece el mensaje de Eduardo');
@@ -128,19 +130,22 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await tap('#hx-p'); ok((await p.textContent('#ticket')).includes('h extra'), 'Hora extra solo en embarcaciones que la permiten y suma al total');
   await tap('#stepper [data-go="3"]');
   // extras
-  ok((await p.textContent('#b-extras')).includes('El Mercadillo') && (await p.textContent('#b-extras')).includes('Hielo y agua'), 'Paso de extras: hielo y agua incluidos y El Mercadillo');
+  ok((await p.textContent('#b-extras')).includes('El Mercadillo') && (await p.textContent('#b-extras')).includes('Cava con hielo y agua mineral'), 'Paso de extras: hielo y agua incluidos (en Comidas y bebidas) y El Mercadillo');
+  ok(await p.evaluate(() => { const h = [...document.querySelectorAll('#b-extras .xs-h')].map(x => x.textContent); const acc = document.querySelector('#b-extras .xsec').textContent; return h.join('|') === 'Accesorios|Comidas y bebidas' && !/Cava con hielo/.test(document.querySelector('#b-extras .xsec details').textContent); }), 'Extras en dos categorías: Accesorios (sin cava ni agua) y Comidas y bebidas');
+  ok(await p.evaluate(() => { const t = document.querySelector('#b-extras .food').textContent; return ['Whisky 12 años', 'Pescado frito', 'Carpacciera', 'Combo parrillero', 'Ponqué 10', 'Pavlova 12', 'Six pack'].every(x => t.includes(x)) && t.includes('Servicio a bordo') && t.includes('Esenciales favoritos para zarpar'); }), 'Comidas y bebidas: esenciales favoritos con aliado, producto y cantidad');
+  await p.evaluate(() => { document.querySelector('#b-extras [data-qty="food"][data-d="1"]').click(); document.querySelector('#b-extras [data-qty="food"][data-d="1"]').click(); }); await p.waitForTimeout(150);
+  ok(/× 2/.test(await p.textContent('#ticket')) && (await p.textContent('#ticket')).includes('por confirmar'), 'Comidas: la cantidad va al resumen (precio por confirmar si no tiene)');
+  await p.evaluate(() => { document.querySelector('#b-extras [data-qty="food"][data-d="-1"]').click(); }); await p.waitForTimeout(100); await p.evaluate(() => { document.querySelector('#b-extras [data-qty="food"][data-d="-1"]').click(); }); await p.waitForTimeout(100);
   ok((await p.textContent('#b-extras')).includes('Caretas de buceo (4)') && (await p.textContent('#b-extras')).includes('carbón'), 'Extras: caretas con cantidad y nota de la parrillera');
   await p.evaluate(() => { TLL.Q.boat = 'b7'; TLL.renderBuilder(); }); await p.waitForTimeout(150);
   await tap('[data-acc="kayak"]'); const t1 = await p.textContent('#ticket .total'); ok((await p.textContent('#ticket')).includes('Kayak') && /Total\$[\d.]+/.test(t1.replace(/\s/g, '')), 'Extra con costo suma al total: ' + t1.trim());
   await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(500);
   ok(await p.evaluate(() => document.querySelector('#minibar').classList.contains('show')), 'Barra de total fija visible en el móvil mientras armas el día');
-  const refc = await p.evaluate(() => TLL.refCode('Ana'));
-  await p.fill('#q-code', refc.toLowerCase()); await tap('#code-form button'); await p.waitForTimeout(200);
-  ok(await p.isVisible('#ticket .code-ok'), 'Código de referido válido aplica 5% (' + refc + ')');
-  await p.fill('#q-code', 'TLLG-B4XK'); await tap('#code-form button'); await p.waitForTimeout(200);
-  ok((await p.textContent('#ticket')).includes('Tarjeta de regalo'), 'Código de tarjeta de regalo se descuenta');
-  await p.fill('#q-code', 'XXXX'); await tap('#code-form button'); await p.waitForTimeout(200);
-  ok(await p.isVisible('#ticket .code-bad'), 'Código inválido muestra mensaje claro');
+  ok(!(await p.isVisible('#q-code')) && await p.evaluate(() => TLL.OFF.regalos), 'Regalos y Club oculto: el campo de códigos no se muestra');
+  await tap('#stepper [data-go="1"]'); await p.waitForTimeout(150);
+  ok(!(await p.isVisible('#t-book')), 'En el celular el resumen no muestra “Reservar ahora” antes del último paso');
+  await tap('#stepper [data-go="3"]'); await p.waitForTimeout(150);
+  ok(await p.isVisible('#t-book'), 'En el último paso sí aparece “Reservar ahora” en el resumen');
   // reserva dentro de la app, con condiciones
   await tap('#t-book'); await p.waitForSelector('#bk-form');
   ok(await p.isVisible('#bk-form'), 'Reservar ahora abre la confirmación dentro de la app');
@@ -173,7 +178,8 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await go('embarcaciones'); await tap('[data-book="b3"]'); await p.waitForTimeout(500);
   ok(await p.evaluate(() => location.hash) === '#reservar' && await p.getAttribute('[data-boat="b3"]', 'aria-pressed') === 'true', 'Botón Reservar de Embarcaciones lleva al asistente con esa embarcación');
   await go('experiencias');
-  ok((await p.textContent('#canales')).includes('canales de El Morro') && (await p.textContent('#canales')).includes('Pesca deportiva'), 'Experiencias: canales de El Morro y pesca aparte');
+  ok((await p.textContent('#canales')).includes('canales de El Morro') && (await p.textContent('#canales')).includes('Pesca de altura') && (await p.textContent('#canales')).includes('Senderismo en La Borracha') && (await p.textContent('#canales')).includes('Disponible pronto') && (await p.$$('#canales .exp-media')).length === 3, 'Experiencias: canales, pesca de altura y senderismo (pronto), cada una con su imagen');
+  ok(!(await p.textContent('#canales')).includes('tu cava') && (await p.textContent('#canales')).includes('tus bebidas y snacks'), 'Canales: puedes traer tus bebidas y snacks (ya no “tu cava”)');
   await tap('[data-copt="y"]'); ok((await p.textContent('#c-total')).includes('220'), 'Canales en yate: mínimo 10 personas × $22');
   await tap('#canal-form button[type=submit]'); await p.waitForTimeout(400); ok(popups.some(u => decodeURIComponent(u).includes('canales de El Morro')), 'Solicitar paseo por los canales abre WhatsApp');
   await go('aliados'); ok((await p.textContent('#allies')).includes('Cervecería Regional') && !(await p.textContent('#allies')).includes('Coco Beach') && (await p.textContent('[data-view="aliados"] h1')).includes('Servicio a bordo'), 'Servicio a bordo: aliados en cuadros, entra Cervecería Regional');
@@ -182,17 +188,9 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok((await p.textContent('#beaches')).includes('Rumbo 6') && (await p.textContent('#beaches')).includes('Isla La Borracha') && (await p.textContent('#beaches')).includes('Playa Ñacleta'), 'Playas agrupadas en 6 rumbos (Rumbo 4: La Borracha)');
   // playas → cotizador
   await tap('[data-goroute="r2"][data-gobeach="Isla de Plata"]'); await p.waitForTimeout(300); ok(await p.getAttribute('[data-route="r2"]', 'aria-pressed') === 'true' && await p.getAttribute('[data-beach="Isla de Plata"]', 'aria-pressed') === 'true', 'Playa → "Ir aquí" elige rumbo y playa en el asistente');
-  await go('regalos');
-  // regalos
-  await tap('#g-occ .pill:first-child'); await p.fill('#g-to', 'Carla'); await p.waitForTimeout(100);
-  ok((await p.textContent('#g-card')).includes('Carla') && (await p.textContent('#g-card')).includes('Cumpleaños'), 'Vista previa de la tarjeta de regalo se actualiza');
-  await p.selectOption('#g-exp', 'M'); ok(await p.isVisible('#g-amt'), 'Monto libre muestra campo de monto');
-  const gcode = await p.evaluate(() => document.querySelector('#g-card').textContent.match(/TLLG-[A-Z0-9-]+/)[0]);
-  ok(await p.evaluate(c => !!TLL.codeInfo(c).kind, gcode), 'El código de la tarjeta (' + gcode + ') es canjeable en el cotizador');
-  await tap('#gift-form button[type=submit]'); await p.waitForTimeout(400); ok(popups.some(u => u.includes('wa.me') && decodeURIComponent(u).includes('tarjeta de regalo')), 'Comprar tarjeta abre WhatsApp con el pedido');
-  // referidos
-  await p.fill('#ref-name', 'José'); await tap('#ref-form button'); ok(/^JOSE-[A-Z0-9]{3}$/.test(await p.textContent('#ref-code')), 'Crear código de referido: ' + await p.textContent('#ref-code'));
-  ok((await p.getAttribute('#ref-share', 'href')).startsWith('https://wa.me/?text='), 'Compartir código abre WhatsApp para elegir contacto');
+  // Regalos y Club oculto por ahora (pedido de Eduardo, 18 nov): su dirección lleva al inicio y no hay enlaces visibles
+  await p.evaluate(() => { location.hash = 'regalos'; }); await p.waitForTimeout(400);
+  ok(await p.evaluate(() => document.querySelector('[data-view="regalos"]').hidden && !document.querySelector('[data-view="inicio"]').hidden && ![...document.querySelectorAll('a[href="#regalos"]')].some(a => a.offsetParent)), 'Regalos y Club oculto: sin enlaces visibles y #regalos lleva al inicio');
   await go('mi-viaje');
   // mi viaje: en vivo
   await p.fill('#code-live', 'abc'); await tap('form[data-go="viaje"] button'); ok(!(await p.isVisible('#dlg[open]')), 'Código de viaje inválido no abre');
@@ -206,13 +204,17 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok(await p.isVisible('#dlg [data-sos-panel]') && (await p.getAttribute('#dlg [data-sos-wa]', 'href')).includes('SOS'), 'Emergencia: mantener presionado 3 s muestra la alerta SOS');
   await p.screenshot({ path: OUT + 'f-live.png' });
   await tap('#dlg .m-close');
-  // álbum
-  await tap('form[data-go="album"] button'); await p.waitForSelector('#dlg[open] .album');
-  ok((await p.$$('.album button')).length === 12, 'Álbum muestra 12 fotos y videos');
-  await tap('.album button:nth-child(2)'); ok(await p.isVisible('.lightbox'), 'Foto se abre en grande'); await tap('.lightbox'); ok(!(await p.isVisible('.lightbox')), 'Cerrar foto');
-  await p.screenshot({ path: OUT + 'f-album.png' });
-  await tap('#dlg .m-close');
+  // el álbum del día se quitó (pedido de Eduardo, 18 nov)
+  ok(await p.$('form[data-go="album"]') === null && !(await p.textContent('[data-view="mi-viaje"]')).includes('Álbum'), 'Mi viaje sin álbum del día');
   await go('propietarios');
+  ok((await p.textContent('#owners-sv')).includes('proveedores verificados') && (await p.textContent('#owner-allies')).includes('Ferrenautic') && (await p.textContent('#owner-allies')).includes('Seadek Venezuela') && (await p.$$('#owner-allies .ally-t')).length === 6, 'Propietarios: leyenda y 6 proveedores destacados');
+  ok((await p.textContent('#owners-sv .own-food')).includes('Servicio a bordo'), 'Propietarios: comidas y bebidas en Servicio a bordo');
+  await p.evaluate(() => { document.querySelector('[data-rent][data-d="1"]').click(); }); await p.waitForTimeout(100);
+  ok((await p.textContent('#rent')).includes('Depósito de garantía') && await p.isVisible('#rent-go'), 'Propietarios: alquiler con resumen y depósito de garantía');
+  await tap('#rent-go'); await p.waitForTimeout(300); ok(popups.some(u => decodeURIComponent(u).includes('alquilar equipos') && decodeURIComponent(u).includes('Depósito de garantía')), 'Alquiler se envía por WhatsApp');
+  await p.fill('#ax-boat', 'Bravo'); await p.fill('#ax-mat', 'ARSB-123'); await p.fill('#ax-cap', 'Luis'); await p.fill('#ax-tel', '04140000000'); await p.fill('#ax-loc', 'Canal principal'); await p.fill('#ax-what', 'Motor apagado');
+  await tap('#aux-form button[type=submit]'); await p.waitForTimeout(300);
+  ok(popups.some(u => { const d = decodeURIComponent(u); return d.includes('auxilio') && ['Nombre de la embarcación: Bravo', 'Matrícula: ARSB-123', 'Contacto del Capitán a bordo: Luis', 'Número del Capitán: 04140000000', 'Referencia de ubicación: Canal principal', 'Naturaleza del problema: Motor apagado'].every(x => d.includes(x)); }), 'Auxilio: llega al WhatsApp de Eduardo con los 6 datos');
   // pool
   await p.fill('#p-name', 'Pedro'); await p.fill('#p-phone', '04141234567'); await p.fill('#p-boat', 'Fountain 38');
   await tap('#pool-form button[type=submit]'); await p.waitForTimeout(300); ok(popups.some(u => decodeURIComponent(u).includes('Fountain 38')), 'Postulación al pool abre WhatsApp');

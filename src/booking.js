@@ -49,10 +49,10 @@ const POLICY_SHORT = [
 ];
 const POLICY_FULL = [
   ['Reserva y pago', ['Se reserva con 50% en temporada baja o 100% en temporada alta. En temporada alta y fines de semana no se aparta una embarcación más de 30 minutos: es del primero que pague.', 'El 50% restante se paga y se verifica antes de encender motores, después de revisar la embarcación en el muelle.', 'Las horas extra se pagan en efectivo a bordo. Las reservas de varios días se liquidan cada día.', 'Los reembolsos por Zelle tardan de 24 a 72 horas.']],
-  ['Normas a bordo', ['Uso exclusivo para tu grupo, con al menos una persona mayor de 18 años.', 'La capacidad es estricta y los niños cuentan como pasajeros. Excederla tiene una penalidad de $50 (lanchas) o $100 (yates) y se suspende la salida.', 'Solo perros pequeños (hasta 7 kg), con aprobación previa.', 'Prohibidos la cachimba (hookah) y los vapers (Gaceta Oficial 42.682) y las drogas: el capitán puede terminar el paseo sin reembolso.', 'Se suman las tasas portuarias que apliquen.']],
+  ['Normas a bordo', ['Uso exclusivo para tu grupo, con al menos una persona mayor de 18 años.', 'La capacidad es estricta y los niños cuentan como pasajeros. Excederla tiene una penalidad de $50 (lanchas) o $100 (yates) y se suspende la salida.', 'Solo perros pequeños (hasta 6 kg), con aprobación previa.', 'Prohibidos la cachimba (hookah) y los vapers (Gaceta Oficial 42.682) y las drogas: el capitán puede terminar el paseo sin reembolso.', 'Se suman las tasas portuarias que apliquen.']],
   ['Cancelaciones', ['Todo reembolso tiene una retención del 20%.', 'Si cancelas con 24 h (lanchas) o 48 h (barcos y yates) de anticipación: reembolso menos 20%, o 100% en crédito para usar en 30 días.', 'Si cancelas después: reembolso menos 20% solo si la embarcación se vuelve a alquilar; si no, no hay reembolso.']],
   ['Fallas', ['Si la embarcación falla, te damos otra de condiciones similares (unas 1,5 h de espera, que se compensan al final del día). Si la nueva cuesta más de $70 por encima de la original, pagas la diferencia; si no hay opción, reembolso del 100%. En feriados casi no hay reemplazos.', 'Falla de motor ya en la playa: reembolso proporcional.', 'Falla de planta o aire acondicionado en yates: compensación de $70 si el paseo continúa.', 'Embarcaciones grandes (25 a 30 personas): no hay reemplazo inmediato, se reprograma la fecha. Los proveedores externos no están cubiertos.']],
-  ['Muelles y accesorios', ['Un solo punto de embarque para todo el grupo. El servicio por uso de muelle (se paga en sitio) y la seguridad del vehículo dependen de cada establecimiento.', 'Cerro El Morro y Eurobuilding: regreso máximo a las 5:30 pm.', 'Los daños a accesorios se cobran a precio de mercado.', 'No alquilamos motos de agua ni inflables externos; si los contratas, se abordan desde la orilla.', 'No respondemos por objetos que caigan al agua.']],
+  ['Muelles y accesorios', ['Un solo punto de embarque para todo el grupo. El servicio por uso de muelle (se paga en sitio) y la seguridad del vehículo dependen de cada establecimiento.', 'Cerro El Morro y Hotel Eurobuilding: regreso máximo a las 5:30 pm.', 'Los daños a accesorios se cobran a precio de mercado.', 'No alquilamos motos de agua ni inflables externos; si los contratas, se abordan desde la orilla.', 'No respondemos por objetos que caigan al agua.']],
   ['Seguridad', ['Recomendamos pastillas para el mareo (por ejemplo, Viajesan).', 'Ante síntomas graves, la embarcación regresa de inmediato.', 'Eventos grandes (más de 20 personas): traslado con embarcaciones de apoyo, por cuenta del cliente.']],
   ['Clima', ['Las nubes o la lluvia pasajera no son motivo de cancelación.', 'Solo el cierre oficial del puerto (INEA o Capitanía) o condiciones extremas declaradas por el capitán permiten reprogramar al 100%, o reembolso si no puedes reprogramar.', 'Si decides no ir con el puerto abierto, cuenta como cancelación tardía.']]
 ];
@@ -89,7 +89,7 @@ function openBooking() {
     <fieldset class="pay"><legend><span class="eyebrow">Pago</span><b>¿Cómo prefieres pagar el abono?</b></legend>
       <div class="pay-opts" role="radiogroup">${Object.keys(PAY).map(k => payCard(k, p.pay || 'zelle', q.total)).join('')}</div>
       <div id="bk-payinfo">${payInfo(p.pay || 'zelle', q.total)}</div>
-      <p class="pay-secure"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>No pagas nada en la app. Al confirmar, tus datos le llegan a Tu Lancha por WhatsApp y ahí acordamos el pago.</p>
+      <p class="pay-secure"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>No pagas nada en la app. Al confirmar, tus datos le llegan a Tu Lancha Lechería por WhatsApp y ahí acordamos el pago.</p>
     </fieldset>
     <div class="bk-terms"><h4>Condiciones principales</h4><ul>${POLICY_SHORT.map(x => `<li>${x}</li>`).join('')}</ul>${policyHtml()}
       <label class="bk-ok"><input type="checkbox" id="bk-ok" required> <span>Leí y acepto las condiciones de alquiler</span></label></div>
@@ -108,18 +108,18 @@ function openBooking() {
     r.sent = openWa(r);
     saveMine([r, ...mine()].slice(0, 20));
     // aviso al panel de Eduardo (si no hay conexión, no pasa nada: la reserva sigue en el teléfono y en WhatsApp)
-    try { fetch('/api/admin?a=book', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: r.code, created: r.created, iso: r.iso, date: r.date, boat: r.boat, route: r.route, dock: okPin(r.pin) ? 'Muelle del cliente' + (r.pin.ref ? ' · ' + r.pin.ref : '') : r.dock, pin: okPin(r.pin) ? r.pin : undefined, hours: r.hours, pax: r.pax, kids: r.kids, total: r.total, pay: r.pay, name: r.name, phone: r.phone, note: r.note, lang: (window.TLL_I18N && TLL_I18N.lang) || 'es' }) }).catch(() => {}); } catch {}
+    try { fetch('/api/admin?a=book', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: r.code, created: r.created, iso: r.iso, date: r.date, boat: r.boat, route: r.route, dock: okPin(r.pin) ? 'Muelle del cliente' + (r.pin.ref ? ' · ' + r.pin.ref : '') : r.dock, pin: okPin(r.pin) ? r.pin : undefined, hours: r.hours, pax: r.pax, kids: r.kids, total: r.total, pay: r.pay, name: r.name, phone: r.phone, note: r.note, det: (r.lines || []).slice(1).map(l => `• ${l[0]}${l[2] === 'tbd' ? ' (por confirmar)' : l[1] ? ': ' + money(l[1]) : ''}`).concat(r.dockFee ? [`• Servicio de muelle ${r.dockFee} (en sitio)`] : []).join('\n'), lang: (window.TLL_I18N && TLL_I18N.lang) || 'es' }) }).then(x => { if (x.ok) saveMine(mine().map(y => y.code === r.code ? { ...y, srv: true } : y)); }).catch(() => {}); } catch {}
     showDone(r); renderMine();
   };
   dlg.showModal();
 }
 
-/* Mensaje completo de la reserva: le llega a Tu Lancha por WhatsApp apenas el cliente confirma (pedido de Eduardo).
+/* Mensaje completo de la reserva: le llega a Tu Lancha Lechería por WhatsApp apenas el cliente confirma (pedido de Eduardo).
    No hace falta adjuntar nada; el PDF queda como respaldo para descargar. */
 const fullText = r => {
   const extras = (r.lines || []).slice(1).map(l => `• ${clean(l[0])}${l[2] === 'tbd' ? ' (por confirmar)' : l[1] ? ': ' + money(l[1]) : ''}`);
   const pay = PAY[r.pay] ? PAY[r.pay].name : '';
-  return [`Hola Tu Lancha 👋 Quiero confirmar mi reserva *${r.code}*`, '',
+  return [`Hola Tu Lancha Lechería 👋 Quiero confirmar mi reserva *${r.code}*`, '',
     `👤 ${r.name}${r.phone ? ' · ' + r.phone : ''}`,
     `🛥️ ${r.boat}${r.type ? ' (' + r.type + ')' : ''}`,
     `📅 ${r.date}${r.hours ? ' · ' + r.hours : ''}${r.hi ? ' · temporada alta' : ''}`,
@@ -132,7 +132,7 @@ const fullText = r => {
     ...(r.note ? ['', `📝 ${r.note}`] : []),
     '', 'Acepté las condiciones de alquiler.'].join('\n');
 };
-// abre WhatsApp en el chat de Tu Lancha con todos los datos; devuelve si se pudo abrir
+// abre WhatsApp en el chat de Tu Lancha Lechería con todos los datos; devuelve si se pudo abrir
 function openWa(r) { HI = !!r.hi; let w = null; try { w = window.open(wa(fullText(r)), '_blank'); if (w) w.opener = null; } catch { /* bloqueado */ } return !!w; }
 const navPair = () => `<div class="bk-nav" id="bk-nav"><a class="btn btn-ghost" href="#inicio" id="bk-home">Volver al inicio</a><a class="btn btn-sun" href="#mi-viaje" id="bk-trip">Ver mi viaje</a></div>`;
 const WA_HINT = '<p class="bk-wa-hint">¿No se abrió WhatsApp o no enviaste el mensaje? <button class="linkish" type="button" id="bk-resend">Enviar de nuevo</button></p>';
@@ -146,7 +146,7 @@ function showDone(r) {
     <p class="bk-code-l">Tu código de reserva</p><p class="bk-code mono" id="bk-code">${r.code}</p>
     <div class="bk-sum"><div><b>${esc(r.boat)}</b><span>${esc(r.date)} · ${esc(r.paxTxt || r.pax + ' personas')}</span><span>${esc(r.route)}</span></div><strong>${money(r.total)}</strong></div>
     ${r.pay && PAY[r.pay] ? `<div class="pay-done"><span class="pay-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${PAY[r.pay].ic}</svg></span><div><span>Pagarás con</span><b>${PAY[r.pay].name}</b></div><strong>${money(abono(r.pay, r.total))}<small>abono</small></strong></div>` : ''}
-    <ol class="bk-next"><li class="ok">Reserva guardada con tu código</li><li id="bk-li-send" class="${r.sent ? 'ok' : 'now'}">${r.sent ? 'Tus datos se enviaron al WhatsApp de Tu Lancha' : 'Envía tus datos al WhatsApp de Tu Lancha'}</li><li>Eduardo confirma la disponibilidad y te pasa ${r.pay === 'efectivo' ? 'cómo entregar el abono en efectivo' : 'los datos para el abono'}</li><li>Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el servicio de muelle</li></ol>
+    <ol class="bk-next"><li class="ok">Reserva guardada con tu código</li><li id="bk-li-send" class="${r.sent ? 'ok' : 'now'}">${r.sent ? 'Tus datos se enviaron al WhatsApp de Tu Lancha Lechería' : 'Envía tus datos al WhatsApp de Tu Lancha Lechería'}</li><li>Eduardo confirma la disponibilidad y te pasa ${r.pay === 'efectivo' ? 'cómo entregar el abono en efectivo' : 'los datos para el abono'}</li><li>Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el servicio de muelle</li></ol>
     ${r.sent ? `${WA_HINT}${navPair()}` : `<button class="btn btn-wa btn-lg" type="button" id="bk-send">Enviar mis datos por WhatsApp</button>${navPair()}`}
     <p class="bk-pdf-mini"><button class="linkish" type="button" id="bk-pdf-dl">Descargar comprobante (PDF)</button> · <span id="bk-pdf-st">Con tu código entras luego a Mi viaje.</span></p>
   </div>`;
@@ -155,7 +155,7 @@ function showDone(r) {
   const getBlob = async () => blob || (blob = await pdfFor(r));
   // una vez enviado, "Volver al inicio" y "Ver mi viaje" toman el lugar del botón verde
   const sent = () => {
-    markSent(r.code); const li = $('#bk-li-send', dlg); li.className = 'ok'; li.textContent = 'Tus datos se enviaron al WhatsApp de Tu Lancha';
+    markSent(r.code); const li = $('#bk-li-send', dlg); li.className = 'ok'; li.textContent = 'Tus datos se enviaron al WhatsApp de Tu Lancha Lechería';
     const btn = $('#bk-send', dlg); if (!btn) return;
     btn.insertAdjacentHTML('beforebegin', WA_HINT); btn.remove(); $('#bk-resend', dlg).addEventListener('click', send);
   };
@@ -170,6 +170,24 @@ function showDone(r) {
   $('#bk-pdf-dl', dlg).addEventListener('click', async () => { const st = $('#bk-pdf-st', dlg); st.textContent = 'Preparando tu PDF…'; try { saveBlob(await getBlob(), pdfName(r)); st.textContent = `${pdfName(r)} descargado`; toast('Comprobante descargado'); } catch { st.textContent = 'No se pudo crear el PDF. Intenta de nuevo.'; } });
   if (!dlg.open) dlg.showModal();
 }
+/* Mi viaje se sincroniza con el panel: si Eduardo borra o cancela una reserva, desaparece del teléfono del cliente.
+   Una reserva que aún no llegó al servidor (sin conexión al confirmar) no se borra en su primera hora. */
+let syncing = false;
+async function syncMine() {
+  const l = mine(); if (syncing || !l.length || !/^https?:$/.test(location.protocol)) return;
+  syncing = true;
+  try {
+    const st = await fetch('/api/admin?a=st&c=' + encodeURIComponent(l.map(x => x.code).join(',')), { cache: 'no-store' }).then(x => x.ok ? x.json() : null);
+    if (!st || typeof st !== 'object') return;
+    const now = Date.now(), cur = mine();
+    const keep = cur.filter(r => { if (!(r.code in st)) return true; const v = st[r.code]; if (v === null) return !r.srv && now - (+r.created || 0) < 36e5; return v !== 'cancelada'; })
+      .map(r => st[r.code] ? { ...r, st: st[r.code], srv: true } : r);
+    if (JSON.stringify(keep) !== JSON.stringify(cur)) { saveMine(keep); renderMine(); }
+  } catch {} finally { syncing = false; }
+}
+addEventListener('hashchange', () => { if (location.hash === '#mi-viaje') syncMine(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) syncMine(); });
+setTimeout(syncMine, 1500);
 function markSent(code) { saveMine(mine().map(x => x.code === code ? { ...x, sent: true } : x)); renderMine(); }
 
 function renderMine() {
@@ -179,9 +197,9 @@ function renderMine() {
   if (!l.length) { box.innerHTML = ''; window.TLL.renderPlan && window.TLL.renderPlan(); return; }
   ['#code-live', '#code-album'].forEach(s => { const i = $(s); if (i) i.value = l[0].code; });
   box.innerHTML = `<div class="head"><h2>Mis reservas</h2></div><div class="mytrips">${l.map(r => `<article class="mytrip glass-card">
-    <div class="mt-top"><span class="mono mt-code">${r.code}</span><span class="mt-st ${r.sent ? 'ok' : 'warn'}">${r.sent ? 'Enviada a Tu Lancha' : 'Falta avisar'}</span></div>
+    <div class="mt-top"><span class="mono mt-code">${r.code}</span><span class="mt-st ${r.st === 'confirmada' || r.sent ? 'ok' : 'warn'}">${r.st === 'confirmada' ? 'Confirmada ✓' : r.sent ? 'Enviada a Tu Lancha Lechería' : 'Falta avisar'}</span></div>
     <b>${esc(r.boat)}</b><span>${esc(r.date)} · ${r.pax} personas · ${esc(r.route)}</span><strong>${money(r.total)}</strong>
-    <div class="row2"><button class="btn btn-sm ${r.sent ? 'btn-ghost' : 'btn-wa'}" type="button" data-mt-open="${r.code}">${r.sent ? 'Ver comprobante' : 'Avisar a Tu Lancha'}</button><button class="btn btn-ghost btn-sm" type="button" data-mt-live="${r.code}">Ver en vivo</button></div>
+    <div class="row2"><button class="btn btn-sm ${r.sent ? 'btn-ghost' : 'btn-wa'}" type="button" data-mt-open="${r.code}">${r.sent ? 'Ver comprobante' : 'Avisar a Tu Lancha Lechería'}</button><button class="btn btn-ghost btn-sm" type="button" data-mt-live="${r.code}">Ver en vivo</button></div>
   </article>`).join('')}</div>`;
   window.TLL.renderPlan && window.TLL.renderPlan();
 }
@@ -263,7 +281,7 @@ async function makePdf(r) {
   fill([253, 248, 236]); draw([236, 220, 180]); d.roundedRect(M, y, W - 2 * M, 22, 3, 3, 'FD');
   col(MUT); d.setFont('helvetica', 'normal'); d.setFontSize(7.5); d.text('MÉTODO DE PAGO', M + 6, y + 6.5); d.text('ABONO PARA APARTAR (50%)', M + 70, y + 6.5); d.text('RESTO, EN EL MUELLE', M + 132, y + 6.5);
   col(INK); d.setFont('helvetica', 'bold'); d.setFontSize(12); d.text(pm, M + 6, y + 14); d.text(money(abono(r.pay, r.total)), M + 70, y + 14); d.text(money(r.total - r.total / 2), M + 132, y + 14);
-  col(MUT); d.setFont('helvetica', 'normal'); d.setFontSize(7.5); d.text(r.pay === 'efectivo' ? 'La entrega del abono en efectivo se acuerda por WhatsApp.' : 'Los datos para el abono te los envía Tu Lancha por WhatsApp.', M + 6, y + 19.2); y += 26;
+  col(MUT); d.setFont('helvetica', 'normal'); d.setFontSize(7.5); d.text(r.pay === 'efectivo' ? 'La entrega del abono en efectivo se acuerda por WhatsApp.' : 'Los datos para el abono te los envía Tu Lancha Lechería por WhatsApp.', M + 6, y + 19.2); y += 26;
   if (r.note) { need(14); col(MUT); d.setFontSize(7.5); d.text('NOTA DEL CLIENTE', M, y); col(INK); d.setFontSize(9.5); const t = d.splitTextToSize(clean(r.note), W - 2 * M); d.text(t, M, y + 5); y += 7 + t.length * 4.4; }
   // condiciones resumidas
   need(12); col(GOLD); d.setFont('helvetica', 'bold'); d.setFontSize(8); d.setCharSpace(1); d.text('CONDICIONES PRINCIPALES', M, y); d.setCharSpace(0); y += 5;
@@ -287,5 +305,5 @@ function saveBlob(blob, name) { const u = URL.createObjectURL(blob), a = documen
 const canShareFiles = () => { try { return !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.pdf', { type: 'application/pdf' })] })); } catch { return false; } };
 
 renderMine();
-Object.assign(window.TLL, { openBooking, renderMine, pdfFor });
+Object.assign(window.TLL, { openBooking, renderMine, pdfFor, syncMine });
 })();

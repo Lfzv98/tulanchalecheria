@@ -3,7 +3,6 @@
    en Upstash Redis junto con la fecha del paseo. Dos tareas programadas de Vercel (vercel.json › crons) envían:
      · 7:00 pm del día antes   → "Mañana zarpas"
      · 6:00 am del día del paseo → "Hoy zarpas: abre el modo a bordo"
-     · 7:00 pm del día del paseo → "Tu álbum del día"
    Funciona con la app cerrada en Android, computadoras y iPhone (iOS 16.4+ con la app agregada a la pantalla de inicio).
 
    Variables de entorno:
@@ -97,15 +96,15 @@ const LOC = { es: 'es-VE', en: 'en-US', pt: 'pt-BR' };
 const TXT = {
   es: { eve: ['Mañana zarpas ⛵', t => `${t.boat} · ${t.h} desde ${t.dock}. Protector solar, lentes y traje de baño. ¡Nos vemos en el muelle!`],
         today: ['Hoy zarpas ⛵', t => `Abre el modo a bordo antes de salir: GPS, botón SOS y ubicación en vivo para tu familia. Salida ${t.h} desde ${t.dock}.`],
-        album: ['Tu álbum del día 📸', () => 'Gracias por navegar con Tu Lancha. Las fotos y videos de tu paseo te esperan en la app.'],
+        album: ['Tu álbum del día 📸', () => 'Gracias por navegar con Tu Lancha Lechería. Las fotos y videos de tu paseo te esperan en la app.'],
         ok: ['Avisos activados ⚓', d => `Te avisaremos el día antes y la mañana de tu paseo (${d}).`] },
   en: { eve: ['Tomorrow you set sail ⛵', t => `${t.boat} · ${t.h} from ${t.dock}. Bring sunscreen, sunglasses and swimwear. See you at the dock!`],
         today: ['Today you set sail ⛵', t => `Open on-board mode before you leave: GPS, SOS button and live location for your family. Departure ${t.h} from ${t.dock}.`],
-        album: ['Your album of the day 📸', () => 'Thanks for sailing with Tu Lancha. The photos and videos of your trip are waiting for you in the app.'],
+        album: ['Your album of the day 📸', () => 'Thanks for sailing with Tu Lancha Lechería. The photos and videos of your trip are waiting for you in the app.'],
         ok: ['Notifications on ⚓', d => `We will remind you the day before and the morning of your trip (${d}).`] },
   pt: { eve: ['Amanhã você zarpa ⛵', t => `${t.boat} · ${t.h} saindo de ${t.dock}. Protetor solar, óculos de sol e roupa de banho. Nos vemos no píer!`],
         today: ['Hoje você zarpa ⛵', t => `Abra o modo a bordo antes de sair: GPS, botão SOS e localização ao vivo para sua família. Saída ${t.h} de ${t.dock}.`],
-        album: ['Seu álbum do dia 📸', () => 'Obrigado por navegar com a Tu Lancha. As fotos e vídeos do seu passeio esperam por você no app.'],
+        album: ['Seu álbum do dia 📸', () => 'Obrigado por navegar com a Tu Lancha Lechería. As fotos e vídeos do seu passeio esperam por você no app.'],
         ok: ['Avisos ativados ⚓', d => `Vamos avisar no dia anterior e na manhã do seu passeio (${d}).`] }
 };
 const langOf = l => (TXT[l] ? l : 'es');
@@ -118,7 +117,8 @@ function message(kind, t) {
 
 async function runCron(slot, priv) {
   // am: hoy zarpas · pm: mañana zarpas (paseos de mañana) y álbum (paseos de hoy)
-  const jobs = slot === 'am' ? [[vetIso(0), 'today']] : [[vetIso(1), 'eve'], [vetIso(0), 'album']];
+  // el aviso del álbum se quitó el 18 nov (pedido de Eduardo): ya no hay álbum del día
+  const jobs = slot === 'am' ? [[vetIso(0), 'today']] : [[vetIso(1), 'eve']];
   let sent = 0, gone = 0;
   for (const [iso, kind] of jobs) {
     const [h] = await redis([['HGETALL', `push:d:${iso}`]]);

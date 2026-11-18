@@ -55,6 +55,8 @@ const sha = s => crypto.createHash('sha256').update(String(s)).digest('hex');
 const pbkdf = (pass, salt, iter) => crypto.pbkdf2Sync(String(pass), salt, iter, 32, 'sha256').toString('hex');
 const same = (a, b) => a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
 const str = (v, n = 120) => String(v ?? '').replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, n);
+// texto de varias líneas (detalle de extras para el propietario)
+const txt = (v, n = 1500) => String(v ?? '').replace(/[\u0000-\u0009\u000b-\u001f]/g, ' ').trim().slice(0, n);
 const num = (v, lo, hi) => { const n = +v; return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : 0; };
 const ipOf = req => String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '?').split(',')[0].trim();
 
@@ -92,6 +94,7 @@ function cleanBooking(b, src) {
     boat: str(b.boat, 60), route: str(b.route, 160), dock: str(b.dock, 80), hours: str(b.hours, 60),
     pax: num(b.pax, 0, 200), kids: num(b.kids, 0, 200), total: Math.round(num(b.total, 0, 1e6)), paid: Math.round(num(b.paid, 0, 1e6)),
     pay: str(b.pay, 20), name: str(b.name, 80), phone: str(b.phone, 30), note: str(b.note, 400),
+    det: txt(b.det),
     lang: /^(es|en|pt)$/.test(b.lang || '') ? b.lang : 'es', channel: str(b.channel || (src === 'web' ? 'Web · app' : 'WhatsApp directo'), 40),
     status: /^(nueva|confirmada|cancelada)$/.test(b.status || '') ? b.status : 'nueva',
     ...(pinOf(b.pin) ? { pin: pinOf(b.pin) } : {})
@@ -117,6 +120,15 @@ async function handler(req, res) {
       return res.end(Buffer.from(d, 'base64'));
     }
     if (req.method === 'GET' && a === 'ping') return send(res, 200, { ok: true });
+    /* Mi viaje: el teléfono pregunta por sus códigos para saber si Eduardo los borró o canceló en el panel.
+       Solo devuelve el estado (nueva, confirmada, cancelada o null si ya no existe), nunca datos del cliente. */
+    if (req.method === 'GET' && a === 'st') {
+      const codes = String(q.get('c') || '').split(',').map(x => x.trim().toUpperCase()).filter(x => CODE_RE.test(x)).slice(0, 20);
+      if (!codes.length) return send(res, 200, {});
+      const [vals] = await redis([['HMGET', 'adm:bk', ...codes]]);
+      const out = {}; codes.forEach((c, i) => { let st = null; try { st = vals && vals[i] ? JSON.parse(vals[i]).status || 'nueva' : null; } catch {} out[c] = st; });
+      return send(res, 200, out);
+    }
     if (req.method !== 'POST' && !['me', 'books', 'hist'].includes(a)) return send(res, 405, { error: 'method' });
 
     const ip = ipOf(req);

@@ -3,14 +3,19 @@
 const { $, $$, Q, renderBuilder, BOATS } = window.TLL;
 const VIEWS = $$('.page').map(v => v.dataset.view);
 const ALIAS = { flota: 'embarcaciones', lanchas: 'embarcaciones', canales: 'experiencias', cotizar: 'reservar', pool: 'propietarios', club: 'regalos', referidos: 'regalos', preguntas: 'nosotros', mar: 'inicio', 'inicio-mas': 'inicio' };
+// Regalos y Club está oculto por ahora (pedido de Eduardo, 18 nov): sus enlaces llevan al inicio
+const OFF = window.TLL.OFF || {};
+if (OFF.regalos) { ALIAS.club = ALIAS.referidos = ALIAS.regalos = 'inicio'; }
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+// en pantallas táctiles el cambio de sección es directo: la transición de vista fotografiaba la página entera y se sentía lenta
+const touchUI = matchMedia('(hover: none), (max-width: 900px)');
 const topbar = $('#topbar');
 let current = null;
 
 /* ---------- enrutador por vistas ---------- */
 function target() {
   const h = decodeURIComponent(location.hash.slice(1));
-  if (VIEWS.includes(h)) return [h, null];
+  if (VIEWS.includes(h) && !OFF[h]) return [h, null];
   if (ALIAS[h]) return [ALIAS[h], h];
   if (h === 'viaje' || h === 'album' || h.startsWith('sigue/')) return ['mi-viaje', null];
   return [current || 'inicio', null];
@@ -28,7 +33,7 @@ function show(name, anchor) {
     if (name === 'reservar') { renderBuilder(); goStep(step); }
     syncMinibar(); syncVideo(); parallax();
   };
-  if (current && current !== name && document.startViewTransition && !reduce.matches) { const vt = document.startViewTransition(swap); [vt.ready, vt.finished, vt.updateCallbackDone].forEach(x => x && x.catch(() => {})); } else swap();
+  if (current && current !== name && document.startViewTransition && !reduce.matches && !touchUI.matches) { const vt = document.startViewTransition(swap); [vt.ready, vt.finished, vt.updateCallbackDone].forEach(x => x && x.catch(() => {})); } else swap();
 }
 function route() { const [v, a] = target(); closeSheet(); if (v !== current || a) show(v, a); }
 addEventListener('hashchange', route);
@@ -44,6 +49,7 @@ function goStep(n) {
   $('#st-back').style.visibility = step === 0 ? 'hidden' : 'visible';
   const nx = $('#st-next');
   if (step === 3) { nx.textContent = 'Reservar ahora'; } else { nx.textContent = 'Siguiente'; }
+  document.body.classList.toggle('st-last', step === 3);   // el resumen muestra "Reservar ahora" solo al final (celular)
   if (mbReady) syncMinibar();
 }
 $('#stepper').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) goStep(+b.dataset.go); });
@@ -121,23 +127,28 @@ if (reel) new IntersectionObserver(es => { reelSeen = es[0].isIntersecting; sync
 
 /* ---------- parallax por capas (transform, rAF) ---------- */
 const layers = $$('.px');
-let ticking = false;
+let ticking = false, pxOn = true;
+const noPx = matchMedia('(hover: none), (max-width: 900px)');
 function parallax() {
   ticking = false;
-  if (reduce.matches || current !== 'inicio') { layers.forEach(l => l.style.transform = ''); return; }
+  // en el celular y la tableta (pantallas táctiles) no hay parallax: el hero baja con la página, sin trabajo por cada scroll
+  if (reduce.matches || current !== 'inicio' || noPx.matches) { if (pxOn) { layers.forEach(l => l.style.transform = ''); pxOn = false; } topbar.classList.toggle('solid', scrollY > 40); return; }
+  pxOn = true;
   const k = innerWidth < 900 ? .55 : 1, vh = innerHeight;
-  for (const l of layers) {
-    const host = l.closest('.hero, .layers'); const r = host.getBoundingClientRect();
+  // primero se leen todas las medidas y después se escriben (leer y escribir intercalado forzaba recálculos en cada scroll)
+  const plan = layers.map(l => { const host = l.closest('.hero, .layers'); return [l, host, host.getBoundingClientRect()]; });
+  for (const [l, host, r] of plan) {
     if (r.bottom < -100 || r.top > vh + 100) continue;
     const prog = host.classList.contains('hero') ? -r.top : (r.top + r.height / 2 - vh / 2) * -1;
-    l.style.transform = `translate3d(0, ${(prog * +l.dataset.speed * k).toFixed(1)}px, 0)`;
+    const t = `translate3d(0, ${(prog * +l.dataset.speed * k).toFixed(1)}px, 0)`;
+    if (l.style.transform !== t) l.style.transform = t;
   }
   const y = scrollY;
   topbar.classList.toggle('solid', y > 40);
 }
 addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(parallax); } }, { passive: true });
 addEventListener('resize', parallax);
-addEventListener('scroll', () => topbar.classList.toggle('solid', scrollY > 40), { passive: true });
+// (la barra superior se actualiza dentro de parallax(), en el mismo cuadro)
 
 /* enlaces que llevan a otra vista con un destino o embarcación ya elegidos (los maneja app.js) */
 route(); if (!current) show('inicio');

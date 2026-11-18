@@ -6,9 +6,9 @@
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Tu Lancha Lechería · Paseos en lancha y yates a Mochima"><meta name="twitter:description" content="Chárters, paseos en lancha, yates y catamaranes con capitán desde Lechería a Mochima y las islas de Anzoátegui. Arma tu salida y reserva por WhatsApp."><meta name="twitter:image" content="https://tulanchalecheria.vercel.app/og.jpg">
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="favicon.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="preload" as="image" href="media/hero2-land.webp" fetchpriority="high"><link rel="preload" as="video" href="media/hero2-1080.mp4">
+<link rel="preload" as="image" href="media/hero3-land.webp" fetchpriority="high" media="(min-aspect-ratio: 4/5)"><link rel="preload" as="image" href="media/hero3-port.webp" fetchpriority="high" media="(max-aspect-ratio: 4/5)">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TravelAgency", "name": "Tu Lancha Lechería", "url": "https://tulanchalecheria.vercel.app/", "image": "https://tulanchalecheria.vercel.app/og.jpg", "logo": "https://tulanchalecheria.vercel.app/icons/icon-512.png", "telephone": "+584143083864", "areaServed": ["Lechería", "Parque Nacional Mochima", "Anzoátegui"], "address": {"@type": "PostalAddress", "addressLocality": "Lechería", "addressRegion": "Anzoátegui", "addressCountry": "VE"}, "sameAs": ["https://www.instagram.com/tulanchalecheria/", "https://linktr.ee/Tulanchalecheria"]}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="styles.css?v=0dc435bd"></head><body><a class="skip" href="#main">Saltar al contenido</a>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="styles.css?v=ba5c8c09"></head><body><a class="skip" href="#main">Saltar al contenido</a>
 <header class="topbar" id="topbar">
   <div class="wrap">
     <a class="brand" href="#inicio" aria-label="Tu Lancha Lechería, inicio"><img src="icons/logo-128.png" alt="" width="40" height="40"><span>Tu Lancha Lechería<small>Anzoátegui – Venezuela</small></span></a>
@@ -17,7 +17,7 @@
     </nav>
     <div class="top-actions">
       <a class="btn btn-sun btn-sm hide-sm top-book" href="#reservar">Reservar</a>
-      <button class="orb-btn" type="button" id="menu-open" aria-label="Abrir menú" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="5" height="10" rx="1.5" transform="rotate(-12 5.5 12)"/><rect x="9.5" y="5.5" width="5" height="13" rx="1.5"/><rect x="16" y="7" width="5" height="10" rx="1.5" transform="rotate(12 18.5 12)"/></svg><span>Explorar</span></button>
+      <button class="orb-btn" type="button" id="menu-open" aria-label="Abrir menú" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="5" height="10" rx="1.5" transform="rotate(-12 5.5 12)"/><rect x="9.5" y="5.5" width="5" height="13" rx="1.5"/><rect x="16" y="7" width="5" height="10" rx="1.5" transform="rotate(12 18.5 12)"/></svg><span>Menú</span></button>
     </div>
   </div>
 </header>
@@ -28,13 +28,14 @@
 <section class="page" data-view="inicio" id="inicio" aria-label="Inicio">
   <div class="hero" id="hero">
     <div class="hero-media px" data-speed="0.35" aria-hidden="true">
-      <div class="hero-reel solo" id="hero-reel"><picture class="slide on"><img src="media/hero2-land.webp" alt="" decoding="async" fetchpriority="high"></picture><video class="hero-vid" id="hero-vid" autoplay muted playsinline webkit-playsinline loop preload="auto" poster="media/hero2-land.webp" disablepictureinpicture disableremoteplayback aria-hidden="true" tabindex="-1"><source src="media/hero2-1080.mp4" type="video/mp4"><source src="media/hero2-1080.webm" type="video/webm"></video></div>
+      <div class="hero-reel solo" id="hero-reel"><picture class="slide on"><source media="(max-aspect-ratio: 4/5)" srcset="media/hero3-port.webp"><img src="media/hero3-land.webp" alt="" decoding="async" fetchpriority="high"></picture><video class="hero-vid" id="hero-vid" autoplay muted playsinline webkit-playsinline loop preload="auto" poster="media/hero3-land.webp" disablepictureinpicture disableremoteplayback aria-hidden="true" tabindex="-1"></video><script>/* Video del hero según la pantalla (18 nov): vertical 720×1080 en celulares; 720p en pantallas horizontales chicas o con ahorro de datos; 1080p en las grandes. Así nunca se decodifican más píxeles de los que se ven. */(function(v){var p=matchMedia('(max-aspect-ratio: 4/5)').matches,c=navigator.connection||{},px=Math.max(innerWidth,innerHeight)*(devicePixelRatio||1),k=p?'port':(c.saveData||/2g|3g/.test(c.effectiveType||'')||px<=1400)?'720':'1080';v.poster='media/hero3-'+(p?'port':'land')+'.webp';v.innerHTML='<source src="media/hero3-'+k+'.mp4" type="video/mp4">';v.dataset.fmt=k})(document.getElementById('hero-vid'))</script></div>
       <div class="hero-shade"></div>
     </div>
     <div class="wrap hero-in">
       <div class="hero-copy px" data-speed="0.12">
-        <h1 class="rv d1">Tu día en el mar,<br><em>sin complicaciones.</em></h1>
+        <h1 class="rv d1">Tu día perfecto en el mar,<br><em>bienvenidos al Parque Nacional Mochima.</em></h1>
         <p class="lead rv d2">Lanchas, barcos, mini yates y yates a las islas del Parque Nacional Mochima. Arma tu salida en un minuto y resérvala aquí mismo.</p>
+        <div class="hero-cta rv d3"><a class="btn btn-sun btn-lg" href="#reservar">Reservar ahora</a><a class="btn btn-glass btn-lg" href="#embarcaciones">Ver embarcaciones</a></div>
       </div>
       <div class="hero-float px" data-speed="-0.08" aria-hidden="true">
         <div class="glass chip-f c1"><b>+1.200</b><span>chárters realizados</span></div>
@@ -42,14 +43,14 @@
       </div>
     </div>
     <div class="press-strip hero-press" id="inicio-mas">
-      <div class="wrap"><span class="press-h">Nos han reseñado</span><a href="https://www.laguiavalentinaquintero.com/#/poi/alquiler-lanchas-yates-mochima" target="_blank" rel="noopener">Guía de Valentina Quintero</a><a href="https://www.youtube.com/watch?v=HD1ESvApfz8&amp;t=450s" target="_blank" rel="noopener">Viajando con BIVI · Venevisión <small>min 7:30</small></a><strong>Canal Viajero · IVC</strong></div>
+      <div class="wrap"><span class="press-h">Nos han reseñado</span><a href="https://www.laguiavalentinaquintero.com/#/poi/alquiler-lanchas-yates-mochima" target="_blank" rel="noopener">Guía de Valentina Quintero</a><a href="https://www.youtube.com/watch?v=HD1ESvApfz8&amp;t=450s" target="_blank" rel="noopener">Viajando con BIVI · Venevisión <small>min 7:30</small></a><a href="https://www.instagram.com/reels/CtovOEhsf11/" target="_blank" rel="noopener">Canal Viajero · IVC</a><a href="https://www.instagram.com/reel/DRxHAdqjJTH/" target="_blank" rel="noopener">Alejandro Liendo · Diccionario de Venezuela</a><strong>Televen · Paseo en los canales</strong></div>
     </div>
   </div>
 
   <div class="band own-band"><div class="wrap" id="own-feature"></div></div>
 
   <section class="orbit-band" aria-labelledby="orbit-t">
-    <div class="wrap"><div class="head"><div><span class="eyebrow">Explora</span><h2 id="orbit-t">Todo Tu Lancha, en un giro</h2></div><p class="orbit-hint">Desliza las pantallas o toca una sección</p></div></div>
+    <div class="wrap"><div class="head"><div><span class="eyebrow">Explora</span><h2 id="orbit-t">Todo Tu Lancha Lechería, en un giro</h2></div><p class="orbit-hint">Desliza las pantallas o toca una sección</p></div></div>
     <div class="orbit" data-orbit></div>
   </section>
 </section>
@@ -90,7 +91,7 @@
           <p class="rating s1-note">Te mostramos solo las embarcaciones donde cabe tu grupo y que están libres ese día.</p>
           <div class="s1-tips">
             <div class="s1-tip s1-tip-p"><span class="s1-tip-ic" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="17" cy="11" r="5"/><path d="M8 40V27a9 9 0 0118 0v13"/><circle cx="34" cy="13" r="4"/><path d="M27 40V29a7 7 0 0114 0v11"/><path d="M41 22h4M43 20v4" class="plus"/></svg></span><p><b>Grupos de gran contextura</b>Nuestro filtro de personas y niños está optimizado con un peso promedio por persona. Si tu grupo es de gran contextura, te recomendamos contemplar un puesto adicional.</p></div>
-            <div class="s1-tip s1-tip-d"><span class="s1-tip-ic" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M12 30c0-6 4-10 10-10h8l4-6 3 2-2 6c3 2 5 5 5 9v9h-5v-6H18v6h-5z"/><path d="M34 14l-2-5M37 16l3-3"/><circle cx="36" cy="22" r="1.2" class="dot"/><path d="M6 26l6 2"/></svg></span><p><b>Mascotas: solo perros pequeños (hasta 7 kg)</b>No somos 100% pet friendly por restricciones ambientales del Parque Nacional y por el cuidado de las embarcaciones. Agradecemos no llevar mascotas de mayor tamaño ni otros tipos de animales.</p></div>
+            <div class="s1-tip s1-tip-d"><span class="s1-tip-ic" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M12 30c0-6 4-10 10-10h8l4-6 3 2-2 6c3 2 5 5 5 9v9h-5v-6H18v6h-5z"/><path d="M34 14l-2-5M37 16l3-3"/><circle cx="36" cy="22" r="1.2" class="dot"/><path d="M6 26l6 2"/></svg></span><p><b>Mascotas: solo perros pequeños (hasta 6 kg)</b>No somos 100% pet friendly por restricciones ambientales del Parque Nacional y por el cuidado de las embarcaciones. No permitimos mascotas de mayor tamaño ni otro tipo de animales.</p></div>
           </div>
           <div id="big-group"></div>
         </div>
@@ -144,7 +145,7 @@
   </div></div>
   <div class="band band-deep" id="club"><div class="wrap">
     <div class="club">
-      <div class="club-txt"><span class="eyebrow">Club Tu Lancha</span><h2>Invita y ganan los dos</h2><p>Crea tu código y compártelo. Tu amigo recibe 5% de descuento en su primer chárter y tú, hielo y bebidas o 30 minutos extra en tu próxima salida.</p></div>
+      <div class="club-txt"><span class="eyebrow">Club Tu Lancha Lechería</span><h2>Invita y ganan los dos</h2><p>Crea tu código y compártelo. Tu amigo recibe 5% de descuento en su primer chárter y tú, hielo y bebidas o 30 minutos extra en tu próxima salida.</p></div>
       <div class="ref glass-card" id="referidos">
         <form class="row2" id="ref-form"><input id="ref-name" placeholder="Escribe tu nombre" aria-label="Tu nombre" autocomplete="given-name"><button class="btn btn-sun btn-sm" type="submit">Crear mi código</button></form>
         <div id="ref-out" hidden class="ref-out"><span class="code" id="ref-code"></span><div class="row2"><a class="btn btn-wa btn-sm" id="ref-share" target="_blank" rel="noopener">Compartir por WhatsApp</a><button class="btn btn-glass btn-sm" type="button" id="ref-copy">Copiar código</button></div></div>
@@ -165,16 +166,14 @@
 
 <!-- ===================== MI VIAJE ===================== -->
 <section class="page" data-view="mi-viaje" id="mi-viaje" aria-labelledby="trip-t" hidden>
-  <div class="view-hero"><div class="wrap"><span class="eyebrow">Durante y después del paseo</span><h1 id="trip-t">Mi viaje</h1><p>Con el código de tu reserva sigues la lancha en vivo y, al volver, abres el álbum del día. Prueba con el código <b class="mono">TLL-1105</b>.</p></div></div>
+  <div class="view-hero"><div class="wrap"><span class="eyebrow">Durante y después del paseo</span><h1 id="trip-t">Mi viaje</h1><p>Con el código de tu reserva sigues la lancha en vivo y tu familia ve dónde vas. Prueba con el código <b class="mono">TLL-1105</b>.</p></div></div>
   <div class="band pt0"><div class="wrap">
     <section id="trip-plan" class="trip-plan" hidden aria-label="Tu próximo paseo"></section>
     <section id="my-trips" class="my-trips" hidden aria-label="Mis reservas"></section>
-    <div class="abordo-cta"><div><span class="eyebrow">Durante el paseo</span><h3>Modo a bordo: tu GPS y botón SOS</h3><p>Activa tu ubicación al zarpar. Si hay una emergencia, mantén presionado SOS 3 segundos y avisas a Tu Lancha con tus coordenadas, incluso sin datos por SMS.</p></div><button class="btn btn-sos" type="button" data-abordo-open>Abrir modo a bordo</button></div>
+    <div class="abordo-cta"><div><span class="eyebrow">Durante el paseo</span><h3>Modo a bordo: tu GPS y botón SOS</h3><p>Activa tu ubicación al zarpar. Si hay una emergencia, mantén presionado SOS 3 segundos y avisas a Tu Lancha Lechería con tus coordenadas, incluso sin datos por SMS.</p></div><button class="btn btn-sos" type="button" data-abordo-open>Abrir modo a bordo</button></div>
     <div class="trip">
       <article class="trip-card glass-card"><div class="shot" id="trip-map-thumb"></div><div class="in"><h3><span class="live-dot" aria-hidden="true"></span> Ubicación en vivo</h3><p>Comparte un enlace para que tu familia en tierra vea dónde va la lancha y a qué hora llega. Incluye botón de emergencia.</p>
         <form class="trip-code" data-go="viaje"><input aria-label="Código de reserva" placeholder="Código de reserva" value="TLL-1105" id="code-live" autocomplete="off"><button class="btn btn-sun btn-sm" type="submit">Ver en vivo</button></form></div></article>
-      <article class="trip-card glass-card"><div class="shot" id="trip-album-thumb"></div><div class="in"><h3>Álbum del día</h3><p>Fotos y videos de dron de tu paseo en un enlace privado, listos para compartir con @tulanchalecheria.</p>
-        <form class="trip-code" data-go="album"><input aria-label="Código de reserva" placeholder="Código de reserva" value="TLL-1105" id="code-album" autocomplete="off"><button class="btn btn-sun btn-sm" type="submit">Abrir álbum</button></form></div></article>
     </div>
   </div></div>
 </section>
@@ -221,7 +220,7 @@
 
 <!-- ===================== PROPIETARIOS ===================== -->
 <section class="page" data-view="propietarios" id="propietarios" aria-labelledby="pool-t" hidden>
-  <div class="view-hero"><div class="wrap"><span class="eyebrow">Para propietarios</span><h1 id="pool-t">Quiero formar parte del pool</h1><p>Pon tu embarcación a trabajar con Tu Lancha. Tú decides fechas y tarifas; nosotros traemos los clientes.</p></div></div>
+  <div class="view-hero"><div class="wrap"><span class="eyebrow">Para propietarios</span><h1 id="pool-t">Quiero formar parte del pool</h1><p>Pon tu embarcación a trabajar con Tu Lancha Lechería. Tú decides fechas y tarifas; nosotros traemos los clientes.</p></div></div>
   <div class="band pt0"><div class="wrap">
     <div class="pool" id="pool">
       <div class="perks">
@@ -239,7 +238,24 @@
         <button class="btn btn-wa" type="submit">Enviar postulación por WhatsApp</button>
       </form>
     </div>
-    <div class="owners-sv" id="owners-sv" hidden><div class="head"><div><span class="eyebrow">Para propietarios de embarcaciones</span><h2>Servicios que recomendamos</h2></div></div><div class="allies" id="owner-allies"></div></div>
+    <div class="owners-sv" id="owners-sv">
+      <div class="head"><div><span class="eyebrow">Para propietarios de embarcaciones</span><h2>Lo mejor para tu embarcación</h2></div></div>
+      <p class="own-lead">Sabemos que quieres lo mejor para tu embarcación, ponemos a tu disposición nuestra red de proveedores verificados —los mismos que mantienen nuestra flota al 100%— además de un inventario de equipos esenciales en alquiler para resolver cualquier imprevisto antes de zarpar, así como nuestro servicio de auxilio.</p>
+      <div id="owner-pros"><h3 class="own-sub">Proveedores verificados</h3><div class="allies" id="owner-allies"></div></div>
+      <p class="own-food">¿Comidas y bebidas para tu salida? Encuéntralas en <a href="#aliados">Servicio a bordo</a>, en la sección de comidas y bebidas.</p>
+      <section class="rent" id="rent" aria-labelledby="rent-t"></section>
+      <section class="aux glass-card" id="aux" aria-labelledby="aux-t">
+        <div class="aux-h"><span class="aux-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.01"/></svg></span><div><span class="eyebrow">Servicio de auxilio</span><h3 id="aux-t">Solicitud de auxilio</h3><p>¿Tu embarcación tuvo un problema en los canales del complejo o en el Parque Nacional Mochima? Envíanos estos datos y te respondemos de inmediato.</p></div></div>
+        <form class="aux-f" id="aux-form">
+          <div class="two"><div class="field"><label for="ax-boat">Nombre de la embarcación</label><input id="ax-boat" required autocomplete="off"></div><div class="field"><label for="ax-mat">Matrícula</label><input id="ax-mat" autocomplete="off" autocapitalize="characters"></div></div>
+          <div class="two"><div class="field"><label for="ax-cap">Contacto del capitán a bordo</label><input id="ax-cap" required placeholder="Nombre del capitán" autocomplete="off"></div><div class="field"><label for="ax-tel">Número del capitán</label><input id="ax-tel" required inputmode="tel" placeholder="+58 4xx xxx xxxx" autocomplete="off"></div></div>
+          <div class="field"><label for="ax-loc">Referencia de ubicación</label><div class="ax-loc"><input id="ax-loc" placeholder="Ej.: canal principal frente a Puerto Príncipe" autocomplete="off"><button type="button" class="btn btn-ghost btn-sm" id="ax-gps">Usar mi ubicación</button></div><small class="hint" id="ax-gps-st"></small></div>
+          <div class="field"><label for="ax-what">Naturaleza del problema</label><textarea id="ax-what" rows="3" required placeholder="Motor apagado, batería descargada, encallados…"></textarea></div>
+          <button class="btn btn-sos" type="submit">Pedir auxilio por WhatsApp</button>
+          <p class="rating"><small>En una emergencia con riesgo para personas, llama también al 911 y a Guardacostas.</small></p>
+        </form>
+      </section>
+    </div>
     <div class="portal glass-card" id="portal">
       <div class="portal-top"><b>Portal del propietario · vista previa</b><select id="o-boat" aria-label="Embarcación del propietario"></select></div>
       <div class="portal-in">
@@ -285,22 +301,22 @@
   <a href="#reservar" data-tab="reservar" class="tab-main"><span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Reservar</a>
   <a href="#playas" data-tab="playas" data-no-trip><svg viewBox="0 0 24 24"><path d="M2 18c3 0 3-2 6-2s3 2 6 2 3-2 6-2M12 3v9M12 3l6 4M12 3L6 7"/></svg>Playas</a>
   <a href="#mi-viaje" data-tab="mi-viaje" data-trip-only><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Mi viaje</a>
-  <button type="button" data-tab="menu" id="menu-open-2" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Más</button>
+  <button type="button" data-tab="menu" id="menu-open-2" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menú</button>
 </nav>
 
 <div class="sheet side" id="sheet" hidden>
   <div class="sheet-panel side-panel" role="dialog" aria-modal="true" aria-label="Menú">
-    <div class="sheet-h"><b>Explora</b><button type="button" class="m-close" id="menu-close" aria-label="Cerrar menú">×</button></div>
+    <div class="sheet-h"><b>Menú</b><button type="button" class="m-close" id="menu-close" aria-label="Cerrar menú">×</button></div>
     <nav class="side-nav" aria-label="Secciones"><a href="#inicio" data-side="inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Inicio</a><a href="#embarcaciones" data-side="embarcaciones"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l2 3h14l2-3M5 17V9l7-5 7 5v8M12 4v13"/></svg>Embarcaciones</a><a href="#reservar" data-side="reservar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Reservar</a><a href="#playas" data-side="playas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18c3 0 3-2 6-2s3 2 6 2 3-2 6-2M12 3v9M12 3l6 4M12 3L6 7"/></svg>Playas</a><a href="#experiencias" data-side="experiencias"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg>Experiencias</a><a href="#regalos" data-side="regalos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 12h18M12 8v13M12 8s-1-5-4-5-3 5 4 5zM12 8s1-5 4-5 3 5-4 5z"/></svg>Regalos y Club</a><a href="#aliados" data-side="aliados"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h16l-1.5 9a2 2 0 01-2 1.7h-9a2 2 0 01-2-1.7zM8 10V7a4 4 0 018 0v3"/></svg>Servicio a bordo</a><a href="#mi-viaje" data-side="mi-viaje"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6-7-11a7 7 0 0114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Mi viaje</a><a href="#nosotros" data-side="nosotros"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Nosotros</a><a href="#propietarios" data-side="propietarios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 6 6 .9-4.5 4.3 1 6.3L12 16.6 6.5 19.5l1-6.3L3 8.9 9 8z"/></svg>Propietarios</a></nav>
-    <a class="btn btn-wa" href="https://wa.me/584143083864?text=Hola%20Tu%20Lancha%2C%20quiero%20informaci%C3%B3n%20para%20un%20ch%C3%A1rter" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+    <a class="btn btn-wa" href="https://wa.me/584143083864?text=Hola%20Tu%20Lancha%20Lecher%C3%ADa%2C%20quiero%20informaci%C3%B3n%20para%20un%20ch%C3%A1rter" target="_blank" rel="noopener">Escribir por WhatsApp</a>
   </div>
 </div>
 
-<a class="fab" href="https://wa.me/584143083864?text=Hola%20Tu%20Lancha%2C%20quiero%20informaci%C3%B3n%20para%20un%20ch%C3%A1rter" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2a8.2 8.2 0 01-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 01-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 00-.7.3 3 3 0 00-.9 2.2 5.2 5.2 0 001.1 2.7 11.8 11.8 0 004.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.6-.3z"/></svg></a>
+<a class="fab" href="https://wa.me/584143083864?text=Hola%20Tu%20Lancha%20Lecher%C3%ADa%2C%20quiero%20informaci%C3%B3n%20para%20un%20ch%C3%A1rter" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2a8.2 8.2 0 01-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 01-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 00-.7.3 3 3 0 00-.9 2.2 5.2 5.2 0 001.1 2.7 11.8 11.8 0 004.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.6-.3z"/></svg></a>
 <div class="minibar" id="minibar" aria-hidden="true"><div><span>Total estimado</span><b id="mb-total">$0</b></div><button class="btn btn-sun btn-sm" id="mb-book" type="button" tabindex="-1">Reservar ahora</button></div>
 <button class="btn btn-sun btn-sm install" id="install" type="button" hidden>Instalar app</button>
 <div class="adm" id="adm" hidden></div>
 <dialog id="dlg" aria-labelledby="m-title"></dialog>
 <dialog id="vdlg" aria-label="Video"></dialog>
 <div class="toast" id="toast" role="status"></div>
-<script src="app.js?v=0dc435bd" defer></script></body></html>
+<script src="app.js?v=ba5c8c09" defer></script></body></html>

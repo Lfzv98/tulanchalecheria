@@ -109,7 +109,7 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     await q.check('[data-zon="2"]'); ok((await q.textContent('.ad-preview')).includes('rrhh@avanteksolutions.com') && (await q.textContent('.ad-zelle.on')).includes('Principal'), 'Cambiar la Zelle principal');
     await q.fill('#i-pay-paypal', 'paypal.me/tulanchaprueba'); ok((await q.inputValue('#i-pay-paypalFee')) === '4.5', 'PayPal con comisión de 4,5% por defecto');
     await q.screenshot({ path: OUT + "panel-pagos.png" });
-    await q.click('[data-adtab="portada"]'); ok((await q.$$('.ad-cards .ad-photo')).length === 19, 'Portada: las 19 pantallas del menú giratorio para subir su imagen');
+    await q.click('[data-adtab="portada"]'); ok((await q.$$('.ad-cards .ad-photo')).length === 17, 'Portada: las 17 pantallas del menú giratorio para subir su imagen (Regalos y Club oculto)');
     ok((await q.$$('.ad-cardsec')).length >= 8 && (await q.textContent('.ad-cardsec h4')).length > 0, 'Las pantallas del menú se agrupan por sección');
     ok((await q.textContent('#adm')).includes('900 × 1200 px') && (await q.$$('.ad-ph-spec')).length > 10, 'Cada foto muestra la medida recomendada (p. ej. 900 × 1200 px)');
     fc = q.waitForEvent('filechooser'); await q.click('[data-up="home.hero"]'); await (await fc).setFiles(await makeImg(q, 2400, 1350));
@@ -138,7 +138,7 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     ok(true, 'Publicar guarda y oculta la barra');
     {
       const cat = await (await fetch(BASE + 'api/admin?a=cat')).json();
-      ok(cat.v === 3, `El catálogo se guarda con su versión (v${cat.v}), así la conversión vieja no se repite`);
+      ok(cat.v === 4, `El catálogo se guarda con su versión (v${cat.v}), así la conversión vieja no se repite`);
       const c3 = await b.newContext({ locale: 'es-VE', viewport: { width: 1280, height: 860 } }); const w3 = await c3.newPage();
       await w3.goto(BASE); await w3.waitForFunction(() => window.TLL && window.TLL.CAT.seasons.length === 1, null, { timeout: 8000 });
       await w3.reload(); await w3.waitForFunction(() => window.TLL && window.TLL.CAT.seasons.length === 1, null, { timeout: 8000 });

@@ -12,7 +12,7 @@ const DEV = [
   ['iPad Mini', devices['iPad Mini']], ['iPad Pro 11 apaisado', devices['iPad Pro 11 landscape']], ['Galaxy Tab S4', devices['Galaxy Tab S4']],
   ['Laptop 1280', { viewport: { width: 1280, height: 720 } }], ['Escritorio 1920', { viewport: { width: 1920, height: 1080 } }]
 ];
-const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 'regalos', 'aliados', 'mi-viaje', 'nosotros', 'propietarios'];
+const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 'aliados', 'mi-viaje', 'nosotros', 'propietarios'];   // Regalos y Club oculto por ahora
 (async () => {
   const b = await chromium.launch();
   for (const [name, d] of DEV) {
@@ -40,9 +40,9 @@ const VIEWS = ['inicio', 'embarcaciones', 'reservar', 'playas', 'experiencias', 
     const tab = await p.evaluate(() => getComputedStyle(document.querySelector('.tabbar')).display !== 'none');
     if (tab) { await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(300); await act('.tabbar [data-tab="embarcaciones"]'); await p.waitForTimeout(300); ok(await p.isVisible('#boats'), `${name}: barra inferior → Embarcaciones`); await act('#menu-open-2'); ok(await p.isVisible('#sheet'), `${name}: menú Más`); await act('#sheet a[href="#aliados"]'); await p.waitForTimeout(300); ok(await p.isVisible('#allies'), `${name}: menú → Aliados`); }
     else { await act('#menu-open'); await p.waitForTimeout(250); ok(await p.isVisible('#sheet .side-nav'), `${name}: menú lateral abre`); await act('#sheet a[href="#embarcaciones"]'); await p.waitForTimeout(300); ok(await p.isVisible('#boats'), `${name}: menú lateral → Embarcaciones`); }
-    // portada: menú giratorio con las 9 secciones y encabezado sin búsqueda
+    // portada: menú giratorio con las 8 secciones y encabezado sin búsqueda
     await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(300);
-    ok(await p.evaluate(() => document.querySelectorAll('.orbit-band .orb-card').length === 19 && document.querySelectorAll('.orbit-band .orb-tabs [role=tab]').length === 9), `${name}: menú giratorio con 19 pantallas y 9 secciones`);
+    ok(await p.evaluate(() => document.querySelectorAll('.orbit-band .orb-card').length === 17 && document.querySelectorAll('.orbit-band .orb-tabs [role=tab]').length === 8), `${name}: menú giratorio con 17 pantallas y 8 secciones (sin Regalos y Club)`);
     await p.evaluate(() => { document.querySelector('.orbit-band').scrollIntoView({ block: 'center' }); document.querySelector('.orbit-band .orb-tabs [data-sec="playas"]').click(); }); await p.waitForTimeout(1200);
     ok(await p.evaluate(() => document.querySelector('.orbit-band .orb-tabs [data-sec="playas"]').getAttribute('aria-selected') === 'true'), `${name}: tocar una sección gira el menú`);
     ok(await p.evaluate(() => !document.querySelector('#tsearch') && ![...document.querySelectorAll('#topbar .brand, #topbar .mainnav a, #topbar .top-actions > *')].filter(e => e.offsetParent).some((e, i, A) => { const a = e.getBoundingClientRect(); return A.some((f, j) => { if (j <= i) return false; const b = f.getBoundingClientRect(); return a.right > b.left + 1 && b.right > a.left + 1 && a.bottom > b.top && b.bottom > a.top; }); })), `${name}: encabezado sin búsqueda y sin elementos encimados`);
