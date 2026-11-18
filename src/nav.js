@@ -12,20 +12,21 @@ const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLow
 /* ---------- pantallas por sección (2 por sección) ---------- */
 const SECS = [
   ['embarcaciones', 'Embarcaciones', [['c-premium', 'Lancha prémium', 'La más solicitada', '#embarcaciones', 'drone', 200], ['c-flota', 'Lanchas, mini yates y yates', 'Toda la flota con capitán', '#embarcaciones', 'exterior', 215]]],
-  ['playas', 'Playas', [['c-rumbos', 'Seis rumbos', 'Por el Parque Nacional Mochima', '#playas', 'beach', 185], ['c-plata', 'Isla de Plata', 'Aguas cristalinas', '#playas', 'beach', 175]]],
-  ['experiencias', 'Experiencias', [['c-canales', 'Canales de El Morro', 'Al caer la tarde', '#experiencias', 'hero', 25], ['c-celebra', 'Celebraciones a bordo', 'Cumpleaños, pedidas y corporativos', '#experiencias', 'interior', 330]]],
+  ['playas', 'Playas', [['c-rumbos', 'Seis rumbos', 'Por el Parque Nacional Mochima', '#playas', 'beach', 185]]],
+  ['experiencias', 'Experiencias', [['c-canales', 'Canales de El Morro', 'Al caer la tarde', '#experiencias', 'hero', 25], ['c-pesca', 'Pesca de altura', 'Más allá de Isla La Borracha', '#experiencias', 'drone', 215]]],
   ['regalos', 'Regalos y Club', [['c-regalo', 'Regala un día en el mar', 'Tarjetas de regalo', '#regalos', 'hero', 340], ['c-club', 'Club Tu Lancha Lechería', 'Invita y ganan los dos', '#club', 'exterior', 160]]],
-  ['aliados', 'Servicio a bordo', [['c-comida', 'Comida y bebidas', 'Te lo llevan al muelle', '#aliados', 'interior', 30], ['c-vip', 'DJ, estilo y estadía', 'Aliados VIP', '#aliados', 'hero', 280]]],
-  ['mi-viaje', 'Mi viaje', [['c-vivo', 'Seguimiento en vivo', 'Tu familia te sigue desde tierra', '#mi-viaje', 'drone', 190], ['c-sos', 'Modo a bordo y SOS', 'GPS y botón de emergencia', '#mi-viaje', 'exterior', 230]]],
-  ['nosotros', 'Nosotros', [['c-somos', 'Quiénes somos', 'Gente de mar de Lechería', '#nosotros', 'hero', 200], ['c-muelles', 'Muelles y horario', 'Dónde y a qué hora salimos', '#nosotros', 'exterior', 195]]],
-  ['reservar', 'Reservar', [['c-arma', 'Arma tu salida', 'Cuatro pasos y listo', '#reservar', 'drone', 210], ['c-cotiza', 'Tu total al instante', 'Sin pagar nada ahora', '#reservar', 'beach', 190], ['c-wa', 'Reserva por WhatsApp', 'Te respondemos al instante', '#reservar', 'hero', 170]]],
-  ['propietarios', 'Propietarios', [['c-pool', 'Únete al pool', 'Pon tu embarcación a trabajar', '#propietarios', 'exterior', 220], ['c-servi', 'Servicios para propietarios', 'Capitán, inflables y más', '#propietarios', 'interior', 205]]]
+  ['aliados', 'Servicio a bordo', [['c-comida', 'Comida y bebidas', 'Te lo llevan al muelle', '#aliados', 'interior', 30], ['c-vip', 'Estilo y hospedaje', 'Aliados VIP', '#aliados', 'hero', 280]]],
+  ['nosotros', 'Nosotros', [['c-somos', 'Quiénes somos', 'Gente de mar de Lechería', '#nosotros', 'hero', 200]]],
+  ['reservar', 'Reservar', [['c-wa', 'Reserva por WhatsApp', 'Te respondemos al instante', '#reservar', 'hero', 170]]],
+  ['propietarios', 'Propietarios', [['c-servi', 'Servicios para propietarios', 'Proveedores, alquiler y auxilio', '#propietarios', 'interior', 205]]]
 ].filter(([sec]) => !(T.OFF || {})[sec]);   // secciones apagadas (Regalos y Club, por ahora) no salen en el menú giratorio
 const CARDS = SECS.flatMap(([sec, name, cards], si) => cards.map(c => ({ sec, si, secName: name, id: c[0], t: c[1], s: c[2], href: c[3], kind: c[4], hue: c[5] })));
 T.NAV_CARDS = CARDS;   // el panel las lista en Portada para subir la imagen de cada pantalla
+// fotos que mandó Eduardo (18 nov) para estas pantallas, mientras no suba otras en Portada y tienda
+const DEF_CARD_IMG = { 'c-canales': 'media/exp-canales.webp', 'c-pesca': 'media/exp-pesca.webp' };
 // imagen de relleno: ilustración generada y difuminada (cuando Eduardo suba la real, se ve nítida)
 function fill(c) {
-  const u = CAT.home && CAT.home.cards && CAT.home.cards[c.id];
+  const u = (CAT.home && CAT.home.cards && CAT.home.cards[c.id]) || DEF_CARD_IMG[c.id];
   if (u) return `<img class="orb-img" src="${esc(u)}" alt="" loading="lazy" decoding="async">`;
   return `<span class="orb-img orb-soft" data-soft="${esc(c.id)}" style="background-color:hsl(${c.hue} 45% 55%)"></span>`;
 }
@@ -159,7 +160,7 @@ function mount(host) {
     if (tabRow.scrollWidth > tabRow.clientWidth + 2 && !drag) { const want = t.offsetLeft - (tabRow.clientWidth - t.offsetWidth) / 2; if (Math.abs(tabRow.scrollLeft - want) > 4) tabRow.scrollTo({ left: want, behavior: reduce.matches ? 'auto' : 'smooth' }); }
   }
   const nearest = to => { const d = ((to - rot) % 360 + 540) % 360 - 180; return rot + d; };
-  function goSec(si) { const i = CARDS.findIndex(c => c.si === si); target = nearest(i * STEP + STEP / 2); idleUntil = performance.now() + 6000; kick(); }
+  function goSec(si) { const i = CARDS.findIndex(c => c.si === si), n = CARDS.filter(c => c.si === si).length; target = nearest((i + (n - 1) / 2) * STEP); /* secciones de 1 tarjeta: centrada en ella */ idleUntil = performance.now() + 6000; kick(); }
   function tick(t) {
     raf = 0; const dt = Math.min(48, t - (last || t)); last = t;
     if (!drag) {

@@ -142,6 +142,19 @@ async function handler(req, res) {
       return send(res, 200, { ok: true, added: !!added });
     }
 
+    /* Encuesta del día siguiente (18 nov): solo para reservas que existen; una respuesta por código (se puede corregir). */
+    if (a === 'survey') {
+      const b = await readBody(req, 6000);
+      if (!b || !CODE_RE.test(b.code || '')) return send(res, 400, { error: 'bad_request' });
+      const [n] = await redis([['INCR', 'adm:rls:' + sha(ip)], ['EXPIRE', 'adm:rls:' + sha(ip), 3600]]);
+      if (n > 20) return send(res, 429, { error: 'too_many' });
+      const [has] = await redis([['HEXISTS', 'adm:bk', b.code]]);
+      if (!has) return send(res, 404, { error: 'not_found' });
+      const sv = { stars: Math.max(1, Math.min(5, Math.round(+b.stars) || 0)), good: txt(b.good, 600), better: txt(b.better, 600), rec: b.rec === true ? 1 : b.rec === false ? 0 : null, at: Date.now() };
+      await redis([['HSET', 'adm:sv', b.code, JSON.stringify(sv)]]);
+      return send(res, 200, { ok: true });
+    }
+
     if (a === 'login') {
       const b = await readBody(req, 4000) || {};
       const fk = 'adm:fail:' + sha(ip);
@@ -203,9 +216,10 @@ async function handler(req, res) {
       return send(res, 200, { ok: true, id, url: `/api/admin?a=img&id=${id}` });
     }
     if (a === 'books') {
-      const [h] = await redis([['HGETALL', 'adm:bk']]);
+      const [h, sv] = await redis([['HGETALL', 'adm:bk'], ['HGETALL', 'adm:sv']]);
       const vals = Array.isArray(h) ? h.filter((_, i) => i % 2) : Object.values(h || {});
-      return send(res, 200, { list: vals.map(v => JSON.parse(v)) });
+      const S = {}; if (Array.isArray(sv)) for (let i = 0; i < sv.length; i += 2) { try { S[sv[i]] = JSON.parse(sv[i + 1]); } catch {} } else Object.entries(sv || {}).forEach(([k, v]) => { try { S[k] = JSON.parse(v); } catch {} });
+      return send(res, 200, { list: vals.map(v => { const x = JSON.parse(v); if (S[x.code]) x.survey = S[x.code]; return x; }) });
     }
     if (a === 'bk') {
       const b = await readBody(req, 20000) || {};

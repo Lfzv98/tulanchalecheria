@@ -22,10 +22,13 @@ for (const [n, d] of [['iPhone 13', devices['iPhone 13']], ['Galaxy Fold 280', {
   ok(vids.includes('muelles') && vids.includes('horario') && vids.some(v => v.startsWith('rumbo')), `${n}: paso 3 con videos de rumbo, muelles y horario (${vids})`);
   await p.evaluate(() => TLL.goStep(3)); await p.waitForTimeout(200);
   const v4 = await p.evaluate(() => [...document.querySelectorAll('[data-step="3"] [data-vid]')].map(e => e.dataset.vid));
-  ok(v4.includes('accesorios') && v4.includes('comidas') && v4.includes('mercadillo'), `${n}: paso 4 con accesorios, comidas y Mercadillo (${v4})`);
-  await act(await p.$('[data-step="3"] [data-vid="mercadillo"]')); await p.waitForTimeout(1500);
+  ok(v4.includes('accesorios'), `${n}: paso 4 con video de accesorios (${v4})`);
+  await p.evaluate(() => TLL.goStep(4)); await p.waitForTimeout(200);
+  const v5 = await p.evaluate(() => [...document.querySelectorAll('[data-step="4"] [data-vid]')].map(e => e.dataset.vid));
+  ok(v5[0] === 'comidas' && v5[v5.length - 1] === 'mercadillo', `${n}: paso 5 abre con el video de comidas y cierra con El Mercadillo (${v5})`);
+  await act(await p.$('[data-step="4"] [data-vid="mercadillo"]')); await p.waitForTimeout(1500);
   ok(await p.evaluate(() => document.querySelector('#vdlg video').videoWidth > 0), `${n}: video Mercadillo desde la reserva`); await p.keyboard.press('Escape'); await p.waitForTimeout(200);
-  ok(await p.isVisible('[data-step="3"]'), `${n}: al cerrar el video sigues en tu reserva`);
+  ok(await p.isVisible('[data-step="4"]'), `${n}: al cerrar el video sigues en tu reserva`);
   await p.evaluate(() => { location.hash = 'embarcaciones'; }); await p.waitForTimeout(400); await act(await p.$('[data-open="b2"]')); await p.waitForSelector('#dlg[open]');
   await act(await p.$('#dlg [data-vid="accesorios"]')); await p.waitForTimeout(800);
   ok(await p.evaluate(() => document.querySelector('#vdlg').open && document.querySelector('#dlg').open), `${n}: video de accesorios desde el detalle sin cerrar el detalle`);

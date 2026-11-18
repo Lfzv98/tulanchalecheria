@@ -93,12 +93,12 @@ const OWN = BOATS.find(b => b.own) || BOATS[0];
 // add: diferencia sobre la tarifa base cuando la embarcación no tiene precio propio para ese rumbo (vacío = precio por confirmar).
 // open: false = solo lo hacen las embarcaciones que lo tienen marcado en su precio por rumbo.
 const ROUTES = [
-  { id: 'r1', name: 'Rumbo 1', zone: 'Chimanas y Puinare', nm: 7, min: 20, hue: 190, add: 0, beaches: ['El Saco', 'Puinare', 'Puinarito', 'Ensenada · Bahía del Silencio', 'Playa El Faro (Chimana Grande)', 'Chimana Segunda'], tags: ['Aguas calmas', 'Ideal para niños'], desc: 'Las islas más cercanas, con aguas tranquilas.' },
-  { id: 'r2', name: 'Rumbo 2', zone: 'Isla de Plata y Punta La Cruz', nm: 9, min: 25, hue: 185, add: 0, beaches: ['Isla de Plata', 'Punta La Cruz', 'Playa El Faro', 'Playa Varadero'], tags: ['Aguas cristalinas', 'Restaurante en la playa'], desc: 'Aguas cristalinas y comida en El Rincón Marino, en Punta La Cruz.' },
-  { id: 'r3', name: 'Rumbo 3', zone: 'Islas Arapo · estado Sucre', nm: 19, min: 45, hue: 175, add: null, plus: 'r2', beaches: ['Islas Arapo', 'La Piscina', 'Playa Ñacleta'], tags: ['Más probabilidad de delfines'], desc: 'Unas 10 millas náuticas más lejos que el Rumbo 2. Puedes sumar playas del Rumbo 2.' },
-  { id: 'r4', name: 'Rumbo 4', zone: 'Isla La Borracha y Puinare', nm: 12, min: 35, hue: 200, add: null, open: false, beaches: ['Isla La Borracha'], tags: ['Solo algunas embarcaciones'], desc: 'Rumbo hacia Isla La Borracha. Solo lo hacen algunas embarcaciones.' },
-  { id: 'r5', name: 'Rumbo 5', zone: 'Isletas de Píritu', nm: 22, min: 55, hue: 170, add: null, open: false, early: true, beaches: ['Isletas de Píritu'], tags: ['9:00 am a 5:00 pm', 'Solo con buen mar'], desc: 'Islotes de arena frente a Píritu. Solo algunas embarcaciones y con buen mar.' },
-  { id: 'r6', name: 'Rumbo 6', zone: 'Manare y Playa Blanca', nm: 24, min: 60, hue: 180, add: null, open: false, early: true, beaches: ['Playa Manare', 'Playa Blanca'], tags: ['Solo con buen mar', '9:00 am a 5:00 pm'], desc: 'Solo algunas embarcaciones y solo en temporada de buen mar.' }
+  { id: 'r1', name: 'Rumbo 1', zone: 'Chimanas y Puinare', nm: 19, min: 20, hue: 190, add: 0, beaches: ['El Saco', 'Puinare', 'Puinarito', 'Ensenada · Bahía del Silencio', 'Playa El Faro (Chimana Grande)', 'Chimana Segunda'], tags: ['Aguas calmas', 'Ideal para niños'], desc: 'Las islas más cercanas, con aguas tranquilas.' },
+  { id: 'r2', name: 'Rumbo 2', zone: 'Isla de Plata y Punta La Cruz', nm: 20, min: 25, hue: 185, add: 0, beaches: ['Isla de Plata', 'Punta La Cruz', 'Playa El Faro', 'Playa Varadero'], tags: ['Aguas cristalinas', 'Restaurante en la playa'], desc: 'Aguas cristalinas y comida en El Rincón Marino, en Punta La Cruz.' },
+  { id: 'r3', name: 'Rumbo 3', zone: 'Islas Arapo · estado Sucre', nm: 27, min: 45, hue: 175, add: null, plus: 'r2', beaches: ['Islas Arapo', 'La Piscina', 'Playa Ñacleta'], tags: ['Más probabilidad de delfines'], desc: 'Unas 10 millas náuticas más lejos que el Rumbo 2. Puedes sumar playas del Rumbo 2.' },
+  { id: 'r4', name: 'Rumbo 4', zone: 'Isla La Borracha y Puinare', nm: 21, min: 35, hue: 200, add: null, open: false, beaches: ['Isla La Borracha'], tags: ['Solo algunas embarcaciones'], desc: 'Rumbo hacia Isla La Borracha. Solo lo hacen algunas embarcaciones.' },
+  { id: 'r5', name: 'Rumbo 5', zone: 'Isletas de Píritu', nm: 38, min: 55, hue: 170, add: null, open: false, early: true, beaches: ['Isletas de Píritu'], tags: ['9:00 am a 5:00 pm', 'Solo con buen mar'], desc: 'Islotes de arena frente a Píritu. Solo algunas embarcaciones y con buen mar.' },
+  { id: 'r6', name: 'Rumbo 6', zone: 'Manare y Playa Blanca', nm: 41, min: 60, hue: 180, add: null, open: false, early: true, beaches: ['Playa Manare', 'Playa Blanca'], tags: ['Solo con buen mar', '9:00 am a 5:00 pm'], desc: 'Solo algunas embarcaciones y solo en temporada de buen mar.' }
 ];
 const SPECIAL = ['Isla La Tortuga', 'Islas Caracas', 'Margarita'];
 
@@ -107,7 +107,8 @@ const MERCADILLO = 'https://mercadillo.lovable.app/';
 const VID = {
   playas: ['Conoce nuestras playas', 'v'], rumbo1: ['Rumbo 1', 'h'], rumbo2: ['Rumbo 2', 'h'], rumbo3: ['Rumbo 3', 'h'],
   muelles: ['Muelles sugeridos', 'v'], horario: ['Horario de los paseos', 'v'], accesorios: ['Accesorios y facilidades', 'v'],
-  comidas: ['Comidas y bebidas', 'v'], mercadillo: ['Cómo pedir en El Mercadillo', 'v'], rincon: ['Restaurante El Rincón Marino', 'v']
+  comidas: ['Comidas y bebidas', 'v'], mercadillo: ['Cómo pedir en El Mercadillo', 'v'], rincon: ['Restaurante El Rincón Marino', 'v'],
+  televen: ['Televen · Paseo en los canales', 'v']   // reportaje de Televen (18 nov), 720p con sonido
 };
 const vcard = (k, label) => VID[k] ? `<button type="button" class="vcard ${VID[k][1]}" data-vid="${k}" aria-label="Ver video: ${label || VID[k][0]}"><img src="media/v/${k}.jpg" alt="" loading="lazy" decoding="async"><span class="vplay" aria-hidden="true"></span><span class="vlbl">${label || VID[k][0]}</span></button>` : '';
 const vlink = (k, label) => VID[k] ? `<button type="button" class="vlink" data-vid="${k}"><span class="vdot" aria-hidden="true"></span>${label || 'Ver video: ' + VID[k][0]}</button>` : '';
@@ -508,11 +509,14 @@ function dockFor(b, d) {
   if (d.off) return { ok: false, why: d.why || 'Muelle deshabilitado' };
   if (Array.isArray(b.docks) && b.docks.length && !b.docks.includes(d.id)) return { ok: false, why: d.pickup ? `${b.name} no hace recogidas ahí` : `${b.name} no sale de ${d.name}` };
   if (!d.pickup) { const home = DOCKS[b.dock] && DOCKS[b.dock].id === d.id; return { ok: true, cost: 0, fee: d.baseFree && home ? '' : d.fee || '', free: !!(d.baseFree && home && d.fee) }; }
+  if (d.viaR3 && (Q.route || 'r1') !== 'r3') return { ok: false, why: 'Solo con el Rumbo 3' };
   if (b.pick && d.id in b.pick) return b.pick[d.id] === null ? { ok: false, why: `${b.name} no llega hasta ahí por su calado` } : { ok: true, cost: +b.pick[d.id] || 0 };
   const z = sizeOf(b), c = d.cost || {};
   /* Salidas desde Mochima (Posada Isla Piscina, Mochima Lodge, Playa Pescadores): si Eduardo no puso un costo por tamaño,
      se cobra lo mismo que la diferencia del Rumbo 3 (Islas Arapo · La Piscina) sobre el Rumbo 1 en esa embarcación. */
   if (d.viaR3) {
+    // desde las posadas y playas de Mochima solo se hace el Rumbo 3 (pedido de Eduardo, 18 nov)
+    if ((Q.route || 'r1') !== 'r3') return { ok: false, why: 'Solo con el Rumbo 3' };
     if (+c[z] > 0) return { ok: true, cost: +c[z] };
     const r3 = ROUTES.find(x => x.id === 'r3'), r1 = ROUTES[0];
     if (!r3) return { ok: true, cost: 0, tbd: true };
@@ -570,6 +574,7 @@ function boatCard(b) {
     <div class="body">
       ${!hasPics(b) && (b.own || b.isNew) ? ownBadge(b) : ''}<div class="row"><h3>${esc(b.name)}</h3>${tr ? `<span class="trips">${tr}</span>` : ''}</div>
       <div class="meta"><span class="tag">${b.type}</span><span class="tag">${b.ft} pies</span>${b.own ? '' : `<span class="tag">Hasta ${b.pax} pers.</span>`}${sp ? `<span class="tag">${sp}</span>` : ''}</div>
+      ${b.own ? `<p class="own-desc">${esc(b.desc)}</p><div class="meta own-feats">${featList(b).map(a => `<span class="tag">${esc(a)}</span>`).join('')}<button type="button" class="tag more" data-open="${b.id}">y más…</button></div>` : ''}
       <div class="rating">Hasta ${b.maxBeaches} playas por salida · libre ${nf ? fmtDay(nf) : '—'}</div>
       <div class="acts"><button class="btn btn-ghost btn-sm" type="button" data-open="${b.id}">Ver detalles</button><button class="btn btn-sun btn-sm" type="button" data-book="${b.id}">Reservar</button></div>
     </div></article>`;
@@ -704,7 +709,7 @@ function renderPlan(b) {
   Q.beaches = (Q.beaches || []).filter(x => allowed.includes(x)).slice(0, b.maxBeaches);
   if (!Q.beaches.length) Q.beaches = [r.beaches[0]];
   const dd = qDate();
-  $('#b-routes').innerHTML = ROUTES.map(x => { const rp = routePrice(b, x); return `<button type="button" class="opt rumbo" data-route="${x.id}" aria-pressed="${x.id === r.id}" ${rp.ok ? '' : 'disabled'}><b>${x.name} · ${esc(x.zone)}</b><span>${x.beaches.map(esc).join(', ')}</span><span class="r-m">${x.nm ? `~${x.nm} millas náuticas · ` : ''}~${x.min} min</span><span class="p">${rp.ok ? (rp.tbd ? 'Precio por confirmar' : money(priceOn(b, dd, x))) : 'No disponible en esta embarcación'}</span></button>`; }).join('');
+  $('#b-routes').innerHTML = ROUTES.map(x => { const rp = routePrice(b, x); return `<button type="button" class="opt rumbo" data-route="${x.id}" aria-pressed="${x.id === r.id}" ${rp.ok ? '' : 'disabled'}><b>${x.name} · ${esc(x.zone)}</b><span>${x.beaches.map(esc).join(', ')}</span><span class="r-m">${x.nm ? `~${x.nm} millas náuticas (rumbo completo) · ` : ''}~${x.min} min</span><span class="p">${rp.ok ? (rp.tbd ? 'Precio por confirmar' : money(priceOn(b, dd, x))) : 'No disponible en esta embarcación'}</span></button>`; }).join('');
   const chip = n => `<button type="button" class="bchip" data-beach="${esc(n)}" aria-pressed="${Q.beaches.includes(n)}">${esc(n)}</button>`;
   $('#b-beaches').innerHTML = `<div class="bl-h"><b>Elige tus playas</b><span class="lim" id="b-lim">${beachLimitText(b)} · ${Q.beaches.length}/${b.maxBeaches}</span></div>
     <div class="bchips">${r.beaches.map(chip).join('')}</div>
@@ -712,7 +717,7 @@ function renderPlan(b) {
     <p class="rating">${r.desc} No combinamos playas de rumbos distintos.</p>${vlink('rumbo' + r.id.slice(1), 'Ver video del ' + r.name)}
     <p class="late-note"><b>Cambios de última hora:</b> ${LATE_NOTE}</p>
     <p class="special">¿Otro destino? ${SPECIAL.join(', ')}: <a href="${wa(`Hola Tu Lancha Lechería 👋 Quiero una cotización especial para ${SPECIAL.join(' / ')} para ${paxTxt()} el ${fmtDay(qDate())}.`)}" target="_blank" rel="noopener">cotización especial por WhatsApp</a></p>`;
-  const opt = d => { const c = dockFor(b, d); return `<option value="${d.id}" ${d.id === Q.dock ? 'selected' : ''} ${c.ok ? '' : 'disabled'}>${esc(d.name)}${c.ok ? (d.pickup ? (c.cost ? ' · +' + money(c.cost) : c.tbd ? ' · por confirmar' : ' · gratis') : c.free ? ' · sin costo de muelle' : c.fee ? ' · ' + c.fee : '') : ' · ' + (d.off && d.why ? d.why.toLowerCase() : 'no disponible')}</option>`; };
+  const opt = d => { const c = dockFor(b, d); return `<option value="${d.id}" ${d.id === Q.dock ? 'selected' : ''} ${c.ok ? '' : 'disabled'}>${esc(d.name)}${c.ok ? (d.pickup ? (c.cost ? ' · +' + money(c.cost) : c.tbd ? ' · por confirmar' : ' · gratis') : c.free ? ' · sin costo de muelle' : c.fee ? ' · ' + c.fee : '') : ' · ' + (d.off && d.why ? d.why.toLowerCase() : d.viaR3 && c.why ? c.why.toLowerCase() : 'no disponible')}</option>`; };
   const home = (DOCKS[b.dock] && dockFor(b, DOCKS[b.dock]).ok ? DOCKS[b.dock] : DOCKS.find(x => dockFor(b, x).ok) || DOCKS[0]).id;
   if (Q.dock === 'pin' && !okPin(Q.pin)) Q.dock = home;
   if (!dockFor(b, dockById(Q.dock)).ok) Q.dock = home;
@@ -749,13 +754,18 @@ function renderPlan(b) {
     ${accOpt.length ? `<div><h4>Agrega a tu salida</h4><div class="opts">${accOpt.map(([k, p]) => `<button type="button" class="opt" data-acc="${k}" aria-pressed="${!!Q.acc[k]}"><b>${accName(b, k)}</b>${k === 'parrilla' ? `<span>${PARRILLA_NOTE}</span>` : ''}<span class="p">+${money(p)}</span></button>`).join('')}</div></div>` : ''}
     ${rentals.length ? `<div><h4>Alquila para tu salida <small>lo llevamos a tu embarcación</small></h4><div class="xis">${rentals.map(shopItem).join('')}</div></div>` : ''}
     ${sales.length ? `<div><h4>Tienda Tu Lancha Lechería <small>para llevártelo</small></h4><div class="xis">${sales.map(shopItem).join('')}</div></div>` : ''}</section>
-    <section class="xsec food" aria-labelledby="xs-food"><h3 class="xs-h" id="xs-food">Comidas y bebidas</h3>
+`;
+  // Comidas y bebidas en su propio paso (pedido de Eduardo, 18 nov): primero el video de comidas y bebidas,
+  // al final el video de cómo pedir en El Mercadillo para las compras más personalizadas
+  $('#b-food').innerHTML = `<section class="xsec food" aria-labelledby="xs-food"><h3 class="xs-h sr-only" id="xs-food">Comidas y bebidas</h3>
+      ${vlink('comidas', 'Ver video: comidas y bebidas a bordo')}
       <p class="xs-inc">✓ Cava con hielo y agua mineral para todos, ya incluidas. Puedes traer tus bebidas y snacks.</p>
       ${FOOD.length ? `<div><h4>Esenciales favoritos para zarpar</h4><p class="rating">Un par de clics y los tendrás a bordo sin cargos adicionales.</p><div class="xis">${FOOD.map(foodItem).join('')}</div></div>` : ''}
-      <p class="xs-more">Si deseas una compra más personalizada, puedes ir a la pestaña <a href="#aliados">Servicio a bordo</a>, en la sección de comidas y bebidas.</p>
-      <div class="vrow">${vcard('comidas')}${vcard('mercadillo')}${['r2', 'r3'].includes(r.id) ? vcard('rincon') : ''}</div>
-      <a class="btn btn-ghost btn-sm" href="${MERCADILLO}" target="_blank" rel="noopener">Pedir en El Mercadillo</a>
-      ${['r2', 'r3'].includes(r.id) ? `<p class="rating"><b>Recomendado en tu rumbo:</b> Restaurante El Rincón Marino, en Playa Punta La Cruz. Comes a bordo o en tierra.</p>` : ''}</section>`;
+      ${['r2', 'r3'].includes(r.id) ? `<p class="rating"><b>Recomendado en tu rumbo:</b> Restaurante El Rincón Marino, en Playa Punta La Cruz. Comes a bordo o en tierra.</p>${vlink('rincon', 'Ver video: El Rincón Marino')}` : ''}
+      <div class="xs-more"><p>Si deseas una compra más personalizada, pídela en <b>El Mercadillo</b> y te la llevan al muelle antes de zarpar.</p>
+        ${vlink('mercadillo', 'Ver video: cómo pedir en El Mercadillo')}
+        <a class="btn btn-ghost btn-sm" href="${MERCADILLO}" target="_blank" rel="noopener">Pedir en El Mercadillo</a>
+        <p class="rating">También tienes más aliados en <a href="#aliados">Servicio a bordo</a>.</p></div></section>`;
 }
 const xInit = n => String(n || '').split(/\s+/).filter(w => /^[A-Za-zÁÉÍÓÚÑáéíóúñ]/.test(w)).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '•';
 function renderTicket() {
@@ -950,7 +960,7 @@ function openPinMap() {
 
 /* ---------------- playas por rumbo ---------------- */
 function renderBeaches() {
-$('#beaches').innerHTML = `<div class="vintro">${vcard('playas', 'Conoce nuestras playas')}<div><h2>Antes de elegir</h2><p>Mira en un minuto cómo son nuestros rumbos y playas. Cada rumbo tiene su video abajo.</p></div></div>` + ROUTES.map(r => `<section class="rumbo-sec" id="rumbo-${r.id}"><div class="rumbo-h"><div><span class="eyebrow">${r.name}</span><h2>${r.zone}</h2><p>${r.desc}</p></div><div class="tags rumbo-tags">${r.nm ? `<span class="tag tag-nm">~${r.nm} millas náuticas</span>` : ''}${r.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}<span class="tag">~${r.min} min en lancha</span></div></div>${VID['rumbo' + r.id.slice(1)] ? `<div class="rumbo-v">${vcard('rumbo' + r.id.slice(1), 'Video del ' + r.name)}</div>` : ''}
+$('#beaches').innerHTML = `<div class="vintro">${vcard('playas', 'Conoce nuestras playas')}<div><h2>Antes de elegir</h2><p>Mira en un minuto cómo son nuestros rumbos y playas. Cada rumbo tiene su video abajo.</p></div></div>` + ROUTES.map(r => `<section class="rumbo-sec" id="rumbo-${r.id}"><div class="rumbo-h"><div><span class="eyebrow">${r.name}</span><h2>${r.zone}</h2><p>${r.desc}</p></div><div class="tags rumbo-tags">${r.nm ? `<span class="tag tag-nm">~${r.nm} millas náuticas (rumbo completo)</span>` : ''}${r.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}<span class="tag">~${r.min} min en lancha</span></div></div>${VID['rumbo' + r.id.slice(1)] ? `<div class="rumbo-v">${vcard('rumbo' + r.id.slice(1), 'Video del ' + r.name)}</div>` : ''}
   <div class="beaches">${r.beaches.map(n => `<article class="beach${beachPhoto(n) ? '' : ' nopic'}">${beachPhoto(n) ? ph(beachPhoto(n), n) : ''}<div class="in"><span class="km">${r.name.toUpperCase()}</span><h3>${esc(n)}</h3>
   <div class="ln"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent('Tu Lancha Lechería ' + n)}" target="_blank" rel="noopener">Video</a><a href="https://www.instagram.com/tulanchalecheria/" target="_blank" rel="noopener">Fotos</a><button type="button" data-goroute="${r.id}" data-gobeach="${esc(n)}" style="all:unset;cursor:pointer;color:var(--on-sea);font-weight:700">Ir aquí →</button></div></div></article>`).join('')}</div></section>`).join('')
   + `<div class="parks"><b>Cotización especial:</b>${SPECIAL.map(s => `<span class="tag">${s}</span>`).join('')}<a class="btn btn-wa btn-sm" href="${wa(`Hola Tu Lancha Lechería 👋 Quiero una cotización especial para ${SPECIAL.join(' / ')}.`)}" target="_blank" rel="noopener">Pedir cotización</a></div>`;
@@ -962,7 +972,9 @@ $('#beaches').addEventListener('click', e => { const g = e.target.closest('[data
 const CQ = { opt: 'l', pax: 6, ex: {} };
 function canalPrice() { const o = CANALES.opts.find(x => x.id === CQ.opt); const base = o.flat ?? o.pp * Math.max(CQ.pax, o.min); return base + CANALES.extras.filter(x => CQ.ex[x[0]]).reduce((s, x) => s + x[2], 0); }
 // imagen de cada experiencia (Eduardo la sube en Portada y tienda); mientras tanto, una ilustración de relleno
-const expMedia = (k, hue) => { const u = CAT.home.exp && CAT.home.exp[k]; return `<div class="exp-media${u ? '' : ' fill'}">${u ? ph(u, '') : art(k === 'senderismo' ? 'beach' : 'drone', hue, 'exp-' + k)}</div>`; };
+const PESCA_TXT = 'Vive una jornada completa de pesca deportiva navegando millas náuticas más allá de Isla La Borracha en busca de grandes especies como el pez vela. Te incluimos todo el equipamiento; tú solo traes comida y bebidas.';
+const EXP_IMG = { canales: 'media/exp-canales.webp', pesca: 'media/exp-pesca.webp', senderismo: 'media/exp-senderismo.webp' };   // fotos de Eduardo (18 nov)
+const expMedia = (k, hue) => { const u = (CAT.home.exp && CAT.home.exp[k]) || EXP_IMG[k]; return `<div class="exp-media${u ? '' : ' fill'}">${u ? ph(u, '') : art(k === 'senderismo' ? 'beach' : 'drone', hue, 'exp-' + k)}</div>`; };
 function renderCanales() {
   const el = $('#canales'); if (!el) return;
   const o = CANALES.opts.find(x => x.id === CQ.opt);
@@ -982,7 +994,7 @@ function renderCanales() {
       <button class="btn btn-wa" type="submit">Solicitar este paseo</button>
     </form></article>
     <div class="exp-duo">
-    <article class="canal canal-sm glass-card has-media">${expMedia('pesca', 205)}<div class="canal-in"><span class="eyebrow">Experiencia aparte · cupos limitados</span><h2>Pesca de altura</h2><p>${esc(CAT.home.expTxt && CAT.home.expTxt.pesca || 'Salida con capitán pescador y equipo. Disponibilidad limitada, sobre todo los fines de semana: escríbenos con tu fecha y armamos la salida.')}</p>
+    <article class="canal canal-sm glass-card has-media">${expMedia('pesca', 205)}<div class="canal-in"><span class="eyebrow">Experiencia aparte · cupos limitados</span><h2>Pesca de altura</h2><p>${esc(CAT.home.expTxt && CAT.home.expTxt.pesca || PESCA_TXT)}</p>
       <a class="btn btn-wa btn-sm" href="${wa('Hola Tu Lancha Lechería 👋 Me interesa un chárter de pesca de altura. ¿Qué fechas tienen?')}" target="_blank" rel="noopener">Consultar disponibilidad</a></div></article>
     <article class="canal canal-sm glass-card has-media soon">${expMedia('senderismo', 140)}<div class="canal-in"><span class="eyebrow">Disponible pronto</span><h2>Senderismo en La Borracha</h2><p>Caminata guiada por Isla La Borracha con paradas para nadar. Muy pronto podrás reservarla aquí.</p>
       <a class="btn btn-ghost btn-sm" href="${wa('Hola Tu Lancha Lechería 👋 Quiero que me avisen cuando esté disponible el senderismo en La Borracha.')}" target="_blank" rel="noopener">Avísame cuando esté lista</a></div></article></div>`;

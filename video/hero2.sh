@@ -16,3 +16,7 @@ ffmpeg -y -v error -i "$SRC" -filter_complex "$BASE" -map "[v]" -c:v libvpx-vp9 
 # póster nítido (primer cuadro del bucle = lo que se ve mientras carga)
 ffmpeg -y -v error -i "$OUT/hero2-1080.mp4" -frames:v 1 -vf "scale=in_range=limited:out_range=full" -c:v libwebp -quality 94 "$OUT/hero2-land.webp"
 ls -la "$OUT"/hero2-1080.* "$OUT"/hero2-land.webp
+# versión vertical para el celular (18 nov): recorte 720x1080 del 1080p, centrado en la playa (55 %).
+# En una pantalla vertical el 1080p se recortaba igual y se decodificaban 2,7 veces más píxeles: esto da la misma nitidez sin lag.
+ffmpeg -y -v error -i "$OUT/hero2-1080.mp4" -vf "crop=720:1080:660:0" -c:v libx264 -preset slow -tune film -profile:v high -level 4.0 -pix_fmt yuv420p -crf 19 -maxrate 4M -bufsize 8M -r 24 -g 48 -keyint_min 48 -sc_threshold 0 $TAGS -movflags +faststart -an "$OUT/hero2-port.mp4"
+ffmpeg -y -v error -i "$OUT/hero2-port.mp4" -frames:v 1 -c:v libwebp -quality 92 "$OUT/hero2-port.webp"

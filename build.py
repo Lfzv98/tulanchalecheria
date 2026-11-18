@@ -16,6 +16,9 @@ bg = Image.new('RGB', (512, 512), 'white'); bg.paste(c.resize((410, 410), Image.
 c.resize((180, 180), Image.LANCZOS).save('dist/icons/apple-touch-icon.png', optimize=True)
 c.resize((128, 128), Image.LANCZOS).save('dist/icons/logo-128.png', optimize=True)
 import shutil; shutil.copy('public/binance-qr.png', 'dist/icons/binance-qr.png')
+# fotos de las experiencias (canales, pesca de altura, senderismo) y video de Televen, que mandó Eduardo el 18 nov
+import glob as _g
+for _f in _g.glob('public/exp/*'): shutil.copy(_f, 'dist/media/' + os.path.basename(_f))
 c.resize((48, 48), Image.LANCZOS).save('dist/favicon.png', optimize=True)
 buf = io.BytesIO(); c.resize((112, 112), Image.LANCZOS).save(buf, 'WEBP', quality=85)
 logo_uri = 'data:image/webp;base64,' + base64.b64encode(buf.getvalue()).decode()

@@ -3,6 +3,8 @@
    en Upstash Redis junto con la fecha del paseo. Dos tareas programadas de Vercel (vercel.json › crons) envían:
      · 7:00 pm del día antes   → "Mañana zarpas"
      · 6:00 am del día del paseo → "Hoy zarpas: abre el modo a bordo"
+     · 7:00 pm del día del paseo → "De regreso a tierra" (recomendaciones)
+     · 6:00 am del día siguiente → "¿Cómo estuvo tu paseo?" (encuesta en la app)
    Funciona con la app cerrada en Android, computadoras y iPhone (iOS 16.4+ con la app agregada a la pantalla de inicio).
 
    Variables de entorno:
@@ -97,28 +99,35 @@ const TXT = {
   es: { eve: ['Mañana zarpas ⛵', t => `${t.boat} · ${t.h} desde ${t.dock}. Protector solar, lentes y traje de baño. ¡Nos vemos en el muelle!`],
         today: ['Hoy zarpas ⛵', t => `Abre el modo a bordo antes de salir: GPS, botón SOS y ubicación en vivo para tu familia. Salida ${t.h} desde ${t.dock}.`],
         album: ['Tu álbum del día 📸', () => 'Gracias por navegar con Tu Lancha Lechería. Las fotos y videos de tu paseo te esperan en la app.'],
+        back: ['De regreso a tierra 🌅', () => 'Gracias por navegar con Tu Lancha Lechería. Hidrátate, aplica crema hidratante o aloe después del sol, enjuaga caretas y trajes con agua dulce y revisa que no se quede nada a bordo.'],
+        survey: ['¿Cómo estuvo tu paseo? ⭐', () => 'Cuéntanos en un minuto cómo te fue. Tu opinión nos ayuda a mejorar cada salida.'],
         ok: ['Avisos activados ⚓', d => `Te avisaremos el día antes y la mañana de tu paseo (${d}).`] },
   en: { eve: ['Tomorrow you set sail ⛵', t => `${t.boat} · ${t.h} from ${t.dock}. Bring sunscreen, sunglasses and swimwear. See you at the dock!`],
         today: ['Today you set sail ⛵', t => `Open on-board mode before you leave: GPS, SOS button and live location for your family. Departure ${t.h} from ${t.dock}.`],
         album: ['Your album of the day 📸', () => 'Thanks for sailing with Tu Lancha Lechería. The photos and videos of your trip are waiting for you in the app.'],
+        back: ['Back on land 🌅', () => 'Thanks for sailing with Tu Lancha Lechería. Drink water, use moisturizer or aloe after the sun, rinse masks and swimwear with fresh water and check nothing was left on board.'],
+        survey: ['How was your trip? ⭐', () => 'Tell us in one minute how it went. Your feedback helps us improve every trip.'],
         ok: ['Notifications on ⚓', d => `We will remind you the day before and the morning of your trip (${d}).`] },
   pt: { eve: ['Amanhã você zarpa ⛵', t => `${t.boat} · ${t.h} saindo de ${t.dock}. Protetor solar, óculos de sol e roupa de banho. Nos vemos no píer!`],
         today: ['Hoje você zarpa ⛵', t => `Abra o modo a bordo antes de sair: GPS, botão SOS e localização ao vivo para sua família. Saída ${t.h} de ${t.dock}.`],
         album: ['Seu álbum do dia 📸', () => 'Obrigado por navegar com a Tu Lancha Lechería. As fotos e vídeos do seu passeio esperam por você no app.'],
+        back: ['De volta à terra 🌅', () => 'Obrigado por navegar com a Tu Lancha Lechería. Beba água, use hidratante ou aloe depois do sol, enxágue máscaras e roupas de banho com água doce e confira se nada ficou a bordo.'],
+        survey: ['Como foi o seu passeio? ⭐', () => 'Conte em um minuto como foi. Sua opinião nos ajuda a melhorar cada saída.'],
         ok: ['Avisos ativados ⚓', d => `Vamos avisar no dia anterior e na manhã do seu passeio (${d}).`] }
 };
 const langOf = l => (TXT[l] ? l : 'es');
 function message(kind, t) {
   const L = langOf(t.lang), h = new Date(t.start).toLocaleTimeString(LOC[L], { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Caracas' });
   const [title, body] = TXT[L][kind];
-  const url = kind === 'today' ? `./#a-bordo/${t.code}` : kind === 'album' ? `./#album/${t.code}` : './#mi-viaje';
+  const url = kind === 'today' ? `./#a-bordo/${t.code}` : kind === 'survey' ? `./#encuesta/${t.code}` : './#mi-viaje';
   return { title, body: body({ ...t, h }), url, tag: `tll-${t.code}-${kind}` };
 }
 
 async function runCron(slot, priv) {
   // am: hoy zarpas · pm: mañana zarpas (paseos de mañana) y álbum (paseos de hoy)
   // el aviso del álbum se quitó el 18 nov (pedido de Eduardo): ya no hay álbum del día
-  const jobs = slot === 'am' ? [[vetIso(0), 'today']] : [[vetIso(1), 'eve']];
+  // 18 nov (pedido de Eduardo): recomendaciones de regreso a las 7:00 pm del día del paseo y encuesta a las 6:00 am del día siguiente
+  const jobs = slot === 'am' ? [[vetIso(0), 'today'], [vetIso(-1), 'survey']] : [[vetIso(1), 'eve'], [vetIso(0), 'back']];
   let sent = 0, gone = 0;
   for (const [iso, kind] of jobs) {
     const [h] = await redis([['HGETALL', `push:d:${iso}`]]);

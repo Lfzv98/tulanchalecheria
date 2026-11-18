@@ -92,7 +92,9 @@ async function scheduleTriggers(r) {
   if (!('TimestampTrigger' in window) || !canNotify() || Notification.permission !== 'granted') return;
   try {
     const reg = await navigator.serviceWorker.getRegistration(); if (!reg) return; const t = times(r), now = Date.now();
-    const plan = [[t.start.getTime() - 2 * 36e5, 'Zarpas en 2 horas ⛵', 'Abre el modo a bordo: GPS, SOS y ubicación en vivo para tu familia.', `#a-bordo/${r.code}`, 'abordo']];
+    const plan = [[t.start.getTime() - 2 * 36e5, 'Zarpas en 2 horas ⛵', 'Abre el modo a bordo: GPS, SOS y ubicación en vivo para tu familia.', `#a-bordo/${r.code}`, 'abordo'],
+      [t.end.getTime() + 36e5, BACK[0], BACK[1], '#mi-viaje', 'back'],
+      [surveyAt(t), SURVEY[0], SURVEY[1], `#encuesta/${r.code}`, 'survey']];
     for (const [when, title, body, hash, k] of plan) if (when > now) await reg.showNotification(TLL_I18N.tr(title), { body: TLL_I18N.tr(body), tag: `tll-${r.code}-${k}`, icon: 'icons/icon-192.png', data: { url: './' + hash }, showTrigger: new window.TimestampTrigger(when) });
   } catch {}
 }
@@ -126,6 +128,12 @@ async function askNotify(r) {
   if (p === 'granted') { setPlan(r.code, { notify: true }); scheduleTriggers(r); await pushSub(byCode(r.code), true); }
   return p;
 }
+/* Después del paseo (pedido de Eduardo, 18 nov): recomendaciones de regreso y, al día siguiente, una encuesta corta.
+   Llegan también con la app cerrada desde el servidor (api/push.js) a las 7:00 pm del día del paseo y 6:00 am del siguiente. */
+const BACK = ['De regreso a tierra 🌅', 'Hidrátate, aplica crema hidratante o aloe después del sol, enjuaga caretas y trajes con agua dulce y revisa que no se quede nada a bordo.'];
+const SURVEY = ['¿Cómo estuvo tu paseo? ⭐', 'Cuéntanos en un minuto cómo te fue. Tu opinión nos ayuda a mejorar cada salida.'];
+const surveyAt = t => { const d = new Date(t.end); d.setDate(d.getDate() + 1); d.setHours(9, 0, 0, 0); return d.getTime(); };
+const surveyDue = (r, now = Date.now()) => { const t = times(r); return t && !r.survey && now >= surveyAt(t) && now < surveyAt(t) + 7 * DAY; };
 // mientras la app está abierta (o al abrirla) avisamos una sola vez por etapa
 function notifyDue() {
   const sent = store.get('plan-sent', {}), now = Date.now();
@@ -134,6 +142,8 @@ function notifyDue() {
     const due = [];
     if (s === 'soon' && t.start - now < 30 * 36e5 && r.plan.abordo) due.push(['eve', `Mañana zarpas ⛵`, `${r.boat} · ${fmtHour(t.start)} desde ${r.dock}. Tu modo a bordo se activa mañana.`, '#mi-viaje']);
     if (s === 'today' && r.plan.abordo) due.push(['today', 'Hoy zarpas ⛵', `Abre el modo a bordo antes de salir: GPS, SOS y ubicación en vivo para tu familia.`, `#a-bordo/${r.code}`]);
+    if (now >= t.end.getTime() + 30 * 6e4 && now < t.end.getTime() + 18 * 36e5) due.push(['back', BACK[0], BACK[1], '#mi-viaje']);
+    if (surveyDue(r, now)) due.push(['survey', SURVEY[0], SURVEY[1], `#encuesta/${r.code}`]);
     due.forEach(([k, title, body, hash]) => { const key = `${r.code}:${k}`; if (sent[key]) return; sent[key] = now; show(title, body, `tll-${key}`, hash); });
   });
   store.set('plan-sent', sent);
@@ -207,7 +217,15 @@ let cdTimer = null;
 function renderCard() {
   const box = $('#trip-plan'); if (!box) return;
   const r = featured(); clearInterval(cdTimer);
-  if (!r) { box.hidden = true; box.innerHTML = ''; return; }
+  if (!r) {
+    const rs = mine().find(x => surveyDue(x));
+    if (!rs) { box.hidden = true; box.innerHTML = ''; return; }
+    box.hidden = false; box.className = 'trip-plan tp-survey';
+    box.innerHTML = `<div class="tp-card"><div class="tp-top"><div><span class="eyebrow">Gracias por navegar con nosotros</span><h2>¿Cómo estuvo tu paseo?</h2><span class="tp-meta">${esc(rs.boat)} · ${esc(rs.date)}</span></div><span class="mono tp-code">${rs.code}</span></div>
+      <p class="tp-live">Cuéntanos en un minuto cómo te fue. Tu opinión nos ayuda a mejorar cada salida.</p>
+      <div class="tp-acts"><button class="btn btn-sun btn-lg" type="button" data-tp-survey="${rs.code}">⭐ Calificar mi paseo</button></div></div>`;
+    return;
+  }
   const t = times(r), s = stateOf(r), p = r.plan || null, now = Date.now(), started = now >= t.start;
   const head = { soon: ['Tu próximo paseo', 'Faltan'], today: [started ? 'Estás en el mar' : 'Hoy zarpas', started ? 'Regreso a las ' + fmtHour(t.end) : 'Zarpas en'] }[s];
   const step = (k, title, txt, on, done) => `<li class="${done ? 'done' : on ? 'now' : ''}"><span class="tp-dot">${done ? ic('ok') : ic(k)}</span><div><b>${title}</b><small>${txt}</small></div></li>`;
@@ -231,6 +249,7 @@ function renderCard() {
   if ($('.cd', box)) cdTimer = setInterval(() => { const ms = t.start - Date.now(); if (ms <= 0 || stateOf(r) !== s) return render(); tickCd(box, ms); }, 1000);
 }
 $('#trip-plan')?.addEventListener('click', e => {
+  const sv = e.target.closest('[data-tp-survey]'); if (sv) { openSurvey(sv.dataset.tpSurvey); return; }
   const r = featured(); if (!r) return;
   if (e.target.closest('[data-tp-abordo]')) window.TLL.openAbordo(r.code);
   if (e.target.closest('[data-tp-ics]')) addToCalendar(r);
@@ -244,6 +263,37 @@ function openPlanSheet(code) {
   dlg.onchange = null; dlg.onclick = e => { if (e.target === dlg || e.target.closest('.m-close')) dlg.close(); };
   wirePlan(dlg); dlg.showModal();
 }
+
+/* ---------- encuesta del día siguiente ---------- */
+function openSurvey(code) {
+  const r = byCode(code), dlg = $('#dlg'); if (dlg.open) dlg.close();
+  const A = { stars: 0, rec: null };
+  dlg.className = 'sheetish';
+  dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="view book done sv-box">
+    <span class="eyebrow">Encuesta · ${esc(code)}</span><h2>¿Cómo estuvo tu paseo?</h2>${r ? `<p class="rating">${esc(r.boat)} · ${esc(r.date)}</p>` : ''}
+    <div class="sv-stars" role="radiogroup" aria-label="Calificación">${[1, 2, 3, 4, 5].map(n => `<button type="button" role="radio" aria-checked="false" data-sv-star="${n}" aria-label="${n} de 5">★</button>`).join('')}</div>
+    <div class="field"><label for="sv-good">¿Qué fue lo que más te gustó?</label><textarea id="sv-good" rows="2"></textarea></div>
+    <div class="field"><label for="sv-better">¿Qué podemos mejorar?</label><textarea id="sv-better" rows="2"></textarea></div>
+    <div class="sv-rec"><span>¿Nos recomendarías?</span><button type="button" class="chip" data-sv-rec="1">Sí</button><button type="button" class="chip" data-sv-rec="0">No</button></div>
+    <button class="btn btn-sun btn-lg" type="button" data-sv-send disabled>Enviar mi opinión</button>
+  </div>`;
+  dlg.onchange = null;
+  dlg.onclick = async e => {
+    if (e.target === dlg || e.target.closest('.m-close')) return dlg.close();
+    const st = e.target.closest('[data-sv-star]'); if (st) { A.stars = +st.dataset.svStar; $$('[data-sv-star]', dlg).forEach(b => { const on = +b.dataset.svStar <= A.stars; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(+b.dataset.svStar === A.stars)); }); $('[data-sv-send]', dlg).disabled = false; return; }
+    const rc = e.target.closest('[data-sv-rec]'); if (rc) { A.rec = rc.dataset.svRec === '1'; $$('[data-sv-rec]', dlg).forEach(b => b.classList.toggle('on', b === rc)); return; }
+    if (!e.target.closest('[data-sv-send]') || !A.stars) return;
+    const body = { code, stars: A.stars, good: $('#sv-good', dlg).value.trim(), better: $('#sv-better', dlg).value.trim(), rec: A.rec };
+    let ok = false; try { ok = (await fetch('/api/admin?a=survey', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })).ok; } catch {}
+    if (r) saveMine(mine().map(x => x.code === code ? { ...x, survey: { stars: A.stars, at: Date.now() } } : x));
+    const t = `⭐ Encuesta ${code}: ${'★'.repeat(A.stars)}${'☆'.repeat(5 - A.stars)}${body.good ? `\nLo que más me gustó: ${body.good}` : ''}${body.better ? `\nA mejorar: ${body.better}` : ''}${A.rec != null ? `\n¿Los recomendaría? ${A.rec ? 'Sí' : 'No'}` : ''}`;
+    $('.sv-box', dlg).innerHTML = `<span class="eyebrow">¡Gracias!</span><h2>Recibimos tu opinión</h2><p class="rating">Nos ayuda a que cada salida sea mejor que la anterior.</p>${ok ? '' : `<a class="btn btn-wa" href="${window.TLL.wa(t)}" target="_blank" rel="noopener">Enviarla por WhatsApp</a>`}<button class="btn btn-ghost" type="button" data-sv-close>Listo</button>`;
+    $('[data-sv-close]', dlg).onclick = () => dlg.close();
+    render();
+  };
+  dlg.showModal();
+}
+window.TLL.openSurvey = openSurvey;
 
 /* ---------- aviso flotante en toda la app ---------- */
 function renderChip() {
@@ -274,6 +324,8 @@ function render() {
 
 /* ---------- enlaces directos: #a-bordo/TLL-1234 y #album/TLL-1234 (vienen del calendario y los avisos) ---------- */
 function route() {
+  const sv = location.hash.match(/^#encuesta\/(TLL-\d{4})$/i);
+  if (sv) { history.replaceState(null, '', '#mi-viaje'); window.dispatchEvent(new HashChangeEvent('hashchange')); setTimeout(() => openSurvey(sv[1].toUpperCase()), 0); return; }
   const m = location.hash.match(/^#(a-bordo|album)\/(TLL-\d{4})$/i); if (!m) return;
   const code = m[2].toUpperCase(), d = $('#dlg'); if (d.open) return;
   history.replaceState(null, '', '#mi-viaje'); window.dispatchEvent(new HashChangeEvent('hashchange'));

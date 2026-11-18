@@ -208,7 +208,7 @@ const exact = [
 /* ---------- reservar ---------- */
 [`Reserva guiada`, `Guided booking`, `Reserva guiada`],
 [`Arma tu salida`, `Plan your trip`, `Monte seu passeio`],
-[`Cuatro pasos y reservas aquí mismo, sin salir de la app. Todas las embarcaciones incluyen tripulación, chalecos, hielo y agua.`, `Four steps and you book right here, without leaving the app. Every boat includes crew, life jackets, ice and water.`, `Quatro passos e você reserva aqui mesmo, sem sair do app. Todas as embarcações incluem tripulação, coletes, gelo e água.`],
+[`Cinco pasos y reservas aquí mismo, sin salir de la app. Todas las embarcaciones incluyen tripulación, chalecos, hielo y agua.`, `Five steps and you book right here, without leaving the app. Every boat includes crew, life jackets, ice and water.`, `Quatro passos e você reserva aqui mesmo, sem sair do app. Todas as embarcações incluem tripulação, coletes, gelo e água.`],
 [`Pasos de la reserva`, `Booking steps`, `Etapas da reserva`],
 [`Grupo y fecha`, `Group & date`, `Grupo e data`],
 [`Embarcación`, `Boat`, `Embarcação`],
@@ -1195,6 +1195,33 @@ const exact = [
 [`Todo Tu Lancha Lechería, en un giro`, `All of Tu Lancha Lechería, in one spin`],
 [`Mascotas: solo perros pequeños (hasta 6 kg)`, `Pets: small dogs only (up to 6 kg / 13 lb)`],
 
+// 18 nov (tarde): propietarios, pesca, comidas, encuesta
+[`Proveedores verificados, equipos en alquiler y auxilio cuando lo necesites. Y si quieres, pon tu embarcación a trabajar con nosotros.`, `Verified providers, rental equipment and assistance whenever you need it. And if you like, put your boat to work with us.`],
+[`Proveedores, alquiler y auxilio`, `Providers, rentals and assistance`],
+[`Estilo y hospedaje`, `Style and lodging`],
+[`Más allá de Isla La Borracha`, `Beyond La Borracha Island`],
+[`Vive una jornada completa de pesca deportiva navegando millas náuticas más allá de Isla La Borracha en busca de grandes especies como el pez vela. Te incluimos todo el equipamiento; tú solo traes comida y bebidas.`, `Enjoy a full day of sport fishing, sailing nautical miles beyond La Borracha Island in search of big species like sailfish. We include all the gear; you just bring food and drinks.`],
+[`Solo con el Rumbo 3`, `Only with Route 3`],
+[`solo con el rumbo 3`, `only with route 3`],
+[`Ver video: comidas y bebidas a bordo`, `Watch video: food and drinks on board`],
+[`Ver video: cómo pedir en El Mercadillo`, `Watch video: how to order at El Mercadillo`],
+[`Si deseas una compra más personalizada, pídela en`, `For a more personalized order, ask`],
+[`y te la llevan al muelle antes de zarpar.`, `and they'll bring it to the dock before you set sail.`],
+[`Gracias por navegar con nosotros`, `Thanks for sailing with us`],
+[`¿Cómo estuvo tu paseo?`, `How was your trip?`],
+[`Cuéntanos en un minuto cómo te fue. Tu opinión nos ayuda a mejorar cada salida.`, `Tell us in one minute how it went. Your feedback helps us improve every trip.`],
+[`⭐ Calificar mi paseo`, `⭐ Rate my trip`],
+[`¿Qué fue lo que más te gustó?`, `What did you like most?`],
+[`¿Qué podemos mejorar?`, `What can we improve?`],
+[`¿Nos recomendarías?`, `Would you recommend us?`],
+[`Enviar mi opinión`, `Send my feedback`],
+[`¡Gracias!`, `Thank you!`],
+[`Recibimos tu opinión`, `We got your feedback`],
+[`Nos ayuda a que cada salida sea mejor que la anterior.`, `It helps make every trip better than the last.`],
+[`Enviarla por WhatsApp`, `Send it by WhatsApp`],
+[`De regreso a tierra 🌅`, `Back on land 🌅`],
+[`¿Cómo estuvo tu paseo? ⭐`, `How was your trip? ⭐`],
+[`Hidrátate, aplica crema hidratante o aloe después del sol, enjuaga caretas y trajes con agua dulce y revisa que no se quede nada a bordo.`, `Drink water, use moisturizer or aloe after the sun, rinse masks and swimwear with fresh water and check nothing was left on board.`],
 ];
 
 const pat = [
@@ -1367,6 +1394,8 @@ const pat = [
 /* 12 nov */
 [/^No encontramos “(.+)”\. Prueba con una playa, una embarcación o escríbenos por WhatsApp\.$/, `We couldn't find “{1}”. Try a beach, a boat, or message us on WhatsApp.`],
 [/^~([\d.,]+) millas náuticas$/, `~{1} nautical miles`],
+[/^~([\d.,]+) millas náuticas \(rumbo completo\)$/, `~{1} nautical miles (full route)`],
+[/^~([\d.,]+) millas náuticas \(rumbo completo\) · (.+)$/, `~{1} nautical miles (full route) · {t2}`],
 [/^~([\d.,]+) millas náuticas · (.+)$/, `~{1} nautical miles · {t2}`],
 [/^(~\d+ min)$/, `{1}`],
 [/^RUMBO (\d+)$/, `ROUTE {1}`],
@@ -1400,6 +1429,8 @@ const pat = [
 [/^(\d+) nudos$/, `{1} knots`],
 [/^([^:]+):$/, `{t1}:`],
 [/^([^:]+): ([^:]+)$/, `{t1}: {t2}`],
+[/^Encuesta · (TLL-\d{4})$/, `Survey · {1}`],
+[/^(\d) de 5$/, `{1} of 5`],
 ];
 
 // nombres propios y textos que no se traducen (solo para que las pruebas no los marquen como pendientes)

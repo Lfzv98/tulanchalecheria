@@ -605,7 +605,7 @@ dialog{background:#141938;border:1px solid var(--line)}
 .map{background:#cfe9f2}
 
 /* reserva guiada */
-.stepper{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:22px;padding-bottom:12px}
+.stepper{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:22px;padding-bottom:12px}
 .stepper button{display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--muted);cursor:pointer;padding:8px 4px;font-weight:600;text-align:left;min-width:0}
 .stepper button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stepper i{font-style:normal;width:30px;height:30px;flex:none;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);font-family:var(--f-mono);font-size:.8rem;transition:.3s}
@@ -2146,3 +2146,42 @@ footer.site{content-visibility:auto;contain-intrinsic-block-size:auto 900px}
 @media (hover:none),(max-width:900px){.hero-media{inset:0}}
 .topbar:not(.solid):not(.inner) .lang-btn{background:rgba(10,16,34,.45)}
 .topbar .orb-btn{width:auto!important;padding:0 14px!important}.topbar .orb-btn span{display:inline!important}
+/* la más solicitada en la flota: con su leyenda y todos sus accesorios, como en la portada (18 nov) */
+.boat.own .own-desc{font-size:.95rem;line-height:1.45;color:var(--fg)}
+.boat.own .own-feats .tag{background:#fffbe6;border-color:#f2d27a}
+.boat .tag.more{cursor:pointer;border-style:dashed;background:transparent}
+/* NEW más visible (18 nov): más grande, con brillo y un latido suave */
+.badge.new-badge,.own-tag.new-tag{font-size:.86rem!important;padding:6px 12px!important;letter-spacing:.14em;border:2px solid #fff;box-shadow:0 0 0 3px rgba(225,29,72,.35),0 8px 22px rgba(225,29,72,.45);animation:newPulse 2.4s ease-in-out infinite}
+.own-tag.new-tag{font-size:.72rem!important;padding:3px 9px!important}
+@keyframes newPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}   /* solo transform: lo anima la tarjeta gráfica */
+@media (prefers-reduced-motion:reduce){.badge.new-badge,.own-tag.new-tag{animation:none}}
+#allies .cat h3{font-family:var(--f-display);font-size:clamp(1.5rem,2.6vw,2.1rem);text-transform:uppercase;letter-spacing:.01em;margin-bottom:12px}
+.portal[hidden]{display:none!important}.pool-sec{display:grid;gap:14px;margin-top:40px}
+.ad-sv{font-size:.88rem;padding:8px 10px;border-radius:10px;background:#fffbe6;border:1px solid #f2d27a}.ad-sv b{color:#b45309;letter-spacing:.08em}
+/* encuesta del día siguiente */
+.sv-box{display:grid;gap:12px}
+.sv-stars{display:flex;gap:6px}
+.sv-stars button{font-size:2.2rem;line-height:1;background:none;border:0;color:#d6dbe6;cursor:pointer;padding:2px;transition:transform .15s,color .15s}
+.sv-stars button.on{color:#f5b301}
+.sv-stars button:active{transform:scale(.9)}
+.sv-rec{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sv-rec .chip.on{background:var(--sea-900);color:#fff;border-color:var(--sea-900)}
+.sr-only{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.exp-media{position:relative}.exp-media img.ph{position:absolute;inset:0;width:100%;height:100%}
+/* panel · Precios (matriz embarcación × rumbo) */
+.ad-px-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line,#e3e7ef);border-radius:14px;background:#fff;margin:10px 0 22px}
+.ad-px{border-collapse:separate;border-spacing:0;min-width:100%;font-size:.88rem}
+.ad-px th,.ad-px td{padding:6px 8px;border-bottom:1px solid #eef1f6;text-align:left;vertical-align:middle;white-space:nowrap}
+.ad-px thead th{position:sticky;top:0;background:#f6f8fc;font-weight:700;z-index:1}
+.ad-px th small{display:block;font-weight:400;color:#6b7387;font-size:.74rem}
+.ad-px tbody th{position:sticky;left:0;background:#fff;z-index:1;min-width:150px}
+.ad-px tr.off th,.ad-px tr.off input{opacity:.6}
+.ad-px input{width:78px;padding:7px 8px;border:1px solid #d9deea;border-radius:8px;font:inherit;text-align:right}
+.ad-px input:focus{outline:2px solid #f5c400;border-color:transparent}
+.ad-px input::placeholder{color:#a5acbd}
+.ad-px-h{margin-top:8px}.ad-px-h small{font-weight:400;color:#6b7387;font-size:.8rem}
+.ad-px-load .adm-tools{margin:8px 0}
+.ad-px-load textarea{width:100%;font-family:ui-monospace,monospace;font-size:.8rem}
+.ad-px-rep{margin-top:10px;padding:10px 12px;border-radius:10px;background:#ecfdf3;border:1px solid #a7e3c0;font-size:.9rem}
+.seg{display:inline-flex;gap:6px}.seg .chip.on{background:var(--sea-900,#151a33);color:#fff;border-color:transparent}
+.seg .chip{padding:8px 14px;border-radius:999px;border:1px solid #cfd5e3;background:#fff;color:#151a33;font-weight:600;cursor:pointer}

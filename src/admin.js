@@ -162,7 +162,7 @@ const photoSlot = (path, kind, label, small) => { const u = getPath(W, path); co
     <div class="ad-ph-b">${label ? `<b>${label}</b>` : ''}${spec ? `<small class="ad-ph-spec" title="Tamaño recomendado para que se vea nítida, sin recortes ni pixeleo">📐 ${spec}</small>` : ''}<div class="adm-tools"><button type="button" class="icon-btn" data-up="${path}" data-kind="${kind}">${u ? 'Cambiar' : 'Subir foto'}</button>${u ? `<button type="button" class="icon-btn" data-rmph="${path}">Quitar</button>` : ''}</div></div></div>`; };
 
 /* ---------------- estructura del panel ---------------- */
-const TABS = [['inicio', 'Resumen'], ['reservas', 'Reservas'], ['flota', 'Embarcaciones'], ['rumbos', 'Rumbos y playas'], ['muelles', 'Muelles'], ['pagos', 'Pagos'], ['aliados', 'Servicio a bordo'], ['portada', 'Portada y tienda'], ['ajustes', 'Ajustes']];
+const TABS = [['inicio', 'Resumen'], ['reservas', 'Reservas'], ['flota', 'Embarcaciones'], ['precios', 'Precios'], ['rumbos', 'Rumbos y playas'], ['muelles', 'Muelles'], ['pagos', 'Pagos'], ['aliados', 'Servicio a bordo'], ['portada', 'Portada y tienda'], ['ajustes', 'Ajustes']];
 function render() {
   bump(); adm.hidden = false; lockScroll(true);
   const nNew = BK.filter(b => b.status === 'nueva').length;
@@ -275,7 +275,7 @@ function bkCard(b) {
     <h4>${esc(b.name || 'Sin nombre')}</h4>
     <p>${esc(fmtD(dOf(b)))}${b.hours ? ' · ' + esc(b.hours) : ''}</p>
     <p class="rating">${esc(b.boat)} · ${b.pax || '—'} pers.${b.dock ? ' · ' + esc(b.dock) : ''}</p>
-    ${b.route ? `<p class="rating">${esc(b.route)}</p>` : ''}${T.okPin(b.pin) ? `<button type="button" class="ad-pin" data-bka="map"><span class="ad-pin-ic" aria-hidden="true">${T.PIN_SVG}</span><span><b>Muelle escogido por el cliente</b><small>${b.pin.ref ? esc(b.pin.ref) + ' · ' : ''}<span class="mono">${T.pinTxt(b.pin)}</span></small></span><span class="ad-pin-go">Ver mapa</span></button>` : ''}${b.note ? `<p class="rating">📝 ${esc(b.note)}</p>` : ''}${b.det ? `<p class="rating ad-det">${esc(b.det).replace(/\n/g, '<br>')}</p>` : ''}
+    ${b.route ? `<p class="rating">${esc(b.route)}</p>` : ''}${T.okPin(b.pin) ? `<button type="button" class="ad-pin" data-bka="map"><span class="ad-pin-ic" aria-hidden="true">${T.PIN_SVG}</span><span><b>Muelle escogido por el cliente</b><small>${b.pin.ref ? esc(b.pin.ref) + ' · ' : ''}<span class="mono">${T.pinTxt(b.pin)}</span></small></span><span class="ad-pin-go">Ver mapa</span></button>` : ''}${b.note ? `<p class="rating">📝 ${esc(b.note)}</p>` : ''}${b.det ? `<p class="rating ad-det">${esc(b.det).replace(/\n/g, '<br>')}</p>` : ''}${b.survey ? `<p class="ad-sv"><b>${'★'.repeat(b.survey.stars)}${'☆'.repeat(5 - b.survey.stars)}</b> Encuesta del cliente${b.survey.rec === 1 ? ' · nos recomienda' : b.survey.rec === 0 ? ' · no nos recomienda' : ''}${b.survey.good ? `<br><small>👍 ${esc(b.survey.good)}</small>` : ''}${b.survey.better ? `<br><small>🛠 ${esc(b.survey.better)}</small>` : ''}</p>` : ''}
     <div class="ad-bk-m"><span>Total <b>${money(+b.total || 0)}</b></span><span>Pagado <b>${money(+b.paid || 0)}</b></span><span class="${due ? 'due' : 'ok'}">${due ? 'Falta ' + money(due) : 'Pagado ✓'}</span></div>
     <div class="adm-tools">${b.status !== 'confirmada' && b.status !== 'cancelada' ? '<button class="icon-btn pri" type="button" data-bka="ok">Confirmar</button>' : ''}${due ? `<button class="icon-btn" type="button" data-bka="half">Abono 50%</button><button class="icon-btn" type="button" data-bka="paid">Marcar pagado</button>` : ''}${b.phone ? '<button class="icon-btn" type="button" data-bka="wa">WhatsApp</button>' : ''}${ownerOf(b) ? '<button class="icon-btn" type="button" data-bka="owner">Enviar al propietario</button>' : ''}<button class="icon-btn" type="button" data-bka="edit">Editar</button>${b.status !== 'cancelada' ? '<button class="icon-btn" type="button" data-bka="cancel">Cancelar</button>' : '<button class="icon-btn" type="button" data-bka="del">Borrar</button>'}</div></article>`;
 }
@@ -377,9 +377,103 @@ function boatEditor(i) {
 }
 
 /* ---------------- rumbos y playas ---------------- */
+/* ---------------- Precios: matriz embarcación × rumbo (pedido de Eduardo, 18 nov) ----------------
+   Una fila por embarcación y una columna por rumbo, en temporada regular o alta. En cada celda:
+   número = tarifa · ? = por confirmar · – = no lo hace · vacío = lo normal (Rumbo 1: tarifa base; alta: base + %).
+   Abajo, el costo por muelle de recogida de cada embarcación. Se puede pegar desde el Excel de Eduardo
+   (mismas columnas que su libro: nombre, pies, rumbos 1 a 6 regular/alta, Puerto Príncipe, Cayo de Agua, El Morro,
+   Posadas de Mochima y Playa Pescadores — estas dos como precio total del Rumbo 3 desde ahí). */
+const EDU_18NOV = "WET DREAMS (HASTA 4P )\t24\t290\t320\t310\t340\t350\t385\t330\t363\t550\t605\t650\t715\t15\t15\t15\t380\t400\nWET DREAMS (HASTA 5P )\t24\t290\t320\t310\t340\t350\t385\t330\t363\tNO\tNO\tNO COTIZADA\tNO\t15\t15\t15\t380\t400\nWET DREAMS (HASTA 5P +1NIÑO)\t24\t290\t320\t310\t340\t350\t385\t330\t363\tNO\tNO\tNO\tNO\tNO\t15\t15\t400\t420\nWET DREAMS (HASTA 5P +2NIÑO)\t24\t320\t350\t350\t385\t390\t429\t370\t407\tNO\tNO\tNO\tNO\tNO\t15\t20\tNO\tNO COTIZADA\nWET DREAMS (HASTA 5P+ 3NIÑO)\t24\t340\t375\t370\t405\t420\t462\t390\t429\tNO\tNO\tNO\tNO\tNO\t15\t20\tNO\tNO COTIZADA\nBIANY (HASTA 5+1NIÑO)\t26\t300\t330\t320\t352\t350\t385\tNO\tNO\tNO\tNO\tNO\tNO\t15\t15\t15\t400\t420\nCENTURY (HASTA 7+1NIÑO)\t24\t340\t374\t360\t396\t390\t429\t380\t418\t\t0\t\t\t15\t0\t15\t440\t440\nPIRRI (HASTA 8+1NIÑO)\t30\t380\t418\t400\t440\t430\t473\tNO\tNO\tNO\tNO\tNO\tNO\tNO\tNO\t0\t490\tNO\nBUCKY (8+1NIÑO)\t32.5\t420\t462\t440\t484\t470\t517\t460\t506\tNO\tNO\tNO\tNO\tNO\t15\t15\t590\tNO\nRELAXING (8+1NIÑO)\t33\t460\t506\t490\t539\t530\t583\tNO\tNO\tNO\tNO\tNO\tNO\tNO\tNO\t15\tNO\tNO\nPICASSO 8\t38\t450\t495\t470\t517\t530\t583\t490\t539\tNO\tNO\tNO\tNO\tNO\t20\t15\tNO\tNO\nHMD (8+2NIÑOS)\t34\t550\t605\t590\t649\t640\t704\tNO\tNO\tNO\tNO\tNO\tNO\tNO\tNO\t0\tNO\tNO\nGUARIPITEI (10)\t32.5\t400\t440\t420\t462\t450\t495\t440\t484\t605\t665.5\t720\t792\tNO\t20\t20\t570\t600\nODIN (HASTA 10+1NIÑO)\t32\t550\t605\t590\t649\t700\t770\tNO\tNO\tNO\tNO\tNO\tNO\tNO\t30\t30\tNO\tNO\nAPOLLO ONE (10+2NIÑOS)\t41\t790\t869\t820\t902\t900\t990\t860\t946\tNO\tNO\tNO\tNO\tNO\tNO\t30\tNO\tNO\nAVALON (10+1)\t42\t890\t979\t920\t1012\t1000\t1100\t960\t1056\tNO\tNO\tNO\tNO\tNO\tNO\t30\tNO\tNO\nDMARES (HASTA 12+2NIÑOS)\t48\t1050\t1160\t1050\t1160\t1250\t1370\t1100\t1200\tNO\tNO\tNO\tNO\tNO\tNO\t50\tNO\tNO\nEMELYN (HASTA 12)\t42\t1200\t1320\t1300\t1430\t1400\t1540\tNO\tNO\tNO\tNO\tNO\tNO\tNO\tNO\t50\tNO\tNO\nGRAND CREW (HASTA 12+2NIÑOS)\t53\t1200\t1320\t1300\t1430\t1400\t1540\t1360\t1496\tNO\tNO\tNO\tNO\tNO\tNO\t50\tNO\tNO\nDAMA 11 (HASTA 12+2NIÑOS)\t62\t1450\t1595\t1490\t1639\t1590\t1749\t1560\t1716\tNO\tNO\tNO\tNO\tNO\tNO\t50\tNO\tNO";
+const EDU_NM = { r1: 19, r2: 20, r3: 27, r4: 21, r5: 38, r6: 41 };
+const PX_DOCKS = [['ppr', 'Puerto Príncipe'], ['pmr', 'Cayo de Agua / Puerto Mares'], ['em', 'El Morro · Eurobuilding'], ['pip', 'Posada Isla Piscina'], ['mlo', 'Mochima Lodge'], ['ppe', 'Playa Pescadores']];
+let pxSeason = 'reg', pxReport = '';
+const pxKey = n => String(n || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\(.*?\)/g, '').replace(/[^a-z]/gi, '').toLowerCase();
+const pxCell = v => v === null || v === false ? '–' : v === true ? '?' : v == null || v === '' ? '' : String(v);
+function pxRead(t) {
+  t = String(t).trim().replace(/,/g, '.');
+  if (!t) return undefined;
+  if (/^(–|-|—|no)$/i.test(t)) return null;
+  if (/^\?$|cotiz|confirm/i.test(t)) return true;
+  const n = parseFloat(t.replace(/[^\d.]/g, '')); return isFinite(n) && n > 0 ? Math.round(n) : undefined;
+}
+function pxGet(b, rid, hi) {
+  if (rid === 'r1') return hi ? b.priceH : b.price;
+  return hi ? (b.rpH || {})[rid] : (b.rp || {})[rid];
+}
+function pxSet(b, rid, hi, v) {
+  if (rid === 'r1') { if (hi) { if (typeof v === 'number') b.priceH = v; else delete b.priceH; } else if (typeof v === 'number') b.price = v; return; }
+  const k = hi ? 'rpH' : 'rp'; b[k] = b[k] || {};
+  if (hi) { if (typeof v === 'number') b.rpH[rid] = v; else delete b.rpH[rid]; return; }
+  if (v === undefined) delete b.rp[rid]; else b.rp[rid] = v;
+}
+VIEW.precios = () => {
+  const hi = pxSeason === 'hi', R = W.routes, up = x => Math.round(x * (1 + (+W.hiPct || 0) / 100));
+  const ph = (b, r) => { if (!hi) return r.id === 'r1' ? '' : 'base'; const v = pxGet(b, r.id, false); const base = typeof v === 'number' ? v : r.id === 'r1' || v === undefined ? +b.price : null; return base ? String(up(base)) : ''; };
+  const docks = PX_DOCKS.filter(([id]) => W.docks.some(d => d.id === id && !d.off));
+  return `<div class="ad-head"><div><h2>Precios</h2><p class="rating">Todas las embarcaciones y rumbos en una sola tabla, como en tu Excel. Escribe el número, <b>?</b> si es por confirmar o <b>–</b> si no lo hace. Vacío = la tarifa base${hi ? ' más el ' + (+W.hiPct || 0) + '% de temporada alta (el número gris)' : ''}.</p></div>
+    <div class="adm-tools"><div class="seg" role="group" aria-label="Temporada"><button type="button" class="chip${hi ? '' : ' on'}" data-px-season="reg">Temporada regular</button><button type="button" class="chip${hi ? ' on' : ''}" data-px-season="hi">Temporada alta</button></div></div></div>
+    <section class="panel ad-px-load"><h3>Cargar desde el Excel</h3>
+      <p class="rating">Copia las filas de tu libro (desde el nombre hasta Playa Pescadores) y pégalas aquí, o carga el cuadro que enviaste el 18 de noviembre. Las embarcaciones se reconocen por el nombre; las que no estén en la flota se agregan ocultas para que les pongas fotos.</p>
+      <div class="adm-tools"><button type="button" class="btn btn-sun btn-sm" data-px-edu>Cargar el cuadro del 18 nov</button><button type="button" class="btn btn-ghost btn-sm" data-px-paste-open>Pegar filas del Excel</button></div>
+      <div class="field" data-px-paste hidden><label for="px-ta">Filas copiadas del Excel</label><textarea id="px-ta" rows="5" placeholder="WET DREAMS (HASTA 5P)	24	290	320	310	340 …"></textarea><button type="button" class="btn btn-sun btn-sm" data-px-apply>Aplicar</button></div>
+      ${pxReport ? `<div class="ad-px-rep">${pxReport}</div>` : ''}
+    </section>
+    <div class="ad-px-wrap"><table class="ad-px"><thead><tr><th scope="col">Embarcación</th>${R.map(r => `<th scope="col">${esc(r.name)}<small>${esc(r.zone || '')}${r.nm ? ` · ${r.nm} MN` : ''}</small></th>`).join('')}</tr></thead>
+      <tbody>${W.boats.map((b, i) => `<tr${b.hidden ? ' class="off"' : ''}><th scope="row">${esc(b.name)}<small>${b.ft || ''} pies · ${b.pax || ''}${+b.kx ? '+' + b.kx : ''} pers.${b.hidden ? ' · oculta' : ''}</small></th>${R.map(r => hi && r.id !== 'r1' && pxGet(b, r.id, false) === null ? `<td><input value="–" disabled title="No hace este rumbo"></td>` : `<td><input data-px="${i}.${r.id}" value="${esc(pxCell(pxGet(b, r.id, hi)))}" placeholder="${ph(b, r)}" inputmode="decimal" aria-label="${esc(b.name)} · ${esc(r.name)}"></td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    ${docks.length ? `<h3 class="ad-px-h">Recogida en muelles <small>costo extra por embarcación · vacío = el costo general del muelle</small></h3>
+    <div class="ad-px-wrap"><table class="ad-px"><thead><tr><th scope="col">Embarcación</th>${docks.map(([id, n]) => `<th scope="col">${esc((W.docks.find(d => d.id === id) || {}).name || n)}${/^(pip|mlo|ppe)$/.test(id) ? '<small>solo Rumbo 3</small>' : ''}</th>`).join('')}</tr></thead>
+      <tbody>${W.boats.map((b, i) => `<tr${b.hidden ? ' class="off"' : ''}><th scope="row">${esc(b.name)}</th>${docks.map(([id]) => `<td><input data-pxd="${i}.${id}" value="${esc(pxCell((b.pick || {})[id]))}" inputmode="decimal" aria-label="${esc(b.name)} · ${id}"></td>`).join('')}</tr>`).join('')}</tbody></table></div>` : ''}`;
+};
+/* Lee filas con las columnas del Excel de Eduardo y las aplica a la flota (W). Devuelve un resumen. */
+function pxImport(text) {
+  const rows = String(text).split(/\r?\n/).map(l => l.split('\t').map(x => x.trim())).filter(c => c[0] && c.length >= 6 && !/^nombre$/i.test(c[0]));
+  const RID = ['r1', 'r2', 'r3', 'r4', 'r5', 'r6'];
+  const groups = new Map();
+  rows.forEach(c => { const k = pxKey(c[0]); if (!k) return; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(c); });
+  const done = [], added = [];
+  // si el Excel trae precios de rumbos que aún no están en la web (5 y 6), se agregan con su descripción de siempre
+  RID.forEach((rid, n) => { if (W.routes.some(r => r.id === rid)) return; if (!rows.some(c => pxRead(c[2 + n * 2] ?? '') !== undefined)) return; const d = (DEF.routes || []).find(r => r.id === rid); if (d) W.routes.push(JSON.parse(JSON.stringify(d))); });
+  W.routes.sort((a, b) => (RID.indexOf(a.id) + 1 || 99) - (RID.indexOf(b.id) + 1 || 99));
+  groups.forEach((list, key) => {
+    const info = c => { const m = c[0].match(/(\d+)\s*(?:p\b|\+|\))/i) || c[0].match(/\((\d+)/), k = c[0].match(/\+\s*(\d+)\s*NI/i); return { pax: m ? +m[1] : 0, kids: k ? +k[1] : 0 }; };
+    const withI = list.map(c => ({ c, ...info(c) }));
+    const maxPax = Math.max(...withI.map(x => x.pax));
+    const baseRow = withI.filter(x => x.pax === maxPax).sort((a, b) => a.kids - b.kids)[0];
+    const c = baseRow.c, raw = c[0].replace(/\s*\(.*$/, '').trim();
+    let b = W.boats.find(x => pxKey(x.name) === key);
+    if (!b) {
+      const ft = parseFloat(String(c[1]).replace(',', '.')) || 30;
+      b = { id: 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: raw.toLowerCase().replace(/(^|\s)\S/g, x => x.toUpperCase()), type: ft <= 34 ? 'Lancha' : ft <= 42 ? 'Mini yate' : 'Yate', ft, pax: maxPax || 8, price: 0, hue: 200, dock: 0, cabin: ft > 34, rating: 5, trips: 0, inc: [], opt: {}, amen: [], desc: '', photos: {}, pick: {}, rp: {}, qty: {}, docs: {}, kx: 0, hidden: true };
+      W.boats.push(b); added.push(b.name);
+    }
+    const v = j => pxRead(c[j] ?? '');
+    RID.forEach((rid, n) => {
+      const reg = v(2 + n * 2), hi = v(3 + n * 2);
+      if (reg === undefined && hi === undefined) return;
+      if (rid === 'r1') { if (typeof reg === 'number') b.price = reg; if (typeof hi === 'number') b.priceH = hi; else delete b.priceH; return; }
+      pxSet(b, rid, false, reg === undefined ? (hi === null ? null : hi === true ? true : undefined) : reg);
+      pxSet(b, rid, true, typeof hi === 'number' && typeof reg === 'number' ? hi : undefined);
+    });
+    // muelles: Puerto Príncipe, Cayo de Agua / Puerto Mares, El Morro = costo extra; Mochima y Pescadores = precio total del Rumbo 3 desde ahí
+    b.pick = b.pick || {};
+    const r3 = typeof b.rp.r3 === 'number' ? b.rp.r3 : null;
+    [['ppr', 14], ['pmr', 15], ['em', 16]].forEach(([id, j]) => { const x = v(j); if (/^0+$/.test(c[j] || '')) b.pick[id] = 0; else if (x === null) b.pick[id] = null; else if (typeof x === 'number') b.pick[id] = x; });
+    [[['pip', 'mlo'], 17], [['ppe'], 18]].forEach(([ids, j]) => { const x = v(j); if (x === undefined) return; ids.forEach(id => { if (x === null || x === true) b.pick[id] = null; else if (r3 != null) b.pick[id] = Math.max(0, x - r3); }); });
+    // tarifas con niños (p. ej. Wet Dreams 5 + 2 o 3 niños)
+    withI.filter(x => x.pax === maxPax && x.kids > 1 && x !== baseRow).forEach(x => {
+      b.kx = Math.max(+b.kx || 0, x.kids); b.kp = b.kp || {}; b.kpH = b.kpH || {};
+      RID.forEach((rid, n) => { const reg = pxRead(x.c[2 + n * 2] ?? ''), hi = pxRead(x.c[3 + n * 2] ?? ''); if (typeof reg !== 'number') return; const base = pxGet(b, rid, false), bv = rid === 'r1' ? b.price : base; if (reg === bv) return; (b.kp[rid] = b.kp[rid] || {})[x.kids] = reg; if (typeof hi === 'number') (b.kpH[rid] = b.kpH[rid] || {})[x.kids] = hi; });
+    });
+    const kd = Math.max(0, ...withI.filter(x => x.pax === maxPax).map(x => x.kids));
+    if (kd && !(+b.kx >= kd)) b.kx = kd;
+    if (maxPax && !added.includes(b.name) && !b.pax) b.pax = maxPax;
+    done.push(b.name);
+  });
+  return { done, added };
+}
 VIEW.rumbos = () => `<div class="ad-head"><div><h2>Rumbos y playas</h2><p class="rating">Los rumbos nunca se cruzan: el cliente elige uno y sus playas. El precio de cada embarcación por rumbo se pone en Embarcaciones.</p></div><div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-route-new>+ Agregar rumbo</button>${helpBtn('rumbos')}</div></div>
   ${W.routes.map((r, i) => { const p = 'routes.' + i; return `<section class="panel ad-route"><h3>${esc(r.name)} <small>${r.beaches.length} playas</small></h3>
-    <div class="adm-form">${inp(p + '.name', 'Nombre')}${inp(p + '.zone', 'Zona')}${inp(p + '.min', 'Minutos de navegación', { t: 'num' })}${inp(p + '.nm', 'Millas náuticas (aprox.)', { t: 'num', step: .5 })}${inp(p + '.add', 'Diferencia sobre la tarifa base (USD)', { t: 'numn', ph: 'Por confirmar', hint: 'Para las embarcaciones sin precio propio en este rumbo. Vacío = precio por confirmar. 0 = tarifa base.' })}<div class="ad-checks ad-wide"><label class="ad-check"><input type="checkbox" data-rclosed="${i}"${r.open === false ? ' checked' : ''}> Solo para embarcaciones que lo hacen (las demás no lo muestran)</label></div>
+    <div class="adm-form">${inp(p + '.name', 'Nombre')}${inp(p + '.zone', 'Zona')}${inp(p + '.min', 'Minutos de navegación', { t: 'num' })}${inp(p + '.nm', 'Millas náuticas del rumbo completo', { t: 'num', step: .5 })}${inp(p + '.add', 'Diferencia sobre la tarifa base (USD)', { t: 'numn', ph: 'Por confirmar', hint: 'Para las embarcaciones sin precio propio en este rumbo. Vacío = precio por confirmar. 0 = tarifa base.' })}<div class="ad-checks ad-wide"><label class="ad-check"><input type="checkbox" data-rclosed="${i}"${r.open === false ? ' checked' : ''}> Solo para embarcaciones que lo hacen (las demás no lo muestran)</label></div>
     ${inp(p + '.tags', 'Etiquetas (separadas por comas)', { t: 'list', cls: 'ad-wide' })}${inp(p + '.desc', 'Descripción', { area: 1, rows: 2, cls: 'ad-wide' })}${inp(p + '.desc_en', 'Descripción en inglés (opcional)', { area: 1, rows: 2, cls: 'ad-wide' })}</div>
     <h4>Playas ${helpBtn('playas', 'Fotos de playas')}</h4>
     <div class="ad-beaches">${r.beaches.map((n, j) => `<div class="ad-beach">${photoSlot('beachPhotos.' + n.replace(/\./g, '·'), 'beach', '', true)}<div class="field"><label for="bn-${i}-${j}">Nombre</label><input id="bn-${i}-${j}" data-beach="${i}.${j}" value="${esc(n)}"></div><button type="button" class="icon-btn ad-danger" data-beach-del="${i}.${j}">Quitar playa</button></div>`).join('')}
@@ -426,7 +520,7 @@ VIEW.portada = () => { const C = T.NAV_CARDS || []; return `<div class="ad-head"
     ${[...new Map(C.map(c => [c.secName || '', c])).keys()].map(sec => `<div class="ad-cardsec"><h4>${esc(sec)}</h4><div class="ad-photos ad-cards">${C.filter(c => (c.secName || '') === sec).map(c => photoSlot('home.cards.' + c.id, 'card', esc(c.t), true)).join('')}</div></div>`).join('')}</section>
   <section class="panel"><h3>Experiencias <small>imagen de cada experiencia en la sección Experiencias</small></h3>
     <div class="ad-photos">${[['canales', 'Paseo por los canales'], ['pesca', 'Pesca de altura'], ['senderismo', 'Senderismo en La Borracha (pronto)']].map(([k, l]) => photoSlot('home.exp.' + k, 'cover', l)).join('')}</div>
-    <div class="adm-form">${inp('home.expTxt.pesca', 'Texto de la pesca de altura', { area: true, rows: 3, cls: 'ad-wide', ph: 'Salida con capitán pescador y equipo…', hint: 'Vacío = el texto de ahora.' })}</div></section>
+    <div class="adm-form">${inp('home.expTxt.pesca', 'Texto de la pesca de altura', { area: true, rows: 3, cls: 'ad-wide', ph: 'Vive una jornada completa de pesca deportiva…', hint: 'Vacío = el texto que mandó Eduardo el 18 nov.' })}</div></section>
   <section class="panel"><h3>Accesorios: venta y alquiler <small>en el paso Extras de la reserva, con cantidad</small></h3><p class="rating">Venta: toallas, termos… Alquiler: inflables, bombas… El cliente elige la cantidad y el total se calcula solo. Solo se muestran los que tengan precio.</p>
     <div class="ad-items">${W.shop.map((x, i) => `<div class="ad-item">${photoSlot(`shop.${i}.photo`, 'logo', 'Foto o logo', true)}<div class="adm-form">${inp(`shop.${i}.name`, 'Artículo')}${inp(`shop.${i}.kind`, 'Tipo', { sel: [['venta', 'Venta'], ['alquiler', 'Alquiler']] })}${inp(`shop.${i}.price`, 'Precio (USD)', { t: 'num' })}${inp(`shop.${i}.desc`, 'Detalle (opcional)', { ph: 'Por día, incluye…' })}</div><button type="button" class="icon-btn ad-danger" data-shop-del="${i}">Quitar</button></div>`).join('')}</div>
     <button type="button" class="ad-add" data-shop-add>+ Agregar artículo</button></section>
@@ -536,6 +630,8 @@ adm.addEventListener('input', e => {
   if (el.id === 'bk-q') { bkQuery = el.value; const pos = el.selectionStart; render(); const n = $('#bk-q', adm); n.focus(); n.setSelectionRange(pos, pos); return; }
   if (el.dataset.k && W) { setPath(W, el.dataset.k, readVal(el)); refreshSaveBar(); if (el.dataset.k.startsWith('pay.')) { const pv = $('.ad-preview', adm); if (pv) pv.innerHTML = payPreview(); } if (el.dataset.k.endsWith('.name')) { const h = el.closest('.ad-sheet,.panel'); const t = h && $('h3', h); if (t && el.closest('.ad-sheet')) t.textContent = el.value; } return; }
   if (el.dataset.beach) { const [i, j] = el.dataset.beach.split('.').map(Number), r = W.routes[i], old = r.beaches[j], nw = el.value; r.beaches[j] = nw; const ko = old.replace(/\./g, '·'), kn = nw.replace(/\./g, '·'); if (W.beachPhotos[ko] && ko !== kn) { W.beachPhotos[kn] = W.beachPhotos[ko]; delete W.beachPhotos[ko]; } refreshSaveBar(); return; }
+  if (el.dataset.px) { const [i, rid] = el.dataset.px.split('.'), b = W.boats[+i]; pxSet(b, rid, pxSeason === 'hi', pxRead(el.value)); refreshSaveBar(); return; }
+  if (el.dataset.pxd) { const [i, id] = el.dataset.pxd.split('.'), b = W.boats[+i], x = pxRead(el.value); b.pick = b.pick || {}; if (x === undefined) { if (/^0$/.test(el.value.trim())) b.pick[id] = 0; else delete b.pick[id]; } else b.pick[id] = x === true ? 0 : x; refreshSaveBar(); return; }
   if (el.dataset.rpp) { W.boats[editing].rp[el.dataset.rpp] = +el.value || 0; refreshSaveBar(); return; }
   if (el.dataset.pickp) { W.boats[editing].pick[el.dataset.pickp] = +el.value || 0; refreshSaveBar(); return; }
   if (el.dataset.accp) { const b = W.boats[editing]; b.opt[el.dataset.accp] = +el.value || 0; refreshSaveBar(); return; }
@@ -601,6 +697,17 @@ adm.addEventListener('click', async e => {
   if (t.id === 'bk-json') { dl(`tulancha-catalogo-${iso(today)}.json`, JSON.stringify(W, null, 1), 'application/json'); return; }
   // embarcaciones
   if (d.boatEdit != null) { editing = +d.boatEdit; return boatEditor(editing); }
+  if (d.pxSeason) { pxSeason = d.pxSeason; render(); return; }
+  if (d.pxPasteOpen != null) { const f = $('[data-px-paste]', adm); f.hidden = !f.hidden; if (!f.hidden) $('#px-ta', adm).focus(); return; }
+  if (d.pxEdu != null || d.pxApply != null) {
+    const txt = d.pxEdu != null ? EDU_18NOV : $('#px-ta', adm).value;
+    const r = pxImport(txt);
+    if (d.pxEdu != null) W.routes.forEach(x => { if (EDU_NM[x.id]) x.nm = EDU_NM[x.id]; });
+    if (d.pxEdu != null && !(+W.hiPct > 0)) W.hiPct = 10;   // en su cuadro la temporada alta es la regular + 10%
+    if (!r.done.length) { toast('No encontré filas con precios. Copia desde el nombre hasta Playa Pescadores.'); return; }
+    pxReport = `<b>${r.done.length} embarcaciones actualizadas.</b>${r.added.length ? ` Agregadas ocultas (ponles fotos en Embarcaciones y muéstralas): ${r.added.map(esc).join(', ')}.` : ''}${d.pxEdu != null ? ' Millas de los 6 rumbos actualizadas (rumbo completo).' : ''} Revisa la tabla y toca <b>Publicar</b>.`;
+    refreshSaveBar(); render(); toast('Precios cargados: revisa y publica'); return;
+  }
   if (d.boatNew != null) { W.boats.push({ id: 'b' + Date.now().toString(36), name: 'Nueva embarcación', type: 'Lancha', ft: 30, pax: 8, price: 300, hue: 200, dock: 0, cabin: false, rating: 5, trips: 0, inc: [], opt: {}, amen: [], desc: '', photos: {}, pick: {}, rp: {}, qty: {}, docs: {}, kx: 0, hidden: true }); editing = W.boats.length - 1; refreshSaveBar(); render(); boatEditor(editing); toast('Queda oculta hasta que desmarques “Ocultar de la web”.'); return; }
   if (d.boatUp != null || d.boatDown != null) { const i = +(d.boatUp ?? d.boatDown), j = d.boatUp != null ? i - 1 : i + 1; if (j < 0 || j >= W.boats.length) return; [W.boats[i], W.boats[j]] = [W.boats[j], W.boats[i]]; render(); return; }
   if (d.boatDup != null) { const b = clone(W.boats[+d.boatDup]); b.id = 'b' + Date.now().toString(36); b.name += ' (copia)'; delete b.own; b.hidden = true; W.boats.splice(+d.boatDup + 1, 0, b); editing = +d.boatDup + 1; render(); boatEditor(editing); toast('Copia creada (oculta)'); return; }

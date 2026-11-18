@@ -40,22 +40,22 @@ addEventListener('hashchange', route);
 
 /* ---------- reserva paso a paso ---------- */
 let step = 0, mbReady = false;
-const steps = $$('.step'), labels = $$('#stepper [data-go]');
+const steps = $$('.step'), labels = $$('#stepper [data-go]'), LAST = steps.length - 1;   // 5 pasos: Accesorios y Comidas y bebidas van aparte (18 nov)
 function goStep(n) {
-  step = Math.max(0, Math.min(3, n));
+  step = Math.max(0, Math.min(LAST, n));
   steps.forEach((s, i) => { const on = i === step; if (s.hidden === on) { s.hidden = !on; if (on) { s.classList.remove('enter'); void s.offsetWidth; s.classList.add('enter'); } } });
   labels.forEach((b, i) => { b.setAttribute('aria-selected', String(i === step)); b.classList.toggle('done', i < step); });
-  $('#stepper-fill').style.width = ((step + 1) / 4 * 100) + '%';
+  $('#stepper-fill').style.width = ((step + 1) / steps.length * 100) + '%';
   $('#st-back').style.visibility = step === 0 ? 'hidden' : 'visible';
   const nx = $('#st-next');
-  if (step === 3) { nx.textContent = 'Reservar ahora'; } else { nx.textContent = 'Siguiente'; }
-  document.body.classList.toggle('st-last', step === 3);   // el resumen muestra "Reservar ahora" solo al final (celular)
+  if (step === LAST) { nx.textContent = 'Reservar ahora'; } else { nx.textContent = 'Siguiente'; }
+  document.body.classList.toggle('st-last', step === LAST);   // el resumen muestra "Reservar ahora" solo al final (celular)
   if (mbReady) syncMinibar();
 }
 $('#stepper').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) goStep(+b.dataset.go); });
 $('#st-back').onclick = () => { goStep(step - 1); $('#stepper').scrollIntoView({ block: 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' }); };
 $('#st-next').onclick = () => {
-  if (step < 3) { goStep(step + 1); $('#stepper').scrollIntoView({ block: 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' }); }
+  if (step < LAST) { goStep(step + 1); $('#stepper').scrollIntoView({ block: 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' }); }
   else window.TLL.openBooking();
 };
 // al elegir una embarcación o un destino, avanzar solo
@@ -73,7 +73,7 @@ new IntersectionObserver(es => { ticketIn = es[0].isIntersecting; syncMinibar();
 function syncMinibar() {
   const on = current === 'reservar' && !ticketIn && !!BOATS.find(x => x.id === Q.boat);
   // el botón de reservar solo aparece en el último paso (pedido de Eduardo); antes se ve solo el total
-  const last = step === 3;
+  const last = step === LAST;
   mb.classList.toggle('show', on); mb.classList.toggle('no-btn', !last); mb.setAttribute('aria-hidden', String(!on)); $('#mb-book').hidden = !last; $('#mb-book').tabIndex = on && last ? 0 : -1;
 }
 

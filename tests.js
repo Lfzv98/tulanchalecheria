@@ -61,7 +61,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok(await p.$('#cur-ves') === null, 'Sin selector de bolívares');
   ok((await p.textContent('.press-strip')).includes('Viajando con BIVI') && (await p.textContent('.press-strip')).includes('Canal Viajero'), 'Prensa: Viajando con BIVI y Canal Viajero');
   ok(await p.$('#sheet .side-nav a[href="#propietarios"]') !== null && await p.$('#sheet .side-nav a[href="#aliados"]') !== null, 'Menú lateral con todas las secciones (Servicio a bordo y Propietarios incluidos)');
-  ok(await p.evaluate(() => !document.querySelector('#tsearch') && !document.querySelector('[data-side-search]') && getComputedStyle(document.querySelector('.mainnav')).display === 'none' && document.querySelectorAll('.orbit-band .orb-card').length === 17), 'Sin búsqueda en el header; en el celular las secciones van en el menú y el menú giratorio');
+  ok(await p.evaluate(() => !document.querySelector('#tsearch') && !document.querySelector('[data-side-search]') && getComputedStyle(document.querySelector('.mainnav')).display === 'none' && document.querySelectorAll('.orbit-band .orb-card').length === 10), 'Sin búsqueda en el header; en el celular las secciones van en el menú y el menú giratorio');
   ok(await p.evaluate(() => ['.steps3', '.tiles', '#layers', '.cta-band'].every(s => !document.querySelector('[data-view="inicio"] ' + s))), 'Portada compacta: header, hero, lancha de la casa, menú giratorio y footer');
   ok((await p.textContent('#own-feature')).includes('+500 viajes exitosos'), 'Portada destaca la lancha de la casa con +500 viajes exitosos');
   await go('flota'); ok(await p.evaluate(() => location.hash) === '#flota' && await p.isVisible('#boats'), 'Enlace viejo #flota abre Embarcaciones');
@@ -130,12 +130,15 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await tap('#hx-p'); ok((await p.textContent('#ticket')).includes('h extra'), 'Hora extra solo en embarcaciones que la permiten y suma al total');
   await tap('#stepper [data-go="3"]');
   // extras
-  ok((await p.textContent('#b-extras')).includes('El Mercadillo') && (await p.textContent('#b-extras')).includes('Cava con hielo y agua mineral'), 'Paso de extras: hielo y agua incluidos (en Comidas y bebidas) y El Mercadillo');
-  ok(await p.evaluate(() => { const h = [...document.querySelectorAll('#b-extras .xs-h')].map(x => x.textContent); const acc = document.querySelector('#b-extras .xsec').textContent; return h.join('|') === 'Accesorios|Comidas y bebidas' && !/Cava con hielo/.test(document.querySelector('#b-extras .xsec details').textContent); }), 'Extras en dos categorías: Accesorios (sin cava ni agua) y Comidas y bebidas');
-  ok(await p.evaluate(() => { const t = document.querySelector('#b-extras .food').textContent; return ['Whisky 12 años', 'Pescado frito', 'Carpacciera', 'Combo parrillero', 'Ponqué 10', 'Pavlova 12', 'Six pack'].every(x => t.includes(x)) && t.includes('Servicio a bordo') && t.includes('Esenciales favoritos para zarpar'); }), 'Comidas y bebidas: esenciales favoritos con aliado, producto y cantidad');
-  await p.evaluate(() => { document.querySelector('#b-extras [data-qty="food"][data-d="1"]').click(); document.querySelector('#b-extras [data-qty="food"][data-d="1"]').click(); }); await p.waitForTimeout(150);
+  ok((await p.textContent('#b-extras')).includes('Accesorios') && !(await p.textContent('#b-extras')).includes('Cava con hielo'), 'Paso 4 (Accesorios): sin cava ni agua');
+  await tap('#stepper [data-go="4"]'); await p.waitForTimeout(150);
+  ok((await p.textContent('#b-food')).includes('El Mercadillo') && (await p.textContent('#b-food')).includes('Cava con hielo y agua mineral'), 'Paso 5 (Comidas y bebidas): hielo y agua incluidos y El Mercadillo');
+  ok(await p.evaluate(() => { const v = [...document.querySelectorAll('#b-food .vlink')].map(x => x.dataset.vid); return v[0] === 'comidas' && v[v.length - 1] === 'mercadillo'; }), 'Comidas y bebidas: video de comidas al inicio y cómo pedir en El Mercadillo al final');
+  ok(await p.evaluate(() => { const t = document.querySelector('#b-food .food').textContent; return ['Whisky 12 años', 'Pescado frito', 'Carpacciera', 'Combo parrillero', 'Ponqué 10', 'Pavlova 12', 'Six pack'].every(x => t.includes(x)) && t.includes('Servicio a bordo') && t.includes('Esenciales favoritos para zarpar'); }), 'Comidas y bebidas: esenciales favoritos con aliado, producto y cantidad');
+  await p.evaluate(() => { document.querySelector('#b-food [data-qty="food"][data-d="1"]').click(); document.querySelector('#b-food [data-qty="food"][data-d="1"]').click(); }); await p.waitForTimeout(150);
   ok(/× 2/.test(await p.textContent('#ticket')) && (await p.textContent('#ticket')).includes('por confirmar'), 'Comidas: la cantidad va al resumen (precio por confirmar si no tiene)');
-  await p.evaluate(() => { document.querySelector('#b-extras [data-qty="food"][data-d="-1"]').click(); }); await p.waitForTimeout(100); await p.evaluate(() => { document.querySelector('#b-extras [data-qty="food"][data-d="-1"]').click(); }); await p.waitForTimeout(100);
+  await p.evaluate(() => { document.querySelector('#b-food [data-qty="food"][data-d="-1"]').click(); }); await p.waitForTimeout(100); await p.evaluate(() => { document.querySelector('#b-food [data-qty="food"][data-d="-1"]').click(); }); await p.waitForTimeout(100);
+  await tap('#stepper [data-go="3"]'); await p.waitForTimeout(150);
   ok((await p.textContent('#b-extras')).includes('Caretas de buceo (4)') && (await p.textContent('#b-extras')).includes('carbón'), 'Extras: caretas con cantidad y nota de la parrillera');
   await p.evaluate(() => { TLL.Q.boat = 'b7'; TLL.renderBuilder(); }); await p.waitForTimeout(150);
   await tap('[data-acc="kayak"]'); const t1 = await p.textContent('#ticket .total'); ok((await p.textContent('#ticket')).includes('Kayak') && /Total\$[\d.]+/.test(t1.replace(/\s/g, '')), 'Extra con costo suma al total: ' + t1.trim());
@@ -144,7 +147,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok(!(await p.isVisible('#q-code')) && await p.evaluate(() => TLL.OFF.regalos), 'Regalos y Club oculto: el campo de códigos no se muestra');
   await tap('#stepper [data-go="1"]'); await p.waitForTimeout(150);
   ok(!(await p.isVisible('#t-book')), 'En el celular el resumen no muestra “Reservar ahora” antes del último paso');
-  await tap('#stepper [data-go="3"]'); await p.waitForTimeout(150);
+  await tap('#stepper [data-go="4"]'); await p.waitForTimeout(150);
   ok(await p.isVisible('#t-book'), 'En el último paso sí aparece “Reservar ahora” en el resumen');
   // reserva dentro de la app, con condiciones
   await tap('#t-book'); await p.waitForSelector('#bk-form');
@@ -219,8 +222,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   await p.fill('#p-name', 'Pedro'); await p.fill('#p-phone', '04141234567'); await p.fill('#p-boat', 'Fountain 38');
   await tap('#pool-form button[type=submit]'); await p.waitForTimeout(300); ok(popups.some(u => decodeURIComponent(u).includes('Fountain 38')), 'Postulación al pool abre WhatsApp');
   // portal propietario
-  const k0 = await p.textContent('#k-res'); const day = await p.$('#o-cal .cal-g button:not(.past)'); await tap(day); const k1 = await p.textContent('#k-res');
-  ok(k0 !== k1, `Portal propietario: marcar día cambia reservas (${k0}→${k1})`);
+  ok(await p.evaluate(() => { const a = document.querySelector('#owners-sv'), b = document.querySelector('#pool-sec'); return !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) && document.querySelector('#pool-t').textContent === 'Lo mejor para tu embarcación' && getComputedStyle(document.querySelector('#portal')).display === 'none'; }), 'Propietarios: primero lo mejor para tu embarcación, el pool al final y sin portal del propietario');
   ok(await p.isVisible('#owners-sv') && (await p.textContent('#owner-allies')).includes('Servicio de capitán'), 'Propietarios: servicios que recomendamos (capitán, inflables)');
   await go('nosotros'); ok(await p.getAttribute('a[href^="tel:"]', 'href') === 'tel:+584143083864', 'Teléfono con enlace para llamar'); ok((await p.getAttribute('.visit a[href*="google.com/maps/dir"]', 'href')).includes('destination='), 'Ubicación abre indicaciones de Google Maps');
   ok(!errs.length, 'Sin errores de JavaScript en el flujo del cliente ' + errs.join('|'));

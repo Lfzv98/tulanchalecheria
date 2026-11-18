@@ -109,8 +109,10 @@ const noOverflow = q => q.evaluate(() => { const a = document.querySelector('#ad
     await q.check('[data-zon="2"]'); ok((await q.textContent('.ad-preview')).includes('rrhh@avanteksolutions.com') && (await q.textContent('.ad-zelle.on')).includes('Principal'), 'Cambiar la Zelle principal');
     await q.fill('#i-pay-paypal', 'paypal.me/tulanchaprueba'); ok((await q.inputValue('#i-pay-paypalFee')) === '4.5', 'PayPal con comisión de 4,5% por defecto');
     await q.screenshot({ path: OUT + "panel-pagos.png" });
-    await q.click('[data-adtab="portada"]'); ok((await q.$$('.ad-cards .ad-photo')).length === 17, 'Portada: las 17 pantallas del menú giratorio para subir su imagen (Regalos y Club oculto)');
-    ok((await q.$$('.ad-cardsec')).length >= 8 && (await q.textContent('.ad-cardsec h4')).length > 0, 'Las pantallas del menú se agrupan por sección');
+    await q.click('[data-adtab="precios"]'); await q.waitForTimeout(250);
+    ok(await q.evaluate(() => { const t = document.querySelector('.ad-px'); return t && t.querySelectorAll('tbody tr').length > 0 && !!document.querySelector('[data-px-edu]'); }), 'Precios: matriz embarcación × rumbo con carga desde el Excel');
+    await q.click('[data-adtab="portada"]'); ok((await q.$$('.ad-cards .ad-photo')).length === 10, 'Portada: las 10 pantallas del menú giratorio para subir su imagen (Regalos y Club oculto)');
+    ok((await q.$$('.ad-cardsec')).length >= 7 && (await q.textContent('.ad-cardsec h4')).length > 0, 'Las pantallas del menú se agrupan por sección');
     ok((await q.textContent('#adm')).includes('900 × 1200 px') && (await q.$$('.ad-ph-spec')).length > 10, 'Cada foto muestra la medida recomendada (p. ej. 900 × 1200 px)');
     fc = q.waitForEvent('filechooser'); await q.click('[data-up="home.hero"]'); await (await fc).setFiles(await makeImg(q, 2400, 1350));
     await q.waitForSelector('.ad-sheet.k-crop canvas'); ok(await q.evaluate(() => document.querySelector('#crop-c').width === 1920), 'Foto principal a 1920 × 1080'); await q.click('#crop-ok'); await q.waitForFunction(() => !document.querySelector('.ad-sheet.k-crop'), null, { timeout: 8000 });

@@ -31,7 +31,7 @@
       </div>
     </div>
     <div class="press-strip hero-press" id="inicio-mas">
-      <div class="wrap"><span class="press-h">Nos han reseñado</span><a href="https://www.laguiavalentinaquintero.com/#/poi/alquiler-lanchas-yates-mochima" target="_blank" rel="noopener">Guía de Valentina Quintero</a><a href="https://www.youtube.com/watch?v=HD1ESvApfz8&amp;t=450s" target="_blank" rel="noopener">Viajando con BIVI · Venevisión <small>min 7:30</small></a><a href="https://www.instagram.com/reels/CtovOEhsf11/" target="_blank" rel="noopener">Canal Viajero · IVC</a><a href="https://www.instagram.com/reel/DRxHAdqjJTH/" target="_blank" rel="noopener">Alejandro Liendo · Diccionario de Venezuela</a><strong>Televen · Paseo en los canales</strong></div>
+      <div class="wrap"><span class="press-h">Nos han reseñado</span><a href="https://www.laguiavalentinaquintero.com/#/poi/alquiler-lanchas-yates-mochima" target="_blank" rel="noopener">Guía de Valentina Quintero</a><a href="https://www.youtube.com/watch?v=HD1ESvApfz8&amp;t=450s" target="_blank" rel="noopener">Viajando con BIVI · Venevisión <small>min 7:30</small></a><a href="https://www.instagram.com/reels/CtovOEhsf11/" target="_blank" rel="noopener">Canal Viajero · IVC</a><a href="https://www.instagram.com/reel/DRxHAdqjJTH/" target="_blank" rel="noopener">Alejandro Liendo · Diccionario de Venezuela</a><a href="media/v/televen.mp4" data-vid="televen">Televen · Paseo en los canales</a></div>
     </div>
   </div>
 
@@ -59,13 +59,14 @@
 
 <!-- ===================== RESERVAR ===================== -->
 <section class="page" data-view="reservar" id="reservar" aria-labelledby="res-t" hidden>
-  <div class="view-hero"><div class="wrap"><span class="eyebrow">Reserva guiada</span><h1 id="res-t">Arma tu salida</h1><p>Cuatro pasos y reservas aquí mismo, sin salir de la app. Todas las embarcaciones incluyen tripulación, chalecos, hielo y agua.</p></div></div>
+  <div class="view-hero"><div class="wrap"><span class="eyebrow">Reserva guiada</span><h1 id="res-t">Arma tu salida</h1><p>Cinco pasos y reservas aquí mismo, sin salir de la app. Todas las embarcaciones incluyen tripulación, chalecos, hielo y agua.</p></div></div>
   <div class="band pt0"><div class="wrap">
     <div class="stepper" id="stepper" role="tablist" aria-label="Pasos de la reserva">
       <button type="button" role="tab" data-go="0" aria-selected="true"><i>1</i><span>Grupo y fecha</span></button>
       <button type="button" role="tab" data-go="1" aria-selected="false"><i>2</i><span>Embarcación</span></button>
       <button type="button" role="tab" data-go="2" aria-selected="false"><i>3</i><span>Rumbo y muelle</span></button>
-      <button type="button" role="tab" data-go="3" aria-selected="false"><i>4</i><span>Extras</span></button>
+      <button type="button" role="tab" data-go="3" aria-selected="false"><i>4</i><span>Accesorios</span></button>
+      <button type="button" role="tab" data-go="4" aria-selected="false"><i>5</i><span>Comidas y bebidas</span></button>
       <span class="stepper-bar"><b id="stepper-fill"></b></span>
     </div>
     <div class="builder">
@@ -92,7 +93,8 @@
           <p class="dockinfo" id="b-dockinfo"></p>
           <div class="hours" id="b-hours"></div>
         </div>
-        <div class="step" data-step="3" hidden><h3>Extras y comida <small>opcional</small></h3><div class="xtras" id="b-extras"></div></div>
+        <div class="step" data-step="3" hidden><h3>Accesorios <small>opcional</small></h3><div class="xtras" id="b-extras"></div></div>
+        <div class="step" data-step="4" hidden><h3>Comidas y bebidas <small>opcional</small></h3><div class="xtras" id="b-food"></div></div>
         <div class="step-nav"><button type="button" class="btn btn-ghost" id="st-back">Atrás</button><button type="button" class="btn btn-sun" id="st-next">Siguiente</button></div>
       </div>
       <aside class="ticket" aria-live="polite" id="ticket"></aside>
@@ -208,26 +210,10 @@
 
 <!-- ===================== PROPIETARIOS ===================== -->
 <section class="page" data-view="propietarios" id="propietarios" aria-labelledby="pool-t" hidden>
-  <div class="view-hero"><div class="wrap"><span class="eyebrow">Para propietarios</span><h1 id="pool-t">Quiero formar parte del pool</h1><p>Pon tu embarcación a trabajar con Tu Lancha Lechería. Tú decides fechas y tarifas; nosotros traemos los clientes.</p></div></div>
+  <div class="view-hero"><div class="wrap"><span class="eyebrow">Para propietarios</span><h1 id="pool-t">Lo mejor para tu embarcación</h1><p>Proveedores verificados, equipos en alquiler y auxilio cuando lo necesites. Y si quieres, pon tu embarcación a trabajar con nosotros.</p></div></div>
   <div class="band pt0"><div class="wrap">
-    <div class="pool" id="pool">
-      <div class="perks">
-        <div><b>Tu calendario, tus tarifas</b><span>Bloquea días y ajusta precios desde tu teléfono.</span></div>
-        <div><b>Clientes con reserva</b><span>Abono y datos del grupo antes de zarpar.</span></div>
-        <div><b>Visibilidad</b><span>Tu embarcación en el catálogo con fotos de dron y video.</span></div>
-        <div><b>Liquidación clara</b><span>Reporte de cada salida y de tus ingresos del mes.</span></div>
-      </div>
-      <form class="form glass-card" id="pool-form">
-        <h3>Postula tu embarcación</h3>
-        <div class="two"><div class="field"><label for="p-name">Tu nombre</label><input id="p-name" required placeholder="Nombre y apellido" autocomplete="name"></div><div class="field"><label for="p-phone">WhatsApp</label><input id="p-phone" required inputmode="tel" placeholder="+58 4xx xxx xxxx" autocomplete="tel"></div></div>
-        <div class="two"><div class="field"><label for="p-boat">Embarcación</label><input id="p-boat" required placeholder="Marca, modelo y pies"></div><div class="field"><label for="p-pax">Capacidad</label><input id="p-pax" type="number" min="1" max="80" placeholder="Personas" inputmode="numeric"></div></div>
-        <div class="two"><div class="field"><label for="p-dock">Muelle</label><select id="p-dock"></select></div><div class="field"><label for="p-park">Parque</label><select id="p-park"><option>Mochima</option><option>Morrocoy</option><option>Los Roques</option><option>Otro</option></select></div></div>
-        <div class="field"><label for="p-note">Cuéntanos más</label><textarea id="p-note" rows="3" placeholder="Camarote, baño, equipo de snorkel, capitán propio…"></textarea></div>
-        <button class="btn btn-wa" type="submit">Enviar postulación por WhatsApp</button>
-      </form>
-    </div>
     <div class="owners-sv" id="owners-sv">
-      <div class="head"><div><span class="eyebrow">Para propietarios de embarcaciones</span><h2>Lo mejor para tu embarcación</h2></div></div>
+      <div class="head"><div><span class="eyebrow">Servicios para propietarios</span><h2>Proveedores, alquiler y auxilio</h2></div></div>
       <p class="own-lead">Sabemos que quieres lo mejor para tu embarcación, ponemos a tu disposición nuestra red de proveedores verificados —los mismos que mantienen nuestra flota al 100%— además de un inventario de equipos esenciales en alquiler para resolver cualquier imprevisto antes de zarpar, así como nuestro servicio de auxilio.</p>
       <div id="owner-pros"><h3 class="own-sub">Proveedores verificados</h3><div class="allies" id="owner-allies"></div></div>
       <p class="own-food">¿Comidas y bebidas para tu salida? Encuéntralas en <a href="#aliados">Servicio a bordo</a>, en la sección de comidas y bebidas.</p>
@@ -244,7 +230,27 @@
         </form>
       </section>
     </div>
-    <div class="portal glass-card" id="portal">
+    <div class="pool-sec" id="pool-sec">
+      <div class="head"><div><span class="eyebrow">Para propietarios</span><h2>Quiero formar parte del pool</h2></div></div>
+      <p class="own-lead">Pon tu embarcación a trabajar con Tu Lancha Lechería. Tú decides fechas y tarifas; nosotros traemos los clientes.</p>
+    <div class="pool" id="pool">
+      <div class="perks">
+        <div><b>Tu calendario, tus tarifas</b><span>Bloquea días y ajusta precios desde tu teléfono.</span></div>
+        <div><b>Clientes con reserva</b><span>Abono y datos del grupo antes de zarpar.</span></div>
+        <div><b>Visibilidad</b><span>Tu embarcación en el catálogo con fotos de dron y video.</span></div>
+        <div><b>Liquidación clara</b><span>Reporte de cada salida y de tus ingresos del mes.</span></div>
+      </div>
+      <form class="form glass-card" id="pool-form">
+        <h3>Postula tu embarcación</h3>
+        <div class="two"><div class="field"><label for="p-name">Tu nombre</label><input id="p-name" required placeholder="Nombre y apellido" autocomplete="name"></div><div class="field"><label for="p-phone">WhatsApp</label><input id="p-phone" required inputmode="tel" placeholder="+58 4xx xxx xxxx" autocomplete="tel"></div></div>
+        <div class="two"><div class="field"><label for="p-boat">Embarcación</label><input id="p-boat" required placeholder="Marca, modelo y pies"></div><div class="field"><label for="p-pax">Capacidad</label><input id="p-pax" type="number" min="1" max="80" placeholder="Personas" inputmode="numeric"></div></div>
+        <div class="two"><div class="field"><label for="p-dock">Muelle</label><select id="p-dock"></select></div><div class="field"><label for="p-park">Parque</label><select id="p-park"><option>Mochima</option><option>Morrocoy</option><option>Los Roques</option><option>Otro</option></select></div></div>
+        <div class="field"><label for="p-note">Cuéntanos más</label><textarea id="p-note" rows="3" placeholder="Camarote, baño, equipo de snorkel, capitán propio…"></textarea></div>
+        <button class="btn btn-wa" type="submit">Enviar postulación por WhatsApp</button>
+      </form>
+    </div>
+    </div>
+    <div class="portal glass-card" id="portal" hidden>
       <div class="portal-top"><b>Portal del propietario · vista previa</b><select id="o-boat" aria-label="Embarcación del propietario"></select></div>
       <div class="portal-in">
         <div class="portal-l">
@@ -287,7 +293,7 @@
   <a href="#inicio" data-tab="inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Inicio</a>
   <a href="#embarcaciones" data-tab="embarcaciones"><svg viewBox="0 0 24 24"><path d="M3 17l2 3h14l2-3M5 17V9l7-5 7 5v8M12 4v13"/></svg>Embarcaciones</a>
   <a href="#reservar" data-tab="reservar" class="tab-main"><span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Reservar</a>
-  <a href="#playas" data-tab="playas" data-no-trip><svg viewBox="0 0 24 24"><path d="M2 18c3 0 3-2 6-2s3 2 6 2 3-2 6-2M12 3v9M12 3l6 4M12 3L6 7"/></svg>Playas</a>
+  <a href="#experiencias" data-tab="experiencias" data-no-trip><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg>Experiencias</a>
   <a href="#mi-viaje" data-tab="mi-viaje" data-trip-only><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Mi viaje</a>
   <button type="button" data-tab="menu" id="menu-open-2" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menú</button>
 </nav>
