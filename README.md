@@ -4,6 +4,16 @@ App web instalable, de diseño claro, para Tu Lancha Lechería: chárters, paseo
 
 Sitio: https://tulanchalecheria.vercel.app
 
+## Versión 7 (19 nov): pedidos de Luis y Eduardo
+- **Web:** sin el botón flotante de WhatsApp; el menú giratorio queda con Embarcaciones, Playas, Experiencias, Servicio a bordo y Propietarios. Reservar arranca siempre con la embarcación de Eduardo (Wet Dreams 24) y el Rumbo 1; “Reservar ahora” sale solo en el paso 5. Las fotos de accesorios, alquiler y comidas se amplían al tocarlas.
+- **Proveedores y aliados:** cada uno con WhatsApp de ventas y mensaje (“Hola, soy cliente de Tu Lancha Lechería 👋 …”); botón *Copiar enlace* en el panel. Pestaña **Propietarios** propia (proveedores + alquiler).
+- **Textos y videos:** títulos y frases de cada página (con inglés opcional), videos por enlace (YouTube, Vimeo, Drive o .mp4) y reportajes nuevos en “Nos han reseñado”.
+- **Mi viaje:** recomendaciones de regreso (7 pm) y encuesta al día siguiente; las respuestas salen en la reserva del panel.
+- **Precios:** matriz embarcación × rumbo (regular/alta, recogidas por muelle) con carga del Excel de Eduardo.
+- **Mantenimiento (solo el acceso de Luis):** bloquear secciones para Eduardo (el servidor conserva lo publicado), respaldo/restauración del catálogo y volver secciones a como vienen en la app.
+- Pruebas nuevas: `tests-matriz.js` y `tests-contenido.js` (contra `tests-vivo-servidor.js` en el puerto 8766; la segunda usa `ADMIN_EXTRA` con un acceso de prueba).
+- Pendiente: subir videos como archivo desde el panel (requiere almacenamiento de archivos en Vercel; hoy es por enlace).
+
 ## Versión 6 (18 nov): correcciones de Eduardo
 - **Portada:** “TU LANCHA LECHERÍA” en Arial itálica negrita; menú de arriba centrado; titular “Tu día perfecto en el mar, bienvenidos al Parque Nacional Mochima”; botón **Reservar ahora** sobre la foto de Isla de Plata; prensa con IVC (enlace), Alejandro Liendo · Diccionario de Venezuela y Televen · Paseo en los canales (falta el video); “Explorar” ahora es **Menú** (también en el celular); “Recomendación de la casa” ahora es **La más solicitada**, con sus accesorios en el orden de Eduardo; “Tu Lancha” dice siempre “Tu Lancha Lechería”.
 - **Regalos y Club oculto** hasta definir los códigos (`OFF = { regalos: true }` en `src/app.js`; con `false` vuelve todo).

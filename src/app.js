@@ -87,7 +87,7 @@ const DEF_BOATS_SRC = [
 ];
 const normBoat = b => { b.maxBeaches ??= b.type === 'Lancha' ? 3 : 2; b.opt ??= {}; b.inc ??= []; b.amen ??= []; b.pick ??= {}; b.rp ??= {}; b.qty ??= {}; b.photos ??= {}; b.kx = Math.max(0, +b.kx || 0); b.rating ??= 5; b.trips ??= 0; b.hue ??= 200; b.dock ??= 0; return b; };
 const BOATS = JSON.parse(JSON.stringify(DEF_BOATS_SRC)).map(normBoat);
-const OWN = BOATS.find(b => b.own) || BOATS[0];
+const OWN = BOATS.find(b => b.own) || BOATS.find(b => /wet\s*dreams/i.test(b.name)) || BOATS[0];
 
 // Rumbos: nunca se cruzan. nm: millas náuticas aproximadas desde Lechería.
 // add: diferencia sobre la tarifa base cuando la embarcación no tiene precio propio para ese rumbo (vacío = precio por confirmar).
@@ -110,17 +110,35 @@ const VID = {
   comidas: ['Comidas y bebidas', 'v'], mercadillo: ['Cómo pedir en El Mercadillo', 'v'], rincon: ['Restaurante El Rincón Marino', 'v'],
   televen: ['Televen · Paseo en los canales', 'v']   // reportaje de Televen (18 nov), 720p con sonido
 };
-const vcard = (k, label) => VID[k] ? `<button type="button" class="vcard ${VID[k][1]}" data-vid="${k}" aria-label="Ver video: ${label || VID[k][0]}"><img src="media/v/${k}.jpg" alt="" loading="lazy" decoding="async"><span class="vplay" aria-hidden="true"></span><span class="vlbl">${label || VID[k][0]}</span></button>` : '';
+const vcard = (k, label) => VID[k] ? `<button type="button" class="vcard ${VID[k][1]}" data-vid="${k}" aria-label="Ver video: ${label || VID[k][0]}"><img src="${esc(posterOf(k))}" alt="" loading="lazy" decoding="async"><span class="vplay" aria-hidden="true"></span><span class="vlbl">${label || VID[k][0]}</span></button>` : '';
 const vlink = (k, label) => VID[k] ? `<button type="button" class="vlink" data-vid="${k}"><span class="vdot" aria-hidden="true"></span>${label || 'Ver video: ' + VID[k][0]}</button>` : '';
+/* Videos que Eduardo cambia desde el panel (19 nov): enlace de YouTube, Vimeo, Google Drive o un archivo .mp4.
+   Vacío = el video que viene con la app. */
+function vidSrc(u) {
+  u = String(u || '').trim(); if (!/^https:\/\//i.test(u)) return null;
+  let m;
+  if ((m = u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{11})/))) return { kind: 'frame', src: `https://www.youtube-nocookie.com/embed/${m[1]}?autoplay=1&rel=0&playsinline=1`, poster: `https://i.ytimg.com/vi/${m[1]}/hqdefault.jpg` };
+  if ((m = u.match(/vimeo\.com\/(?:video\/)?(\d+)/))) return { kind: 'frame', src: `https://player.vimeo.com/video/${m[1]}?autoplay=1` };
+  if ((m = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]{20,})/))) return { kind: 'frame', src: `https://drive.google.com/file/d/${m[1]}/preview` };
+  if (/\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u)) return { kind: 'file', src: u };
+  return { kind: 'link', src: u };
+}
+const vidOf = k => vidSrc((CAT.vid || {})[k]);
+const posterOf = k => { const o = vidOf(k); return o && o.poster ? o.poster : `media/v/${k}.jpg`; };
 function openVideo(k) {
   const d = $('#vdlg'); if (!d || !VID[k]) return;
-  d.className = VID[k][1];
-  d.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar video">×</button><video controls autoplay playsinline preload="metadata" poster="media/v/${k}.jpg" src="media/v/${k}.mp4"></video><p class="vcap">${VID[k][0]}</p>`;
+  const o = vidOf(k);
+  if (o && o.kind === 'link') { window.open(o.src, '_blank', 'noopener'); return; }
+  d.className = VID[k][1] + (o && o.kind === 'frame' ? ' vframe' : '');
+  const media = o && o.kind === 'frame' ? `<iframe src="${esc(o.src)}" title="${esc(VID[k][0])}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="eager"></iframe>`
+    : `<video controls autoplay playsinline preload="metadata" poster="${esc(posterOf(k))}" src="${esc(o ? o.src : `media/v/${k}.mp4`)}"></video>`;
+  d.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar video">×</button>${media}<p class="vcap">${esc(VID[k][0])}</p>`;
   d.onclick = e => { if (e.target === d || e.target.closest('.m-close')) d.close(); };
   d.onclose = () => { const v = $('video', d); if (v) { v.pause(); v.removeAttribute('src'); v.load(); } d.innerHTML = ''; };
   d.showModal();
-  const v = $('video', d); const p = v.play(); if (p && p.catch) p.catch(() => {});
+  const v = $('video', d); if (v) { const p = v.play(); if (p && p.catch) p.catch(() => {}); }
 }
+window.TLL_PREVIEW_VID = (k, u) => { const old = (CAT.vid || {})[k]; CAT.vid = CAT.vid || {}; CAT.vid[k] = u; openVideo(k); if (old == null) delete CAT.vid[k]; else CAT.vid[k] = old; };
 document.addEventListener('click', e => { const v = e.target.closest('[data-vid]'); if (v) { e.preventDefault(); openVideo(v.dataset.vid); } });
 const CANALES = {
   video: 'https://youtu.be/jVBf_uwYNwc',
@@ -311,12 +329,63 @@ function applyCat(c) {
   const hi = document.querySelector('#hero-reel img');
   if (hi) { hi.dataset.def ||= hi.getAttribute('src'); const so = hi.parentNode.querySelector('source'); if (so) so.dataset.def ||= so.getAttribute('srcset');
     hi.src = CAT.home.hero || hi.dataset.def; if (so) so.srcset = CAT.home.hero || so.dataset.def; }
+  // textos y frases editados en el panel (19 nov): [español, inglés]
+  CAT.tx = c.tx && typeof c.tx === 'object' && !Array.isArray(c.tx) ? clone(c.tx) : {};
+  CAT.vid = c.vid && typeof c.vid === 'object' && !Array.isArray(c.vid) ? clone(c.vid) : {};
+  CAT.press = Array.isArray(c.press) ? clone(c.press).filter(x => x && x.t && /^https:\/\//.test(x.url || '')) : [];
   // textos nuevos escritos por Eduardo con su versión en inglés
   const tr = [];
+  applyTexts(tr); renderPress();
   [...BOATS, ...ROUTES].forEach(x => { if (x.desc && x.desc_en) tr.push([x.desc, x.desc_en]); });
   if (Array.isArray(c.tr)) c.tr.forEach(r => Array.isArray(r) && r[0] && tr.push(r));
   if (window.TLL_I18N && TLL_I18N.add) TLL_I18N.add(tr);
 }
+/* ---------- Textos y frases editables desde el panel (19 nov, pedido de Luis) ----------
+   Cada espacio: [clave, sección, nombre, selector, tipo]. Tipos: txt = todo el texto del elemento;
+   after = el texto que sigue al título en negrita; hero = dos líneas (la segunda resaltada).
+   Selectores con prev:/next: toman el hermano anterior o siguiente del elemento. Vacío = el texto original. */
+const TXT_SLOTS = [
+  ['inicio_t', 'Portada', 'Título principal (2 líneas: la 2.ª sale resaltada)', '#inicio h1', 'hero'],
+  ['inicio_oe', 'Portada', 'Menú giratorio · etiqueta', 'prev:#orbit-t', 'txt'],
+  ['inicio_ot', 'Portada', 'Menú giratorio · título', '#orbit-t', 'txt'],
+  ...[['embarcaciones', 'flota-t', 'Embarcaciones'], ['playas', 'playas-t', 'Playas'], ['experiencias', 'exp-t', 'Experiencias'], ['aliados', 'ali-t', 'Servicio a bordo'], ['nosotros', 'nos-t', 'Nosotros'], ['reservar', 'res-t', 'Reservar'], ['mi-viaje', 'trip-t', 'Mi viaje'], ['propietarios', 'pool-t', 'Propietarios']].flatMap(([v, id, n]) => [
+    [v + '_e', n, 'Etiqueta sobre el título', 'prev:#' + id, 'txt'], [v + '_t', n, 'Título', '#' + id, 'txt'], [v + '_p', n, 'Texto bajo el título', 'next:#' + id, 'txt']]),
+  ['reservar_g1', 'Reservar', 'Aviso 1 · título', '.s1-tip-p p b', 'txt'], ['reservar_g2', 'Reservar', 'Aviso 1 · texto', '.s1-tip-p p b', 'after'],
+  ['reservar_m1', 'Reservar', 'Aviso 2 · título', '.s1-tip-d p b', 'txt'], ['reservar_m2', 'Reservar', 'Aviso 2 · texto', '.s1-tip-d p b', 'after'],
+  ['experiencias_c', 'Experiencias', 'Título de celebraciones', '.exps-h', 'txt'],
+  ['propietarios_s', 'Propietarios', 'Título de proveedores', '#owners-sv .head h2', 'txt'],
+  ['propietarios_pt', 'Propietarios', 'Título del pool', '#pool-sec .head h2', 'txt'], ['propietarios_pp', 'Propietarios', 'Texto del pool', '#pool-sec .own-lead', 'txt'],
+  ['nosotros_f1', 'Nosotros', 'Dato 1 · número', '.facts .fact:nth-child(1) b', 'txt'], ['nosotros_f1t', 'Nosotros', 'Dato 1 · texto', '.facts .fact:nth-child(1) span', 'txt'],
+  ['nosotros_f2', 'Nosotros', 'Dato 2 · número', '.facts .fact:nth-child(2) b', 'txt'], ['nosotros_f2t', 'Nosotros', 'Dato 2 · texto', '.facts .fact:nth-child(2) span', 'txt'],
+  ['nosotros_h', 'Nosotros', 'Horario · texto', '.visit .glass-card:nth-child(1) p', 'txt'],
+  ['nosotros_u', 'Nosotros', 'Ubicación · texto', '.visit .glass-card:nth-child(2) p', 'txt']
+];
+const txEl = sel => { const m = sel.match(/^(prev|next):(.+)$/); if (!m) return document.querySelector(sel); const e = document.querySelector(m[2]); return e && (m[1] === 'prev' ? e.previousElementSibling : e.nextElementSibling); };
+function applyTexts(tr) {
+  TXT_SLOTS.forEach(([k, , , sel, kind]) => {
+    const el = txEl(sel); if (!el) return;
+    const o = (CAT.tx || {})[k] || {}, es = String((Array.isArray(o) ? o[0] : o.es) || '').trim(), en = String((Array.isArray(o) ? o[1] : o.en) || '').trim();
+    if (kind === 'after') {
+      let n = el.nextSibling; if (!n || n.nodeType !== 3) { n = document.createTextNode(''); el.after(n); }
+      if (n.__tx0 == null) n.__tx0 = n.nodeValue;
+      n.nodeValue = es || n.__tx0;
+    } else {
+      if (el.__tx0 == null) el.__tx0 = el.innerHTML;
+      if (!es) el.innerHTML = el.__tx0;
+      else if (kind === 'hero') { const [a, ...b] = es.split(/\n+/); el.innerHTML = esc(a) + (b.length ? `<br><em>${esc(b.join(' '))}</em>` : ''); }
+      else el.innerHTML = esc(es).replace(/\n/g, '<br>');
+    }
+    if (es && en) { const ea = es.split(/\n+/), na = en.split(/\n+/); if (ea.length === na.length) ea.forEach((x, i) => tr.push([x, na[i]])); else tr.push([es, en]); }
+  });
+}
+/* Videos y reportajes nuevos en la franja de prensa de la portada */
+function renderPress() {
+  const box = $('#inicio-mas .wrap'); if (!box) return;
+  $$('.press-x', box).forEach(a => a.remove());
+  (CAT.press || []).forEach((x, i) => { const a = document.createElement('a'); a.className = 'press-x'; a.href = x.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = x.t;
+    const v = vidSrc(x.url); if (v && v.kind !== 'link') { a.dataset.pv = i; } box.appendChild(a); });
+}
+document.addEventListener('click', e => { const a = e.target.closest('[data-pv]'); if (!a) return; const x = (CAT.press || [])[+a.dataset.pv]; if (!x) return; e.preventDefault(); VID['_p'] = [x.t, 'h']; CAT.vid['_p'] = x.url; openVideo('_p'); });
 applyCat(store.get('cat', null));
 const ph = (u, alt = '') => `<img class="ph" src="${esc(u)}" alt="${esc(alt)}" loading="lazy" decoding="async">`;
 /* Fotos de cada embarcación. Solo se muestran las que Eduardo subió: un espacio sin foto no aparece en la web.
@@ -666,6 +735,9 @@ const CAPT_NOTE = 'La hora final de regreso puede variar según la recomendació
 
 /* ---------------- reserva guiada ---------------- */
 const Q = Object.assign({ pax: 4, kids: 0, boat: OWN ? OWN.id : 'b1', route: 'r1', beaches: [], dock: 'pm', hx: 0, date: iso(new Date(today.getTime() + 7 * 864e5)), acc: {} }, store.get('quote2', {}));
+// 19 nov (Eduardo): cada visita arranca con su embarcación (Wet Dreams 24) y el Rumbo 1
+const defBoat = () => { Q.boat = OWN ? OWN.id : Q.boat; }, defRoute = () => { Q.route = (ROUTES.find(r => r.id === 'r1') || ROUTES[0]).id; Q.beaches = []; };
+defBoat(); defRoute();
 /* Niños de 7 años o menos: cuentan como pasajeros, pero algunas embarcaciones admiten además unos niños pequeños (kx)
    sin costo extra. Ej.: la lancha de la casa lleva 5 adultos y hasta 3 niños pequeños. El precio es el de la embarcación. */
 const fitsOn = b => Q.pax <= b.pax && Q.pax + (Q.kids || 0) <= b.pax + (+b.kx || 0);
@@ -744,7 +816,7 @@ function renderPlan(b) {
   Q.shop = Q.shop || {}; for (const k of Object.keys(Q.shop)) { if (Q.shop[k] === true) Q.shop[k] = 1; if (!shopOn().some(x => x.id === k) || !(Q.shop[k] > 0)) delete Q.shop[k]; }
   Q.food = Q.food || {}; for (const k of Object.keys(Q.food)) if (!FOOD.some(x => x.id === k) || !(Q.food[k] > 0)) delete Q.food[k];
   const step = (kind, id, n) => `<div class="qty sm"><button type="button" data-qty="${kind}" data-id="${esc(id)}" data-d="-1" aria-label="Quitar uno"${n ? '' : ' disabled'}>−</button><output>${n}</output><button type="button" data-qty="${kind}" data-id="${esc(id)}" data-d="1" aria-label="Agregar uno">+</button></div>`;
-  const logo = (u, name) => u ? `<span class="xi-img"><img src="${esc(u)}" alt="" loading="lazy" decoding="async"></span>` : `<span class="xi-img xi-ini" aria-hidden="true" translate="no">${esc(xInit(name))}</span>`;
+  const logo = (u, name) => u ? zoomImg(u, name) : `<span class="xi-img xi-ini" aria-hidden="true" translate="no">${esc(xInit(name))}</span>`;
   const shopItem = x => { const n = +Q.shop[x.id] || 0; return `<div class="xi${n ? ' on' : ''}">${logo(x.photo, x.name)}<div class="xi-t"><b>${esc(x.name)}</b><small>${shopKind(x) === 'alquiler' ? 'Alquiler' : 'Venta'}${x.desc ? ' · ' + esc(x.desc) : ''}</small><span class="p">${money(x.price)} c/u</span></div>${step('shop', x.id, n)}</div>`; };
   const foodItem = x => { const n = +Q.food[x.id] || 0; return `<div class="xi${n ? ' on' : ''}">${logo(x.logo, x.brand || x.name)}<div class="xi-t"><span class="xi-brand">${esc(x.brand || '')}</span><b>${esc(x.name)}</b>${x.note ? `<small>${esc(x.note)}</small>` : ''}<span class="p">${+x.price > 0 ? money(x.price) : 'Precio por confirmar'}</span></div>${step('food', x.id, n)}</div>`; };
   const rentals = shopOn().filter(x => shopKind(x) === 'alquiler'), sales = shopOn().filter(x => shopKind(x) !== 'alquiler');
@@ -767,6 +839,17 @@ function renderPlan(b) {
         <a class="btn btn-ghost btn-sm" href="${MERCADILLO}" target="_blank" rel="noopener">Pedir en El Mercadillo</a>
         <p class="rating">También tienes más aliados en <a href="#aliados">Servicio a bordo</a>.</p></div></section>`;
 }
+/* 19 nov (Luis): las fotos de productos se amplían en una ventana al tocarlas (sobre todo en celular) */
+const zoomImg = (u, name) => `<button type="button" class="xi-img xi-zoom" data-zoom="${esc(u)}" data-cap="${esc(name || '')}" aria-label="Ver foto: ${esc(name || '')}"><img src="${esc(u)}" alt="" loading="lazy" decoding="async"></button>`;
+function openZoom(src, cap) {
+  let z = $('#zoom');
+  if (!z) { z = document.createElement('dialog'); z.id = 'zoom'; z.className = 'zoom'; document.body.appendChild(z);
+    z.addEventListener('click', e => { if (!e.target.closest('figure img') || e.target.closest('.zm-x')) z.close(); }); }
+  z.innerHTML = `<figure><img src="${esc(src)}" alt="${esc(cap || '')}"><figcaption>${esc(cap || '')}</figcaption></figure><button type="button" class="zm-x" aria-label="Cerrar">×</button>`;
+  z.showModal();
+}
+document.addEventListener('click', e => { const z = e.target.closest('[data-zoom]'); if (!z) return; e.preventDefault(); e.stopPropagation(); openZoom(z.dataset.zoom, z.dataset.cap); }, true);
+window.TLL_ZOOM = openZoom;
 const xInit = n => String(n || '').split(/\s+/).filter(w => /^[A-Za-zÁÉÍÓÚÑáéíóúñ]/.test(w)).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '•';
 function renderTicket() {
   const b = BOATS.find(x => x.id === Q.boat);
@@ -800,8 +883,9 @@ function renderTicket() {
     ${dc.fee ? `<div class="t-dock"><b>Servicio por uso de muelle: ${esc(dc.fee)}</b><span>No es un pago a Tu Lancha Lechería: lo cobra ${esc(dk.name)} y se paga en sitio. Si te buscamos en tu residencia, no aplica.</span></div>` : ''}
     <form class="code-in" id="code-form"><input id="q-code" placeholder="Código de amigo o de regalo" aria-label="Código de amigo o tarjeta de regalo" value="${esc(Q.code || '')}" autocomplete="off" autocapitalize="characters"><button class="btn btn-ghost on-sea btn-sm" type="submit">Aplicar</button></form>
     ${Q.code ? (code.kind ? `<span class="code-ok">✓ ${code.kind === 'ref' ? 'Descuento de amigo aplicado' : 'Tarjeta de regalo aplicada (' + money(code.value) + ')'}</span>` : `<span class="code-bad">Ese código no es válido. Revisa que esté bien escrito, por ejemplo ANA-7K2 o TLLG-B4XK.</span>`) : ''}
+    <p class="t-steps-hint">Completa los 5 pasos y aquí podrás reservar.</p>
     <button class="btn btn-sun btn-lg" type="button" id="t-book">Reservar ahora</button>
-    <p class="note">No pagas nada ahora: te confirmamos disponibilidad y abono. Fines de semana +${wkOf(b)}%.</p>`;
+    <p class="note">No pagas nada ahora: te confirmamos disponibilidad y abono.${+wkOf(b) ? ` Fines de semana +${wkOf(b)}%.` : ''}</p>`;
   const g2 = $('#ticket [data-gal]'); if (g2) { g2.dataset.boat = b.id; if (keepI) galGo(g2, keepI); }
   $('#mb-total').textContent = money(total);
   window.TLL_LAST = { hi: isHigh(d), boat: b.name, type: b.type, route: routeTxt, dock: dk.custom && Q.pin && Q.pin.ref ? `${dk.name} · ${Q.pin.ref}` : dk.name, pin: dk.custom && okPin(Q.pin) ? { lat: +Q.pin.lat, lng: +Q.pin.lng, ref: Q.pin.ref || '' } : null, dockFee: dc.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
@@ -820,10 +904,10 @@ function codeInfo(raw) {
   if (m) return { kind: 'gift', code: c, value: +m[1] };
   return { code: c };
 }
-$('#pax-m').onclick = () => { Q.pax = Math.max(1, Q.pax - 1); renderBuilder(); };
-$('#pax-p').onclick = () => { Q.pax = Math.min(30, Q.pax + 1); renderBuilder(); };
-$('#kid-m').onclick = () => { Q.kids = Math.max(0, (Q.kids || 0) - 1); renderBuilder(); };
-$('#kid-p').onclick = () => { Q.kids = Math.min(10, (Q.kids || 0) + 1); renderBuilder(); };
+$('#pax-m').onclick = () => { Q.pax = Math.max(1, Q.pax - 1); defBoat(); renderBuilder(); };
+$('#pax-p').onclick = () => { Q.pax = Math.min(30, Q.pax + 1); defBoat(); renderBuilder(); };
+$('#kid-m').onclick = () => { Q.kids = Math.max(0, (Q.kids || 0) - 1); defBoat(); renderBuilder(); };
+$('#kid-p').onclick = () => { Q.kids = Math.min(10, (Q.kids || 0) + 1); defBoat(); renderBuilder(); };
 $('#big-group').addEventListener('click', e => { if (e.target.closest('#bg-event')) { Q.boat = 'b8'; renderBuilder(); window.TLL.goStep && window.TLL.goStep(1); } });
 $('#reservar').addEventListener('click', e => {
   if (e.target.closest('#hx-m')) { Q.hx = Math.max(0, Q.hx - 1); return renderBuilder(); }
@@ -855,7 +939,7 @@ $('#b-date').onchange = e => { if (!e.target.value) return;
   const [y, m, d] = e.target.value.split('-').map(Number), dt = new Date(y, m - 1, d);
   if (dt < today) { toast('Elige una fecha desde hoy'); e.target.value = Q.date; return; }
   if (tooFar(dt)) { toast(`Reservamos con hasta ${CAT.maxDays} días de anticipación. Para fechas más lejanas, escríbenos por WhatsApp.`); e.target.value = Q.date; return; }
-  Q.date = e.target.value; renderBuilder(); };
+  Q.date = e.target.value; defBoat(); renderBuilder(); };
 $('#b-dock').onchange = e => { if (e.target.value === 'pin' && !okPin(Q.pin)) { e.target.value = Q.dock; openPinMap(); return; } Q.dock = e.target.value; renderBuilder(); };
 function renderMyPin() {
   const box = $('#b-mypin'); if (!box) return;
@@ -1020,10 +1104,16 @@ document.addEventListener('submit', e => {
 renderCanales();
 $('#exps').innerHTML = EXPS.map(x => `<div class="exp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${x[2]}</svg></span><h3>${x[0]}</h3><p>${x[1]}</p><a href="${wa(`Hola Tu Lancha Lechería 👋 Me interesa la experiencia "${x[0]}". ¿Me dan información?`)}" target="_blank" rel="noopener">Pedir propuesta →</a></div>`).join('');
 $('#ally-videos') && ($('#ally-videos').innerHTML = ['mercadillo', 'rincon', 'comidas'].map(k => vcard(k)).join(''));
-const allyLink = (n, u) => esc(u || wa(`Hola Tu Lancha Lechería 👋 Quiero agregar ${n} a mi salida.`));
+/* 19 nov (Eduardo): si el aliado tiene WhatsApp de ventas, el toque abre ese chat directo con
+   "Hola, soy cliente de Tu Lancha Lechería…" + el mensaje que él escriba en el panel. */
+const ALLY_HI = 'Hola, soy cliente de Tu Lancha Lechería 👋';
+const waNum = n => String(n || '').replace(/\D/g, '').replace(/^0(?=4\d{9}$)/, '58');
+const allyMsg = m => { m = String(m || '').trim(); return m ? (/tu lancha lecher/i.test(m) ? m : `${ALLY_HI} ${m}`) : `${ALLY_HI} Quisiera información.`; };
+const allyHref = (n, u, num, msg) => waNum(num).length >= 10 ? waTo(waNum(num), allyMsg(msg)) : u || wa(`Hola Tu Lancha Lechería 👋 Quiero agregar ${n} a mi salida.`);
+const allyLink = (n, u, num, msg) => esc(allyHref(n, u, num, msg));
 const initials = n => esc(String(n).split(' ').map(w => w[0]).slice(0, 2).join(''));
 // tarjeta tipo cuadro: con portada si Eduardo subió una foto; si no, solo logo o iniciales (sin espacio de imagen vacío)
-const allyCard = ([n, d, u, col, logo, cover]) => `<a class="ally-t${cover ? ' has-cover' : ''}" href="${allyLink(n, u)}" target="_blank" rel="noopener">
+const allyCard = ([n, d, u, col, logo, cover, num, msg]) => `<a class="ally-t${cover ? ' has-cover' : ''}" href="${allyLink(n, u, num, msg)}" target="_blank" rel="noopener">
   ${cover ? `<span class="ally-cv">${ph(cover, n)}</span>` : ''}<span class="ally-b"><span class="av${logo ? ' logo' : ''}" translate="no" style="background:${esc(logo ? '#fff' : col || '#232843')}">${logo ? ph(logo, n) : initials(n)}</span><span class="ally-tx"><b>${esc(n)}</b><span>${esc(d)}</span></span><span class="vip">VIP</span></span></a>`;
 /* ---------------- propietarios: alquiler de equipos y auxilio ---------------- */
 const RQ = { n: {}, days: 1 };
@@ -1035,7 +1125,7 @@ function renderRent() {
   for (const k of Object.keys(RQ.n)) if (!list.some(x => x.id === k)) delete RQ.n[k];
   const sel = list.filter(x => RQ.n[x.id] > 0), sub = sel.reduce((s, x) => s + (+x.price || 0) * RQ.n[x.id] * RQ.days, 0), dep = sel.reduce((s, x) => s + (+x.dep || 0) * RQ.n[x.id], 0), tbd = sel.some(x => !(+x.price > 0));
   el.innerHTML = `<h3 class="own-sub" id="rent-t">Alquiler de equipos esenciales</h3><p class="rating">Para resolver cualquier imprevisto antes de zarpar. Elige lo que necesitas y te lo tenemos listo.</p>
-    <div class="xis rent-l">${list.map(x => { const n = +RQ.n[x.id] || 0; return `<div class="xi${n ? ' on' : ''}">${x.photo ? `<span class="xi-img"><img src="${esc(x.photo)}" alt="" loading="lazy" decoding="async"></span>` : `<span class="xi-img xi-ini" aria-hidden="true" translate="no">${esc(xInit(x.name))}</span>`}<div class="xi-t"><b>${esc(x.name)}</b>${x.desc ? `<small>${esc(x.desc)}</small>` : ''}<span class="p">${+x.price > 0 ? money(x.price) + ' por día' : 'Precio a consultar'}${+x.dep > 0 ? ` · depósito ${money(x.dep)}` : ''}</span></div><div class="qty sm"><button type="button" data-rent="${esc(x.id)}" data-d="-1" aria-label="Quitar uno"${n ? '' : ' disabled'}>−</button><output>${n}</output><button type="button" data-rent="${esc(x.id)}" data-d="1" aria-label="Agregar uno">+</button></div></div>`; }).join('')}</div>
+    <div class="xis rent-l">${list.map(x => { const n = +RQ.n[x.id] || 0; return `<div class="xi${n ? ' on' : ''}">${x.photo ? zoomImg(x.photo, x.name) : `<span class="xi-img xi-ini" aria-hidden="true" translate="no">${esc(xInit(x.name))}</span>`}<div class="xi-t"><b>${esc(x.name)}</b>${x.desc ? `<small>${esc(x.desc)}</small>` : ''}<span class="p">${+x.price > 0 ? money(x.price) + ' por día' : 'Precio a consultar'}${+x.dep > 0 ? ` · depósito ${money(x.dep)}` : ''}</span></div><div class="qty sm"><button type="button" data-rent="${esc(x.id)}" data-d="-1" aria-label="Quitar uno"${n ? '' : ' disabled'}>−</button><output>${n}</output><button type="button" data-rent="${esc(x.id)}" data-d="1" aria-label="Agregar uno">+</button></div></div>`; }).join('')}</div>
     <div class="rent-sum glass-card"><div class="rs-h"><b>Tu resumen</b><div class="hx"><span>Días</span><div class="qty sm"><button type="button" data-rdays="-1" aria-label="Menos días"${RQ.days > 1 ? '' : ' disabled'}>−</button><output>${RQ.days}</output><button type="button" data-rdays="1" aria-label="Más días">+</button></div></div></div>
       ${sel.length ? `<ul>${sel.map(x => `<li><span>${esc(x.name)} × ${RQ.n[x.id]}</span><span>${+x.price > 0 ? money(x.price * RQ.n[x.id] * RQ.days) : 'por confirmar'}</span></li>`).join('')}</ul>
       <div class="total"><span>Alquiler${RQ.days > 1 ? ` (${RQ.days} días)` : ''}</span><span>${money(sub)}${tbd ? ' + por confirmar' : ''}</span></div>
@@ -1079,7 +1169,7 @@ function renderAllies() {
   const all = ALLIES.filter(c => !c.owners).flatMap(c => c.items), rb = $('#ribbon');
   if (rb) {
     rb.hidden = !all.length;
-    const one = all.map(([n, , u, , logo]) => `<a class="rb-i" href="${allyLink(n, u)}" target="_blank" rel="noopener" title="${esc(n)}">${logo ? `<img src="${esc(logo)}" alt="${esc(n)}" loading="lazy" decoding="async">` : `<span>${esc(n)}</span>`}</a>`).join('');
+    const one = all.map(([n, , u, , logo, , num, msg]) => `<a class="rb-i" href="${allyLink(n, u, num, msg)}" target="_blank" rel="noopener" title="${esc(n)}">${logo ? `<img src="${esc(logo)}" alt="${esc(n)}" loading="lazy" decoding="async">` : `<span>${esc(n)}</span>`}</a>`).join('');
     $('#ribbon-in').innerHTML = one + `<span class="rb-dup" aria-hidden="true">${one.replace(/<a /g, '<a tabindex="-1" ')}</span>`;
   }
 }
@@ -1152,6 +1242,6 @@ loadCatalog();
 // al cambiar de idioma: volver a pintar lo que lleva fechas, días y montos con formato local
 addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); window.TLL.renderMine && window.TLL.renderMine(); });
 
-window.TLL = { OFF, FOOD, RENT, DEF_FOOD, DEF_RENT, shopKind, featList, OWNER_PROS, waTo, isHigh, seasonOf, routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
+window.TLL = { TXT_SLOTS, vidSrc, VID, allyHref, allyMsg, phoneNum: waNum, OFF, FOOD, RENT, DEF_FOOD, DEF_RENT, shopKind, featList, OWNER_PROS, waTo, isHigh, seasonOf, routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
 document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; fitTo(b); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); });
 })();

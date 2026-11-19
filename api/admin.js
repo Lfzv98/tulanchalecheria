@@ -73,11 +73,22 @@ async function readBody(req, max = 2.2e6) {
   try { return JSON.parse(raw || '{}'); } catch { return null; }
 }
 async function cred() { const [c] = await redis([['GET', 'adm:cred']]); return c ? JSON.parse(c) : DEFAULT_CRED; }
+/* Sesión: devuelve el rol ('owner' = Eduardo, 'dev' = mantenimiento) o false. Las sesiones viejas (solo la hora) son de Eduardo. */
 async function authed(req) {
   const t = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
   if (!/^[A-Za-z0-9_-]{40,60}$/.test(t)) return false;
   const [s] = await redis([['GET', 'adm:s:' + sha(t)]]);
-  return !!s;
+  if (!s) return false;
+  try { const o = JSON.parse(s); return o && o.role === 'dev' ? 'dev' : 'owner'; } catch { return 'owner'; }
+}
+/* Secciones que el acceso de mantenimiento puede bloquear para Eduardo (19 nov, pedido de Luis).
+   Bloqueada = Eduardo la ve pero el servidor conserva lo publicado aunque intente cambiarla. */
+const LOCKS = { boats: ['boats', 'special'], routes: ['routes'], docks: ['docks'], pay: ['pay', 'wa'], allies: ['allies'], home: ['home', 'shop', 'food', 'rent'], tx: ['tx', 'vid', 'tr'], set: ['maxDays', 'basic'] };
+function keepLocked(cat, prev) {
+  const lock = Array.isArray(prev && prev.lock) ? prev.lock.filter(k => LOCKS[k]) : [];
+  lock.forEach(k => LOCKS[k].forEach(f => { if (prev && f in prev) cat[f] = prev[f]; else delete cat[f]; }));
+  cat.lock = lock;   // Eduardo no puede cambiar los bloqueos
+  return cat;
 }
 // ubicación del muelle que el cliente marcó en el mapa
 function pinOf(p) {
@@ -163,21 +174,23 @@ async function handler(req, res) {
       const c = await cred();
       const u = str(b.user, 80).toLowerCase(), pass = b.pass || '';
       const hit = cand => u === cand.user && same(pbkdf(pass, cand.salt, cand.iter), cand.hash);
-      const ok = hit(c) || extraCreds().some(hit);
+      const dev = extraCreds().some(hit), ok = hit(c) || dev;
       if (!ok) {
         await redis([['INCR', fk], ['EXPIRE', fk, LOCK_S]]);
         return send(res, 401, { error: 'bad_login', left: Math.max(0, MAX_FAILS - (+f || 0) - 1) });
       }
       const t = crypto.randomBytes(32).toString('base64url');
-      await redis([['SET', 'adm:s:' + sha(t), String(Date.now()), 'EX', SESSION_S], ['DEL', fk]]);
-      return send(res, 200, { token: t, expires: Date.now() + SESSION_S * 1000 });
+      const role = dev ? 'dev' : 'owner';
+      await redis([['SET', 'adm:s:' + sha(t), JSON.stringify({ t: Date.now(), role }), 'EX', SESSION_S], ['DEL', fk]]);
+      return send(res, 200, { token: t, expires: Date.now() + SESSION_S * 1000, role });
     }
 
     /* ---------- con sesión ---------- */
-    if (!(await authed(req))) return send(res, 401, { error: 'session' });
+    const role = await authed(req);
+    if (!role) return send(res, 401, { error: 'session' });
     const tok = String(req.headers.authorization).replace(/^Bearer\s+/i, '');
 
-    if (a === 'me') return send(res, 200, { ok: true });
+    if (a === 'me') return send(res, 200, { ok: true, role });
     if (a === 'logout') { await redis([['DEL', 'adm:s:' + sha(tok)]]); return send(res, 200, { ok: true }); }
 
     if (a === 'save') {
@@ -188,7 +201,10 @@ async function handler(req, res) {
       const s = JSON.stringify(cat);
       if (s.length > MAX_CAT) return send(res, 413, { error: 'too_big' });
       const [prev] = await redis([['GET', 'adm:cat']]);
-      const cmds = [['SET', 'adm:cat', s]];
+      let out = s;
+      if (role !== 'dev') { let pv = null; try { pv = prev ? JSON.parse(prev) : null; } catch {} out = JSON.stringify(keepLocked(cat, pv)); }
+      else { if (!Array.isArray(cat.lock)) { let pv = null; try { pv = prev ? JSON.parse(prev) : null; } catch {} cat.lock = Array.isArray(pv && pv.lock) ? pv.lock : []; } cat.lock = cat.lock.filter(k => LOCKS[k]); out = JSON.stringify(cat); }
+      const cmds = [['SET', 'adm:cat', out]];
       // la primera vez se guarda el catálogo original de la app ('{}'), para poder volver a él
       cmds.push(['LPUSH', 'adm:hist', JSON.stringify({ t: Date.now(), note: prev ? str(b.note, 80) : 'Catálogo original de la app', cat: prev || '{}' })], ['LTRIM', 'adm:hist', 0, 14]);
       await redis(cmds);
@@ -203,7 +219,8 @@ async function handler(req, res) {
       const [l] = await redis([['LRANGE', 'adm:hist', 0, 14]]);
       const o = (l || [])[num(b.i, 0, 14)]; if (!o) return send(res, 404, { error: 'not_found' });
       const [cur] = await redis([['GET', 'adm:cat']]);
-      const old = JSON.parse(o).cat;
+      let old = JSON.parse(o).cat;
+      if (role !== 'dev') { let pv = null, oc = {}; try { pv = cur ? JSON.parse(cur) : null; oc = JSON.parse(old || '{}'); } catch {} old = JSON.stringify(keepLocked(oc, pv)); }
       await redis([['SET', 'adm:cat', old], ['LPUSH', 'adm:hist', JSON.stringify({ t: Date.now(), note: 'Antes de restaurar', cat: cur })], ['LTRIM', 'adm:hist', 0, 14]]);
       return send(res, 200, { ok: true, cat: JSON.parse(old) });
     }

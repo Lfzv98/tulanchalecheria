@@ -2187,3 +2187,35 @@ footer.site{content-visibility:auto;contain-intrinsic-block-size:auto 900px}
 .ad-px-rep{margin-top:10px;padding:10px 12px;border-radius:10px;background:#ecfdf3;border:1px solid #a7e3c0;font-size:.9rem}
 .seg{display:inline-flex;gap:6px}.seg .chip.on{background:var(--sea-900,#151a33);color:#fff;border-color:transparent}
 .seg .chip{padding:8px 14px;border-radius:999px;border:1px solid #cfd5e3;background:#fff;color:#151a33;font-weight:600;cursor:pointer}
+/* 19 nov · Reservar ahora solo después de los 5 pasos (en todas las pantallas) */
+body:not(.st-last) #t-book{display:none!important}
+.t-steps-hint{margin:6px 0 0;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.08);font-size:.9rem;color:rgba(255,255,255,.8)}
+body.st-last .t-steps-hint{display:none}
+/* ventana para ampliar fotos de productos */
+.xi-zoom{padding:0;border:0;cursor:zoom-in;background:none;font:inherit}
+.xi-zoom:focus-visible{outline:3px solid #f5c400;outline-offset:2px}
+dialog.zoom{padding:0;border:0;background:transparent;max-width:min(92vw,900px);max-height:92vh;overflow:visible}
+dialog.zoom::backdrop{background:rgba(6,10,26,.86)}
+dialog.zoom figure{margin:0;display:grid;gap:10px;justify-items:center}
+dialog.zoom img{max-width:min(92vw,900px);max-height:78vh;width:auto;height:auto;border-radius:16px;background:#fff;object-fit:contain;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+dialog.zoom figcaption{color:#fff;font-weight:700;font-size:1.05rem;text-align:center;padding:0 8px}
+dialog.zoom .zm-x{position:fixed;top:max(14px,env(safe-area-inset-top));right:14px;width:46px;height:46px;border-radius:50%;border:0;background:#fff;color:#151a33;font-size:1.8rem;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.ad-link{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;padding:10px 12px;border-radius:12px;background:#f6f8fc;border:1px dashed #cfd5e3}
+.ad-link-t{grid-column:1/-1;font-size:.8rem;font-weight:700;color:#4a5370}
+.ad-link code{font-size:.78rem;word-break:break-all;color:#232843;min-width:0}
+/* videos por enlace (YouTube, Vimeo, Drive) */
+#vdlg.vframe iframe{display:block;width:min(92vw,960px);aspect-ratio:16/9;height:auto;border:0;border-radius:14px;background:#000}
+#vdlg.vframe.v iframe{width:min(92vw,420px);aspect-ratio:9/16;max-height:80vh}
+/* panel · textos y videos, mantenimiento */
+.ad-txsec{flex-wrap:wrap;margin:6px 0 14px}
+.ad-tx{display:grid;gap:12px}
+.ad-txi{padding:12px;border:1px solid #e3e7ef;border-radius:14px;background:#fff;display:grid;gap:8px}
+.ad-txi textarea,.ad-txi input{width:100%}
+.ad-vids{display:grid;gap:10px}
+.ad-vid{display:grid;grid-template-columns:96px 1fr auto;gap:12px;align-items:center;padding:10px;border:1px solid #e3e7ef;border-radius:14px;background:#fff}
+.ad-vid img{width:96px;height:64px;object-fit:cover;border-radius:10px;background:#e9edf5}
+@media (max-width:560px){.ad-vid{grid-template-columns:72px 1fr}.ad-vid img{width:72px;height:52px}.ad-vid>.btn{grid-column:1/-1}}
+.ad-locks{display:grid;gap:8px}
+.ad-locks .chk{display:flex;gap:8px;align-items:center;font-weight:600}
+.ad-wrap{flex-wrap:wrap}
+.ad-file{cursor:pointer}

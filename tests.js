@@ -61,7 +61,7 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) fails
   ok(await p.$('#cur-ves') === null, 'Sin selector de bolívares');
   ok((await p.textContent('.press-strip')).includes('Viajando con BIVI') && (await p.textContent('.press-strip')).includes('Canal Viajero'), 'Prensa: Viajando con BIVI y Canal Viajero');
   ok(await p.$('#sheet .side-nav a[href="#propietarios"]') !== null && await p.$('#sheet .side-nav a[href="#aliados"]') !== null, 'Menú lateral con todas las secciones (Servicio a bordo y Propietarios incluidos)');
-  ok(await p.evaluate(() => !document.querySelector('#tsearch') && !document.querySelector('[data-side-search]') && getComputedStyle(document.querySelector('.mainnav')).display === 'none' && document.querySelectorAll('.orbit-band .orb-card').length === 10), 'Sin búsqueda en el header; en el celular las secciones van en el menú y el menú giratorio');
+  ok(await p.evaluate(() => !document.querySelector('#tsearch') && !document.querySelector('[data-side-search]') && getComputedStyle(document.querySelector('.mainnav')).display === 'none' && document.querySelectorAll('.orbit-band .orb-card').length === 8), 'Sin búsqueda en el header; en el celular las secciones van en el menú y el menú giratorio');
   ok(await p.evaluate(() => ['.steps3', '.tiles', '#layers', '.cta-band'].every(s => !document.querySelector('[data-view="inicio"] ' + s))), 'Portada compacta: header, hero, lancha de la casa, menú giratorio y footer');
   ok((await p.textContent('#own-feature')).includes('+500 viajes exitosos'), 'Portada destaca la lancha de la casa con +500 viajes exitosos');
   await go('flota'); ok(await p.evaluate(() => location.hash) === '#flota' && await p.isVisible('#boats'), 'Enlace viejo #flota abre Embarcaciones');

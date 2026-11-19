@@ -1222,6 +1222,7 @@ const exact = [
 [`De regreso a tierra 🌅`, `Back on land 🌅`],
 [`¿Cómo estuvo tu paseo? ⭐`, `How was your trip? ⭐`],
 [`Hidrátate, aplica crema hidratante o aloe después del sol, enjuaga caretas y trajes con agua dulce y revisa que no se quede nada a bordo.`, `Drink water, use moisturizer or aloe after the sun, rinse masks and swimwear with fresh water and check nothing was left on board.`],
+[`Completa los 5 pasos y aquí podrás reservar.`, `Complete the 5 steps and you can book here.`],
 ];
 
 const pat = [
@@ -1266,6 +1267,7 @@ const pat = [
 [/^Tarjeta de regalo ([A-Z0-9-]+)$/, `Gift card {1}`, `Vale-presente {1}`],
 [/^Tarjeta de regalo aplicada \((.+)\)$/, `Gift card applied ({1})`, `Vale-presente aplicado ({1})`],
 [/^Fines de semana \+(\d+)%\.$/, `Weekends +{1}%.`, `Fins de semana +{1}%.`],
+[/^No pagas nada ahora: te confirmamos disponibilidad y abono\.$/, `You pay nothing now: we'll confirm availability and the deposit.`],
 [/^No pagas nada ahora: te confirmamos disponibilidad y abono\. Fines de semana \+(\d+)%\.$/, `You pay nothing now: we'll confirm availability and the deposit. Weekends +{1}%.`, `Você não paga nada agora: confirmamos disponibilidade e sinal. Fins de semana +{1}%.`],
 
 /* rumbos, playas y horarios */
@@ -1743,7 +1745,7 @@ const DEF_BOATS_SRC = [
 ];
 const normBoat = b => { b.maxBeaches ??= b.type === 'Lancha' ? 3 : 2; b.opt ??= {}; b.inc ??= []; b.amen ??= []; b.pick ??= {}; b.rp ??= {}; b.qty ??= {}; b.photos ??= {}; b.kx = Math.max(0, +b.kx || 0); b.rating ??= 5; b.trips ??= 0; b.hue ??= 200; b.dock ??= 0; return b; };
 const BOATS = JSON.parse(JSON.stringify(DEF_BOATS_SRC)).map(normBoat);
-const OWN = BOATS.find(b => b.own) || BOATS[0];
+const OWN = BOATS.find(b => b.own) || BOATS.find(b => /wet\s*dreams/i.test(b.name)) || BOATS[0];
 
 // Rumbos: nunca se cruzan. nm: millas náuticas aproximadas desde Lechería.
 // add: diferencia sobre la tarifa base cuando la embarcación no tiene precio propio para ese rumbo (vacío = precio por confirmar).
@@ -1766,17 +1768,35 @@ const VID = {
   comidas: ['Comidas y bebidas', 'v'], mercadillo: ['Cómo pedir en El Mercadillo', 'v'], rincon: ['Restaurante El Rincón Marino', 'v'],
   televen: ['Televen · Paseo en los canales', 'v']   // reportaje de Televen (18 nov), 720p con sonido
 };
-const vcard = (k, label) => VID[k] ? `<button type="button" class="vcard ${VID[k][1]}" data-vid="${k}" aria-label="Ver video: ${label || VID[k][0]}"><img src="media/v/${k}.jpg" alt="" loading="lazy" decoding="async"><span class="vplay" aria-hidden="true"></span><span class="vlbl">${label || VID[k][0]}</span></button>` : '';
+const vcard = (k, label) => VID[k] ? `<button type="button" class="vcard ${VID[k][1]}" data-vid="${k}" aria-label="Ver video: ${label || VID[k][0]}"><img src="${esc(posterOf(k))}" alt="" loading="lazy" decoding="async"><span class="vplay" aria-hidden="true"></span><span class="vlbl">${label || VID[k][0]}</span></button>` : '';
 const vlink = (k, label) => VID[k] ? `<button type="button" class="vlink" data-vid="${k}"><span class="vdot" aria-hidden="true"></span>${label || 'Ver video: ' + VID[k][0]}</button>` : '';
+/* Videos que Eduardo cambia desde el panel (19 nov): enlace de YouTube, Vimeo, Google Drive o un archivo .mp4.
+   Vacío = el video que viene con la app. */
+function vidSrc(u) {
+  u = String(u || '').trim(); if (!/^https:\/\//i.test(u)) return null;
+  let m;
+  if ((m = u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{11})/))) return { kind: 'frame', src: `https://www.youtube-nocookie.com/embed/${m[1]}?autoplay=1&rel=0&playsinline=1`, poster: `https://i.ytimg.com/vi/${m[1]}/hqdefault.jpg` };
+  if ((m = u.match(/vimeo\.com\/(?:video\/)?(\d+)/))) return { kind: 'frame', src: `https://player.vimeo.com/video/${m[1]}?autoplay=1` };
+  if ((m = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]{20,})/))) return { kind: 'frame', src: `https://drive.google.com/file/d/${m[1]}/preview` };
+  if (/\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u)) return { kind: 'file', src: u };
+  return { kind: 'link', src: u };
+}
+const vidOf = k => vidSrc((CAT.vid || {})[k]);
+const posterOf = k => { const o = vidOf(k); return o && o.poster ? o.poster : `media/v/${k}.jpg`; };
 function openVideo(k) {
   const d = $('#vdlg'); if (!d || !VID[k]) return;
-  d.className = VID[k][1];
-  d.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar video">×</button><video controls autoplay playsinline preload="metadata" poster="media/v/${k}.jpg" src="media/v/${k}.mp4"></video><p class="vcap">${VID[k][0]}</p>`;
+  const o = vidOf(k);
+  if (o && o.kind === 'link') { window.open(o.src, '_blank', 'noopener'); return; }
+  d.className = VID[k][1] + (o && o.kind === 'frame' ? ' vframe' : '');
+  const media = o && o.kind === 'frame' ? `<iframe src="${esc(o.src)}" title="${esc(VID[k][0])}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="eager"></iframe>`
+    : `<video controls autoplay playsinline preload="metadata" poster="${esc(posterOf(k))}" src="${esc(o ? o.src : `media/v/${k}.mp4`)}"></video>`;
+  d.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar video">×</button>${media}<p class="vcap">${esc(VID[k][0])}</p>`;
   d.onclick = e => { if (e.target === d || e.target.closest('.m-close')) d.close(); };
   d.onclose = () => { const v = $('video', d); if (v) { v.pause(); v.removeAttribute('src'); v.load(); } d.innerHTML = ''; };
   d.showModal();
-  const v = $('video', d); const p = v.play(); if (p && p.catch) p.catch(() => {});
+  const v = $('video', d); if (v) { const p = v.play(); if (p && p.catch) p.catch(() => {}); }
 }
+window.TLL_PREVIEW_VID = (k, u) => { const old = (CAT.vid || {})[k]; CAT.vid = CAT.vid || {}; CAT.vid[k] = u; openVideo(k); if (old == null) delete CAT.vid[k]; else CAT.vid[k] = old; };
 document.addEventListener('click', e => { const v = e.target.closest('[data-vid]'); if (v) { e.preventDefault(); openVideo(v.dataset.vid); } });
 const CANALES = {
   video: 'https://youtu.be/jVBf_uwYNwc',
@@ -1967,12 +1987,63 @@ function applyCat(c) {
   const hi = document.querySelector('#hero-reel img');
   if (hi) { hi.dataset.def ||= hi.getAttribute('src'); const so = hi.parentNode.querySelector('source'); if (so) so.dataset.def ||= so.getAttribute('srcset');
     hi.src = CAT.home.hero || hi.dataset.def; if (so) so.srcset = CAT.home.hero || so.dataset.def; }
+  // textos y frases editados en el panel (19 nov): [español, inglés]
+  CAT.tx = c.tx && typeof c.tx === 'object' && !Array.isArray(c.tx) ? clone(c.tx) : {};
+  CAT.vid = c.vid && typeof c.vid === 'object' && !Array.isArray(c.vid) ? clone(c.vid) : {};
+  CAT.press = Array.isArray(c.press) ? clone(c.press).filter(x => x && x.t && /^https:\/\//.test(x.url || '')) : [];
   // textos nuevos escritos por Eduardo con su versión en inglés
   const tr = [];
+  applyTexts(tr); renderPress();
   [...BOATS, ...ROUTES].forEach(x => { if (x.desc && x.desc_en) tr.push([x.desc, x.desc_en]); });
   if (Array.isArray(c.tr)) c.tr.forEach(r => Array.isArray(r) && r[0] && tr.push(r));
   if (window.TLL_I18N && TLL_I18N.add) TLL_I18N.add(tr);
 }
+/* ---------- Textos y frases editables desde el panel (19 nov, pedido de Luis) ----------
+   Cada espacio: [clave, sección, nombre, selector, tipo]. Tipos: txt = todo el texto del elemento;
+   after = el texto que sigue al título en negrita; hero = dos líneas (la segunda resaltada).
+   Selectores con prev:/next: toman el hermano anterior o siguiente del elemento. Vacío = el texto original. */
+const TXT_SLOTS = [
+  ['inicio_t', 'Portada', 'Título principal (2 líneas: la 2.ª sale resaltada)', '#inicio h1', 'hero'],
+  ['inicio_oe', 'Portada', 'Menú giratorio · etiqueta', 'prev:#orbit-t', 'txt'],
+  ['inicio_ot', 'Portada', 'Menú giratorio · título', '#orbit-t', 'txt'],
+  ...[['embarcaciones', 'flota-t', 'Embarcaciones'], ['playas', 'playas-t', 'Playas'], ['experiencias', 'exp-t', 'Experiencias'], ['aliados', 'ali-t', 'Servicio a bordo'], ['nosotros', 'nos-t', 'Nosotros'], ['reservar', 'res-t', 'Reservar'], ['mi-viaje', 'trip-t', 'Mi viaje'], ['propietarios', 'pool-t', 'Propietarios']].flatMap(([v, id, n]) => [
+    [v + '_e', n, 'Etiqueta sobre el título', 'prev:#' + id, 'txt'], [v + '_t', n, 'Título', '#' + id, 'txt'], [v + '_p', n, 'Texto bajo el título', 'next:#' + id, 'txt']]),
+  ['reservar_g1', 'Reservar', 'Aviso 1 · título', '.s1-tip-p p b', 'txt'], ['reservar_g2', 'Reservar', 'Aviso 1 · texto', '.s1-tip-p p b', 'after'],
+  ['reservar_m1', 'Reservar', 'Aviso 2 · título', '.s1-tip-d p b', 'txt'], ['reservar_m2', 'Reservar', 'Aviso 2 · texto', '.s1-tip-d p b', 'after'],
+  ['experiencias_c', 'Experiencias', 'Título de celebraciones', '.exps-h', 'txt'],
+  ['propietarios_s', 'Propietarios', 'Título de proveedores', '#owners-sv .head h2', 'txt'],
+  ['propietarios_pt', 'Propietarios', 'Título del pool', '#pool-sec .head h2', 'txt'], ['propietarios_pp', 'Propietarios', 'Texto del pool', '#pool-sec .own-lead', 'txt'],
+  ['nosotros_f1', 'Nosotros', 'Dato 1 · número', '.facts .fact:nth-child(1) b', 'txt'], ['nosotros_f1t', 'Nosotros', 'Dato 1 · texto', '.facts .fact:nth-child(1) span', 'txt'],
+  ['nosotros_f2', 'Nosotros', 'Dato 2 · número', '.facts .fact:nth-child(2) b', 'txt'], ['nosotros_f2t', 'Nosotros', 'Dato 2 · texto', '.facts .fact:nth-child(2) span', 'txt'],
+  ['nosotros_h', 'Nosotros', 'Horario · texto', '.visit .glass-card:nth-child(1) p', 'txt'],
+  ['nosotros_u', 'Nosotros', 'Ubicación · texto', '.visit .glass-card:nth-child(2) p', 'txt']
+];
+const txEl = sel => { const m = sel.match(/^(prev|next):(.+)$/); if (!m) return document.querySelector(sel); const e = document.querySelector(m[2]); return e && (m[1] === 'prev' ? e.previousElementSibling : e.nextElementSibling); };
+function applyTexts(tr) {
+  TXT_SLOTS.forEach(([k, , , sel, kind]) => {
+    const el = txEl(sel); if (!el) return;
+    const o = (CAT.tx || {})[k] || {}, es = String((Array.isArray(o) ? o[0] : o.es) || '').trim(), en = String((Array.isArray(o) ? o[1] : o.en) || '').trim();
+    if (kind === 'after') {
+      let n = el.nextSibling; if (!n || n.nodeType !== 3) { n = document.createTextNode(''); el.after(n); }
+      if (n.__tx0 == null) n.__tx0 = n.nodeValue;
+      n.nodeValue = es || n.__tx0;
+    } else {
+      if (el.__tx0 == null) el.__tx0 = el.innerHTML;
+      if (!es) el.innerHTML = el.__tx0;
+      else if (kind === 'hero') { const [a, ...b] = es.split(/\n+/); el.innerHTML = esc(a) + (b.length ? `<br><em>${esc(b.join(' '))}</em>` : ''); }
+      else el.innerHTML = esc(es).replace(/\n/g, '<br>');
+    }
+    if (es && en) { const ea = es.split(/\n+/), na = en.split(/\n+/); if (ea.length === na.length) ea.forEach((x, i) => tr.push([x, na[i]])); else tr.push([es, en]); }
+  });
+}
+/* Videos y reportajes nuevos en la franja de prensa de la portada */
+function renderPress() {
+  const box = $('#inicio-mas .wrap'); if (!box) return;
+  $$('.press-x', box).forEach(a => a.remove());
+  (CAT.press || []).forEach((x, i) => { const a = document.createElement('a'); a.className = 'press-x'; a.href = x.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = x.t;
+    const v = vidSrc(x.url); if (v && v.kind !== 'link') { a.dataset.pv = i; } box.appendChild(a); });
+}
+document.addEventListener('click', e => { const a = e.target.closest('[data-pv]'); if (!a) return; const x = (CAT.press || [])[+a.dataset.pv]; if (!x) return; e.preventDefault(); VID['_p'] = [x.t, 'h']; CAT.vid['_p'] = x.url; openVideo('_p'); });
 applyCat(store.get('cat', null));
 const ph = (u, alt = '') => `<img class="ph" src="${esc(u)}" alt="${esc(alt)}" loading="lazy" decoding="async">`;
 /* Fotos de cada embarcación. Solo se muestran las que Eduardo subió: un espacio sin foto no aparece en la web.
@@ -2322,6 +2393,9 @@ const CAPT_NOTE = 'La hora final de regreso puede variar según la recomendació
 
 /* ---------------- reserva guiada ---------------- */
 const Q = Object.assign({ pax: 4, kids: 0, boat: OWN ? OWN.id : 'b1', route: 'r1', beaches: [], dock: 'pm', hx: 0, date: iso(new Date(today.getTime() + 7 * 864e5)), acc: {} }, store.get('quote2', {}));
+// 19 nov (Eduardo): cada visita arranca con su embarcación (Wet Dreams 24) y el Rumbo 1
+const defBoat = () => { Q.boat = OWN ? OWN.id : Q.boat; }, defRoute = () => { Q.route = (ROUTES.find(r => r.id === 'r1') || ROUTES[0]).id; Q.beaches = []; };
+defBoat(); defRoute();
 /* Niños de 7 años o menos: cuentan como pasajeros, pero algunas embarcaciones admiten además unos niños pequeños (kx)
    sin costo extra. Ej.: la lancha de la casa lleva 5 adultos y hasta 3 niños pequeños. El precio es el de la embarcación. */
 const fitsOn = b => Q.pax <= b.pax && Q.pax + (Q.kids || 0) <= b.pax + (+b.kx || 0);
@@ -2400,7 +2474,7 @@ function renderPlan(b) {
   Q.shop = Q.shop || {}; for (const k of Object.keys(Q.shop)) { if (Q.shop[k] === true) Q.shop[k] = 1; if (!shopOn().some(x => x.id === k) || !(Q.shop[k] > 0)) delete Q.shop[k]; }
   Q.food = Q.food || {}; for (const k of Object.keys(Q.food)) if (!FOOD.some(x => x.id === k) || !(Q.food[k] > 0)) delete Q.food[k];
   const step = (kind, id, n) => `<div class="qty sm"><button type="button" data-qty="${kind}" data-id="${esc(id)}" data-d="-1" aria-label="Quitar uno"${n ? '' : ' disabled'}>−</button><output>${n}</output><button type="button" data-qty="${kind}" data-id="${esc(id)}" data-d="1" aria-label="Agregar uno">+</button></div>`;
-  const logo = (u, name) => u ? `<span class="xi-img"><img src="${esc(u)}" alt="" loading="lazy" decoding="async"></span>` : `<span class="xi-img xi-ini" aria-hidden="true" translate="no">${esc(xInit(name))}</span>`;
+  const logo = (u, name) => u ? zoomImg(u, name) : `<span class="xi-img xi-ini" aria-hidden="true" translate="no">${esc(xInit(name))}</span>`;
   const shopItem = x => { const n = +Q.shop[x.id] || 0; return `<div class="xi${n ? ' on' : ''}">${logo(x.photo, x.name)}<div class="xi-t"><b>${esc(x.name)}</b><small>${shopKind(x) === 'alquiler' ? 'Alquiler' : 'Venta'}${x.desc ? ' · ' + esc(x.desc) : ''}</small><span class="p">${money(x.price)} c/u</span></div>${step('shop', x.id, n)}</div>`; };
   const foodItem = x => { const n = +Q.food[x.id] || 0; return `<div class="xi${n ? ' on' : ''}">${logo(x.logo, x.brand || x.name)}<div class="xi-t"><span class="xi-brand">${esc(x.brand || '')}</span><b>${esc(x.name)}</b>${x.note ? `<small>${esc(x.note)}</small>` : ''}<span class="p">${+x.price > 0 ? money(x.price) : 'Precio por confirmar'}</span></div>${step('food', x.id, n)}</div>`; };
   const rentals = shopOn().filter(x => shopKind(x) === 'alquiler'), sales = shopOn().filter(x => shopKind(x) !== 'alquiler');
@@ -2423,6 +2497,17 @@ function renderPlan(b) {
         <a class="btn btn-ghost btn-sm" href="${MERCADILLO}" target="_blank" rel="noopener">Pedir en El Mercadillo</a>
         <p class="rating">También tienes más aliados en <a href="#aliados">Servicio a bordo</a>.</p></div></section>`;
 }
+/* 19 nov (Luis): las fotos de productos se amplían en una ventana al tocarlas (sobre todo en celular) */
+const zoomImg = (u, name) => `<button type="button" class="xi-img xi-zoom" data-zoom="${esc(u)}" data-cap="${esc(name || '')}" aria-label="Ver foto: ${esc(name || '')}"><img src="${esc(u)}" alt="" loading="lazy" decoding="async"></button>`;
+function openZoom(src, cap) {
+  let z = $('#zoom');
+  if (!z) { z = document.createElement('dialog'); z.id = 'zoom'; z.className = 'zoom'; document.body.appendChild(z);
+    z.addEventListener('click', e => { if (!e.target.closest('figure img') || e.target.closest('.zm-x')) z.close(); }); }
+  z.innerHTML = `<figure><img src="${esc(src)}" alt="${esc(cap || '')}"><figcaption>${esc(cap || '')}</figcaption></figure><button type="button" class="zm-x" aria-label="Cerrar">×</button>`;
+  z.showModal();
+}
+document.addEventListener('click', e => { const z = e.target.closest('[data-zoom]'); if (!z) return; e.preventDefault(); e.stopPropagation(); openZoom(z.dataset.zoom, z.dataset.cap); }, true);
+window.TLL_ZOOM = openZoom;
 const xInit = n => String(n || '').split(/\s+/).filter(w => /^[A-Za-zÁÉÍÓÚÑáéíóúñ]/.test(w)).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '•';
 function renderTicket() {
   const b = BOATS.find(x => x.id === Q.boat);
@@ -2456,8 +2541,9 @@ function renderTicket() {
     ${dc.fee ? `<div class="t-dock"><b>Servicio por uso de muelle: ${esc(dc.fee)}</b><span>No es un pago a Tu Lancha Lechería: lo cobra ${esc(dk.name)} y se paga en sitio. Si te buscamos en tu residencia, no aplica.</span></div>` : ''}
     <form class="code-in" id="code-form"><input id="q-code" placeholder="Código de amigo o de regalo" aria-label="Código de amigo o tarjeta de regalo" value="${esc(Q.code || '')}" autocomplete="off" autocapitalize="characters"><button class="btn btn-ghost on-sea btn-sm" type="submit">Aplicar</button></form>
     ${Q.code ? (code.kind ? `<span class="code-ok">✓ ${code.kind === 'ref' ? 'Descuento de amigo aplicado' : 'Tarjeta de regalo aplicada (' + money(code.value) + ')'}</span>` : `<span class="code-bad">Ese código no es válido. Revisa que esté bien escrito, por ejemplo ANA-7K2 o TLLG-B4XK.</span>`) : ''}
+    <p class="t-steps-hint">Completa los 5 pasos y aquí podrás reservar.</p>
     <button class="btn btn-sun btn-lg" type="button" id="t-book">Reservar ahora</button>
-    <p class="note">No pagas nada ahora: te confirmamos disponibilidad y abono. Fines de semana +${wkOf(b)}%.</p>`;
+    <p class="note">No pagas nada ahora: te confirmamos disponibilidad y abono.${+wkOf(b) ? ` Fines de semana +${wkOf(b)}%.` : ''}</p>`;
   const g2 = $('#ticket [data-gal]'); if (g2) { g2.dataset.boat = b.id; if (keepI) galGo(g2, keepI); }
   $('#mb-total').textContent = money(total);
   window.TLL_LAST = { hi: isHigh(d), boat: b.name, type: b.type, route: routeTxt, dock: dk.custom && Q.pin && Q.pin.ref ? `${dk.name} · ${Q.pin.ref}` : dk.name, pin: dk.custom && okPin(Q.pin) ? { lat: +Q.pin.lat, lng: +Q.pin.lng, ref: Q.pin.ref || '' } : null, dockFee: dc.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
@@ -2476,10 +2562,10 @@ function codeInfo(raw) {
   if (m) return { kind: 'gift', code: c, value: +m[1] };
   return { code: c };
 }
-$('#pax-m').onclick = () => { Q.pax = Math.max(1, Q.pax - 1); renderBuilder(); };
-$('#pax-p').onclick = () => { Q.pax = Math.min(30, Q.pax + 1); renderBuilder(); };
-$('#kid-m').onclick = () => { Q.kids = Math.max(0, (Q.kids || 0) - 1); renderBuilder(); };
-$('#kid-p').onclick = () => { Q.kids = Math.min(10, (Q.kids || 0) + 1); renderBuilder(); };
+$('#pax-m').onclick = () => { Q.pax = Math.max(1, Q.pax - 1); defBoat(); renderBuilder(); };
+$('#pax-p').onclick = () => { Q.pax = Math.min(30, Q.pax + 1); defBoat(); renderBuilder(); };
+$('#kid-m').onclick = () => { Q.kids = Math.max(0, (Q.kids || 0) - 1); defBoat(); renderBuilder(); };
+$('#kid-p').onclick = () => { Q.kids = Math.min(10, (Q.kids || 0) + 1); defBoat(); renderBuilder(); };
 $('#big-group').addEventListener('click', e => { if (e.target.closest('#bg-event')) { Q.boat = 'b8'; renderBuilder(); window.TLL.goStep && window.TLL.goStep(1); } });
 $('#reservar').addEventListener('click', e => {
   if (e.target.closest('#hx-m')) { Q.hx = Math.max(0, Q.hx - 1); return renderBuilder(); }
@@ -2511,7 +2597,7 @@ $('#b-date').onchange = e => { if (!e.target.value) return;
   const [y, m, d] = e.target.value.split('-').map(Number), dt = new Date(y, m - 1, d);
   if (dt < today) { toast('Elige una fecha desde hoy'); e.target.value = Q.date; return; }
   if (tooFar(dt)) { toast(`Reservamos con hasta ${CAT.maxDays} días de anticipación. Para fechas más lejanas, escríbenos por WhatsApp.`); e.target.value = Q.date; return; }
-  Q.date = e.target.value; renderBuilder(); };
+  Q.date = e.target.value; defBoat(); renderBuilder(); };
 $('#b-dock').onchange = e => { if (e.target.value === 'pin' && !okPin(Q.pin)) { e.target.value = Q.dock; openPinMap(); return; } Q.dock = e.target.value; renderBuilder(); };
 function renderMyPin() {
   const box = $('#b-mypin'); if (!box) return;
@@ -2676,10 +2762,16 @@ document.addEventListener('submit', e => {
 renderCanales();
 $('#exps').innerHTML = EXPS.map(x => `<div class="exp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${x[2]}</svg></span><h3>${x[0]}</h3><p>${x[1]}</p><a href="${wa(`Hola Tu Lancha Lechería 👋 Me interesa la experiencia "${x[0]}". ¿Me dan información?`)}" target="_blank" rel="noopener">Pedir propuesta →</a></div>`).join('');
 $('#ally-videos') && ($('#ally-videos').innerHTML = ['mercadillo', 'rincon', 'comidas'].map(k => vcard(k)).join(''));
-const allyLink = (n, u) => esc(u || wa(`Hola Tu Lancha Lechería 👋 Quiero agregar ${n} a mi salida.`));
+/* 19 nov (Eduardo): si el aliado tiene WhatsApp de ventas, el toque abre ese chat directo con
+   "Hola, soy cliente de Tu Lancha Lechería…" + el mensaje que él escriba en el panel. */
+const ALLY_HI = 'Hola, soy cliente de Tu Lancha Lechería 👋';
+const waNum = n => String(n || '').replace(/\D/g, '').replace(/^0(?=4\d{9}$)/, '58');
+const allyMsg = m => { m = String(m || '').trim(); return m ? (/tu lancha lecher/i.test(m) ? m : `${ALLY_HI} ${m}`) : `${ALLY_HI} Quisiera información.`; };
+const allyHref = (n, u, num, msg) => waNum(num).length >= 10 ? waTo(waNum(num), allyMsg(msg)) : u || wa(`Hola Tu Lancha Lechería 👋 Quiero agregar ${n} a mi salida.`);
+const allyLink = (n, u, num, msg) => esc(allyHref(n, u, num, msg));
 const initials = n => esc(String(n).split(' ').map(w => w[0]).slice(0, 2).join(''));
 // tarjeta tipo cuadro: con portada si Eduardo subió una foto; si no, solo logo o iniciales (sin espacio de imagen vacío)
-const allyCard = ([n, d, u, col, logo, cover]) => `<a class="ally-t${cover ? ' has-cover' : ''}" href="${allyLink(n, u)}" target="_blank" rel="noopener">
+const allyCard = ([n, d, u, col, logo, cover, num, msg]) => `<a class="ally-t${cover ? ' has-cover' : ''}" href="${allyLink(n, u, num, msg)}" target="_blank" rel="noopener">
   ${cover ? `<span class="ally-cv">${ph(cover, n)}</span>` : ''}<span class="ally-b"><span class="av${logo ? ' logo' : ''}" translate="no" style="background:${esc(logo ? '#fff' : col || '#232843')}">${logo ? ph(logo, n) : initials(n)}</span><span class="ally-tx"><b>${esc(n)}</b><span>${esc(d)}</span></span><span class="vip">VIP</span></span></a>`;
 /* ---------------- propietarios: alquiler de equipos y auxilio ---------------- */
 const RQ = { n: {}, days: 1 };
@@ -2691,7 +2783,7 @@ function renderRent() {
   for (const k of Object.keys(RQ.n)) if (!list.some(x => x.id === k)) delete RQ.n[k];
   const sel = list.filter(x => RQ.n[x.id] > 0), sub = sel.reduce((s, x) => s + (+x.price || 0) * RQ.n[x.id] * RQ.days, 0), dep = sel.reduce((s, x) => s + (+x.dep || 0) * RQ.n[x.id], 0), tbd = sel.some(x => !(+x.price > 0));
   el.innerHTML = `<h3 class="own-sub" id="rent-t">Alquiler de equipos esenciales</h3><p class="rating">Para resolver cualquier imprevisto antes de zarpar. Elige lo que necesitas y te lo tenemos listo.</p>
-    <div class="xis rent-l">${list.map(x => { const n = +RQ.n[x.id] || 0; return `<div class="xi${n ? ' on' : ''}">${x.photo ? `<span class="xi-img"><img src="${esc(x.photo)}" alt="" loading="lazy" decoding="async"></span>` : `<span class="xi-img xi-ini" aria-hidden="true" translate="no">${esc(xInit(x.name))}</span>`}<div class="xi-t"><b>${esc(x.name)}</b>${x.desc ? `<small>${esc(x.desc)}</small>` : ''}<span class="p">${+x.price > 0 ? money(x.price) + ' por día' : 'Precio a consultar'}${+x.dep > 0 ? ` · depósito ${money(x.dep)}` : ''}</span></div><div class="qty sm"><button type="button" data-rent="${esc(x.id)}" data-d="-1" aria-label="Quitar uno"${n ? '' : ' disabled'}>−</button><output>${n}</output><button type="button" data-rent="${esc(x.id)}" data-d="1" aria-label="Agregar uno">+</button></div></div>`; }).join('')}</div>
+    <div class="xis rent-l">${list.map(x => { const n = +RQ.n[x.id] || 0; return `<div class="xi${n ? ' on' : ''}">${x.photo ? zoomImg(x.photo, x.name) : `<span class="xi-img xi-ini" aria-hidden="true" translate="no">${esc(xInit(x.name))}</span>`}<div class="xi-t"><b>${esc(x.name)}</b>${x.desc ? `<small>${esc(x.desc)}</small>` : ''}<span class="p">${+x.price > 0 ? money(x.price) + ' por día' : 'Precio a consultar'}${+x.dep > 0 ? ` · depósito ${money(x.dep)}` : ''}</span></div><div class="qty sm"><button type="button" data-rent="${esc(x.id)}" data-d="-1" aria-label="Quitar uno"${n ? '' : ' disabled'}>−</button><output>${n}</output><button type="button" data-rent="${esc(x.id)}" data-d="1" aria-label="Agregar uno">+</button></div></div>`; }).join('')}</div>
     <div class="rent-sum glass-card"><div class="rs-h"><b>Tu resumen</b><div class="hx"><span>Días</span><div class="qty sm"><button type="button" data-rdays="-1" aria-label="Menos días"${RQ.days > 1 ? '' : ' disabled'}>−</button><output>${RQ.days}</output><button type="button" data-rdays="1" aria-label="Más días">+</button></div></div></div>
       ${sel.length ? `<ul>${sel.map(x => `<li><span>${esc(x.name)} × ${RQ.n[x.id]}</span><span>${+x.price > 0 ? money(x.price * RQ.n[x.id] * RQ.days) : 'por confirmar'}</span></li>`).join('')}</ul>
       <div class="total"><span>Alquiler${RQ.days > 1 ? ` (${RQ.days} días)` : ''}</span><span>${money(sub)}${tbd ? ' + por confirmar' : ''}</span></div>
@@ -2735,7 +2827,7 @@ function renderAllies() {
   const all = ALLIES.filter(c => !c.owners).flatMap(c => c.items), rb = $('#ribbon');
   if (rb) {
     rb.hidden = !all.length;
-    const one = all.map(([n, , u, , logo]) => `<a class="rb-i" href="${allyLink(n, u)}" target="_blank" rel="noopener" title="${esc(n)}">${logo ? `<img src="${esc(logo)}" alt="${esc(n)}" loading="lazy" decoding="async">` : `<span>${esc(n)}</span>`}</a>`).join('');
+    const one = all.map(([n, , u, , logo, , num, msg]) => `<a class="rb-i" href="${allyLink(n, u, num, msg)}" target="_blank" rel="noopener" title="${esc(n)}">${logo ? `<img src="${esc(logo)}" alt="${esc(n)}" loading="lazy" decoding="async">` : `<span>${esc(n)}</span>`}</a>`).join('');
     $('#ribbon-in').innerHTML = one + `<span class="rb-dup" aria-hidden="true">${one.replace(/<a /g, '<a tabindex="-1" ')}</span>`;
   }
 }
@@ -2808,7 +2900,7 @@ loadCatalog();
 // al cambiar de idioma: volver a pintar lo que lleva fechas, días y montos con formato local
 addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); window.TLL.renderMine && window.TLL.renderMine(); });
 
-window.TLL = { OFF, FOOD, RENT, DEF_FOOD, DEF_RENT, shopKind, featList, OWNER_PROS, waTo, isHigh, seasonOf, routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
+window.TLL = { TXT_SLOTS, vidSrc, VID, allyHref, allyMsg, phoneNum: waNum, OFF, FOOD, RENT, DEF_FOOD, DEF_RENT, shopKind, featList, OWNER_PROS, waTo, isHigh, seasonOf, routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
 document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; fitTo(b); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); });
 })();
 
@@ -4218,8 +4310,6 @@ const SECS = [
   ['experiencias', 'Experiencias', [['c-canales', 'Canales de El Morro', 'Al caer la tarde', '#experiencias', 'hero', 25], ['c-pesca', 'Pesca de altura', 'Más allá de Isla La Borracha', '#experiencias', 'drone', 215]]],
   ['regalos', 'Regalos y Club', [['c-regalo', 'Regala un día en el mar', 'Tarjetas de regalo', '#regalos', 'hero', 340], ['c-club', 'Club Tu Lancha Lechería', 'Invita y ganan los dos', '#club', 'exterior', 160]]],
   ['aliados', 'Servicio a bordo', [['c-comida', 'Comida y bebidas', 'Te lo llevan al muelle', '#aliados', 'interior', 30], ['c-vip', 'Estilo y hospedaje', 'Aliados VIP', '#aliados', 'hero', 280]]],
-  ['nosotros', 'Nosotros', [['c-somos', 'Quiénes somos', 'Gente de mar de Lechería', '#nosotros', 'hero', 200]]],
-  ['reservar', 'Reservar', [['c-wa', 'Reserva por WhatsApp', 'Te respondemos al instante', '#reservar', 'hero', 170]]],
   ['propietarios', 'Propietarios', [['c-servi', 'Servicios para propietarios', 'Proveedores, alquiler y auxilio', '#propietarios', 'interior', 205]]]
 ].filter(([sec]) => !(T.OFF || {})[sec]);   // secciones apagadas (Regalos y Club, por ahora) no salen en el menú giratorio
 const CARDS = SECS.flatMap(([sec, name, cards], si) => cards.map(c => ({ sec, si, secName: name, id: c[0], t: c[1], s: c[2], href: c[3], kind: c[4], hue: c[5] })));
@@ -4496,7 +4586,7 @@ function showLogin(msg = '') {
     const go = $('#lg-go'); go.disabled = true; go.textContent = 'Verificando…'; $('#lg-err').textContent = '';
     try {
       const j = await api('login', { user: $('#lg-u').value.trim(), pass: $('#lg-p').value });
-      TOK = { t: j.token, exp: j.expires }; saveTok(TOK, $('#lg-rem').checked);
+      TOK = { t: j.token, exp: j.expires, role: j.role || 'owner' }; saveTok(TOK, $('#lg-rem').checked);
       await boot();
     } catch (err) {
       $('#lg-err').textContent = err.code === 'bad_login' ? `Usuario o contraseña incorrectos.${err.data && err.data.left <= 3 ? ` Te quedan ${err.data.left} intentos antes de un bloqueo de 15 minutos.` : ''}`
@@ -4535,7 +4625,11 @@ function fromCat(c) {
     beachPhotos: c.beachPhotos || {},
     seasons: Array.isArray(c.seasons) ? c.seasons : [],
     hiPct: +c.hiPct || 0,
-    tr: c.tr || []
+    tr: c.tr || [],
+    tx: c.tx && typeof c.tx === 'object' && !Array.isArray(c.tx) ? c.tx : {},
+    vid: c.vid && typeof c.vid === 'object' && !Array.isArray(c.vid) ? c.vid : {},
+    lock: Array.isArray(c.lock) ? c.lock : [],
+    press: Array.isArray(c.press) ? c.press : []
   };
   // campos que el editor necesita, listos desde el inicio para que abrir algo no cuente como cambio
   o.boats.forEach(b => { ['photos', 'opt', 'pick', 'rp', 'qty', 'docs'].forEach(k => { if (!b[k] || typeof b[k] !== 'object') b[k] = {}; }); ['inc', 'amen'].forEach(k => { if (!Array.isArray(b[k])) b[k] = []; }); });
@@ -4582,15 +4676,16 @@ const photoSlot = (path, kind, label, small) => { const u = getPath(W, path); co
     <div class="ad-ph-b">${label ? `<b>${label}</b>` : ''}${spec ? `<small class="ad-ph-spec" title="Tamaño recomendado para que se vea nítida, sin recortes ni pixeleo">📐 ${spec}</small>` : ''}<div class="adm-tools"><button type="button" class="icon-btn" data-up="${path}" data-kind="${kind}">${u ? 'Cambiar' : 'Subir foto'}</button>${u ? `<button type="button" class="icon-btn" data-rmph="${path}">Quitar</button>` : ''}</div></div></div>`; };
 
 /* ---------------- estructura del panel ---------------- */
-const TABS = [['inicio', 'Resumen'], ['reservas', 'Reservas'], ['flota', 'Embarcaciones'], ['precios', 'Precios'], ['rumbos', 'Rumbos y playas'], ['muelles', 'Muelles'], ['pagos', 'Pagos'], ['aliados', 'Servicio a bordo'], ['portada', 'Portada y tienda'], ['ajustes', 'Ajustes']];
+const TABS = [['inicio', 'Resumen'], ['reservas', 'Reservas'], ['flota', 'Embarcaciones'], ['precios', 'Precios'], ['rumbos', 'Rumbos y playas'], ['muelles', 'Muelles'], ['pagos', 'Pagos'], ['aliados', 'Servicio a bordo'], ['propietarios', 'Propietarios'], ['portada', 'Portada y tienda'], ['contenido', 'Textos y videos'], ['ajustes', 'Ajustes'], ['mant', 'Mantenimiento']];
 function render() {
   bump(); adm.hidden = false; lockScroll(true);
+  if ((tab === 'mant' && !isDev()) || lockedTab(tab)) tab = 'inicio';
   const nNew = BK.filter(b => b.status === 'nueva').length;
   const sc = adm.scrollTop;
   adm.innerHTML = `<div class="ad">
     <header class="adm-bar"><div class="wrap"><img src="${$('.brand img').src}" alt="" width="34" height="34" class="ad-logo"><b>Panel de control</b>
       <div class="sp"><a class="btn btn-ghost on-sea btn-sm" href="./" target="_blank" rel="noopener">Ver la web</a><button class="btn btn-ghost on-sea btn-sm" type="button" data-help="bienvenida">Ayuda</button><button class="btn btn-sun btn-sm" type="button" id="a-out">Salir</button></div></div>
-      <nav class="ad-tabs wrap" aria-label="Secciones del panel">${TABS.map(([k, l]) => `<button type="button" data-adtab="${k}" aria-current="${k === tab ? 'page' : 'false'}">${l}${k === 'reservas' && nNew ? ` <i>${nNew}</i>` : ''}</button>`).join('')}</nav></header>
+      <nav class="ad-tabs wrap" aria-label="Secciones del panel">${TABS.filter(([k]) => (k !== 'mant' || isDev()) && !lockedTab(k)).map(([k, l]) => `<button type="button" data-adtab="${k}" aria-current="${k === tab ? 'page' : 'false'}">${l}${k === 'reservas' && nNew ? ` <i>${nNew}</i>` : ''}</button>`).join('')}</nav></header>
     <main class="wrap adm-main ad-body" id="ad-main">${VIEW[tab]()}</main>
     <div class="ad-save" ${dirty() ? '' : 'hidden'}><div class="wrap"><span><b>Tienes cambios sin publicar.</b> Los clientes verán los cambios cuando los publiques.</span><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" id="a-discard">Descartar</button><button class="btn btn-sun btn-sm" type="button" id="a-pub">Publicar cambios</button></div></div></div>
   </div>`;
@@ -4927,10 +5022,21 @@ const payPreview = () => { const P = W.pay, z = P.zelles[P.zelleOn] || {};
     + box('Binance Pay', 'Paga el abono en USDT a este ID de Binance Pay y mándanos la captura por WhatsApp.', P.binance ? 'ID ' + P.binance : '', `${P.binanceUser ? `<p class="rating">Usuario: <b>${esc(P.binanceUser)}</b></p>` : ''}${P.binanceQR || P.binanceLink ? `<div class="pay-qr">${P.binanceQR ? `<img src="${esc(P.binanceQR)}" alt="" width="120" height="120">` : ''}${P.binanceLink ? '<span class="btn btn-sun btn-sm">Abrir en Binance</span>' : ''}</div>` : ''}`); };
 
 /* ---------------- aliados ---------------- */
-VIEW.aliados = () => `<div class="ad-head"><div><h2>Servicio a bordo</h2><p class="rating">Aliados VIP que recomiendas. Salen en Servicio a bordo y en el cintillo del pie de página. Las categorías marcadas “para propietarios” salen en la página de Propietarios.</p></div><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" data-cat-new>+ Nueva categoría</button>${helpBtn('aliados')}</div></div>
-  ${W.allies.map((c, i) => `<section class="panel"><div class="adm-form">${inp(`allies.${i}.cat`, 'Categoría')}</div><div class="ad-checks">${inp(`allies.${i}.owners`, 'Para propietarios de embarcaciones (sale en Propietarios)', { t: 'bool' })}</div>
-    <div class="ad-allies">${c.items.map((it, j) => { const p = `allies.${i}.items.${j}`; return `<div class="ad-ally">${photoSlot(p + '.4', 'logo', 'Logo', true)}${photoSlot(p + '.5', 'cover', 'Portada', true)}<div class="adm-form">${inp(p + '.0', 'Nombre')}${inp(p + '.1', 'Descripción', { cls: 'ad-wide' })}${inp(p + '.2', 'Enlace (web o Instagram)', { ph: 'https://…', cls: 'ad-wide', hint: 'Vacío = abre WhatsApp para pedirlo.' })}<div class="field"><label>Color si no hay logo</label><input type="color" data-k="${p}.3" value="${esc(it[3] || '#232843')}"></div></div><button type="button" class="icon-btn ad-danger" data-ally-del="${i}.${j}">Quitar</button></div>`; }).join('')}</div>
-    <div class="adm-tools"><button type="button" class="ad-add" data-ally-add="${i}">+ Agregar aliado</button>${c.items.length ? '' : `<button type="button" class="icon-btn ad-danger" data-cat-del="${i}">Quitar categoría</button>`}</div></section>`).join('')}`;
+/* enlace directo que Eduardo puede mandar o mostrar en un video: abre el chat de ventas del aliado con el mensaje ya escrito */
+const allyShare = it => { const num = T.phoneNum(it[6]); return num.length >= 10 ? `https://wa.me/${num}?text=${encodeURIComponent(T.allyMsg(it[7]))}` : it[2] || ''; };
+const allyCat = (c, i) => `<section class="panel"><div class="adm-form">${inp(`allies.${i}.cat`, 'Categoría')}</div><div class="ad-checks">${inp(`allies.${i}.owners`, 'Para propietarios de embarcaciones (sale en Propietarios)', { t: 'bool' })}</div>
+    <div class="ad-allies">${c.items.map((it, j) => { const p = `allies.${i}.items.${j}`; return `<div class="ad-ally">${photoSlot(p + '.4', 'logo', 'Logo', true)}${photoSlot(p + '.5', 'cover', 'Portada', true)}<div class="adm-form">${inp(p + '.0', 'Nombre')}${inp(p + '.1', 'Descripción', { cls: 'ad-wide' })}${inp(p + '.6', 'WhatsApp de ventas del aliado', { ph: '0414 123 4567', hint: 'Con número, al tocar su foto se abre el chat de ventas del aliado.' })}${inp(p + '.7', 'Mensaje que le llega', { cls: 'ad-wide', ph: 'Requiero una batería…', hint: `Empieza solo con “Hola, soy cliente de Tu Lancha Lechería 👋”. Vacío = “Quisiera información.”` })}${inp(p + '.2', 'Enlace (web o Instagram)', { ph: 'https://…', cls: 'ad-wide', hint: 'Se usa si no hay WhatsApp. Vacío = abre el WhatsApp de Tu Lancha Lechería.' })}<div class="field ad-wide ad-link"><span class="ad-link-t">Enlace para compartir</span><code>${esc(allyShare(it)) || "Escribe el WhatsApp de ventas para generar el enlace."}</code><button type="button" class="btn btn-ghost btn-sm" data-ally-copy="${i}.${j}">Copiar enlace</button></div><div class="field"><label>Color si no hay logo</label><input type="color" data-k="${p}.3" value="${esc(it[3] || '#232843')}"></div></div><button type="button" class="icon-btn ad-danger" data-ally-del="${i}.${j}">Quitar</button></div>`; }).join('')}</div>
+    <div class="adm-tools"><button type="button" class="ad-add" data-ally-add="${i}">+ Agregar aliado</button>${c.items.length ? '' : `<button type="button" class="icon-btn ad-danger" data-cat-del="${i}">Quitar categoría</button>`}</div></section>`;
+VIEW.aliados = () => `<div class="ad-head"><div><h2>Servicio a bordo</h2><p class="rating">Aliados VIP que recomiendas. Salen en Servicio a bordo y en el cintillo del pie de página. Toca la foto de un aliado en la web y se abre su chat de ventas con el mensaje ya escrito. Los proveedores para propietarios están en su propia pestaña.</p></div><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" data-cat-new>+ Nueva categoría</button>${helpBtn('aliados')}</div></div>
+  ${W.allies.map((c, i) => c.owners ? '' : allyCat(c, i)).join('')}`;
+
+/* ---------------- propietarios (19 nov): proveedores con foto, descripción y WhatsApp de ventas + alquiler ---------------- */
+const RENT_SEC = () => `<section class="panel"><h3>Alquiler para propietarios <small>en la página Propietarios</small></h3><p class="rating">El propietario elige cantidades, ve su resumen con el depósito de garantía y lo envía por WhatsApp. Precio por día y depósito por unidad.</p>
+    <div class="ad-items">${W.rent.map((x, i) => `<div class="ad-item">${photoSlot(`rent.${i}.photo`, 'logo', 'Foto', true)}<div class="adm-form">${inp(`rent.${i}.name`, 'Artículo')}${inp(`rent.${i}.desc`, 'Descripción')}${inp(`rent.${i}.price`, 'Precio por día (USD)', { t: 'num' })}${inp(`rent.${i}.dep`, 'Depósito de garantía por unidad (USD)', { t: 'num' })}<div class="ad-checks">${inp(`rent.${i}.off`, 'Oculto por ahora', { t: 'bool' })}</div></div><button type="button" class="icon-btn ad-danger" data-list-del="rent.${i}">Quitar</button></div>`).join('')}</div>
+    <button type="button" class="ad-add" data-list-add="rent">+ Agregar artículo</button></section>`;
+VIEW.propietarios = () => `<div class="ad-head"><div><h2>Propietarios</h2><p class="rating">Lo que sale en la página Propietarios: tus proveedores (Ferrenautic, Seadek, Positive…) y el alquiler de equipos. Al tocar la foto de un proveedor, el cliente abre su chat de ventas con “Hola, soy cliente de Tu Lancha Lechería 👋” y tu mensaje. Usa “Copiar enlace” para mandarlo o mostrarlo en un video.</p></div><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" data-cat-new="owners">+ Nueva categoría</button></div></div>
+  ${W.allies.map((c, i) => c.owners ? allyCat(c, i) : '').join('')}
+  ${RENT_SEC()}`;
 
 /* ---------------- portada y tienda ---------------- */
 VIEW.portada = () => { const C = T.NAV_CARDS || []; return `<div class="ad-head"><div><h2>Portada y tienda</h2><p class="rating">La foto principal de la web, las pantallas del menú giratorio y los accesorios que vendes.</p></div><div class="adm-tools">${helpBtn('portada')}</div></div>
@@ -4947,9 +5053,47 @@ VIEW.portada = () => { const C = T.NAV_CARDS || []; return `<div class="ad-head"
   <section class="panel"><h3>Comidas y bebidas <small>“Esenciales favoritos para zarpar” en el paso Extras</small></h3><p class="rating">Cada artículo con el logo del aliado, el producto y su precio. Sin precio sale como “precio por confirmar”. Desmarca “Visible” para ocultarlo sin borrarlo.</p>
     <div class="ad-items">${W.food.map((x, i) => `<div class="ad-item">${photoSlot(`food.${i}.logo`, 'logo', 'Logo', true)}<div class="adm-form">${inp(`food.${i}.brand`, 'Aliado', { ph: 'La Cava' })}${inp(`food.${i}.name`, 'Producto')}${inp(`food.${i}.price`, 'Precio (USD)', { t: 'num' })}${inp(`food.${i}.note`, 'Nota (opcional)', { ph: 'Recomendado para lancha' })}<div class="ad-checks">${inp(`food.${i}.off`, 'Oculto por ahora', { t: 'bool' })}</div></div><button type="button" class="icon-btn ad-danger" data-list-del="food.${i}">Quitar</button></div>`).join('')}</div>
     <button type="button" class="ad-add" data-list-add="food">+ Agregar producto</button></section>
-  <section class="panel"><h3>Alquiler para propietarios <small>en la página Propietarios</small></h3><p class="rating">El propietario elige cantidades, ve su resumen con el depósito de garantía y lo envía por WhatsApp. Precio por día y depósito por unidad.</p>
-    <div class="ad-items">${W.rent.map((x, i) => `<div class="ad-item">${photoSlot(`rent.${i}.photo`, 'logo', 'Foto', true)}<div class="adm-form">${inp(`rent.${i}.name`, 'Artículo')}${inp(`rent.${i}.desc`, 'Descripción')}${inp(`rent.${i}.price`, 'Precio por día (USD)', { t: 'num' })}${inp(`rent.${i}.dep`, 'Depósito de garantía por unidad (USD)', { t: 'num' })}<div class="ad-checks">${inp(`rent.${i}.off`, 'Oculto por ahora', { t: 'bool' })}</div></div><button type="button" class="icon-btn ad-danger" data-list-del="rent.${i}">Quitar</button></div>`).join('')}</div>
-    <button type="button" class="ad-add" data-list-add="rent">+ Agregar artículo</button></section>`; };
+`; };
+
+/* ---------------- textos, frases y videos (19 nov) ----------------
+   Eduardo cambia los títulos y frases de cada página, los videos (por enlace) y agrega reportajes a la portada.
+   Vacío = el texto o video original. El inglés es opcional: si no lo escribe, en inglés se ve el texto original traducido. */
+let txSec = 'Portada';
+const VID_LBL = k => (T.VID[k] || [k])[0];
+VIEW.contenido = () => {
+  const S = T.TXT_SLOTS || [], secs = [...new Set(S.map(x => x[1]))];
+  if (!secs.includes(txSec)) txSec = secs[0];
+  const cur = k => (W.tx[k] || {});
+  const orig = sel => { try { const m = sel.match(/^(prev|next):(.+)$/); let e = m ? document.querySelector(m[2]) : document.querySelector(sel); if (m && e) e = m[1] === 'prev' ? e.previousElementSibling : e.nextElementSibling; if (!e) return ''; return (e.__tx0 != null ? (() => { const d = document.createElement('div'); d.innerHTML = e.__tx0; return d.innerText || d.textContent; })() : e.innerText || e.textContent).trim(); } catch { return ''; } };
+  const origAfter = sel => { const e = document.querySelector(sel); const n = e && e.nextSibling; return n ? String(n.__tx0 ?? n.nodeValue ?? '').trim() : ''; };
+  return `<div class="ad-head"><div><h2>Textos y videos</h2><p class="rating">Cambia los títulos y frases de la web, los videos y los reportajes de la portada. Si dejas un campo vacío, queda el texto original (lo ves en gris). El inglés es opcional.</p></div></div>
+  <section class="panel"><h3>Textos y frases</h3>
+    <div class="seg ad-txsec" role="group" aria-label="Página">${secs.map(x => `<button type="button" class="chip${x === txSec ? ' on' : ''}" data-txsec="${esc(x)}">${esc(x)}</button>`).join('')}</div>
+    <div class="ad-tx">${S.filter(x => x[1] === txSec).map(([k, , label, sel, kind]) => { const o = kind === 'after' ? origAfter(sel) : orig(sel), area = kind === 'hero' || o.length > 70; return `<div class="ad-txi"><div class="adm-form">${inp(`tx.${k}.es`, label, { area, rows: kind === 'hero' ? 2 : 3, ph: o, cls: 'ad-wide', hint: kind === 'hero' ? 'Escribe 2 líneas: la segunda sale resaltada.' : '' })}${inp(`tx.${k}.en`, 'En inglés (opcional)', { area, rows: 2, ph: 'English version', cls: 'ad-wide' })}</div>${cur(k).es ? `<button type="button" class="btn btn-ghost btn-sm" data-tx-reset="${k}">Volver al original</button>` : ''}</div>`; }).join('')}</div>
+  </section>
+  <section class="panel"><h3>Videos de la web <small>pega el enlace de YouTube, Vimeo, Google Drive o un archivo .mp4</small></h3>
+    <p class="rating">Para subir un video nuevo: súbelo a YouTube (puede ser “no listado”) o a Google Drive (compartido con “cualquier persona con el enlace”) y pega aquí el enlace. Vacío = el video que ya trae la web.</p>
+    <div class="ad-vids">${Object.keys(T.VID).filter(k => k[0] !== '_').map(k => { const u = W.vid[k] || '', v = u ? T.vidSrc(u) : null; return `<div class="ad-vid"><img src="${esc(v && v.poster ? v.poster : 'media/v/' + k + '.jpg')}" alt="" loading="lazy"><div class="adm-form">${inp('vid.' + k, esc(VID_LBL(k)), { ph: 'https://youtu.be/…', cls: 'ad-wide', hint: u && !v ? '⚠️ El enlace debe empezar con https://' : u && v.kind === 'link' ? 'Este enlace se abrirá en otra pestaña (no se puede ver dentro de la web).' : '' })}</div><button type="button" class="btn btn-ghost btn-sm" data-vid-test="${k}">Ver</button></div>`; }).join('')}</div>
+  </section>
+  <section class="panel"><h3>Reportajes y videos en la portada <small>se agregan a “Nos han reseñado”</small></h3>
+    <div class="ad-items">${(W.press = W.press || []).map((x, i) => `<div class="ad-item"><div class="adm-form">${inp(`press.${i}.t`, 'Nombre', { ph: 'Venevisión · Mochima' })}${inp(`press.${i}.url`, 'Enlace', { ph: 'https://youtu.be/…', cls: 'ad-wide' })}</div><button type="button" class="icon-btn ad-danger" data-press-del="${i}">Quitar</button></div>`).join('')}</div>
+    <button type="button" class="ad-add" data-press-add>+ Agregar reportaje o video</button>
+  </section>`;
+};
+
+/* ---------------- mantenimiento (solo el acceso de Luis) ----------------
+   Respaldo y restauración del catálogo, volver secciones a como vienen en la app y bloquear lo que Eduardo no debe tocar. */
+const LOCK_L = [['boats', 'Embarcaciones y precios', ['flota', 'precios']], ['routes', 'Rumbos y playas', ['rumbos']], ['docks', 'Muelles', ['muelles']], ['pay', 'Pagos y WhatsApp principal', ['pagos']], ['allies', 'Servicio a bordo y proveedores', ['aliados', 'propietarios']], ['home', 'Portada y tienda', ['portada']], ['tx', 'Textos y videos', ['contenido']], ['set', 'Ajustes de reservas', []]];
+const isDev = () => TOK && TOK.role === 'dev';
+const lockedTab = k => !isDev() && (W.lock || []).some(l => (LOCK_L.find(x => x[0] === l) || [, , []])[2].includes(k));
+const RESET_L = [['boats', 'Embarcaciones'], ['routes', 'Rumbos'], ['docks', 'Muelles'], ['allies', 'Servicio a bordo y proveedores'], ['shop', 'Accesorios (tienda)'], ['food', 'Comidas y bebidas'], ['rent', 'Alquiler para propietarios'], ['basic', 'Incluido en todas'], ['tx', 'Textos editados'], ['vid', 'Videos cambiados']];
+VIEW.mant = () => isDev() ? `<div class="ad-head"><div><h2>Mantenimiento</h2><p class="rating">Solo lo ves con tu acceso. Eduardo no ve esta pestaña.</p></div></div>
+  <section class="panel"><h3>Lo que Eduardo puede editar</h3><p class="rating">Marca lo que quieres bloquear. Eduardo deja de ver esas pestañas y, aunque intente cambiarlas, el servidor conserva lo publicado. Toca <b>Publicar</b> para aplicarlo.</p>
+    <div class="ad-checks ad-locks">${LOCK_L.map(([k, l]) => `<label class="chk"><input type="checkbox" data-lock="${k}"${(W.lock || []).includes(k) ? ' checked' : ''}> 🔒 ${esc(l)}</label>`).join('')}</div></section>
+  <section class="panel"><h3>Respaldo</h3><p class="rating">Descarga todo el catálogo (embarcaciones, precios, textos, fotos enlazadas) en un archivo. Para restaurarlo, cárgalo aquí, revisa y publica.</p>
+    <div class="adm-tools"><button type="button" class="btn btn-sun btn-sm" data-bk-dl>Descargar respaldo</button><label class="btn btn-ghost btn-sm ad-file">Cargar respaldo<input type="file" accept="application/json,.json" data-bk-up hidden></label></div></section>
+  <section class="panel"><h3>Volver a como viene en la app</h3><p class="rating">Reemplaza una sección por la versión original de la app. Se aplica al publicar; las versiones anteriores quedan en Ajustes → Versiones publicadas.</p>
+    <div class="adm-tools ad-wrap">${RESET_L.map(([k, l]) => `<button type="button" class="btn btn-ghost btn-sm" data-reset-sec="${k}">${esc(l)}</button>`).join('')}</div></section>` : `<div class="ad-head"><h2>Mantenimiento</h2></div><p class="rating">Esta sección es solo para el acceso de mantenimiento.</p>`;
 
 /* ---------------- ajustes ---------------- */
 VIEW.ajustes = () => `<div class="ad-head"><div><h2>Ajustes</h2></div><div class="adm-tools">${helpBtn('ajustes')}</div></div>
@@ -5060,6 +5204,8 @@ adm.addEventListener('input', e => {
 });
 adm.addEventListener('change', e => {
   const el = e.target;
+  if (el.dataset.lock && isDev()) { const k = el.dataset.lock; W.lock = (W.lock || []).filter(x => x !== k); if (el.checked) W.lock.push(k); refreshSaveBar(); return; }
+  if (el.dataset.bkUp != null && isDev() && el.files && el.files[0]) { const f = el.files[0]; f.text().then(t => { let c; try { c = JSON.parse(t); } catch { toast('Ese archivo no es un respaldo válido'); return; } if (!c || !Array.isArray(c.boats)) { toast('Ese archivo no es un respaldo del catálogo'); return; } if (!confirm('¿Cargar este respaldo? Reemplaza lo que ves en el panel; se publica cuando toques Publicar.')) return; const lock = W.lock; W = fromCat(c); if (!Array.isArray(c.lock)) W.lock = lock; refreshSaveBar(); render(); toast('Respaldo cargado: revisa y publica'); }); el.value = ''; return; }
   if (el.dataset.k && W && (el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'color')) { setPath(W, el.dataset.k, readVal(el)); refreshSaveBar(); if (el.closest('.ad-sheet') && /\.(hidden|type)$/.test(el.dataset.k)) { const sc = $('.ad-sheet.k-boat', adm), st = sc ? sc.scrollTop : 0; render(); boatEditor(editing); const n = $('.ad-sheet.k-boat', adm); if (n) n.scrollTop = st; } return; }
   if (el.dataset.acc) { const b = W.boats[editing], k = el.dataset.acc, v = el.value; b.inc = b.inc.filter(x => x !== k); delete b.opt[k]; if (v === 'inc') b.inc.push(k); if (v === 'opt') b.opt[k] = 0; const p = $(`[data-accp="${k}"]`, adm); p.hidden = v !== 'opt'; if (v === 'opt') p.focus(); refreshSaveBar(); return; }
   if (el.dataset.zon != null) { W.pay.zelleOn = +el.dataset.zon; refreshSaveBar(); render(); return; }
@@ -5153,9 +5299,17 @@ adm.addEventListener('click', async e => {
   if (d.zadd != null) { W.pay.zelles.push({ name: '', email: '' }); render(); const ins = $$('[data-k$=".name"]', adm); const l = ins[ins.length - 1]; if (l) l.focus(); return; }
   if (d.zdel != null) { const i = +d.zdel, z = W.pay.zelles[i]; if (!confirm(`¿Quitar la cuenta Zelle${z.name ? ' de ' + z.name : ''}?`)) return; W.pay.zelles.splice(i, 1); if (W.pay.zelleOn > i) W.pay.zelleOn--; if (W.pay.zelleOn >= W.pay.zelles.length) W.pay.zelleOn = 0; render(); return; }
   // aliados
+  if (d.txsec) { txSec = d.txsec; render(); return; }
+  if (d.txReset) { delete W.tx[d.txReset]; refreshSaveBar(); render(); return; }
+  if (d.vidTest) { const u = W.vid[d.vidTest]; const v = u ? T.vidSrc(u) : null; if (u && !v) { toast('El enlace debe empezar con https://'); return; } if (v && v.kind === 'link') { window.open(v.src, '_blank', 'noopener'); return; } window.TLL_PREVIEW_VID ? window.TLL_PREVIEW_VID(d.vidTest, u) : window.open(u || `media/v/${d.vidTest}.mp4`, '_blank', 'noopener'); return; }
+  if (d.pressAdd != null) { (W.press = W.press || []).push({ t: '', url: '' }); refreshSaveBar(); render(); return; }
+  if (d.pressDel != null) { W.press.splice(+d.pressDel, 1); refreshSaveBar(); render(); return; }
+  if (d.bkDl != null) { const b = new Blob([JSON.stringify(W, null, 1)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `tulanchalecheria-respaldo-${new Date().toISOString().slice(0, 10)}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); return; }
+  if (d.resetSec) { if (!isDev()) return; const k = d.resetSec; if (!confirm(`¿Volver “${(RESET_L.find(x => x[0] === k) || [, k])[1]}” a como viene en la app? Se aplica al publicar.`)) return; W[k] = k === 'tx' || k === 'vid' ? {} : clone(DEF[k]); refreshSaveBar(); render(); toast('Listo: revisa y publica'); return; }
+  if (d.allyCopy != null) { const [i, j] = d.allyCopy.split('.').map(Number), it = W.allies[i].items[j]; const link = allyShare(it); try { await navigator.clipboard.writeText(link); toast('Enlace copiado: pégalo donde quieras'); } catch { prompt('Copia este enlace:', link); } return; }
   if (d.allyAdd != null) { W.allies[+d.allyAdd].items.push(['Nuevo aliado', '', '', '#232843', '', '']); render(); return; }
   if (d.allyDel != null) { const [i, j] = d.allyDel.split('.').map(Number); if (!confirm(`¿Quitar ${W.allies[i].items[j][0]}?`)) return; W.allies[i].items.splice(j, 1); render(); return; }
-  if (d.catNew != null) { W.allies.push({ cat: 'Nueva categoría', items: [['Nuevo aliado', '', '', '#232843', '', '']] }); render(); return; }
+  if (d.catNew != null) { W.allies.push({ cat: d.catNew === 'owners' ? 'Para propietarios' : 'Nueva categoría', owners: d.catNew === 'owners', items: [['Nuevo aliado', '', '', '#232843', '', '']] }); render(); return; }
   if (d.catDel != null) { W.allies.splice(+d.catDel, 1); render(); return; }
   // ajustes
   if (t.id === 'hist-load') {
@@ -5181,7 +5335,7 @@ async function enter() {
   if (!adm.hidden) return;
   TOK = loadTok();
   if (!TOK) return showLogin();
-  try { await api('me', null, true); await boot(); } catch (e) { if (e.code !== 'session') showLogin(e.code === 'net' ? errMsg(e) : ''); }
+  try { const me = await api('me', null, true); if (TOK && me && me.role) TOK.role = me.role; await boot(); } catch (e) { if (e.code !== 'session') showLogin(e.code === 'net' ? errMsg(e) : ''); }
 }
 function maybeOpen() { if (location.hash === '#capitan') enter(); }
 addEventListener('hashchange', maybeOpen); maybeOpen();
