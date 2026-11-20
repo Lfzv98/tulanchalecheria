@@ -850,7 +850,7 @@ const exact = [
 [`Escoge tu muelle en el mapa`, `Pick your dock on the map`],
 [`Escoge tu muelle`, `Pick your dock`],
 [`Marca el punto exacto en el mapa satelital`, `Mark the exact spot on the satellite map`],
-[`Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.`, `Save the address; it will be sent to TuLanchaLecheria when you finish your request.`],
+[`Guarda la dirección, se enviará a Tu Lancha Lechería al finalizar tu solicitud.`, `Save the address; it will be sent to Tu Lancha Lechería when you finish your request.`],
 [`Te confirmamos por WhatsApp si la embarcación puede llegar y si hay recargo.`, `We'll confirm on WhatsApp whether the boat can get there and if there's a surcharge.`],
 [`Recogida en tu muelle`, `Pickup at your dock`],
 [`Saldrás de tu muelle`, `You'll depart from your dock`],

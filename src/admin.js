@@ -180,6 +180,7 @@ function render() {
     <div class="ad-save" ${dirty() ? '' : 'hidden'}><div class="wrap"><span><b>Tienes cambios sin publicar.</b> Los clientes verán los cambios cuando los publiques.</span><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" id="a-discard">Descartar</button><button class="btn btn-sun btn-sm" type="button" id="a-pub">Publicar cambios</button></div></div></div>
   </div>`;
   adm.scrollTop = sc;
+  { const nav = $('.ad-tabs', adm), at = nav && $('[aria-current="page"]', nav); if (nav && at && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = Math.max(0, at.offsetLeft - (nav.clientWidth - at.offsetWidth) / 2); }
   if (tab === 'inicio') wireChart();
 }
 function refreshSaveBar() { const s = $('.ad-save', adm); if (s) s.hidden = !dirty(); }
@@ -345,7 +346,8 @@ function seasonPanel() {
   return `<section class="panel ad-season"><h3>Temporada alta <small>${W.seasons.length ? W.seasons.length + (W.seasons.length === 1 ? ' rango de fechas' : ' rangos de fechas') : 'sin fechas marcadas'}</small></h3>
     <p class="rating">Marca las fechas de temporada alta (Navidad, Carnaval, Semana Santa, agosto…). Para un solo día, deja “Hasta” igual que “Desde”. En esas fechas la web cobra la tarifa de temporada alta que pones en cada embarcación (Editar → Precio) y pide el 100% para apartar.</p>
     <div class="ad-seasons">${W.seasons.map((x, i) => `<div class="ad-srow">${inp(`seasons.${i}.name`, 'Nombre', { ph: 'Navidad y Año Nuevo' })}${inp(`seasons.${i}.from`, 'Desde', { type: 'date' })}${inp(`seasons.${i}.to`, 'Hasta', { type: 'date' })}<button type="button" class="icon-btn ad-danger" data-season-del="${i}" aria-label="Quitar este rango">Quitar</button></div>`).join('')}</div>
-    <div class="adm-form" style="margin-top:10px"><div class="field"><button type="button" class="btn btn-ghost btn-sm" data-season-add>+ Agregar fechas de temporada alta</button></div>${inp('hiPct', 'Sin tarifa de temporada alta: % sobre la normal', { t: 'num', ph: '0', hint: 'Para las embarcaciones que no tengan su tarifa de temporada alta. 0 = cobran lo mismo.' })}</div></section>`;
+    <button type="button" class="btn btn-ghost btn-sm ad-season-add" data-season-add>+ Agregar fechas de temporada alta</button>
+    <div class="adm-form ad-hipct">${inp('hiPct', 'Si una embarcación no tiene precio de temporada alta: % sobre la normal', { t: 'num', ph: '0', cls: 'ad-wide', hint: 'Se usa solo para las embarcaciones sin tarifa de temporada alta. 0 = cobran lo mismo.' })}</div></section>`;
 }
 function boatEditor(i) {
   const b = W.boats[i]; if (!b) return; const p = 'boats.' + i;

@@ -2219,3 +2219,15 @@ dialog.zoom .zm-x{position:fixed;top:max(14px,env(safe-area-inset-top));right:14
 .ad-locks .chk{display:flex;gap:8px;align-items:center;font-weight:600}
 .ad-wrap{flex-wrap:wrap}
 .ad-file{cursor:pointer}
+/* 20 nov · detalles del panel */
+.ad-season-add{margin:12px 0 4px}
+.ad-hipct{margin-top:14px}
+.ad-hipct .field input{max-width:180px}
+.adm-form .btn{max-width:100%;white-space:normal}
+.dockinfo .vlink + small,.dockinfo .vlink ~ small{display:block;margin-top:8px}
+@media (min-width:900px){#boats .boat.own{display:grid;grid-template-columns:55% minmax(0,1fr);align-items:stretch}#boats .boat.own .shot{min-height:320px;height:100%}#boats .boat.own .body{min-width:0}}
+@media (max-width:360px){.xi{grid-template-columns:48px minmax(0,1fr)}.xi>.qty{grid-column:2;justify-self:start}.xi-img{width:48px;height:48px}}
+#adm .ad-season-add{justify-self:start;align-self:start;width:auto;display:inline-flex}#adm .ad-hipct input[data-k="hiPct"]{max-width:200px}
+@media (min-width:900px){.ad-tabs{flex-wrap:wrap!important;overflow-x:visible;row-gap:2px}.ad-tabs button{padding:8px 12px}}
+/* en el celular, sombra a la derecha para que se note que hay más pestañas */
+@media (max-width:899px){.ad-tabs{mask-image:linear-gradient(90deg,#000 88%,transparent);-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);padding-right:28px}}

@@ -850,7 +850,7 @@ const exact = [
 [`Escoge tu muelle en el mapa`, `Pick your dock on the map`],
 [`Escoge tu muelle`, `Pick your dock`],
 [`Marca el punto exacto en el mapa satelital`, `Mark the exact spot on the satellite map`],
-[`Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.`, `Save the address; it will be sent to TuLanchaLecheria when you finish your request.`],
+[`Guarda la dirección, se enviará a Tu Lancha Lechería al finalizar tu solicitud.`, `Save the address; it will be sent to Tu Lancha Lechería when you finish your request.`],
 [`Te confirmamos por WhatsApp si la embarcación puede llegar y si hay recargo.`, `We'll confirm on WhatsApp whether the boat can get there and if there's a surcharge.`],
 [`Recogida en tu muelle`, `Pickup at your dock`],
 [`Saldrás de tu muelle`, `You'll depart from your dock`],
@@ -2605,9 +2605,9 @@ function renderMyPin() {
   box.innerHTML = p
     ? `<div class="mypin-card${on ? ' on' : ''}"><span class="mypin-ic" aria-hidden="true">${PIN_SVG}</span><div class="mypin-t"><b>${on ? 'Saldrás de tu muelle' : 'Tu muelle guardado'}</b>${p.ref ? `<span translate="no">${esc(p.ref)}</span>` : ''}<small class="mono" translate="no">${pinTxt(p)}</small></div>
       <div class="mypin-acts">${on ? '' : '<button type="button" class="btn btn-sun btn-sm" data-pin-use>Usar este muelle</button>'}<button type="button" class="btn btn-ghost btn-sm" data-pin-open>Cambiar</button><a class="btn btn-ghost btn-sm" href="${gmapsUrl(p)}" target="_blank" rel="noopener">Ver en Google Maps</a><button type="button" class="linkish" data-pin-del>Quitar</button></div></div>
-      <p class="mypin-note">Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.</p>`
+      <p class="mypin-note">Guarda la dirección, se enviará a Tu Lancha Lechería al finalizar tu solicitud.</p>`
     : `<button type="button" class="mypin-btn" data-pin-open><span class="mypin-ic" aria-hidden="true">${PIN_SVG}</span><span><b>Escoge tu muelle</b><small>Marca el punto exacto en el mapa satelital</small></span></button>
-      <p class="mypin-note">Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.</p>`;
+      <p class="mypin-note">Guarda la dirección, se enviará a Tu Lancha Lechería al finalizar tu solicitud.</p>`;
 }
 $('#b-mypin').addEventListener('click', e => {
   if (e.target.closest('[data-pin-open]')) return openPinMap();
@@ -2639,7 +2639,7 @@ function openPinMap() {
   const p0 = okPin(Q.pin) ? Q.pin : null;
   dlg.className = 'full pin-dlg';
   dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="view pin-view">
-    <div class="pin-h"><span class="eyebrow">Tu punto de salida</span><h2 id="m-title">Escoge tu muelle</h2><p>Toca el mapa o arrastra el pin hasta el lugar exacto donde te buscamos. Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.</p></div>
+    <div class="pin-h"><span class="eyebrow">Tu punto de salida</span><h2 id="m-title">Escoge tu muelle</h2><p>Toca el mapa o arrastra el pin hasta el lugar exacto donde te buscamos. Guarda la dirección, se enviará a Tu Lancha Lechería al finalizar tu solicitud.</p></div>
     <form class="pin-search" data-pin-q><input type="search" placeholder="Busca un lugar, residencia o marina" aria-label="Buscar un lugar" autocomplete="off"><button class="btn btn-ghost btn-sm" type="submit">Buscar</button></form>
     <div class="pin-results" data-pin-res hidden></div>
     <div class="pin-map-w"><div class="pin-map" data-pin-map><div class="f-wait">Cargando mapa satelital…</div></div>
@@ -4690,6 +4690,7 @@ function render() {
     <div class="ad-save" ${dirty() ? '' : 'hidden'}><div class="wrap"><span><b>Tienes cambios sin publicar.</b> Los clientes verán los cambios cuando los publiques.</span><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" id="a-discard">Descartar</button><button class="btn btn-sun btn-sm" type="button" id="a-pub">Publicar cambios</button></div></div></div>
   </div>`;
   adm.scrollTop = sc;
+  { const nav = $('.ad-tabs', adm), at = nav && $('[aria-current="page"]', nav); if (nav && at && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = Math.max(0, at.offsetLeft - (nav.clientWidth - at.offsetWidth) / 2); }
   if (tab === 'inicio') wireChart();
 }
 function refreshSaveBar() { const s = $('.ad-save', adm); if (s) s.hidden = !dirty(); }
@@ -4855,7 +4856,8 @@ function seasonPanel() {
   return `<section class="panel ad-season"><h3>Temporada alta <small>${W.seasons.length ? W.seasons.length + (W.seasons.length === 1 ? ' rango de fechas' : ' rangos de fechas') : 'sin fechas marcadas'}</small></h3>
     <p class="rating">Marca las fechas de temporada alta (Navidad, Carnaval, Semana Santa, agosto…). Para un solo día, deja “Hasta” igual que “Desde”. En esas fechas la web cobra la tarifa de temporada alta que pones en cada embarcación (Editar → Precio) y pide el 100% para apartar.</p>
     <div class="ad-seasons">${W.seasons.map((x, i) => `<div class="ad-srow">${inp(`seasons.${i}.name`, 'Nombre', { ph: 'Navidad y Año Nuevo' })}${inp(`seasons.${i}.from`, 'Desde', { type: 'date' })}${inp(`seasons.${i}.to`, 'Hasta', { type: 'date' })}<button type="button" class="icon-btn ad-danger" data-season-del="${i}" aria-label="Quitar este rango">Quitar</button></div>`).join('')}</div>
-    <div class="adm-form" style="margin-top:10px"><div class="field"><button type="button" class="btn btn-ghost btn-sm" data-season-add>+ Agregar fechas de temporada alta</button></div>${inp('hiPct', 'Sin tarifa de temporada alta: % sobre la normal', { t: 'num', ph: '0', hint: 'Para las embarcaciones que no tengan su tarifa de temporada alta. 0 = cobran lo mismo.' })}</div></section>`;
+    <button type="button" class="btn btn-ghost btn-sm ad-season-add" data-season-add>+ Agregar fechas de temporada alta</button>
+    <div class="adm-form ad-hipct">${inp('hiPct', 'Si una embarcación no tiene precio de temporada alta: % sobre la normal', { t: 'num', ph: '0', cls: 'ad-wide', hint: 'Se usa solo para las embarcaciones sin tarifa de temporada alta. 0 = cobran lo mismo.' })}</div></section>`;
 }
 function boatEditor(i) {
   const b = W.boats[i]; if (!b) return; const p = 'boats.' + i;
