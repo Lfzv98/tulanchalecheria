@@ -129,11 +129,65 @@ const fullText = r => {
     ...(okPin(r.pin) ? [`📍 ${gmapsUrl(r.pin)}`] : []),
     ...(extras.length ? ['', 'Extras:', ...extras] : []),
     '', `💵 Total: ${money(r.total)}`, `Abono para apartar${r.hi ? ' (100%, temporada alta)' : ' (50%)'}: ${money(abono(r.pay, r.total))}${pay ? ' por ' + pay : ''}`,
-    ...(r.note ? ['', `📝 ${r.note}`] : []),
+    `📝 Observaciones: ${r.note ? r.note : 'Sin observaciones adicionales'}`,
     '', 'Acepté las condiciones de alquiler.'].join('\n');
 };
-// abre WhatsApp en el chat de Tu Lancha Lechería con todos los datos; devuelve si se pudo abrir
-function openWa(r) { HI = !!r.hi; let w = null; try { w = window.open(wa(fullText(r)), '_blank'); if (w) w.opener = null; } catch { /* bloqueado */ } return !!w; }
+/* Resumen listo para reenviar al propietario / capitán de la embarcación por WhatsApp */
+const ownerText = r => {
+  const extras = (r.lines || []).slice(1).map(l => `• ${clean(l[0])}${l[2] === 'tbd' ? ' (por confirmar)' : l[1] ? ': ' + money(l[1]) : ''}`);
+  return [`🚤 *Resumen de reserva para propietario · ${r.code}*`, '',
+    `🛥️ Embarcación: ${r.boat}${r.type ? ' (' + r.type + ')' : ''}`,
+    `📅 Fecha y horario: ${r.date}${r.hours ? ' · ' + r.hours : ''}${r.hi ? ' (temporada alta)' : ''}`,
+    `👥 Grupo: ${r.paxTxt || r.pax + ' personas'}`,
+    `🧭 Rumbo y playas: ${r.route}`,
+    `⚓ Muelle de salida: ${r.dock}${r.dockFee ? ' · servicio de muelle ' + r.dockFee + ' (en sitio)' : ''}`,
+    ...(okPin(r.pin) ? [`📍 Ubicación muelle: ${gmapsUrl(r.pin)}`] : []),
+    ...(extras.length ? ['', '✨ Extras y servicios:', ...extras] : []),
+    '', `👤 Cliente: ${r.name}${r.phone ? ' · ' + r.phone : ''}`,
+    `📝 Observaciones: ${r.note ? r.note : 'Ninguna'}`].join('\n');
+};
+function openWaShare(text) {
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  let w = null;
+  try { w = window.open(url, 'whatsapp_tll'); if (w && w.focus) w.focus(); } catch { /* bloqueado */ }
+  if (!w) { const a = document.createElement('a'); a.href = url; a.target = 'whatsapp_tll'; document.body.appendChild(a); a.click(); a.remove(); }
+}
+async function copyTxt(text) {
+  try { await navigator.clipboard.writeText(text); toast('Mensaje copiado ✓'); }
+  catch { const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('Mensaje copiado ✓'); }
+}
+/* Plantillas clave del viaje (listas para copiar o enviar por WhatsApp desde Mi viaje) */
+function routeTipFor(route) {
+  const s = String(route || '').toLowerCase();
+  if (/rumbo 2|plata|punta la cruz/.test(s)) return 'Rumbo 2 (Isla de Plata y Punta La Cruz): aguas cristalinas ideales para snorkel; puedes coordinar tu almuerzo en El Rincón Marino en Punta La Cruz.';
+  if (/rumbo 3|arapo|piscina/.test(s)) return 'Rumbo 3 (Islas Arapo · Sucre): travesía un poco más larga con mayor probabilidad de avistar delfines; lleva abrigo ligero para la navegación y aprovecha de combinar playas del Rumbo 2.';
+  if (/rumbo 4|borracha/.test(s)) return 'Rumbo 4 (Isla La Borracha): navegación más abierta; sigue siempre las indicaciones del capitán sobre el horario y estado del mar.';
+  if (/rumbo 5|p[ií]ritu|rumbo 6|manare|playa blanca/.test(s)) return 'Rumbo extendido (9:00 am a 5:00 pm): salida temprana sujeta a buen mar; lleva hidratación extra, protector solar y sigue las recomendaciones del capitán.';
+  return 'Rumbo 1 (Chimanas y Puinare): las islas más cercanas con aguas tranquilas, ideales para familias, niños y disfrutar con calma de Puinare, El Saco o Bahía del Silencio.';
+}
+function tripTemplates(r) {
+  const boat = r ? r.boat : 'tu embarcación', date = r ? r.date : 'el día de tu paseo', dock = r ? r.dock : 'el muelle acordado', route = r ? r.route : 'Rumbo elegido';
+  return [
+    { id: 'zarpar', t: '1. Antes de zarpar', msg: `⚓ *Recomendaciones antes de zarpar · Tu Lancha Lechería*\n\n¡Ya casi nos vemos para tu salida en *${boat}* (${date})!\n• Llega 15 minutos antes a *${dock}*.\n• Recuerda que ya incluimos tripulación, chalecos, cava con hielo y agua mineral.\n• Trae bloqueador solar, toallas, lentes de sol, traje de baño y tus bebidas o snacks adicionales.` },
+    { id: 'tips', t: '2. Tips del viaje', msg: `🌊 *Tips para disfrutar al máximo tu día en el mar*\n\n• Mantente hidratado durante toda la jornada.\n• Protege tu teléfono y documentos en una bolsa seca.\n• A bordo se navega más cómodo descalzo o con sandalias de goma.\n• Cuidemos el Parque Nacional Mochima: toda la basura vuelve con nosotros a tierra.` },
+    { id: 'rumbo', t: '3. Según tu rumbo', msg: `🧭 *Recomendaciones para tu rumbo (${route})*\n\n${routeTipFor(route)}\n• Recuerda que la hora final de regreso puede ajustarse según las condiciones del mar y la recomendación del capitán.` },
+    { id: 'playa', t: '4. Al llegar a la playa', msg: `🏝️ *Recomendaciones al llegar a la playa*\n\n• Espera a que el capitán y el marinero aseguren el fondeo antes de bajar.\n• Usa la escalera de baño y atiende las indicaciones de la tripulación.\n• Respeta los corales y la fauna marina; evita dejar residuos en la arena.` },
+    { id: 'regreso', t: '5. De regreso al muelle', msg: `🌅 *Recomendaciones de regreso*\n\n• 20 minutos antes de la hora de retorno comenzamos a recoger pertenencias y preparar la embarcación.\n• Aprovecha la ducha de agua dulce a bordo para quitarte la sal antes de volver.\n• Ten a mano una camisa o toalla seca para la brisa de la tarde y verifica que no quede nada olvidado en la lancha.` },
+    { id: 'encuesta', t: '6. Encuesta al día siguiente', msg: `⭐ *¡Gracias por navegar con Tu Lancha Lechería!*\n\nEsperamos que hayas disfrutado tu paseo en *${boat}*.\nCuéntanos en 1 minuto cómo estuvo tu experiencia (del 1 al 5):\n1. Estado y comodidad de la embarcación\n2. Atención del capitán y tripulación\n3. ¿Qué fue lo que más te gustó o qué podemos mejorar?\n\nSi tienes fotos del paseo, ¡nos encantaría verlas! 🚤` }
+  ];
+}
+function renderTripComms() {
+  const box = $('#trip-comms'); if (!box) return;
+  const r = mine()[0] || null;
+  const list = tripTemplates(r);
+  box.innerHTML = `<details class="comms-box glass-card" open>
+    <summary class="comms-h"><div><span class="eyebrow">Guía y mensajería del viaje</span><h3>Mensajes y recomendaciones listas para enviar</h3></div></summary>
+    <p class="rating">${r ? `Personalizado para tu reserva <b class="mono">${r.code}</b> (${esc(r.boat)} · ${esc(r.route)}).` : 'Plantillas listas para copiar o enviar por WhatsApp en cada etapa del paseo.'}</p>
+    <div class="comms-grid">${list.map(x => `<article class="comm-card"><b>${x.t}</b><pre>${esc(x.msg)}</pre><div class="comm-acts"><button type="button" class="btn btn-ghost btn-sm" data-comm-copy="${x.id}">Copiar</button><button type="button" class="btn btn-wa btn-sm" data-comm-wa="${x.id}">Enviar por WhatsApp</button></div></article>`).join('')}</div>
+  </details>`;
+}
+// abre WhatsApp en una ventana reutilizable ('whatsapp_tll') para no abrir pestañas duplicadas en escritorio/tablet
+function openWa(r) { HI = !!r.hi; let w = null; try { w = window.open(wa(fullText(r)), 'whatsapp_tll'); if (w && w.focus) w.focus(); } catch { /* bloqueado */ } return !!w; }
 const navPair = () => `<div class="bk-nav" id="bk-nav"><a class="btn btn-ghost" href="#inicio" id="bk-home">Volver al inicio</a><a class="btn btn-sun" href="#mi-viaje" id="bk-trip">Ver mi viaje</a></div>`;
 const WA_HINT = '<p class="bk-wa-hint">¿No se abrió WhatsApp o no enviaste el mensaje? <button class="linkish" type="button" id="bk-resend">Enviar de nuevo</button></p>';
 function showDone(r) {
@@ -148,6 +202,7 @@ function showDone(r) {
     ${r.pay && PAY[r.pay] ? `<div class="pay-done"><span class="pay-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${PAY[r.pay].ic}</svg></span><div><span>Pagarás con</span><b>${PAY[r.pay].name}</b></div><strong>${money(abono(r.pay, r.total))}<small>abono</small></strong></div>` : ''}
     <ol class="bk-next"><li class="ok">Reserva guardada con tu código</li><li id="bk-li-send" class="${r.sent ? 'ok' : 'now'}">${r.sent ? 'Tus datos se enviaron al WhatsApp de Tu Lancha Lechería' : 'Envía tus datos al WhatsApp de Tu Lancha Lechería'}</li><li>Eduardo confirma la disponibilidad y te pasa ${r.pay === 'efectivo' ? 'cómo entregar el abono en efectivo' : 'los datos para el abono'}</li><li>Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el servicio de muelle</li></ol>
     ${r.sent ? `${WA_HINT}${navPair()}` : `<button class="btn btn-wa btn-lg" type="button" id="bk-send">Enviar mis datos por WhatsApp</button>${navPair()}`}
+    <div class="bk-owner-bar"><button class="linkish" type="button" id="bk-owner-wa">Enviar resumen al propietario (WhatsApp)</button> · <button class="linkish" type="button" id="bk-owner-cp">Copiar para propietario</button></div>
     <p class="bk-pdf-mini"><button class="linkish" type="button" id="bk-pdf-dl">Descargar comprobante (PDF)</button> · <span id="bk-pdf-st">Con tu código entras luego a Mi viaje.</span></p>
   </div>`;
   closeOn(dlg);
@@ -167,6 +222,8 @@ function showDone(r) {
   wireNav();
   $('#bk-send', dlg)?.addEventListener('click', send);
   $('#bk-resend', dlg)?.addEventListener('click', send);
+  $('#bk-owner-wa', dlg)?.addEventListener('click', () => openWaShare(ownerText(r)));
+  $('#bk-owner-cp', dlg)?.addEventListener('click', () => copyTxt(ownerText(r)));
   $('#bk-pdf-dl', dlg).addEventListener('click', async () => { const st = $('#bk-pdf-st', dlg); st.textContent = 'Preparando tu PDF…'; try { saveBlob(await getBlob(), pdfName(r)); st.textContent = `${pdfName(r)} descargado`; toast('Comprobante descargado'); } catch { st.textContent = 'No se pudo crear el PDF. Intenta de nuevo.'; } });
   if (!dlg.open) dlg.showModal();
 }
@@ -194,19 +251,26 @@ function renderMine() {
   const box = $('#my-trips'); if (!box) return;
   const l = mine();
   box.hidden = !l.length;
-  if (!l.length) { box.innerHTML = ''; window.TLL.renderPlan && window.TLL.renderPlan(); return; }
+  if (!l.length) { box.innerHTML = ''; renderTripComms(); window.TLL.renderPlan && window.TLL.renderPlan(); return; }
   ['#code-live', '#code-album'].forEach(s => { const i = $(s); if (i) i.value = l[0].code; });
   box.innerHTML = `<div class="head"><h2>Mis reservas</h2></div><div class="mytrips">${l.map(r => `<article class="mytrip glass-card">
     <div class="mt-top"><span class="mono mt-code">${r.code}</span><span class="mt-st ${r.st === 'confirmada' || r.sent ? 'ok' : 'warn'}">${r.st === 'confirmada' ? 'Confirmada ✓' : r.sent ? 'Enviada a Tu Lancha Lechería' : 'Falta avisar'}</span></div>
     <b>${esc(r.boat)}</b><span>${esc(r.date)} · ${r.pax} personas · ${esc(r.route)}</span><strong>${money(r.total)}</strong>
-    <div class="row2"><button class="btn btn-sm ${r.sent ? 'btn-ghost' : 'btn-wa'}" type="button" data-mt-open="${r.code}">${r.sent ? 'Ver comprobante' : 'Avisar a Tu Lancha Lechería'}</button><button class="btn btn-ghost btn-sm" type="button" data-mt-live="${r.code}">Ver en vivo</button></div>
+    <div class="row2"><button class="btn btn-sm ${r.sent ? 'btn-ghost' : 'btn-wa'}" type="button" data-mt-open="${r.code}">${r.sent ? 'Ver comprobante' : 'Avisar a Tu Lancha Lechería'}</button><button class="btn btn-ghost btn-sm" type="button" data-mt-owner="${r.code}">Enviar a propietario</button><button class="btn btn-ghost btn-sm" type="button" data-mt-live="${r.code}">Ver en vivo</button></div>
   </article>`).join('')}</div>`;
+  renderTripComms();
   window.TLL.renderPlan && window.TLL.renderPlan();
 }
 document.addEventListener('click', e => {
   if (e.target.closest('#t-book,#mb-book')) { e.preventDefault(); openBooking(); return; }
   const o = e.target.closest('[data-mt-open]');
   if (o) { const r = mine().find(x => x.code === o.dataset.mtOpen); if (r) { const d = $('#dlg'); if (d.open) d.close(); showDone(r); } return; }
+  const ow = e.target.closest('[data-mt-owner]');
+  if (ow) { const r = mine().find(x => x.code === ow.dataset.mtOwner); if (r) openWaShare(ownerText(r)); return; }
+  const cc = e.target.closest('[data-comm-copy]');
+  if (cc) { const t = tripTemplates(mine()[0] || null).find(x => x.id === cc.dataset.commCopy); if (t) copyTxt(t.msg); return; }
+  const cw = e.target.closest('[data-comm-wa]');
+  if (cw) { const t = tripTemplates(mine()[0] || null).find(x => x.id === cw.dataset.commWa); if (t) openWaShare(t.msg); return; }
   const lv = e.target.closest('[data-mt-live]');
   if (lv) { $('#code-live').value = lv.dataset.mtLive; $('#code-live').form.requestSubmit(); }
 });

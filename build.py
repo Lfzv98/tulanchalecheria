@@ -42,8 +42,12 @@ og = Image.composite(Image.new('RGB', (1200, 630), (12, 16, 36)), og, shade)
 lg = c.resize((150, 150), Image.LANCZOS); m = Image.new('L', (150, 150), 0); ImageDraw.Draw(m).ellipse((0, 0, 149, 149), fill=255)
 og.paste(lg, (70, 70), m)
 dr = ImageDraw.Draw(og)
-fb = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 78)
-fr = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 30)
+def _font(paths, size):
+    for p in paths:
+        if os.path.exists(p): return ImageFont.truetype(p, size)
+    return ImageFont.load_default()
+fb = _font(['/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', '/System/Library/Fonts/Supplemental/Arial Bold.ttf', '/System/Library/Fonts/Helvetica.ttc'], 78)
+fr = _font(['/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', '/System/Library/Fonts/Supplemental/Arial.ttf', '/System/Library/Fonts/Helvetica.ttc'], 30)
 dr.text((70, 270), 'TU LANCHA', font=fb, fill=(255, 255, 255))
 dr.text((70, 355), 'LECHERÍA', font=fb, fill=(246, 225, 60))
 dr.text((72, 470), 'Lanchas, yates y catamaranes a Mochima', font=fr, fill=(214, 220, 238))
@@ -71,7 +75,7 @@ head = f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name
 {title}<script>(function(){{try{{var d=document.documentElement,s=JSON.parse(localStorage.getItem('tll:lang')||'null'),q=new URLSearchParams(location.search).get('lang'),c=['es','en'],l=c.indexOf(s)>=0?s:c.indexOf(q)>=0?q:null;if(l&&l!=='es'){{d.lang=l;d.classList.add('i18n-wait');setTimeout(function(){{d.classList.remove('i18n-wait')}},2500)}}}}catch(e){{}}}})()</script><style>.i18n-wait body{{opacity:0}}</style><meta name="description" content="{desc}"><meta name="theme-color" content="#f4f7fb"><meta name="color-scheme" content="light">
 <link rel="canonical" href="{SITE}/">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Tu Lancha Lechería"><meta property="og:title" content="{title_txt}"><meta property="og:description" content="{desc}">
-<meta property="og:url" content="{SITE}/"><meta property="og:image" content="{SITE}/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="es_VE"><meta property="og:locale:alternate" content="en_US">
+<meta property="og:url" content="{SITE}/"><meta property="og:image" content="{SITE}/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Tu Lancha Lechería · Logo oficial"><meta property="og:logo" content="{SITE}/icons/icon-512.png"><meta property="og:locale" content="es_VE"><meta property="og:locale:alternate" content="en_US">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title_txt}"><meta name="twitter:description" content="{desc}"><meta name="twitter:image" content="{SITE}/og.jpg">
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="favicon.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">

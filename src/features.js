@@ -7,7 +7,12 @@ async function copy(text, input) {
   try { await navigator.clipboard.writeText(text); toast('Copiado'); }
   catch { if (input) { input.focus(); input.select(); } toast('Mantén presionado el texto para copiarlo'); }
 }
-function openWa(text) { const a = document.createElement('a'); a.href = wa(text); a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); }
+function openWa(text) {
+  const url = wa(text);
+  let w = null;
+  try { w = window.open(url, 'whatsapp_tll'); if (w && w.focus) w.focus(); } catch { /* bloqueado */ }
+  if (!w) { const a = document.createElement('a'); a.href = url; a.target = 'whatsapp_tll'; document.body.appendChild(a); a.click(); a.remove(); }
+}
 const validTrip = c => /^TLL-\d{4}$/.test((c || '').trim().toUpperCase());
 
 /* ---------------- mapa de la ruta (Lechería → islas) ---------------- */
@@ -351,7 +356,10 @@ async function lsShareLink() {
   if (!LS.s) return;
   const url = followUrl(LS.s.id), text = `Sigue nuestra lancha en vivo 🚤${LS.s.boat ? ' (' + LS.s.boat + ')' : ''}. Toca el enlace y verás dónde vamos en el mapa, en tiempo real:`;
   if (navigator.share) { try { await navigator.share({ title: TLL_I18N.tr('Tu Lancha Lechería en vivo'), text: TLL_I18N.tr(text), url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
-  const a = document.createElement('a'); a.href = `https://wa.me/?text=${encodeURIComponent(TLL_I18N.tr(text) + ' ' + url)}`; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+  const shareUrl = `https://wa.me/?text=${encodeURIComponent(TLL_I18N.tr(text) + ' ' + url)}`;
+  let w = null;
+  try { w = window.open(shareUrl, 'whatsapp_tll'); if (w && w.focus) w.focus(); } catch { /* bloqueado */ }
+  if (!w) { const a = document.createElement('a'); a.href = shareUrl; a.target = 'whatsapp_tll'; document.body.appendChild(a); a.click(); a.remove(); }
 }
 function lsStart(ctx) {
   if (!LS.s) { LS.s = { id: rid(20), key: rkey(), boat: ctx.boat || '', code: ctx.code || '', started: Date.now() }; LS.q = []; LS.lastQ = null; LS.sentAt = 0; LS.state = 'wait'; }

@@ -850,7 +850,7 @@ const exact = [
 [`Escoge tu muelle en el mapa`, `Pick your dock on the map`],
 [`Escoge tu muelle`, `Pick your dock`],
 [`Marca el punto exacto en el mapa satelital`, `Mark the exact spot on the satellite map`],
-[`Guarda la dirección, se enviará a Tu Lancha Lechería al finalizar tu solicitud.`, `Save the address; it will be sent to Tu Lancha Lechería when you finish your request.`],
+[`Guarda la dirección, se enviará a TuLanchaLecheria al finalizar tu solicitud.`, `Save the address; it will be sent to TuLanchaLecheria when you finish your request.`],
 [`Te confirmamos por WhatsApp si la embarcación puede llegar y si hay recargo.`, `We'll confirm on WhatsApp whether the boat can get there and if there's a surcharge.`],
 [`Recogida en tu muelle`, `Pickup at your dock`],
 [`Saldrás de tu muelle`, `You'll depart from your dock`],
@@ -1222,7 +1222,6 @@ const exact = [
 [`De regreso a tierra 🌅`, `Back on land 🌅`],
 [`¿Cómo estuvo tu paseo? ⭐`, `How was your trip? ⭐`],
 [`Hidrátate, aplica crema hidratante o aloe después del sol, enjuaga caretas y trajes con agua dulce y revisa que no se quede nada a bordo.`, `Drink water, use moisturizer or aloe after the sun, rinse masks and swimwear with fresh water and check nothing was left on board.`],
-[`Completa los 5 pasos y aquí podrás reservar.`, `Complete the 5 steps and you can book here.`],
 ];
 
 const pat = [
@@ -1267,7 +1266,6 @@ const pat = [
 [/^Tarjeta de regalo ([A-Z0-9-]+)$/, `Gift card {1}`, `Vale-presente {1}`],
 [/^Tarjeta de regalo aplicada \((.+)\)$/, `Gift card applied ({1})`, `Vale-presente aplicado ({1})`],
 [/^Fines de semana \+(\d+)%\.$/, `Weekends +{1}%.`, `Fins de semana +{1}%.`],
-[/^No pagas nada ahora: te confirmamos disponibilidad y abono\.$/, `You pay nothing now: we'll confirm availability and the deposit.`],
 [/^No pagas nada ahora: te confirmamos disponibilidad y abono\. Fines de semana \+(\d+)%\.$/, `You pay nothing now: we'll confirm availability and the deposit. Weekends +{1}%.`, `Você não paga nada agora: confirmamos disponibilidade e sinal. Fins de semana +{1}%.`],
 
 /* rumbos, playas y horarios */

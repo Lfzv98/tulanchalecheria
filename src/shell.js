@@ -27,6 +27,9 @@ function show(name, anchor) {
     $$('.tabbar [data-tab]').forEach(t => t.setAttribute('aria-current', String(t.dataset.tab === name)));
     topbar.classList.toggle('inner', name !== 'inicio');
     document.title = name === 'inicio' ? TLL_I18N.tr('Tu Lancha Lechería · Paseos en lancha y yates a Mochima') : `${$(`[data-view="${name}"] h1`)?.textContent.trim() || ''} · Tu Lancha Lechería`;
+    const ogT = document.querySelector('meta[property="og:title"]'), ogU = document.querySelector('meta[property="og:url"]');
+    if (ogT) ogT.setAttribute('content', document.title);
+    if (ogU) ogU.setAttribute('content', location.origin + location.pathname + (name === 'inicio' ? '' : '#' + name));
     if (anchor && document.getElementById(anchor)) document.getElementById(anchor).scrollIntoView();
     else if (current !== name) scrollTo({ top: 0, behavior: 'instant' in document.documentElement.style ? 'instant' : 'auto' });
     current = name;
@@ -92,7 +95,7 @@ let slideI = 0, reelT = 0, reelSeen = true;
 function nextSlide() {
   const a = slides[slideI]; slideI = (slideI + 1) % slides.length; const b = slides[slideI];
   a.classList.add('out'); a.classList.remove('on'); b.classList.remove('out'); b.classList.add('on');
-  setTimeout(() => { if (!a.classList.contains('on')) a.classList.remove('out'); }, 3200);
+  setTimeout(() => { if (!a.classList.contains('on')) a.classList.remove('out'); }, 2800);
 }
 /* Video del dron (12 nov): siempre rueda en bucle en el hero (pedido de Luis), también en iPhone.
    Las etiquetas <source> y autoplay van en el HTML, así que arranca solo sin depender de este script.
@@ -118,7 +121,7 @@ function syncVideo() {
   reel.classList.toggle('paused', !want);
   const vidWant = current === 'inicio' && document.visibilityState === 'visible' && reelSeen;   // el video rueda siempre que se vea
   if (hv) { if (vidWant) playHero(); else if (!hv.paused) { hv.__ownPause = true; hv.pause(); } }
-  if (want && !reelT && slides.length > 1) reelT = setInterval(nextSlide, 7000);
+  if (want && !reelT && slides.length > 1) reelT = setInterval(nextSlide, 3000);
   if (!want && reelT) { clearInterval(reelT); reelT = 0; }
 }
 document.addEventListener('visibilitychange', syncVideo);
