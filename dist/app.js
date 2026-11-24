@@ -1172,6 +1172,9 @@ const exact = [
 [`Venta`, `For sale`],
 [`para llevártelo`, `to take home`],
 [`Se hace en temporada de mar bueno y preferiblemente dejando al cliente a las 6:00 pm en sitio.`, `Only during good-sea season, preferably dropping guests off there at 6:00 pm.`],
+[`Resto del Complejo Turístico El Morro (canales y residencias)`, `Rest of El Morro Tourist Complex (canals & residences)`],
+[`Recogida en Resto del Complejo Turístico El Morro (canales y residencias)`, `Pickup at Rest of El Morro Tourist Complex (canals & residences)`],
+[`Te buscamos gratis en cualquier muelle o residencia dentro de los canales de El Morro.`, `Free pickup at any dock or residence inside the El Morro canals.`],
 [`La embarcación sale de Lechería a buscarte`, `The boat leaves Lechería to pick you up`],
 [`se suma la diferencia del recorrido hasta Mochima (como el Rumbo 3).`, `the extra distance to Mochima is added (like Route 3).`],
 [`La embarcación sale de Lechería a buscarte: se suma la diferencia del recorrido hasta Mochima (como el Rumbo 3).`, `The boat leaves Lechería to pick you up: the extra distance to Mochima is added (like Route 3).`],
@@ -1693,6 +1696,8 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 // y recogidas en residencias (costo de Tu Lancha Lechería según el tamaño de la embarcación: s lancha pequeña, m lancha mediana, my mini yate, y yate o barco)
 // baseFree: las embarcaciones que tienen su base en ese muelle no pagan el servicio de muelle.
 const EM_NOTE = 'Se hace en temporada de mar bueno y preferiblemente dejando al cliente a las 6:00 pm en sitio.';
+const REM_NAME = 'Resto del Complejo Turístico El Morro (canales y residencias)';
+const REM_NOTE = 'Te buscamos gratis en cualquier muelle o residencia dentro de los canales de El Morro.';
 const FAR_DOCKS = [
   { id: 'pip', name: 'Posada Isla Piscina', pickup: true, far: true, viaR3: true, cost: {} },
   { id: 'mlo', name: 'Mochima Lodge', pickup: true, far: true, viaR3: true, cost: {} },
@@ -1704,7 +1709,7 @@ const DOCKS = [
   { id: 'av', name: 'Marina Américo Vespucio', fee: '$34 a tasa BCV', park: 'Estacionamiento privado con vigilancia', baseFree: true },
   { id: 'ppa', name: 'Hotel Punta Palma', off: true, why: 'Muelle deshabilitado' },
   { id: 'em', name: 'Cerro El Morro · Hotel Eurobuilding', pickup: true, cost: { s: 15, m: 20, my: 30, y: 50 }, back: '5:30 pm', note: EM_NOTE },
-  { id: 'rem', name: 'Resto del Complejo Turístico El Morro', pickup: true, cost: { s: 0, m: 0, my: 0, y: 0 } },
+  { id: 'rem', name: REM_NAME, pickup: true, cost: { s: 0, m: 0, my: 0, y: 0 }, note: REM_NOTE },
   { id: 'pmr', name: 'Puerto Mares y Residencias Cayo de Agua', pickup: true, lanchaOnly: true, cost: { s: 20, m: 20 } },
   { id: 'ppr', name: 'Puerto Príncipe', pickup: true, lanchaOnly: true, cost: { s: 20, m: 20 } },
   { id: 'cal', name: 'La Caleta', pickup: true, off: true, why: 'Bajo calado · no disponible' },
@@ -1899,7 +1904,7 @@ const DEF_HOME = { hero: '', cards: {}, exp: {} };   // exp: imágenes de Experi
 const DEF = { boats: clone(DEF_BOATS_SRC), routes: clone(ROUTES), docks: clone(DOCKS), allies: clone(ALLIES), basic: clone(BASIC), special: clone(SPECIAL), wa: WA, pay: clone(DEF_PAY), shop: clone(DEF_SHOP), food: clone(DEF_FOOD), rent: clone(DEF_RENT), home: clone(DEF_HOME), maxDays: 45 };
 /* Catálogos publicados antes del 12 nov: se pasan al formato nuevo sin perder lo que Eduardo ya cargó
    (fotos, precios, playas, aliados). Lo usan la web y el panel; al publicar desde el panel queda guardado. */
-const CAT_V = 4;
+const CAT_V = 5;
 function migrateCat(c) {
   c = c && typeof c === 'object' ? clone(c) : {};
   /* El servidor guardaba todo catálogo como v1, así que la conversión vieja se repetía en cada carga y deshacía
@@ -1964,6 +1969,14 @@ function migrateCat(c) {
     if (!Array.isArray(c.rent)) c.rent = clone(DEF_RENT);
     if (Array.isArray(c.allies)) { const o = c.allies.find(x => x && x.owners);
       if (o && Array.isArray(o.items) && o.items.length <= 2 && o.items.every(it => /^(Servicio de capitán|Alquiler de inflables y accesorios)$/.test(it[0]))) o.items = OWNER_PROS.map(x => x.slice()); }
+  }
+  if (v0 < 5) {
+    if (Array.isArray(c.docks)) c.docks.forEach(d => {
+      if (d && d.id === 'rem') {
+        if (!d.name || /^resto del complejo tur[ií]stico el morro$/i.test(d.name.trim())) d.name = REM_NAME;
+        if (!d.note) d.note = REM_NOTE;
+      }
+    });
   }
   c.v = CAT_V;
   return c;
@@ -5569,6 +5582,10 @@ VIEW.aliados = () => `<div class="ad-head"><div><h2>Servicio a bordo</h2><p clas
 /* ---------------- portada y tienda ---------------- */
 VIEW.portada = () => { const C = T.NAV_CARDS || [], ownIdx = W.boats.findIndex(b => b.own), promoPath = ownIdx >= 0 ? `boats.${ownIdx}.photos.promo` : 'home.promoImg'; return `<div class="ad-head"><div><h2>Portada y tienda</h2><p class="rating">La foto principal de la web, las promociones, las pantallas del menú giratorio y los accesorios que vendes.</p></div><div class="adm-tools">${helpBtn('portada')}</div></div>
   <section class="panel"><h3>Foto principal <small>la portada muestra el video del dron; esta foto se ve solo si el video no se puede reproducir (ahorro de datos o “reducir movimiento”). Vacía = primer cuadro del video</small></h3><div class="ad-photos">${photoSlot('home.hero', 'hero', 'Portada (Isla de Plata, por ejemplo)')}</div></section>
+  <section class="panel"><h3>Imagen al compartir el enlace <small>vista previa en WhatsApp y el grupo de reservas (og:image · 1200 × 630 px)</small></h3>
+    <div class="ad-photos"><div class="ad-photo k-hero"><div class="ad-ph-img"><img src="og.jpg" alt="Vista previa al compartir el enlace" loading="lazy" data-zoom></div><div class="ad-ph-b"><b>og.jpg actual</b><span class="ad-ph-spec">1200 × 630 px · Open Graph</span></div></div></div>
+    <p class="rating">Es la tarjeta que muestran WhatsApp, Telegram o Instagram al compartir el enlace de la web. Se genera de forma estática al compilar (<b>dist/og.jpg</b>, referenciada por <code>og:image</code> y <code>twitter:image</code> en <code>build.py</code>) a partir de <code>video/out/poster.jpg</code> y el logo oficial <code>public/logo-original.png</code>.</p>
+    <p class="hint">Cambiar la “Foto principal” de arriba no modifica esta vista previa. Para actualizarla: guarda tu imagen (1200 × 630 px) en <code>public/og-custom.jpg</code> (o reemplaza <code>video/out/poster.jpg</code> / ajusta el bloque Open Graph en <code>build.py</code>), ejecuta <code>python3 build.py</code> y despliega a Vercel. Para refrescar la caché en WhatsApp y el grupo de reservas, comparte el enlace con <code>?v=2</code> al final.</p></section>
   <section class="panel ad-promo-sec"><h3>Promociones <small>tarjeta “Promo Six Pack · Cardenal Ultra” de la embarcación destacada en el Home</small></h3><div class="ad-photos">${photoSlot(promoPath, 'promo', 'Imagen Promo Six Pack (Cardenal Ultra)')}</div><p class="hint">Reemplaza el recuadro “Imagen lista para cargar” en el Home. Formatos aceptados: JPG, PNG o WebP.</p></section>
   <section class="panel"><h3>Menú giratorio <small>${C.filter(c => W.home.cards[c.id]).length} de ${C.length} con foto · las vacías se ven difuminadas</small></h3>
     <p class="rating">La portada de cada pantalla del menú giratorio, agrupadas por sección. Sube cada imagen en <b>${IMG.card.size}</b> (${IMG.card.label}, mínimo ${IMG.card.min} px de ancho) para que se vea nítida, sin recortes ni pixeleo. El panel la ajusta sola a ese tamaño.</p>
@@ -5619,7 +5636,7 @@ const HELP = {
   accesorios: ['Accesorios', `<p>Para cada accesorio elige:</p><ul><li><b>No tiene.</b></li><li><b>Incluido:</b> va en el precio.</li><li><b>Con costo:</b> escribe el precio. El cliente lo puede sumar en la reserva y se agrega al total (por ejemplo, parrillera +$20).</li></ul><p>Lo que es igual en todas (tripulación, chalecos, ducha, botiquín) se edita en Ajustes.</p>`],
   textos: ['Texto en inglés', `<p>La web abre siempre en español y tiene un botón para verla en inglés. Los textos que ya existen están traducidos. Si escribes una descripción nueva, agrega su versión en inglés para que los turistas la lean en su idioma. Si la dejas vacía, verán el texto en español.</p>`],
   precios: ['Precio por rumbo', `<p>Cada embarcación puede tener un precio distinto en cada rumbo. No es un recargo: es la tarifa de ese rumbo.</p><ul><li><b>Tarifa base:</b> usa la tarifa por día (más la diferencia del rumbo, si la pusiste en Rumbos).</li><li><b>Precio propio:</b> el precio de esta embarcación en ese rumbo.</li><li><b>Por confirmar:</b> la hace, y el precio se confirma por WhatsApp.</li><li><b>No lo hace:</b> el cliente no ve ese rumbo con esta embarcación.</li></ul>`],
-  portada: ['Portada y tienda', `<ul><li><b>Foto principal:</b> ${IMG.hero.size}, horizontal. Lo importante al centro.</li><li><b>Promociones (Promo Six Pack · Cardenal Ultra):</b> ${IMG.promo.size}, horizontal 4:3. Reemplaza el recuadro “Imagen lista para cargar” en el Home.</li><li><b>Menú giratorio:</b> ${IMG.card.size}, vertical. Mientras no subas una, se ve una imagen difuminada de relleno.</li><li><b>Tienda:</b> accesorios que tienes en stock (toallas, termos, inflables…). El cliente los suma en el paso de extras. Sin precio no se muestran.</li></ul>`],
+  portada: ['Portada y tienda', `<ul><li><b>Foto principal:</b> ${IMG.hero.size}, horizontal. Lo importante al centro.</li><li><b>Imagen al compartir el enlace (og:image):</b> 1200 × 630 px (<code>dist/og.jpg</code>). Se genera al compilar en <code>build.py</code> (usa <code>public/og-custom.jpg</code> si existe, o <code>video/out/poster.jpg</code> + logo oficial). Requiere ejecutar <code>python3 build.py</code> y desplegar.</li><li><b>Promociones (Promo Six Pack · Cardenal Ultra):</b> ${IMG.promo.size}, horizontal 4:3. Reemplaza el recuadro “Imagen lista para cargar” en el Home.</li><li><b>Menú giratorio:</b> ${IMG.card.size}, vertical. Mientras no subas una, se ve una imagen difuminada de relleno.</li><li><b>Tienda:</b> accesorios que tienes en stock (toallas, termos, inflables…). El cliente los suma en el paso de extras. Sin precio no se muestran.</li></ul>`],
   rumbos: ['Rumbos y playas', `<ul><li><b>Diferencia sobre la tarifa base:</b> solo para las embarcaciones que no tienen precio propio en ese rumbo. Vacío = precio por confirmar.</li><li><b>Millas náuticas:</b> distancia aproximada que ve el cliente.</li><li><b>Solo para embarcaciones que lo hacen:</b> el rumbo solo aparece con las embarcaciones que tienen precio o “por confirmar” en ese rumbo.</li><li><b>Playas:</b> agrega, quita o cambia nombres. El cliente elige entre las playas del rumbo, según el límite de cada embarcación.</li><li><b>Cotización especial:</b> destinos que no se reservan en la app (Píritu, La Tortuga…).</li></ul>`],
   muelles: ['Muelles y recogidas', `<ul><li><b>Muelle sugerido:</b> el servicio por uso de muelle lo cobra el establecimiento y se paga en sitio; escríbelo como quieres que se vea (ej. “$11,6 a tasa BCV”).</li><li><b>Recogida en residencia:</b> costo de Tu Lancha Lechería por buscar al cliente, según el tamaño de la embarcación (vacío = ese tamaño no llega).</li><li><b>Solo lanchas:</b> los yates no pueden llegar por la profundidad.</li><li><b>No habilitado:</b> aparece como no disponible.</li></ul><p class="hint">Por embarcación puedes decir que no llega o que no cobra recargo (en Embarcaciones › Editar).</p>`],
   pagos: ['Datos de pago', `<p>Cuando el cliente confirma su reserva y elige Zelle o Binance, la app le muestra estos datos para pagar el abono del 50% y le pide mandarte la captura por WhatsApp.</p><ul><li><b>Zelle:</b> puedes tener varias cuentas guardadas, pero el cliente ve <b>solo la principal</b>. Para cambiarla, marca otra como principal y toca Publicar cambios.</li><li><b>Binance:</b> el cliente ve tu ID, tu usuario, el código QR y un botón para abrir Binance desde el teléfono.</li><li><b>Código QR:</b> sube la imagen del QR que te da Binance (una captura de pantalla sirve). Se guarda en PNG para que se pueda escanear.</li></ul><p class="hint">Si dejas los datos vacíos, la app le dice al cliente que se los envías por WhatsApp.</p>`],

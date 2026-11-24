@@ -37,6 +37,8 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 // y recogidas en residencias (costo de Tu Lancha Lechería según el tamaño de la embarcación: s lancha pequeña, m lancha mediana, my mini yate, y yate o barco)
 // baseFree: las embarcaciones que tienen su base en ese muelle no pagan el servicio de muelle.
 const EM_NOTE = 'Se hace en temporada de mar bueno y preferiblemente dejando al cliente a las 6:00 pm en sitio.';
+const REM_NAME = 'Resto del Complejo Turístico El Morro (canales y residencias)';
+const REM_NOTE = 'Te buscamos gratis en cualquier muelle o residencia dentro de los canales de El Morro.';
 const FAR_DOCKS = [
   { id: 'pip', name: 'Posada Isla Piscina', pickup: true, far: true, viaR3: true, cost: {} },
   { id: 'mlo', name: 'Mochima Lodge', pickup: true, far: true, viaR3: true, cost: {} },
@@ -48,7 +50,7 @@ const DOCKS = [
   { id: 'av', name: 'Marina Américo Vespucio', fee: '$34 a tasa BCV', park: 'Estacionamiento privado con vigilancia', baseFree: true },
   { id: 'ppa', name: 'Hotel Punta Palma', off: true, why: 'Muelle deshabilitado' },
   { id: 'em', name: 'Cerro El Morro · Hotel Eurobuilding', pickup: true, cost: { s: 15, m: 20, my: 30, y: 50 }, back: '5:30 pm', note: EM_NOTE },
-  { id: 'rem', name: 'Resto del Complejo Turístico El Morro', pickup: true, cost: { s: 0, m: 0, my: 0, y: 0 } },
+  { id: 'rem', name: REM_NAME, pickup: true, cost: { s: 0, m: 0, my: 0, y: 0 }, note: REM_NOTE },
   { id: 'pmr', name: 'Puerto Mares y Residencias Cayo de Agua', pickup: true, lanchaOnly: true, cost: { s: 20, m: 20 } },
   { id: 'ppr', name: 'Puerto Príncipe', pickup: true, lanchaOnly: true, cost: { s: 20, m: 20 } },
   { id: 'cal', name: 'La Caleta', pickup: true, off: true, why: 'Bajo calado · no disponible' },
@@ -243,7 +245,7 @@ const DEF_HOME = { hero: '', cards: {}, exp: {} };   // exp: imágenes de Experi
 const DEF = { boats: clone(DEF_BOATS_SRC), routes: clone(ROUTES), docks: clone(DOCKS), allies: clone(ALLIES), basic: clone(BASIC), special: clone(SPECIAL), wa: WA, pay: clone(DEF_PAY), shop: clone(DEF_SHOP), food: clone(DEF_FOOD), rent: clone(DEF_RENT), home: clone(DEF_HOME), maxDays: 45 };
 /* Catálogos publicados antes del 12 nov: se pasan al formato nuevo sin perder lo que Eduardo ya cargó
    (fotos, precios, playas, aliados). Lo usan la web y el panel; al publicar desde el panel queda guardado. */
-const CAT_V = 4;
+const CAT_V = 5;
 function migrateCat(c) {
   c = c && typeof c === 'object' ? clone(c) : {};
   /* El servidor guardaba todo catálogo como v1, así que la conversión vieja se repetía en cada carga y deshacía
@@ -308,6 +310,14 @@ function migrateCat(c) {
     if (!Array.isArray(c.rent)) c.rent = clone(DEF_RENT);
     if (Array.isArray(c.allies)) { const o = c.allies.find(x => x && x.owners);
       if (o && Array.isArray(o.items) && o.items.length <= 2 && o.items.every(it => /^(Servicio de capitán|Alquiler de inflables y accesorios)$/.test(it[0]))) o.items = OWNER_PROS.map(x => x.slice()); }
+  }
+  if (v0 < 5) {
+    if (Array.isArray(c.docks)) c.docks.forEach(d => {
+      if (d && d.id === 'rem') {
+        if (!d.name || /^resto del complejo tur[ií]stico el morro$/i.test(d.name.trim())) d.name = REM_NAME;
+        if (!d.note) d.note = REM_NOTE;
+      }
+    });
   }
   c.v = CAT_V;
   return c;

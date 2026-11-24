@@ -1,6 +1,6 @@
 """Genera dist/ (sitio para Vercel) y dist/artifact.html (vista previa)."""
 import base64, io, json, os, shutil
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
 
 SITE = 'https://tulanchalecheria.vercel.app'
 os.makedirs('dist/icons', exist_ok=True); os.makedirs('dist/media', exist_ok=True); os.makedirs('dist/media/v', exist_ok=True)
@@ -34,24 +34,30 @@ y0 = round(ph.height * .26); pw = round((ph.height - y0) * .7); cx = round(ph.wi
 ph.crop((cx - pw // 2, y0, cx - pw // 2 + pw, ph.height)).save('dist/media/hero-mochima-port.webp', 'WEBP', quality=86, method=6)
 
 # ---------- imagen para compartir (Open Graph 1200x630) ----------
-og = Image.open('video/out/poster.jpg').convert('RGB')
-og = og.resize((1200, 675), Image.LANCZOS).crop((0, 22, 1200, 652))
-shade = Image.new('L', (1200, 630)); d = ImageDraw.Draw(shade)
-for xx in range(1200): d.line([(xx, 0), (xx, 630)], fill=int(210 * max(0, 1 - xx / 760)))
-og = Image.composite(Image.new('RGB', (1200, 630), (12, 16, 36)), og, shade)
-lg = c.resize((150, 150), Image.LANCZOS); m = Image.new('L', (150, 150), 0); ImageDraw.Draw(m).ellipse((0, 0, 149, 149), fill=255)
-og.paste(lg, (70, 70), m)
-dr = ImageDraw.Draw(og)
-def _font(paths, size):
-    for p in paths:
-        if os.path.exists(p): return ImageFont.truetype(p, size)
-    return ImageFont.load_default()
-fb = _font(['/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', '/System/Library/Fonts/Supplemental/Arial Bold.ttf', '/System/Library/Fonts/Helvetica.ttc'], 78)
-fr = _font(['/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', '/System/Library/Fonts/Supplemental/Arial.ttf', '/System/Library/Fonts/Helvetica.ttc'], 30)
-dr.text((70, 270), 'TU LANCHA', font=fb, fill=(255, 255, 255))
-dr.text((70, 355), 'LECHERÍA', font=fb, fill=(246, 225, 60))
-dr.text((72, 470), 'Lanchas, yates y catamaranes a Mochima', font=fr, fill=(214, 220, 238))
-dr.text((72, 512), 'Reserva por WhatsApp · +58 414 308 3864', font=fr, fill=(214, 220, 238))
+# Si existe public/og-custom.{jpg,png,webp}, se usa directamente (recorte centrado 1200x630);
+# si no, se genera con video/out/poster.jpg + logo oficial y texto.
+_og_custom = next((p for p in ('public/og-custom.jpg', 'public/og-custom.png', 'public/og-custom.webp') if os.path.exists(p)), None)
+if _og_custom:
+    og = ImageOps.fit(Image.open(_og_custom).convert('RGB'), (1200, 630), Image.LANCZOS)
+else:
+    og = Image.open('video/out/poster.jpg').convert('RGB')
+    og = og.resize((1200, 675), Image.LANCZOS).crop((0, 22, 1200, 652))
+    shade = Image.new('L', (1200, 630)); d = ImageDraw.Draw(shade)
+    for xx in range(1200): d.line([(xx, 0), (xx, 630)], fill=int(210 * max(0, 1 - xx / 760)))
+    og = Image.composite(Image.new('RGB', (1200, 630), (12, 16, 36)), og, shade)
+    lg = c.resize((150, 150), Image.LANCZOS); m = Image.new('L', (150, 150), 0); ImageDraw.Draw(m).ellipse((0, 0, 149, 149), fill=255)
+    og.paste(lg, (70, 70), m)
+    dr = ImageDraw.Draw(og)
+    def _font(paths, size):
+        for p in paths:
+            if os.path.exists(p): return ImageFont.truetype(p, size)
+        return ImageFont.load_default()
+    fb = _font(['/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', '/System/Library/Fonts/Supplemental/Arial Bold.ttf', '/System/Library/Fonts/Helvetica.ttc'], 78)
+    fr = _font(['/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', '/System/Library/Fonts/Supplemental/Arial.ttf', '/System/Library/Fonts/Helvetica.ttc'], 30)
+    dr.text((70, 270), 'TU LANCHA', font=fb, fill=(255, 255, 255))
+    dr.text((70, 355), 'LECHERÍA', font=fb, fill=(246, 225, 60))
+    dr.text((72, 470), 'Lanchas, yates y catamaranes a Mochima', font=fr, fill=(214, 220, 238))
+    dr.text((72, 512), 'Reserva por WhatsApp · +58 414 308 3864', font=fr, fill=(214, 220, 238))
 og.save('dist/og.jpg', quality=86, optimize=True)
 
 # ---------- página ----------
