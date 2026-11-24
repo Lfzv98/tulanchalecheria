@@ -296,7 +296,7 @@ footer.site .num{font-family:var(--f-mono);color:var(--on-sea);user-select:all}
 /* ---------- v2: navegación móvil ---------- */
 .tabbar{display:none}
 @media (max-width:900px){
-  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:75;background:var(--sea-900);border-top:1px solid rgba(255,255,255,.1);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+  .tabbar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:75;background:var(--sea-900);border-top:1px solid rgba(255,255,255,.1);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
   .tabbar a{display:grid;justify-items:center;gap:2px;text-decoration:none;color:var(--on-sea-muted);font-size:.68rem;font-weight:600;padding:4px 0;border-radius:10px;min-height:48px;align-content:center}
   .tabbar a svg{width:22px;height:22px}
   .tabbar a.wa{color:#25d366}

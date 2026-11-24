@@ -82,9 +82,9 @@ function syncMinibar() {
 
 /* ---------- menú ---------- */
 const sheet = $('#sheet');
-function openSheet() { sheet.hidden = false; $$('#menu-open,#menu-open-2').forEach(b => b.setAttribute('aria-expanded', 'true')); setTimeout(() => $('#menu-close').focus(), 30); }
-function closeSheet() { if (sheet.hidden) return; sheet.hidden = true; $$('#menu-open,#menu-open-2').forEach(b => b.setAttribute('aria-expanded', 'false')); }
-$('#menu-open').onclick = openSheet; $('#menu-open-2').onclick = openSheet; $('#menu-close').onclick = closeSheet;
+function openSheet() { sheet.hidden = false; $('#menu-open')?.setAttribute('aria-expanded', 'true'); setTimeout(() => $('#menu-close').focus(), 30); }
+function closeSheet() { if (sheet.hidden) return; sheet.hidden = true; $('#menu-open')?.setAttribute('aria-expanded', 'false'); }
+$('#menu-open').onclick = openSheet; $('#menu-close').onclick = closeSheet;
 sheet.addEventListener('click', e => { if (e.target === sheet || e.target.closest('a')) closeSheet(); });
 addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
 
