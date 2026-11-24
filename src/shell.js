@@ -32,8 +32,9 @@ function show(name, anchor) {
     if (ogU) ogU.setAttribute('content', location.origin + location.pathname + (name === 'inicio' ? '' : '#' + name));
     if (anchor && document.getElementById(anchor)) document.getElementById(anchor).scrollIntoView();
     else if (current !== name) scrollTo({ top: 0, behavior: 'instant' in document.documentElement.style ? 'instant' : 'auto' });
+    const prev = current;
     current = name;
-    if (name === 'reservar') { renderBuilder(); goStep(step); }
+    if (name === 'reservar') { if (prev !== 'reservar' && window.TLL.resetDefaultDock) window.TLL.resetDefaultDock(); renderBuilder(); goStep(step); }
     syncMinibar(); syncVideo(); parallax();
   };
   if (current && current !== name && document.startViewTransition && !reduce.matches && !touchUI.matches) { const vt = document.startViewTransition(swap); [vt.ready, vt.finished, vt.updateCallbackDone].forEach(x => x && x.catch(() => {})); } else swap();

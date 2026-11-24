@@ -2254,7 +2254,20 @@ const PIN_DOCK = { id: 'pin', name: 'Muelle escogido por ti', custom: true };
 const okPin = p => !!p && isFinite(p.lat) && isFinite(p.lng) && Math.abs(p.lat) <= 90 && Math.abs(p.lng) <= 180;
 const pinTxt = p => `${(+p.lat).toFixed(6)}, ${(+p.lng).toFixed(6)}`;
 const gmapsUrl = p => `https://www.google.com/maps/search/?api=1&query=${(+p.lat).toFixed(6)},${(+p.lng).toFixed(6)}`;
-const dockById = id => id === 'pin' ? PIN_DOCK : DOCKS.find(d => d.id === id) || DOCKS[0];
+const isMorroFreeDock = d => !!d && !d.off && (d.id === 'rem' || /complejo\s+tur[ií]stico\s+el\s+morro/i.test(d.name || ''));
+function defaultDock(b) {
+  const ok = d => !!d && !d.off && (!b || dockFor(b, d).ok);
+  const cost0 = d => !b ? !(d.pickup && d.cost && Object.values(d.cost).some(v => +v > 0)) : !dockFor(b, d).cost && !dockFor(b, d).tbd;
+  return DOCKS.find(d => isMorroFreeDock(d) && ok(d) && cost0(d))
+    || DOCKS.find(d => isMorroFreeDock(d) && ok(d))
+    || DOCKS.find(d => d && d.pickup && !d.far && ok(d) && cost0(d))
+    || (b && DOCKS[b.dock] && ok(DOCKS[b.dock]) && cost0(DOCKS[b.dock]) ? DOCKS[b.dock] : null)
+    || DOCKS.find(d => ok(d) && cost0(d))
+    || DOCKS.find(ok)
+    || DOCKS[0];
+}
+const defaultDockId = b => (defaultDock(b) || DOCKS[0]).id;
+const dockById = id => id === 'pin' ? PIN_DOCK : DOCKS.find(d => d.id === id) || defaultDock();
 // ¿Puede esta embarcación salir de / recoger en este punto? Devuelve {ok, cost, fee, why}
 // cost: lo cobra Tu Lancha Lechería (recogida). fee: servicio por uso de muelle, lo cobra el establecimiento y se paga en sitio.
 function dockFor(b, d) {
@@ -2413,7 +2426,7 @@ function openBoat(id) {
   dlg.onchange = null;
   dlg.onclick = e => {
     if (e.target === dlg || e.target.closest('.m-close')) return dlg.close();
-    if (e.target.closest('#m-book')) { Q.boat = b.id; if (pick) Q.date = iso(pick); fitTo(b); dlg.close(); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(2), 0); }
+    if (e.target.closest('#m-book')) { Q.boat = b.id; if (pick) Q.date = iso(pick); fitTo(b); resetDefaultDock(b); dlg.close(); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(2), 0); }
   };
   upd(); dlg.showModal();
 }
@@ -2422,7 +2435,13 @@ const DOCK_NOTE = 'De acuerdo al muelle base de la embarcación, ajustamos las t
 const CAPT_NOTE = 'La hora final de regreso puede variar según la recomendación del capitán, el grupo y el estado del mar.';
 
 /* ---------------- reserva guiada ---------------- */
-const Q = Object.assign({ pax: 4, kids: 0, boat: OWN ? OWN.id : 'b1', route: 'r1', beaches: [], dock: 'pm', hx: 0, date: iso(new Date(today.getTime() + 7 * 864e5)), acc: {} }, store.get('quote2', {}));
+let dockTouched = false;
+function resetDefaultDock(b) {
+  dockTouched = false;
+  Q.dock = defaultDockId(b || BOATS.find(x => x.id === Q.boat) || OWN);
+}
+const Q = Object.assign({ pax: 4, kids: 0, boat: OWN ? OWN.id : 'b1', route: 'r1', beaches: [], dock: defaultDockId(OWN || BOATS[0]), hx: 0, date: iso(new Date(today.getTime() + 7 * 864e5)), acc: {} }, store.get('quote2', {}));
+Q.dock = defaultDockId(BOATS.find(x => x.id === Q.boat) || OWN || BOATS[0]);
 /* Niños de 7 años o menos: cuentan como pasajeros, pero algunas embarcaciones admiten además unos niños pequeños (kx)
    sin costo extra. Ej.: la lancha de la casa lleva 5 adultos y hasta 3 niños pequeños. El precio es el de la embarcación. */
 const fitsOn = b => Q.pax <= b.pax && Q.pax + (Q.kids || 0) <= b.pax + (+b.kx || 0);
@@ -2486,10 +2505,11 @@ function renderPlan(b) {
     <p class="late-note"><b>Cambios de última hora:</b> ${LATE_NOTE}</p>
     <p class="special">¿Otro destino? ${SPECIAL.join(', ')}: <a href="${wa(`Hola Tu Lancha Lechería 👋 Quiero una cotización especial para ${SPECIAL.join(' / ')} para ${paxTxt()} el ${fmtDay(qDate())}.`)}" target="_blank" rel="noopener">cotización especial por WhatsApp</a></p>`;
   const opt = d => { const c = dockFor(b, d); return `<option value="${d.id}" ${d.id === Q.dock ? 'selected' : ''} ${c.ok ? '' : 'disabled'}>${esc(d.name)}${c.ok ? (d.pickup ? (c.cost ? ' · +' + money(c.cost) : c.tbd ? ' · por confirmar' : ' · gratis') : c.free ? ' · sin costo de muelle' : c.fee ? ' · ' + c.fee : '') : ' · ' + (d.off && d.why ? d.why.toLowerCase() : d.viaR3 && c.why ? c.why.toLowerCase() : 'no disponible')}</option>`; };
-  const home = (DOCKS[b.dock] && dockFor(b, DOCKS[b.dock]).ok ? DOCKS[b.dock] : DOCKS.find(x => dockFor(b, x).ok) || DOCKS[0]).id;
+  const home = defaultDockId(b);
   if (Q.dock === 'pin' && !okPin(Q.pin)) Q.dock = home;
   if (!dockFor(b, dockById(Q.dock)).ok) Q.dock = home;
   $('#b-dock').innerHTML = `<optgroup label="Muelles sugeridos (servicio por uso de muelle)">${DOCKS.filter(d => !d.pickup).map(opt).join('')}</optgroup><optgroup label="Te buscamos en tu residencia">${DOCKS.filter(d => d.pickup && !d.far).map(opt).join('')}</optgroup>${DOCKS.some(d => d.far) ? `<optgroup label="Salidas desde Mochima">${DOCKS.filter(d => d.far).map(opt).join('')}</optgroup>` : ''}<optgroup label="Otro punto"><option value="pin"${Q.dock === 'pin' ? ' selected' : ''}>📍 Escoge tu muelle en el mapa</option></optgroup>`;
+  $('#b-dock').value = Q.dock;
   renderMyPin();
   const d = dockById(Q.dock), c = dockFor(b, d);
   const blocked = DOCKS.filter(x => x.pickup && !dockFor(b, x).ok).map(x => dockFor(b, x).why);
@@ -2625,7 +2645,7 @@ $('#b-date').onchange = e => { if (!e.target.value) return;
   if (dt < today) { toast('Elige una fecha desde hoy'); e.target.value = Q.date; return; }
   if (tooFar(dt)) { toast(`Reservamos con hasta ${CAT.maxDays} días de anticipación. Para fechas más lejanas, escríbenos por WhatsApp.`); e.target.value = Q.date; return; }
   Q.date = e.target.value; renderBuilder(); };
-$('#b-dock').onchange = e => { if (e.target.value === 'pin' && !okPin(Q.pin)) { e.target.value = Q.dock; openPinMap(); return; } Q.dock = e.target.value; renderBuilder(); };
+$('#b-dock').onchange = e => { if (e.target.value === 'pin' && !okPin(Q.pin)) { e.target.value = Q.dock; openPinMap(); return; } dockTouched = true; Q.dock = e.target.value; renderBuilder(); };
 function renderMyPin() {
   const box = $('#b-mypin'); if (!box) return;
   const p = okPin(Q.pin) ? Q.pin : null, on = p && Q.dock === 'pin';
@@ -2638,8 +2658,8 @@ function renderMyPin() {
 }
 $('#b-mypin').addEventListener('click', e => {
   if (e.target.closest('[data-pin-open]')) return openPinMap();
-  if (e.target.closest('[data-pin-use]')) { Q.dock = 'pin'; return renderBuilder(); }
-  if (e.target.closest('[data-pin-del]')) { Q.pin = null; if (Q.dock === 'pin') Q.dock = 'pm'; renderBuilder(); toast('Ubicación quitada'); }
+  if (e.target.closest('[data-pin-use]')) { dockTouched = true; Q.dock = 'pin'; return renderBuilder(); }
+  if (e.target.closest('[data-pin-del]')) { Q.pin = null; if (Q.dock === 'pin') resetDefaultDock(); renderBuilder(); toast('Ubicación quitada'); }
 });
 
 /* ---------------- mapa satelital (Leaflet, sin llave) ---------------- */
@@ -2701,7 +2721,7 @@ function openPinMap() {
     if (r) { place({ lat: +r.dataset.lat, lng: +r.dataset.lng }, 17); const ref = q('[data-pin-ref]'); if (!ref.value) ref.value = r.dataset.name.slice(0, 120); q('[data-pin-res]').hidden = true; return; }
     if (e.target.closest('[data-pin-save]') && pt) {
       Q.pin = { lat: +pt.lat.toFixed(6), lng: +pt.lng.toFixed(6), ref: q('[data-pin-ref]').value.trim().slice(0, 120) };
-      Q.dock = 'pin'; dlg.close(); renderBuilder(); toast('Ubicación guardada. Se enviará a Tu Lancha Lechería al finalizar tu solicitud.');
+      dockTouched = true; Q.dock = 'pin'; dlg.close(); renderBuilder(); toast('Ubicación guardada. Se enviará a Tu Lancha Lechería al finalizar tu solicitud.');
     }
   };
   q('[data-pin-q]').onsubmit = async e => {
@@ -3067,7 +3087,7 @@ function refreshCatalog(c) {
   applyCat(c);
   if (!BOATS.some(b => b.id === Q.boat)) Q.boat = OWN.id;
   if (!ROUTES.some(r => r.id === Q.route)) { Q.route = ROUTES[0].id; Q.beaches = []; }
-  if (!DOCKS.some(d => d.id === Q.dock)) Q.dock = DOCKS[0].id;
+  if (!dockTouched || (Q.dock !== 'pin' && !DOCKS.some(d => d.id === Q.dock))) Q.dock = defaultDockId(BOATS.find(b => b.id === Q.boat) || OWN);
   if (!BOATS.includes(ob)) ob = BOATS[0];
   renderDockOpts(); renderOwnerOpts(); renderBeaches(); renderAllies(); renderRent();
   renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); renderCanales();
@@ -3086,8 +3106,8 @@ loadCatalog();
 // al cambiar de idioma: volver a pintar lo que lleva fechas, días y montos con formato local
 addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); window.TLL.renderMine && window.TLL.renderMine(); });
 
-window.TLL = { OFF, FOOD, RENT, DEF_FOOD, DEF_RENT, shopKind, featList, OWNER_PROS, waTo, isHigh, seasonOf, routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, syncAvailability, dayState, isBusy, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
-document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; fitTo(b); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); });
+window.TLL = { OFF, FOOD, RENT, DEF_FOOD, DEF_RENT, shopKind, featList, OWNER_PROS, waTo, isHigh, seasonOf, routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, defaultDockId, resetDefaultDock, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, syncAvailability, dayState, isBusy, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
+document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; fitTo(b); resetDefaultDock(b); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); });
 })();
 
 (() => {
@@ -4425,8 +4445,9 @@ function show(name, anchor) {
     if (ogU) ogU.setAttribute('content', location.origin + location.pathname + (name === 'inicio' ? '' : '#' + name));
     if (anchor && document.getElementById(anchor)) document.getElementById(anchor).scrollIntoView();
     else if (current !== name) scrollTo({ top: 0, behavior: 'instant' in document.documentElement.style ? 'instant' : 'auto' });
+    const prev = current;
     current = name;
-    if (name === 'reservar') { renderBuilder(); goStep(step); }
+    if (name === 'reservar') { if (prev !== 'reservar' && window.TLL.resetDefaultDock) window.TLL.resetDefaultDock(); renderBuilder(); goStep(step); }
     syncMinibar(); syncVideo(); parallax();
   };
   if (current && current !== name && document.startViewTransition && !reduce.matches && !touchUI.matches) { const vt = document.startViewTransition(swap); [vt.ready, vt.finished, vt.updateCallbackDone].forEach(x => x && x.catch(() => {})); } else swap();
@@ -5125,7 +5146,8 @@ const ownerMsg = b => `⚓ Reserva ${b.code} · Tu Lancha Lechería\n🚤 ${b.bo
 const ownerUrl = b => `https://wa.me/${ownerOf(b)}?text=${encodeURIComponent(ownerMsg(b))}`;
 async function saveBk(x) { const j = await api('bk', { booking: x }); const i = BK.findIndex(b => b.code === j.booking.code); if (i >= 0) BK[i] = j.booking; else BK.push(j.booking); syncBooked(); return j.booking; }
 function bkForm(b) {
-  b = b || { iso: iso(new Date(today.getTime() + 864e5)), pax: 6, total: 0, paid: 0, channel: 'WhatsApp directo', status: 'confirmada', boat: (W.boats.find(x => x.own) || W.boats[0]).name, route: W.routes[0].name, dock: W.docks[0].name };
+  const defDockName = (W.docks.find(x => x && !x.off && (x.id === 'rem' || /complejo\s+tur[ií]stico\s+el\s+morro/i.test(x.name || ''))) || W.docks[0]).name;
+  b = b || { iso: iso(new Date(today.getTime() + 864e5)), pax: 6, total: 0, paid: 0, channel: 'WhatsApp directo', status: 'confirmada', boat: (W.boats.find(x => x.own) || W.boats[0]).name, route: W.routes[0].name, dock: defDockName };
   sheet(`<h3>${b.code ? 'Editar reserva ' + esc(b.code) : 'Registrar reserva'}</h3><form class="adm-form" id="bk-f">
     <div class="field"><label for="bf-name">Cliente</label><input id="bf-name" required value="${esc(b.name || '')}"></div>
     <div class="field"><label for="bf-phone">WhatsApp</label><input id="bf-phone" inputmode="tel" placeholder="+58 4xx xxx xxxx" value="${esc(b.phone || '')}"></div>
@@ -5634,7 +5656,7 @@ adm.addEventListener('click', async e => {
   if (d.calToggle) { const [bid, dayIso] = d.calToggle.split('|'); toggleBlock(bid, dayIso); return; }
   if (d.calPickboat) { calBoat = d.calPickboat; render(); return; }
   if (d.calEditbk) { const b = BK.find(x => x.code === d.calEditbk); if (b) bkForm(b); return; }
-  if (d.calNewbk) { const [boat, dayIso] = d.calNewbk.split('|'); bkForm({ iso: dayIso, pax: 6, total: 0, paid: 0, channel: 'WhatsApp directo', status: 'confirmada', boat, route: W.routes[0].name, dock: W.docks[0].name }); return; }
+  if (d.calNewbk) { const [boat, dayIso] = d.calNewbk.split('|'); const defDockName = (W.docks.find(x => x && !x.off && (x.id === 'rem' || /complejo\s+tur[ií]stico\s+el\s+morro/i.test(x.name || ''))) || W.docks[0]).name; bkForm({ iso: dayIso, pax: 6, total: 0, paid: 0, channel: 'WhatsApp directo', status: 'confirmada', boat, route: W.routes[0].name, dock: defDockName }); return; }
   if (d.up) return pickPhoto(d.up, d.kind);
   if (d.rmph) { setPath(W, d.rmph, /^(allies|pay)\./.test(d.rmph) ? '' : undefined); if (d.rmph === 'home.promoImg' || d.rmph.endsWith('.photos.promo')) { if (W.home) delete W.home.promoImg; W.boats.forEach(b => { if (b.photos) delete b.photos.promo; }); } refreshSaveBar(); reopen(); return; }
   // reservas

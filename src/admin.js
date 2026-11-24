@@ -311,7 +311,8 @@ const ownerMsg = b => `⚓ Reserva ${b.code} · Tu Lancha Lechería\n🚤 ${b.bo
 const ownerUrl = b => `https://wa.me/${ownerOf(b)}?text=${encodeURIComponent(ownerMsg(b))}`;
 async function saveBk(x) { const j = await api('bk', { booking: x }); const i = BK.findIndex(b => b.code === j.booking.code); if (i >= 0) BK[i] = j.booking; else BK.push(j.booking); syncBooked(); return j.booking; }
 function bkForm(b) {
-  b = b || { iso: iso(new Date(today.getTime() + 864e5)), pax: 6, total: 0, paid: 0, channel: 'WhatsApp directo', status: 'confirmada', boat: (W.boats.find(x => x.own) || W.boats[0]).name, route: W.routes[0].name, dock: W.docks[0].name };
+  const defDockName = (W.docks.find(x => x && !x.off && (x.id === 'rem' || /complejo\s+tur[ií]stico\s+el\s+morro/i.test(x.name || ''))) || W.docks[0]).name;
+  b = b || { iso: iso(new Date(today.getTime() + 864e5)), pax: 6, total: 0, paid: 0, channel: 'WhatsApp directo', status: 'confirmada', boat: (W.boats.find(x => x.own) || W.boats[0]).name, route: W.routes[0].name, dock: defDockName };
   sheet(`<h3>${b.code ? 'Editar reserva ' + esc(b.code) : 'Registrar reserva'}</h3><form class="adm-form" id="bk-f">
     <div class="field"><label for="bf-name">Cliente</label><input id="bf-name" required value="${esc(b.name || '')}"></div>
     <div class="field"><label for="bf-phone">WhatsApp</label><input id="bf-phone" inputmode="tel" placeholder="+58 4xx xxx xxxx" value="${esc(b.phone || '')}"></div>
@@ -820,7 +821,7 @@ adm.addEventListener('click', async e => {
   if (d.calToggle) { const [bid, dayIso] = d.calToggle.split('|'); toggleBlock(bid, dayIso); return; }
   if (d.calPickboat) { calBoat = d.calPickboat; render(); return; }
   if (d.calEditbk) { const b = BK.find(x => x.code === d.calEditbk); if (b) bkForm(b); return; }
-  if (d.calNewbk) { const [boat, dayIso] = d.calNewbk.split('|'); bkForm({ iso: dayIso, pax: 6, total: 0, paid: 0, channel: 'WhatsApp directo', status: 'confirmada', boat, route: W.routes[0].name, dock: W.docks[0].name }); return; }
+  if (d.calNewbk) { const [boat, dayIso] = d.calNewbk.split('|'); const defDockName = (W.docks.find(x => x && !x.off && (x.id === 'rem' || /complejo\s+tur[ií]stico\s+el\s+morro/i.test(x.name || ''))) || W.docks[0]).name; bkForm({ iso: dayIso, pax: 6, total: 0, paid: 0, channel: 'WhatsApp directo', status: 'confirmada', boat, route: W.routes[0].name, dock: defDockName }); return; }
   if (d.up) return pickPhoto(d.up, d.kind);
   if (d.rmph) { setPath(W, d.rmph, /^(allies|pay)\./.test(d.rmph) ? '' : undefined); if (d.rmph === 'home.promoImg' || d.rmph.endsWith('.photos.promo')) { if (W.home) delete W.home.promoImg; W.boats.forEach(b => { if (b.photos) delete b.photos.promo; }); } refreshSaveBar(); reopen(); return; }
   // reservas
