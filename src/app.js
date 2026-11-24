@@ -382,7 +382,7 @@ function promoCardHtml(b, compact = false) {
   if (!b || !b.own) return '';
   const foodImg = (FOOD.find(x => x && x.logo && (x.id === 'six' || /cardenal\s*ultra/i.test(x.brand || ''))) || {}).logo || '';
   const img = (b.photos && b.photos.promo) || (CAT.home && CAT.home.promoImg) || foodImg || '';
-  const txt = b.promo || 'Incluye promo Six Pack de Cardenal Ultra en tu salida.';
+  const txt = b.promo || 'Incluye SIPA de cortesía de Cardenal Ultra.';
   return `<div class="promo-slot${compact ? ' compact' : ''}${img ? ' has-img' : ''}">
     <div class="promo-media">${img ? ph(img, 'Promo Six Pack Cardenal Ultra') : `<div class="promo-ph" aria-hidden="true"><span>Promo Cardenal Ultra</span><small>Imagen lista para cargar</small></div>`}</div>
     <div class="promo-tx"><b>Promo Six Pack · Cardenal Ultra</b><span>${esc(txt)}</span></div></div>`;
