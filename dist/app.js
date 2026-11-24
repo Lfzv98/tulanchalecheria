@@ -2908,7 +2908,11 @@ function getOwnerPros() {
   const base = ALLIES.filter(c => c.owners).flatMap(c => c.items).filter(x => x && !BANNED_PRO.test(x[0]));
   return sortedItems('__owners__', base);
 }
-function saveOwnerPros(list) { store.set('owner-pros', list); }
+function saveOwnerPros(list) {
+  store.set('owner-pros', list);
+  ALLY_ORD.__owners__ = list.map(x => x && x[0]).filter(Boolean);
+  store.set('ally-order', ALLY_ORD);
+}
 // tarjeta tipo cuadro sin etiqueta VIP; en modo organizar muestra botones para reordenar (y eliminar en proveedores)
 const allyCard = (it, opts = {}) => {
   const [n, d, u, col, logo, cover] = it;
@@ -2966,7 +2970,11 @@ document.addEventListener('click', e => {
     return;
   }
   const dp = e.target.closest('[data-del-pro]');
-  if (dp) { const list = getOwnerPros(); list.splice(+dp.dataset.delPro, 1); saveOwnerPros(list); return renderAllies(); }
+  if (dp) {
+    const idx = +dp.dataset.delPro, list = getOwnerPros(), it = list[idx];
+    if (!it || !confirm(`¿Quitar ${it[0]}?`)) return;
+    list.splice(idx, 1); saveOwnerPros(list); renderAllies(); toast('Aliado eliminado'); return;
+  }
   const avb = e.target.closest('[data-inv-avail]');
   if (avb) { const k = avb.dataset.invAvail; INV_CFG[k] = { ...(INV_CFG[k] || {}), avail: INV_CFG[k] && INV_CFG[k].avail === false ? true : false }; saveInvCfg(); renderRent(); renderBuilder(); return; }
   const oa = e.target.closest('#open-aux-btn');
@@ -2998,7 +3006,7 @@ document.addEventListener('submit', e => {
   const n = $('#np-name')?.value.trim(), d = $('#np-desc')?.value.trim(), u = $('#np-url')?.value.trim();
   if (!n) return;
   const list = getOwnerPros();
-  list.push([n, d || 'Proveedor verificado', u || '', '#16759b']);
+  list.push([n, d || 'Proveedor verificado', u || '', '#16759b', '', '']);
   saveOwnerPros(list); renderAllies(); toast('Proveedor agregado');
 });
 document.addEventListener('input', e => { if (e.target.id === 'rn-name') RQ.name = e.target.value; if (e.target.id === 'rn-boat') RQ.boat = e.target.value; });
@@ -3092,6 +3100,8 @@ if ('serviceWorker' in navigator && location.protocol === 'https:' && !location.
 renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner();
 // catálogo publicado desde el panel: si cambió, se aplica y se vuelve a pintar todo
 function refreshCatalog(c) {
+  store.set('owner-pros', null);
+  if (ALLY_ORD.__owners__) { delete ALLY_ORD.__owners__; store.set('ally-order', ALLY_ORD); }
   applyCat(c);
   if (!BOATS.some(b => b.id === Q.boat)) Q.boat = OWN.id;
   if (!ROUTES.some(r => r.id === Q.route)) { Q.route = ROUTES[0].id; Q.beaches = []; }
@@ -5489,7 +5499,7 @@ const payPreview = () => { const P = W.pay, z = P.zelles[P.zelleOn] || {};
 /* ---------------- aliados ---------------- */
 VIEW.aliados = () => `<div class="ad-head"><div><h2>Servicio a bordo</h2><p class="rating">Aliados VIP que recomiendas. Salen en Servicio a bordo y en el cintillo del pie de página. Las categorías marcadas “para propietarios” salen en la página de Propietarios.</p></div><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" data-cat-new>+ Nueva categoría</button>${helpBtn('aliados')}</div></div>
   ${W.allies.map((c, i) => `<section class="panel"><div class="adm-form">${inp(`allies.${i}.cat`, 'Categoría')}</div><div class="ad-checks">${inp(`allies.${i}.owners`, 'Para propietarios de embarcaciones (sale en Propietarios)', { t: 'bool' })}</div>
-    <div class="ad-allies">${c.items.map((it, j) => { const p = `allies.${i}.items.${j}`; return `<div class="ad-ally">${photoSlot(p + '.4', 'logo', 'Logo', true)}${photoSlot(p + '.5', 'cover', 'Portada', true)}<div class="adm-form">${inp(p + '.0', 'Nombre')}${inp(p + '.1', 'Descripción', { cls: 'ad-wide' })}${inp(p + '.2', 'Enlace (web o Instagram)', { ph: 'https://…', cls: 'ad-wide', hint: 'Vacío = abre WhatsApp para pedirlo.' })}<div class="field"><label>Color si no hay logo</label><input type="color" data-k="${p}.3" value="${esc(it[3] || '#232843')}"></div></div><button type="button" class="icon-btn ad-danger" data-ally-del="${i}.${j}">Quitar</button></div>`; }).join('')}</div>
+    <div class="ad-allies">${c.items.map((it, j) => { const p = `allies.${i}.items.${j}`; return `<div class="ad-ally">${photoSlot(p + '.4', 'logo', 'Logo', true)}${photoSlot(p + '.5', 'cover', 'Portada', true)}<div class="adm-form">${inp(p + '.0', 'Nombre')}${inp(p + '.1', 'Descripción', { cls: 'ad-wide' })}${inp(p + '.2', 'Enlace (web o Instagram)', { ph: 'https://…', cls: 'ad-wide', hint: 'Vacío = abre WhatsApp para pedirlo.' })}<div class="field"><label>Color si no hay logo</label><input type="color" data-k="${p}.3" value="${esc(it[3] || '#232843')}"></div></div><div class="adm-tools ad-ally-acts"><button type="button" class="icon-btn" data-ally-up="${i}.${j}" aria-label="Subir en la lista"${j ? '' : ' disabled'}>↑</button><button type="button" class="icon-btn" data-ally-down="${i}.${j}" aria-label="Bajar en la lista"${j < c.items.length - 1 ? '' : ' disabled'}>↓</button><button type="button" class="icon-btn ad-danger" data-ally-del="${i}.${j}">Quitar</button></div></div>`; }).join('')}</div>
     <div class="adm-tools"><button type="button" class="ad-add" data-ally-add="${i}">+ Agregar aliado</button>${c.items.length ? '' : `<button type="button" class="icon-btn ad-danger" data-cat-del="${i}">Quitar categoría</button>`}</div></section>`).join('')}`;
 
 /* ---------------- portada y tienda ---------------- */
@@ -5733,10 +5743,36 @@ adm.addEventListener('click', async e => {
   if (d.zadd != null) { W.pay.zelles.push({ name: '', email: '' }); render(); const ins = $$('[data-k$=".name"]', adm); const l = ins[ins.length - 1]; if (l) l.focus(); return; }
   if (d.zdel != null) { const i = +d.zdel, z = W.pay.zelles[i]; if (!confirm(`¿Quitar la cuenta Zelle${z.name ? ' de ' + z.name : ''}?`)) return; W.pay.zelles.splice(i, 1); if (W.pay.zelleOn > i) W.pay.zelleOn--; if (W.pay.zelleOn >= W.pay.zelles.length) W.pay.zelleOn = 0; render(); return; }
   // aliados
-  if (d.allyAdd != null) { W.allies[+d.allyAdd].items.push(['Nuevo aliado', '', '', '#232843', '', '']); render(); return; }
-  if (d.allyDel != null) { const [i, j] = d.allyDel.split('.').map(Number); if (!confirm(`¿Quitar ${W.allies[i].items[j][0]}?`)) return; W.allies[i].items.splice(j, 1); render(); return; }
-  if (d.catNew != null) { W.allies.push({ cat: 'Nueva categoría', items: [['Nuevo aliado', '', '', '#232843', '', '']] }); render(); return; }
-  if (d.catDel != null) { W.allies.splice(+d.catDel, 1); render(); return; }
+  if (d.allyAdd != null) {
+    const ci = +d.allyAdd, cat = W.allies[ci];
+    if (!cat) return;
+    cat.items.push(['Nuevo aliado', '', '', '#232843', '', '']);
+    const ni = cat.items.length - 1;
+    refreshSaveBar(); render();
+    const el = $(`[data-k="allies.${ci}.items.${ni}.0"]`, adm);
+    if (el) { el.focus(); el.select(); }
+    return;
+  }
+  if (d.allyUp != null || d.allyDown != null) {
+    const [i, j] = (d.allyUp ?? d.allyDown).split('.').map(Number);
+    const items = W.allies[i] && W.allies[i].items;
+    const k = d.allyUp != null ? j - 1 : j + 1;
+    if (!items || k < 0 || k >= items.length) return;
+    [items[j], items[k]] = [items[k], items[j]];
+    refreshSaveBar(); render();
+    return;
+  }
+  if (d.allyDel != null) {
+    const [i, j] = d.allyDel.split('.').map(Number);
+    const items = W.allies[i] && W.allies[i].items;
+    if (!items || !items[j]) return;
+    if (!confirm(`¿Quitar ${items[j][0]}?`)) return;
+    items.splice(j, 1);
+    refreshSaveBar(); render();
+    return;
+  }
+  if (d.catNew != null) { W.allies.push({ cat: 'Nueva categoría', items: [['Nuevo aliado', '', '', '#232843', '', '']] }); refreshSaveBar(); render(); return; }
+  if (d.catDel != null) { W.allies.splice(+d.catDel, 1); refreshSaveBar(); render(); return; }
   // ajustes
   if (t.id === 'hist-load') {
     try { const j = await api('hist', null, true); $('#hist', adm).innerHTML = j.list.length ? `<div class="ad-list">${j.list.map(h => `<div class="ad-li"><span class="mono">${new Date(h.t).toLocaleString('es-VE', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</span><span>${esc(h.note || 'Versión anterior')}</span><button class="icon-btn" type="button" data-undo="${h.i}">Restaurar</button></div>`).join('')}</div>` : '<p class="rating">Todavía no hay versiones anteriores.</p>'; } catch (err) { toast(errMsg(err)); }

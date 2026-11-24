@@ -1467,7 +1467,7 @@ h4 .ad-help,h3 .ad-help{margin-left:8px;padding:3px 10px 3px 3px;font-size:.75re
 .ad-photo.sm .ad-ph-b{padding:6px 0 0}
 .ad-allies{display:grid;gap:12px}
 .ad-ally{display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px;align-items:start;border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--bg)}
-.ad-ally>.icon-btn{grid-column:2;justify-self:start}
+.ad-ally>.icon-btn,.ad-ally>.ad-ally-acts{grid-column:2;justify-self:start}
 @media (max-width:520px){.ad-ally{grid-template-columns:84px minmax(0,1fr)}}
 .ad-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:12px}
 .ad-preview .pay-info{background:linear-gradient(150deg,#0d1b2e,#1a2b44);color:#eef2f8;border:0;animation:none}
@@ -2257,11 +2257,15 @@ button.exp:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .ally-ctrls button{border:1px solid var(--line);background:#fff;color:var(--fg);border-radius:8px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:.82rem}
 .ally-ctrls button:disabled{opacity:.35;cursor:not-allowed}
 .ally-ctrls button.del{color:#b91c1c;border-color:rgba(185,28,28,.3)}
-.ally-grid.owner-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.ally-grid.owner-grid .ally-b{padding:16px;gap:14px;align-items:center}
-.ally-grid.owner-grid .av{width:62px;height:62px;border-radius:16px;font-size:1.25rem;box-shadow:0 8px 20px -10px rgba(13,27,46,.45)}
-.ally-grid.owner-grid .ally-tx b{font-size:1.12rem;letter-spacing:.01em;color:var(--sea-900)}
-.ally-grid.owner-grid .ally-tx span{font-size:.86rem;line-height:1.4}
+.ally-grid.owner-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.ally-grid.owner-grid .ally-t{height:100%}
+.ally-grid.owner-grid .ally-b{padding:20px 18px;gap:16px;align-items:center}
+.ally-grid.owner-grid .av{width:88px;height:88px;border-radius:18px;font-size:1.55rem;box-shadow:0 10px 24px -12px rgba(13,27,46,.42)}
+.ally-grid.owner-grid .av.logo{background:#fff;border:1px solid rgba(21,26,51,.12)}
+.ally-grid.owner-grid .av.logo .ph{padding:6px;object-fit:contain}
+.ally-grid.owner-grid .ally-tx{gap:4px}
+.ally-grid.owner-grid .ally-tx b{font-family:var(--f-display);font-size:clamp(1.25rem,1.9vw,1.5rem);font-weight:800;line-height:1.08;text-transform:uppercase;letter-spacing:.04em;color:var(--sea-900)}
+.ally-grid.owner-grid .ally-tx span{font-size:.88rem;line-height:1.42}
 .own-h2{font-family:var(--f-display);font-size:clamp(1.6rem,3.4vw,2.3rem);line-height:1.05;margin:0}
 .rent-head{align-items:flex-start;gap:12px;margin-bottom:14px}
 .add-pro{margin-top:16px;padding:16px;display:grid;gap:10px}

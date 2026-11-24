@@ -1252,7 +1252,11 @@ function getOwnerPros() {
   const base = ALLIES.filter(c => c.owners).flatMap(c => c.items).filter(x => x && !BANNED_PRO.test(x[0]));
   return sortedItems('__owners__', base);
 }
-function saveOwnerPros(list) { store.set('owner-pros', list); }
+function saveOwnerPros(list) {
+  store.set('owner-pros', list);
+  ALLY_ORD.__owners__ = list.map(x => x && x[0]).filter(Boolean);
+  store.set('ally-order', ALLY_ORD);
+}
 // tarjeta tipo cuadro sin etiqueta VIP; en modo organizar muestra botones para reordenar (y eliminar en proveedores)
 const allyCard = (it, opts = {}) => {
   const [n, d, u, col, logo, cover] = it;
@@ -1310,7 +1314,11 @@ document.addEventListener('click', e => {
     return;
   }
   const dp = e.target.closest('[data-del-pro]');
-  if (dp) { const list = getOwnerPros(); list.splice(+dp.dataset.delPro, 1); saveOwnerPros(list); return renderAllies(); }
+  if (dp) {
+    const idx = +dp.dataset.delPro, list = getOwnerPros(), it = list[idx];
+    if (!it || !confirm(`¿Quitar ${it[0]}?`)) return;
+    list.splice(idx, 1); saveOwnerPros(list); renderAllies(); toast('Aliado eliminado'); return;
+  }
   const avb = e.target.closest('[data-inv-avail]');
   if (avb) { const k = avb.dataset.invAvail; INV_CFG[k] = { ...(INV_CFG[k] || {}), avail: INV_CFG[k] && INV_CFG[k].avail === false ? true : false }; saveInvCfg(); renderRent(); renderBuilder(); return; }
   const oa = e.target.closest('#open-aux-btn');
@@ -1342,7 +1350,7 @@ document.addEventListener('submit', e => {
   const n = $('#np-name')?.value.trim(), d = $('#np-desc')?.value.trim(), u = $('#np-url')?.value.trim();
   if (!n) return;
   const list = getOwnerPros();
-  list.push([n, d || 'Proveedor verificado', u || '', '#16759b']);
+  list.push([n, d || 'Proveedor verificado', u || '', '#16759b', '', '']);
   saveOwnerPros(list); renderAllies(); toast('Proveedor agregado');
 });
 document.addEventListener('input', e => { if (e.target.id === 'rn-name') RQ.name = e.target.value; if (e.target.id === 'rn-boat') RQ.boat = e.target.value; });
@@ -1436,6 +1444,8 @@ if ('serviceWorker' in navigator && location.protocol === 'https:' && !location.
 renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner();
 // catálogo publicado desde el panel: si cambió, se aplica y se vuelve a pintar todo
 function refreshCatalog(c) {
+  store.set('owner-pros', null);
+  if (ALLY_ORD.__owners__) { delete ALLY_ORD.__owners__; store.set('ally-order', ALLY_ORD); }
   applyCat(c);
   if (!BOATS.some(b => b.id === Q.boat)) Q.boat = OWN.id;
   if (!ROUTES.some(r => r.id === Q.route)) { Q.route = ROUTES[0].id; Q.beaches = []; }
