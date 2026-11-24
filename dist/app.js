@@ -2759,12 +2759,65 @@ $('#beaches').addEventListener('click', e => { const g = e.target.closest('[data
 
 /* ---------------- experiencias: canales y pesca ---------------- */
 const CQ = { opt: 'l', pax: 6, ex: {} };
-function canalPrice() { const o = CANALES.opts.find(x => x.id === CQ.opt); const base = o.flat ?? o.pp * Math.max(CQ.pax, o.min); return base + CANALES.extras.filter(x => CQ.ex[x[0]]).reduce((s, x) => s + x[2], 0); }
+const isPosadaDock = d => !!(d && (d.far || d.viaR3 || /posada|lodge/i.test(d.name || '')));
+function canalBoat(optId = CQ.opt) {
+  if (optId === 'y') return { name: 'Yate', type: 'Yate', size: 'y', dock: -1, pick: {} };
+  if (optId === 'b') return { name: 'Barco de eventos', type: 'Barco', size: 'y', dock: -1, pick: {} };
+  return { name: 'Lancha', type: 'Lancha', size: 'm', dock: -1, pick: {} };
+}
+const pescaBoat = () => ({ ...(OWN || { name: 'Lancha', type: 'Lancha', ft: 24, pick: {}, rp: {} }), dock: -1 });
+function expDockInfo(b, d, allowFar = false) {
+  if (!d) return { ok: false, cost: 0 };
+  if (d.viaR3 && allowFar) {
+    if (d.off) return { ok: false, why: d.why || 'Muelle deshabilitado' };
+    if (Array.isArray(b.docks) && b.docks.length && !b.docks.includes(d.id)) return { ok: false, why: `${b.name} no hace recogidas ahí` };
+    if (b.pick && d.id in b.pick) return b.pick[d.id] === null ? { ok: false, why: `${b.name} no llega hasta ahí por su calado` } : { ok: true, cost: +b.pick[d.id] || 0 };
+    const z = sizeOf(b), c = d.cost || {};
+    if (+c[z] > 0) return { ok: true, cost: +c[z] };
+    const r3 = ROUTES.find(x => x.id === 'r3'), r1 = ROUTES[0];
+    if (!r3) return { ok: true, cost: 0, tbd: true };
+    const p3 = routePrice(b, r3, today), p1 = routePrice(b, r1, today);
+    if (!p3.ok) return { ok: false, why: `${b.name} no navega hasta Mochima` };
+    if (p3.tbd || !p1.ok) return { ok: true, cost: 0, tbd: true };
+    return { ok: true, cost: Math.max(0, p3.price - p1.price) };
+  }
+  return dockFor(b, d);
+}
+const canalDocks = () => DOCKS.filter(d => !d.off && !isPosadaDock(d));
+function canalDockInfo(optId = CQ.opt, dockId = CQ.dock) {
+  const d = canalDocks().find(x => x.id === dockId);
+  return d ? { dock: d, info: expDockInfo(canalBoat(optId), d, false) } : { dock: null, info: { ok: false, cost: 0 } };
+}
+function expDockOpts(b, sel, { excludePosadas = false, placeholder = '' } = {}) {
+  const allowFar = !excludePosadas;
+  const list = DOCKS.filter(d => !d.off && (!excludePosadas || !isPosadaDock(d)));
+  const opt = d => {
+    const c = expDockInfo(b, d, allowFar);
+    const tag = c.ok
+      ? (d.pickup ? (c.cost ? ' · +' + money(c.cost) : c.tbd ? ' · por confirmar' : ' · gratis') : c.free ? ' · sin costo de muelle' : c.fee ? ' · ' + c.fee : '')
+      : ' · ' + (d.lanchaOnly && b.type !== 'Lancha' ? 'solo lanchas' : 'no disponible');
+    return `<option value="${esc(d.id)}"${d.id === sel ? ' selected' : ''}${c.ok ? '' : ' disabled'}>${esc(d.name)}${tag}</option>`;
+  };
+  const main = list.filter(d => !d.pickup);
+  const res = list.filter(d => d.pickup && !d.far);
+  const far = list.filter(d => d.far);
+  return (placeholder ? `<option value="">${esc(placeholder)}</option>` : '')
+    + (main.length ? `<optgroup label="Muelles sugeridos (servicio por uso de muelle)">${main.map(opt).join('')}</optgroup>` : '')
+    + (res.length ? `<optgroup label="Te buscamos en tu residencia">${res.map(opt).join('')}</optgroup>` : '')
+    + (far.length ? `<optgroup label="Salidas desde Mochima">${far.map(opt).join('')}</optgroup>` : '');
+}
+function canalPrice() {
+  const o = CANALES.opts.find(x => x.id === CQ.opt);
+  const base = o.flat ?? o.pp * Math.max(CQ.pax, o.min);
+  const extras = CANALES.extras.filter(x => CQ.ex[x[0]]).reduce((s, x) => s + x[2], 0);
+  const { info } = canalDockInfo();
+  return base + extras + (info.ok ? (+info.cost || 0) : 0);
+}
 // imagen de cada experiencia (Eduardo la sube en Portada y tienda); mientras tanto, una ilustración de relleno
 const PESCA_TXT = 'Vive una jornada completa de pesca deportiva navegando millas náuticas más allá de Isla La Borracha en busca de grandes especies como el pez vela. Te incluimos todo el equipamiento; tú solo traes comida y bebidas.';
 const EXP_IMG = { canales: 'media/exp-canales.webp', pesca: 'media/exp-pesca.webp', senderismo: 'media/exp-senderismo.webp' };   // fotos de Eduardo (18 nov)
 const expMedia = (k, hue) => { const u = (CAT.home.exp && CAT.home.exp[k]) || EXP_IMG[k]; return `<div class="exp-media${u ? '' : ' fill'}">${u ? ph(u, '') : art(k === 'senderismo' ? 'beach' : 'drone', hue, 'exp-' + k)}</div>`; };
-const pescaDockOpts = sel => `<option value="">Selecciona un muelle…</option>` + MAIN_DOCKS.map(d => `<option value="${esc(d.name)}"${d.name === sel ? ' selected' : ''}>${esc(d.name)}</option>`).join('');
+const pescaDockOpts = sel => expDockOpts(pescaBoat(), sel, { excludePosadas: false, placeholder: 'Selecciona un muelle…' });
 const pescaFormHtml = (pfx = 'ps') => `<form class="pesca-f" data-pesca-form>
   <div class="two">
     <div class="field"><label for="${pfx}-date">Fecha</label><input id="${pfx}-date" name="date" type="date" required min="${iso(today)}" max="${iso(lastDay())}" value="${CQ.pDate || ''}"></div>
@@ -2825,6 +2878,12 @@ function renderCanales() {
   const el = $('#canales'); if (!el) return;
   const o = CANALES.opts.find(x => x.id === CQ.opt);
   CQ.pax = Math.max(1, Math.min(CQ.pax, o.max));
+  const b = canalBoat(CQ.opt), docks = canalDocks(), validDocks = docks.filter(d => expDockInfo(b, d, false).ok);
+  if (!CQ.dock || !validDocks.some(d => d.id === CQ.dock)) {
+    const def = validDocks.find(d => isMorroFreeDock(d) && !expDockInfo(b, d, false).cost) || validDocks.find(d => !d.pickup) || validDocks[0];
+    CQ.dock = def ? def.id : '';
+  }
+  const cd = canalDockInfo();
   el.innerHTML = `<article class="canal glass-card has-media" id="exp-canales">${expMedia('canales', 25)}
     <div class="canal-in"><span class="eyebrow">Experiencia aparte · cupos limitados</span><h2>Paseo por los canales de El Morro</h2>
       <p>Recorre los canales del Complejo Turístico El Morro al caer la tarde. Todos los días desde las 5:30 pm, con reserva previa. Duración: 1 h 30 min.</p>
@@ -2833,9 +2892,10 @@ function renderCanales() {
     <form class="canal-f" id="canal-form">
       <div class="opts">${CANALES.opts.map(x => `<button type="button" class="opt" data-copt="${x.id}" aria-pressed="${x.id === CQ.opt}"><b>${x.name}</b><span>${x.flat ? `Hasta ${x.max} personas` : `Mín. ${x.min}, máx. ${x.max}`}</span><span class="p">${x.flat ? money(x.flat) : money(x.pp) + ' por persona'}</span></button>`).join('')}</div>
       <div class="two"><div class="field"><label for="c-pax">Personas</label><input id="c-pax" type="number" min="1" max="${o.max}" value="${CQ.pax}" inputmode="numeric"></div><div class="field"><label for="c-date">Fecha</label><input id="c-date" type="date" min="${iso(today)}" max="${iso(lastDay())}" value="${CQ.date || iso(new Date(today.getTime() + 3 * 864e5))}"></div></div>
-      <div class="field"><label for="c-dock">Salida</label><select id="c-dock">${CANALES.docks.map(d => `<option ${d === CQ.dock ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
+      <div class="field"><label for="c-dock">Salida</label><select id="c-dock">${expDockOpts(b, CQ.dock, { excludePosadas: true })}</select></div>
       <div class="amen">${CANALES.extras.map(x => `<button type="button" class="pill" data-cex="${x[0]}" aria-pressed="${!!CQ.ex[x[0]]}">${x[1]} +${money(x[2])}</button>`).join('')}</div>
       <div class="total"><span>Total estimado</span><b id="c-total">${money(canalPrice())}</b></div>
+      ${cd.dock && cd.info.ok && cd.info.cost > 0 ? `<p class="rating">Incluye +${money(cd.info.cost)} por recogida en ${esc(cd.dock.name)}.</p>` : ''}
       ${!o.flat && CQ.pax < o.min ? `<p class="rating">Se cobra el mínimo de ${o.min} personas.</p>` : ''}
       <button class="btn btn-wa" type="submit">Solicitar este paseo</button>
     </form></article>
@@ -2856,7 +2916,7 @@ document.addEventListener('click', e => {
 document.addEventListener('change', e => {
   if (e.target.id === 'c-pax') { CQ.pax = +e.target.value || 1; renderCanales(); }
   if (e.target.id === 'c-date') CQ.date = e.target.value;
-  if (e.target.id === 'c-dock') CQ.dock = e.target.value;
+  if (e.target.id === 'c-dock') { CQ.dock = e.target.value; renderCanales(); }
   if (e.target.id === 'ps-date' || e.target.id === 'psp-date') CQ.pDate = e.target.value;
   if (e.target.id === 'ps-dock' || e.target.id === 'psp-dock') CQ.pDock = e.target.value;
 });
@@ -2867,14 +2927,18 @@ document.addEventListener('submit', e => {
     if (!dt || !dk) { toast('Selecciona la fecha y el muelle de salida'); return; }
     const [yy, mm, dd] = dt.split('-').map(Number);
     const dlg = $('#dlg'); if (dlg && dlg.open && e.target.closest('#dlg')) dlg.close();
-    openWaUrl(wa(`Hola Tu Lancha Lechería 👋 Me interesa un chárter de pesca de altura.\n📅 Fecha: ${fmtDay(new Date(yy, mm - 1, dd))}\n⚓ Muelle de salida: ${dk}\n¿Tienen disponibilidad?`));
+    const d = DOCKS.find(x => x.id === dk || x.name === dk), c = d ? expDockInfo(pescaBoat(), d, true) : { ok: false, cost: 0 };
+    const dockTxt = d ? `${d.name}${c.ok ? (c.cost ? ` (+${money(c.cost)} de recogida)` : c.tbd ? ' (recargo por confirmar)' : c.fee ? ` (servicio de muelle ${c.fee} en sitio)` : '') : ''}` : dk;
+    openWaUrl(wa(`Hola Tu Lancha Lechería 👋 Me interesa un chárter de pesca de altura.\n📅 Fecha: ${fmtDay(new Date(yy, mm - 1, dd))}\n⚓ Muelle de salida: ${dockTxt}\n¿Tienen disponibilidad?`));
     return;
   }
   if (e.target.id !== 'canal-form') return; e.preventDefault();
   const o = CANALES.opts.find(x => x.id === CQ.opt), dt = $('#c-date').value;
   const [yy, mm, dd] = (dt || iso(today)).split('-').map(Number);
   const ex = CANALES.extras.filter(x => CQ.ex[x[0]]).map(x => '➕ ' + x[1]).join('\n');
-  openWaUrl(wa(`Hola Tu Lancha Lechería 👋 Quiero el paseo por los canales de El Morro.\n⛵ ${o.name}\n👥 ${CQ.pax} personas\n📅 ${fmtDay(new Date(yy, mm - 1, dd))} desde las 5:30 pm\n⚓ ${$('#c-dock').value}\n${ex ? ex + '\n' : ''}💵 Total estimado: ${money(canalPrice())}\n¿Tienen cupo?`));
+  const cd = canalDockInfo();
+  const dockTxt = cd.dock ? `${cd.dock.name}${cd.info.ok && cd.info.cost ? ` (+${money(cd.info.cost)})` : cd.info.fee ? ` (servicio de muelle ${cd.info.fee} en sitio)` : ''}` : $('#c-dock').value;
+  openWaUrl(wa(`Hola Tu Lancha Lechería 👋 Quiero el paseo por los canales de El Morro.\n⛵ ${o.name}\n👥 ${CQ.pax} personas\n📅 ${fmtDay(new Date(yy, mm - 1, dd))} desde las 5:30 pm\n⚓ ${dockTxt}\n${ex ? ex + '\n' : ''}💵 Total estimado: ${money(canalPrice())}\n¿Tienen cupo?`));
 });
 renderCanales();
 $('#exps').innerHTML = EXPS.map((x, i) => `<button type="button" class="exp" data-exp-pop="celeb-${i}"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${x[2]}</svg></span><h3>${x[0]}</h3><p>${x[1]}</p><em>Ver detalles →</em></button>`).join('');
