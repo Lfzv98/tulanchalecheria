@@ -146,7 +146,7 @@ function openImgZoom(src, cap = '') {
 }
 window.openImgZoom = openImgZoom;
 document.addEventListener('click', e => {
-  if (e.target.closest('#imgdlg,.gal-a,.gal-dots,.qty,[data-rent],[data-qty]')) return;
+  if (e.target.closest('#imgdlg,.gal-a,.gal-dots,.qty,[data-rent],[data-qty],[data-exp-pop],.exp-qcard,.exp')) return;
   let img = e.target.closest(ZOOM_SEL);
   if (!img) { const xi = e.target.closest('.xi-img'); if (xi) img = $('img', xi); }
   if (!img) return;
@@ -1069,12 +1069,20 @@ function renderExpQuick() {
     </button>`;
   }).join('');
 }
+const closeExpDlg = dlg => { dlg.onchange = null; dlg.onclick = e => { if (e.target === dlg || e.target.closest('.m-close')) dlg.close(); }; };
 function openExpPopup(k) {
   const dlg = $('#dlg'); if (!dlg) return;
   if (dlg.open) dlg.close();
-  const u = (CAT.home.exp && CAT.home.exp[k]) || EXP_IMG[k];
+  const isCeleb = String(k || '').startsWith('celeb-');
+  const celeb = isCeleb ? EXPS[+k.slice(6)] : null;
+  const u = !isCeleb && ((CAT.home.exp && CAT.home.exp[k]) || EXP_IMG[k]);
   let body = '';
-  if (k === 'canales') {
+  if (celeb) {
+    body = `<span class="eyebrow">Celebración a bordo</span><h2 id="m-title">${esc(celeb[0])}</h2>
+      <p>${esc(celeb[1])}</p>
+      <ul class="chk"><li>Coordinamos embarcación, capitán y ruta según tu grupo</li><li>Puedes sumar decoración, música, fotografía y catering con nuestros aliados</li><li>Elige fecha y embarcación en el cotizador o pídenos una propuesta a medida</li></ul>
+      <div class="exp-pop-acts"><button type="button" class="btn btn-sun" data-exp-book="${esc(celeb[0])}">Armar salida y reservar</button><a class="btn btn-wa" href="${wa(`Hola Tu Lancha Lechería 👋 Me interesa la experiencia "${celeb[0]}". ¿Me dan información?`)}" target="_blank" rel="noopener">Pedir propuesta por WhatsApp</a></div>`;
+  } else if (k === 'canales') {
     body = `<span class="eyebrow">Experiencia aparte · cupos limitados</span><h2 id="m-title">Paseo por los canales de El Morro</h2>
       <p>Recorre los canales del Complejo Turístico El Morro al caer la tarde. Todos los días desde las 5:30 pm, con reserva previa. Duración: 1 h 30 min.</p>
       <ul class="chk"><li>Salidas desde C.C. Plaza Mayor, Muelle Aquavic, Hotel Maremares o tu residencia</li><li>Opciones en lancha, yate o yate privado de eventos</li><li>Puedes sumar tabla de quesos, botella de vino o decoración</li></ul>
@@ -1091,7 +1099,7 @@ function openExpPopup(k) {
   }
   dlg.className = 'sheetish exp-pop-dlg';
   dlg.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar">×</button><div class="exp-pop">${u ? `<div class="exp-pop-img">${ph(u, '')}</div>` : ''}<div class="exp-pop-b">${body}</div></div>`;
-  closeOn(dlg);
+  closeExpDlg(dlg);
   dlg.showModal();
 }
 function renderCanales() {
@@ -1121,7 +1129,8 @@ function renderCanales() {
 }
 document.addEventListener('click', e => {
   const ep = e.target.closest('[data-exp-pop]'); if (ep) { e.preventDefault(); return openExpPopup(ep.dataset.expPop); }
-  const eg = e.target.closest('[data-exp-go]'); if (eg) { const dlg = $('#dlg'); if (dlg && dlg.open) dlg.close(); const tgt = $(eg.dataset.expGo); if (tgt) tgt.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  const eb = e.target.closest('[data-exp-book]'); if (eb) { const dlg = $('#dlg'); if (dlg && dlg.open) dlg.close(); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); if (eb.dataset.expBook) toast(`Arma tu salida para: ${eb.dataset.expBook}`); return; }
+  const eg = e.target.closest('[data-exp-go]'); if (eg) { const dlg = $('#dlg'); if (dlg && dlg.open) dlg.close(); const tgt = $(eg.dataset.expGo); if (tgt) { tgt.scrollIntoView({ behavior: 'smooth', block: 'start' }); const f = tgt.querySelector('input,select,button'); if (f) setTimeout(() => f.focus({ preventScroll: true }), 350); } return; }
   const ew = e.target.closest('[data-exp-wa]'); if (ew) { openWaUrl(wa('Hola Tu Lancha Lechería 👋 Me interesa el senderismo en La Borracha / experiencias a bordo. ¿Me dan información?')); return; }
   const c = e.target.closest('[data-copt]'); if (c) { CQ.opt = c.dataset.copt; const o = CANALES.opts.find(x => x.id === CQ.opt); CQ.pax = Math.max(o.min, Math.min(CQ.pax, o.max)); return renderCanales(); }
   const x = e.target.closest('[data-cex]'); if (x) { CQ.ex[x.dataset.cex] = !CQ.ex[x.dataset.cex]; renderCanales(); }
@@ -1139,6 +1148,7 @@ document.addEventListener('submit', e => {
     const dt = e.target.querySelector('[name="date"]')?.value, dk = e.target.querySelector('[name="dock"]')?.value;
     if (!dt || !dk) { toast('Selecciona la fecha y el muelle de salida'); return; }
     const [yy, mm, dd] = dt.split('-').map(Number);
+    const dlg = $('#dlg'); if (dlg && dlg.open && e.target.closest('#dlg')) dlg.close();
     openWaUrl(wa(`Hola Tu Lancha Lechería 👋 Me interesa un chárter de pesca de altura.\n📅 Fecha: ${fmtDay(new Date(yy, mm - 1, dd))}\n⚓ Muelle de salida: ${dk}\n¿Tienen disponibilidad?`));
     return;
   }
@@ -1149,7 +1159,7 @@ document.addEventListener('submit', e => {
   openWaUrl(wa(`Hola Tu Lancha Lechería 👋 Quiero el paseo por los canales de El Morro.\n⛵ ${o.name}\n👥 ${CQ.pax} personas\n📅 ${fmtDay(new Date(yy, mm - 1, dd))} desde las 5:30 pm\n⚓ ${$('#c-dock').value}\n${ex ? ex + '\n' : ''}💵 Total estimado: ${money(canalPrice())}\n¿Tienen cupo?`));
 });
 renderCanales();
-$('#exps').innerHTML = EXPS.map(x => `<div class="exp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${x[2]}</svg></span><h3>${x[0]}</h3><p>${x[1]}</p><a href="${wa(`Hola Tu Lancha Lechería 👋 Me interesa la experiencia "${x[0]}". ¿Me dan información?`)}" target="_blank" rel="noopener">Pedir propuesta →</a></div>`).join('');
+$('#exps').innerHTML = EXPS.map((x, i) => `<button type="button" class="exp" data-exp-pop="celeb-${i}"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${x[2]}</svg></span><h3>${x[0]}</h3><p>${x[1]}</p><em>Ver detalles →</em></button>`).join('');
 const allyLink = (n, u) => esc(u || wa(`Hola Tu Lancha Lechería 👋 Quiero agregar ${n} a mi salida.`));
 const initials = n => esc(String(n).split(' ').map(w => w[0]).slice(0, 2).join(''));
 // Orden exacto de categorías de Servicio a bordo y persistencia del orden de aliados y proveedores

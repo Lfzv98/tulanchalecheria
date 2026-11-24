@@ -2227,14 +2227,18 @@ footer.site .wrap.f-bottom{display:flex;align-items:center;justify-content:space
 .exp-qcard{all:unset;box-sizing:border-box;display:grid;grid-template-columns:84px minmax(0,1fr);align-items:center;gap:12px;padding:10px;border-radius:18px;background:#fff;border:1px solid rgba(21,26,51,.1);box-shadow:0 10px 26px -18px rgba(13,27,46,.35);cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s}
 .exp-qcard:hover,.exp-qcard:focus-visible{transform:translateY(-2px);border-color:var(--sea-700);box-shadow:0 16px 32px -18px rgba(13,27,46,.45)}
 .exp-qcard:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
-.exp-qimg{position:relative;width:84px;height:84px;border-radius:12px;overflow:hidden;background:var(--sea-700);display:block}
-.exp-qimg .ph,.exp-qimg svg{width:100%;height:100%;object-fit:cover;display:block}
+.exp-qimg{position:relative;width:84px;height:84px;border-radius:12px;overflow:hidden;background:var(--sea-700);display:block;pointer-events:none}
+.exp-qimg .ph,.exp-qimg svg{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
 .exp-qtx{display:grid;gap:3px;min-width:0;text-align:left}
 .exp-qtx small{font:600 .66rem/1.1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--sea-700)}
 .exp-qtx b{font-size:1rem;line-height:1.15;color:var(--fg)}
 .exp-qtx span{font-size:.78rem;line-height:1.3;color:var(--muted)}
 .exp-qtx em{font-style:normal;font-size:.78rem;font-weight:700;color:var(--ink);margin-top:2px}
-.exp-pop{display:grid;gap:16px}
+button.exp{width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s}
+button.exp:hover,button.exp:focus-visible{transform:translateY(-2px);border-color:var(--sea-700);box-shadow:0 16px 32px -18px rgba(13,27,46,.45)}
+button.exp:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
+.exp em{font-style:normal;font-weight:700;color:var(--ink);font-size:.9rem}
+.exp-pop{display:grid;gap:16px;padding:20px}
 .exp-pop-img{border-radius:16px;overflow:hidden;max-height:220px;background:var(--sea-700)}
 .exp-pop-img .ph{width:100%;height:220px;object-fit:cover;display:block}
 .exp-pop-b{display:grid;gap:12px}
@@ -2243,7 +2247,7 @@ footer.site .wrap.f-bottom{display:flex;align-items:center;justify-content:space
 .pesca-f .two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .tag-soon{background:#fff4d1!important;color:#6e4f00!important;border-color:#efd264!important}
 @media (max-width:900px){.exp-quick{grid-template-columns:1fr}}
-@media (max-width:600px){.pesca-f .two{grid-template-columns:1fr}.promo-slot{grid-template-columns:80px minmax(0,1fr)}}
+@media (max-width:600px){.pesca-f .two{grid-template-columns:1fr}.promo-slot{grid-template-columns:80px minmax(0,1fr)}.exp em{font-size:.8rem}}
 
 /* ---------- Bloque 3: Aliados, Propietarios (3 por fila, Auxilio/Pool) e Inventario compartido ---------- */
 .own-hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
