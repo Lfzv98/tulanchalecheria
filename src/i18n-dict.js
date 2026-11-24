@@ -1225,6 +1225,9 @@ const exact = [
 [`De regreso a tierra 🌅`, `Back on land 🌅`],
 [`¿Cómo estuvo tu paseo? ⭐`, `How was your trip? ⭐`],
 [`Hidrátate, aplica crema hidratante o aloe después del sol, enjuaga caretas y trajes con agua dulce y revisa que no se quede nada a bordo.`, `Drink water, use moisturizer or aloe after the sun, rinse masks and swimwear with fresh water and check nothing was left on board.`],
+[`Six Pack · Cardenal Ultra`, `Six-Pack · Cardenal Ultra`],
+[`Incluye SIPA de cortesía de Cardenal Ultra.`, `Includes a complimentary Cardenal Ultra six-pack.`],
+[`Imagen lista para cargar`, `Image ready to upload`],
 ];
 
 const pat = [

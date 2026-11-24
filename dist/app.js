@@ -1225,6 +1225,9 @@ const exact = [
 [`De regreso a tierra 🌅`, `Back on land 🌅`],
 [`¿Cómo estuvo tu paseo? ⭐`, `How was your trip? ⭐`],
 [`Hidrátate, aplica crema hidratante o aloe después del sol, enjuaga caretas y trajes con agua dulce y revisa que no se quede nada a bordo.`, `Drink water, use moisturizer or aloe after the sun, rinse masks and swimwear with fresh water and check nothing was left on board.`],
+[`Six Pack · Cardenal Ultra`, `Six-Pack · Cardenal Ultra`],
+[`Incluye SIPA de cortesía de Cardenal Ultra.`, `Includes a complimentary Cardenal Ultra six-pack.`],
+[`Imagen lista para cargar`, `Image ready to upload`],
 ];
 
 const pat = [
@@ -2053,8 +2056,8 @@ function promoCardHtml(b, compact = false) {
   const img = (b.photos && b.photos.promo) || (CAT.home && CAT.home.promoImg) || foodImg || '';
   const txt = b.promo || 'Incluye SIPA de cortesía de Cardenal Ultra.';
   return `<div class="promo-slot${compact ? ' compact' : ''}${img ? ' has-img' : ''}">
-    <div class="promo-media">${img ? ph(img, 'Promo Six Pack Cardenal Ultra') : `<div class="promo-ph" aria-hidden="true"><span>Promo Cardenal Ultra</span><small>Imagen lista para cargar</small></div>`}</div>
-    <div class="promo-tx"><b>Promo Six Pack · Cardenal Ultra</b><span>${esc(txt)}</span></div></div>`;
+    <div class="promo-media">${img ? ph(img, 'Six Pack · Cardenal Ultra') : `<div class="promo-ph" aria-hidden="true"><span>Cardenal Ultra</span><small>Imagen lista para cargar</small></div>`}</div>
+    <div class="promo-tx"><b>Six Pack · Cardenal Ultra</b><span>${esc(txt)}</span></div></div>`;
 }
 function pic(b, kind) {
   const l = photosOf(b), f = l.find(x => x.k === kind) || l[0];

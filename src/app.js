@@ -394,8 +394,8 @@ function promoCardHtml(b, compact = false) {
   const img = (b.photos && b.photos.promo) || (CAT.home && CAT.home.promoImg) || foodImg || '';
   const txt = b.promo || 'Incluye SIPA de cortesía de Cardenal Ultra.';
   return `<div class="promo-slot${compact ? ' compact' : ''}${img ? ' has-img' : ''}">
-    <div class="promo-media">${img ? ph(img, 'Promo Six Pack Cardenal Ultra') : `<div class="promo-ph" aria-hidden="true"><span>Promo Cardenal Ultra</span><small>Imagen lista para cargar</small></div>`}</div>
-    <div class="promo-tx"><b>Promo Six Pack · Cardenal Ultra</b><span>${esc(txt)}</span></div></div>`;
+    <div class="promo-media">${img ? ph(img, 'Six Pack · Cardenal Ultra') : `<div class="promo-ph" aria-hidden="true"><span>Cardenal Ultra</span><small>Imagen lista para cargar</small></div>`}</div>
+    <div class="promo-tx"><b>Six Pack · Cardenal Ultra</b><span>${esc(txt)}</span></div></div>`;
 }
 function pic(b, kind) {
   const l = photosOf(b), f = l.find(x => x.k === kind) || l[0];
