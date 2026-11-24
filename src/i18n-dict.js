@@ -551,7 +551,7 @@ const exact = [
 [`¡Reserva registrada!`, `Booking registered!`, `Reserva registrada!`],
 [`Tu código de reserva`, `Your booking code`, `Seu código de reserva`],
 [`Reserva guardada en tu app`, `Booking saved in your app`, `Reserva salva no seu app`],
-[`Eduardo confirma la disponibilidad y te pasa los datos para el abono`, `Eduardo confirms availability and sends you the deposit details`, `O Eduardo confirma a disponibilidade e passa os dados para o sinal`],
+[`Confirmaremos la disponibilidad y te pasaremos los datos para el abono`, `We will confirm availability and send you the deposit details`, `Confirmaremos a disponibilidade e passaremos os dados para o sinal`],
 [`Enviar la reserva a Tu Lancha Lechería por WhatsApp`, `Send the booking to Tu Lancha Lechería via WhatsApp`, `Enviar a reserva à Tu Lancha Lechería pelo WhatsApp`],
 [`Enviar y acordar el pago por WhatsApp`, `Send and arrange payment via WhatsApp`, `Enviar e combinar o pagamento pelo WhatsApp`],
 [`Volver a enviar a Tu Lancha Lechería`, `Send to Tu Lancha Lechería again`, `Reenviar à Tu Lancha Lechería`],
@@ -772,7 +772,7 @@ const exact = [
 [`Enviar PDF por WhatsApp`, `Send PDF via WhatsApp`, `Enviar PDF pelo WhatsApp`],
 [`cómo entregar el abono en efectivo`, `how to hand over the cash deposit`, `como entregar o sinal em dinheiro`],
 [`los datos para el abono`, `the deposit details`, `os dados para o sinal`],
-[`Eduardo confirma la disponibilidad y te pasa cómo entregar el abono en efectivo`, `Eduardo confirms availability and tells you how to hand over the cash deposit`, `O Eduardo confirma a disponibilidade e explica como entregar o sinal em dinheiro`],
+[`Confirmaremos la disponibilidad y te pasaremos cómo entregar el abono en efectivo`, `We will confirm availability and tell you how to hand over the cash deposit`, `Confirmaremos a disponibilidade e explicaremos como entregar o sinal em dinheiro`],
 [`Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el toque de muelle`, `We send you the dock location, a video on how to get there and how to pay the dock fee`, `Enviamos a localização do píer, um vídeo de como chegar e como pagar a taxa do píer`],
 
 /* ---------- tu día en el mar (programar a bordo y álbum) ---------- */

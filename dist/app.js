@@ -551,7 +551,7 @@ const exact = [
 [`¡Reserva registrada!`, `Booking registered!`, `Reserva registrada!`],
 [`Tu código de reserva`, `Your booking code`, `Seu código de reserva`],
 [`Reserva guardada en tu app`, `Booking saved in your app`, `Reserva salva no seu app`],
-[`Eduardo confirma la disponibilidad y te pasa los datos para el abono`, `Eduardo confirms availability and sends you the deposit details`, `O Eduardo confirma a disponibilidade e passa os dados para o sinal`],
+[`Confirmaremos la disponibilidad y te pasaremos los datos para el abono`, `We will confirm availability and send you the deposit details`, `Confirmaremos a disponibilidade e passaremos os dados para o sinal`],
 [`Enviar la reserva a Tu Lancha Lechería por WhatsApp`, `Send the booking to Tu Lancha Lechería via WhatsApp`, `Enviar a reserva à Tu Lancha Lechería pelo WhatsApp`],
 [`Enviar y acordar el pago por WhatsApp`, `Send and arrange payment via WhatsApp`, `Enviar e combinar o pagamento pelo WhatsApp`],
 [`Volver a enviar a Tu Lancha Lechería`, `Send to Tu Lancha Lechería again`, `Reenviar à Tu Lancha Lechería`],
@@ -772,7 +772,7 @@ const exact = [
 [`Enviar PDF por WhatsApp`, `Send PDF via WhatsApp`, `Enviar PDF pelo WhatsApp`],
 [`cómo entregar el abono en efectivo`, `how to hand over the cash deposit`, `como entregar o sinal em dinheiro`],
 [`los datos para el abono`, `the deposit details`, `os dados para o sinal`],
-[`Eduardo confirma la disponibilidad y te pasa cómo entregar el abono en efectivo`, `Eduardo confirms availability and tells you how to hand over the cash deposit`, `O Eduardo confirma a disponibilidade e explica como entregar o sinal em dinheiro`],
+[`Confirmaremos la disponibilidad y te pasaremos cómo entregar el abono en efectivo`, `We will confirm availability and tell you how to hand over the cash deposit`, `Confirmaremos a disponibilidade e explicaremos como entregar o sinal em dinheiro`],
 [`Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el toque de muelle`, `We send you the dock location, a video on how to get there and how to pay the dock fee`, `Enviamos a localização do píer, um vídeo de como chegar e como pagar a taxa do píer`],
 
 /* ---------- tu día en el mar (programar a bordo y álbum) ---------- */
@@ -3897,7 +3897,7 @@ function showDone(r) {
     <p class="bk-code-l">Tu código de reserva</p><p class="bk-code mono" id="bk-code">${r.code}</p>
     <div class="bk-sum"><div><b>${esc(r.boat)}</b><span>${esc(r.date)} · ${esc(r.paxTxt || r.pax + ' personas')}</span><span>${esc(r.route)}</span></div><strong>${money(r.total)}</strong></div>
     ${r.pay && PAY[r.pay] ? `<div class="pay-done"><span class="pay-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${PAY[r.pay].ic}</svg></span><div><span>Pagarás con</span><b>${PAY[r.pay].name}</b></div><strong>${money(abono(r.pay, r.total))}<small>abono</small></strong></div>` : ''}
-    <ol class="bk-next"><li class="ok">Reserva guardada con tu código</li><li id="bk-li-send" class="${r.sent ? 'ok' : 'now'}">${r.sent ? 'Tus datos se enviaron al WhatsApp de Tu Lancha Lechería' : 'Envía tus datos al WhatsApp de Tu Lancha Lechería'}</li><li>Eduardo confirma la disponibilidad y te pasa ${r.pay === 'efectivo' ? 'cómo entregar el abono en efectivo' : 'los datos para el abono'}</li><li>Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el servicio de muelle</li></ol>
+    <ol class="bk-next"><li class="ok">Reserva guardada con tu código</li><li id="bk-li-send" class="${r.sent ? 'ok' : 'now'}">${r.sent ? 'Tus datos se enviaron al WhatsApp de Tu Lancha Lechería' : 'Envía tus datos al WhatsApp de Tu Lancha Lechería'}</li><li>Confirmaremos la disponibilidad y te pasaremos ${r.pay === 'efectivo' ? 'cómo entregar el abono en efectivo' : 'los datos para el abono'}</li><li>Te enviamos la ubicación del muelle, un video de cómo llegar y cómo pagar el servicio de muelle</li></ol>
     ${r.sent ? `${WA_HINT}${navPair()}` : `<button class="btn btn-wa btn-lg" type="button" id="bk-send">Enviar mis datos por WhatsApp</button>${navPair()}`}
     <div class="bk-owner-bar"><button class="linkish" type="button" id="bk-owner-wa">Enviar resumen al propietario (WhatsApp)</button> · <button class="linkish" type="button" id="bk-owner-cp">Copiar para propietario</button></div>
     <p class="bk-pdf-mini"><button class="linkish" type="button" id="bk-pdf-dl">Descargar comprobante (PDF)</button> · <span id="bk-pdf-st">Con tu código entras luego a Mi viaje.</span></p>
