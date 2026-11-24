@@ -1788,6 +1788,36 @@ function openVideo(k) {
   const v = $('video', d); const p = v.play(); if (p && p.catch) p.catch(() => {});
 }
 document.addEventListener('click', e => { const v = e.target.closest('[data-vid]'); if (v) { e.preventDefault(); openVideo(v.dataset.vid); } });
+const ZOOM_SEL = '.xi-img img,.o-th img,.t-th img,#m-shot img,.own-shot img,.promo-media img,.beach>img.ph,.exp-media img.ph,.exp-pop-img img.ph,.pay-qr img,.ad-ph-img img,.ad-boat-ph img,img[data-zoom]';
+function zoomCap(img) {
+  return (img.dataset.zoomCap || img.alt || img.closest('.xi')?.querySelector('.xi-t b')?.textContent || img.closest('.boat-o')?.querySelector('.o-tx b')?.textContent || img.closest('.t-th')?.querySelector(':scope > span')?.textContent || img.closest('.beach')?.querySelector('h3')?.textContent || img.closest('.ad-boat')?.querySelector('h4')?.textContent || img.closest('.ad-photo')?.querySelector('.ad-ph-lbl,label,b')?.textContent || '').trim();
+}
+function openImgZoom(src, cap = '') {
+  const d = $('#imgdlg'); if (!d || !src) return;
+  if (d.open) d.close();
+  d.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar foto">×</button><div class="img-stage"><img src="${esc(src)}" alt="${esc(cap)}"></div>${cap ? `<p class="img-cap">${esc(cap)}</p>` : ''}`;
+  d.onclick = e => { if (e.target === d || e.target.closest('.m-close')) d.close(); };
+  d.onclose = () => { d.innerHTML = ''; };
+  d.showModal();
+}
+window.openImgZoom = openImgZoom;
+document.addEventListener('click', e => {
+  if (e.target.closest('#imgdlg,.gal-a,.gal-dots,.qty,[data-rent],[data-qty]')) return;
+  let img = e.target.closest(ZOOM_SEL);
+  if (!img) { const xi = e.target.closest('.xi-img'); if (xi) img = $('img', xi); }
+  if (!img) return;
+  const gal = img.closest('.gal');
+  if (gal) img = $('.gal-s.on img', gal) || img;
+  const src = img.currentSrc || img.getAttribute('src');
+  if (!src) return;
+  e.preventDefault();
+  e.stopPropagation();
+  openImgZoom(src, zoomCap(img));
+}, true);
+addEventListener('keydown', e => {
+  const d = $('#imgdlg');
+  if (e.key === 'Escape' && d && d.open) { e.preventDefault(); e.stopPropagation(); d.close(); }
+}, true);
 const CANALES = {
   video: 'https://youtu.be/jVBf_uwYNwc',
   opts: [
@@ -1995,16 +2025,17 @@ function applyCat(c) {
   if (window.TLL_I18N && TLL_I18N.add) TLL_I18N.add(tr);
 }
 applyCat(store.get('cat', null));
-const ph = (u, alt = '') => `<img class="ph" src="${esc(u)}" alt="${esc(alt)}" loading="lazy" decoding="async">`;
+const ph = (u, alt = '', eager = false) => `<img class="ph" src="${esc(u)}" alt="${esc(alt)}" loading="${eager ? 'eager' : 'lazy'}" decoding="async">`;
 /* Fotos de cada embarcación. Solo se muestran las que Eduardo subió: un espacio sin foto no aparece en la web.
-   Las tres penúltimas solo aplican a mini yates, barcos y yates. 'promo' habilita la imagen promocional (Six Pack Cardenal Ultra) en la embarcación destacada. */
-const VIEWS = [['proa', 'Proa'], ['popa', 'Popa'], ['social', 'Área social'], ['camarote', 'Camarote'], ['habitacion', 'Habitación', 1], ['bano', 'Baño', 1], ['accesorios', 'Accesorios', 1], ['promo', 'Promo Cardenal Ultra']];
-const viewsOf = b => VIEWS.filter(v => (!v[2] || b.type !== 'Lancha') && (v[0] !== 'promo' || b.own));
+   Las tres últimas solo aplican a mini yates, barcos y yates. La imagen promocional (Six Pack Cardenal Ultra) se gestiona aparte en b.photos.promo. */
+const VIEWS = [['proa', 'Proa'], ['popa', 'Popa'], ['social', 'Área social'], ['camarote', 'Camarote'], ['habitacion', 'Habitación', 1], ['bano', 'Baño', 1], ['accesorios', 'Accesorios', 1]];
+const viewsOf = b => VIEWS.filter(v => !v[2] || b.type !== 'Lancha');
 const photosOf = b => viewsOf(b).filter(([k]) => b.photos && b.photos[k]).map(([k, l]) => ({ k, l, u: b.photos[k] }));
 // Bloque promocional (Six Pack de Cardenal Ultra) para la embarcación destacada; muestra la imagen cargada por el admin o un espacio listo para subirla
 function promoCardHtml(b, compact = false) {
   if (!b || !b.own) return '';
-  const img = (b.photos && b.photos.promo) || (CAT.home && CAT.home.promoImg) || '';
+  const foodImg = (FOOD.find(x => x && x.logo && (x.id === 'six' || /cardenal\s*ultra/i.test(x.brand || ''))) || {}).logo || '';
+  const img = (b.photos && b.photos.promo) || (CAT.home && CAT.home.promoImg) || foodImg || '';
   const txt = b.promo || 'Incluye promo Six Pack de Cardenal Ultra en tu salida.';
   return `<div class="promo-slot${compact ? ' compact' : ''}${img ? ' has-img' : ''}">
     <div class="promo-media">${img ? ph(img, 'Promo Six Pack Cardenal Ultra') : `<div class="promo-ph" aria-hidden="true"><span>Promo Cardenal Ultra</span><small>Imagen lista para cargar</small></div>`}</div>
@@ -2019,7 +2050,7 @@ function gallery(b, o = {}) {
   const l = photosOf(b);
   if (l.length < 2) return `<div class="gal one">${pic(b)}${l[0] && o.label ? `<span class="gal-l">${l[0].l}</span>` : ''}${o.badge || ''}</div>`;
   return `<div class="gal${o.noArrows ? ' no-arrows' : ''}" data-gal${o.auto ? ` data-auto="${o.auto === true ? 3 : +o.auto}"` : ''} data-i="0" role="region" aria-roledescription="carrusel" aria-label="Fotos de ${esc(b.name)}">
-    ${l.map((x, i) => `<figure class="gal-s${i ? '' : ' on'}" data-k="${x.k}" aria-hidden="${i ? 'true' : 'false'}">${ph(x.u, `${b.name} · ${x.l}`)}${o.label ? `<figcaption class="gal-l">${x.l}</figcaption>` : ''}</figure>`).join('')}
+    ${l.map((x, i) => `<figure class="gal-s${i ? '' : ' on'}" data-k="${x.k}" aria-hidden="${i ? 'true' : 'false'}">${ph(x.u, `${b.name} · ${x.l}`, !!o.eager)}${o.label ? `<figcaption class="gal-l">${x.l}</figcaption>` : ''}</figure>`).join('')}
     ${o.badge || ''}<button type="button" class="gal-a prev" data-gal-go="-1" aria-label="Foto anterior"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="gal-a next" data-gal-go="1" aria-label="Foto siguiente"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
     <div class="gal-dots">${l.map((x, i) => `<button type="button" data-gal-to="${i}" aria-label="${x.l}" aria-pressed="${!i}"></button>`).join('')}</div></div>`;
 }
@@ -2033,30 +2064,38 @@ function galGo(g, to) {
 document.addEventListener('click', e => {
   const a = e.target.closest('[data-gal-go],[data-gal-to]'); if (!a) return;
   const g = a.closest('[data-gal]') || (a.closest('.m-media') && $('[data-gal]', a.closest('.m-media'))); if (!g) return;
-  e.preventDefault(); e.stopPropagation(); g.dataset.hold = Date.now();
+  e.preventDefault(); e.stopPropagation();
+  GAL.set(g, performance.now());
+  if (!g.closest('.own-shot')) g.dataset.hold = Date.now();
   galGo(g, a.dataset.galTo != null ? +a.dataset.galTo : +g.dataset.i + +a.dataset.galGo);
 }, true);
 let galX = null;
 document.addEventListener('pointerdown', e => { const g = e.target.closest('[data-gal]'); galX = g ? [g, e.clientX, e.clientY] : null; }, { passive: true });
-document.addEventListener('pointerup', e => { if (!galX) return; const [g, x, y] = galX, dx = e.clientX - x; galX = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(e.clientY - y)) { g.dataset.hold = Date.now(); galGo(g, +g.dataset.i + (dx < 0 ? 1 : -1)); } }, { passive: true });
-const galReduce = matchMedia('(prefers-reduced-motion: reduce)');
-/* Cada galería pasa a su ritmo (data-auto = segundos: 3 por defecto en tarjetas, destacada y resumen).
-   Rendimiento: solo se cuentan las galerías que están en pantalla (IntersectionObserver), sin leer medidas ni
-   escribir atributos cada segundo, y nada corre con la app en segundo plano. */
+document.addEventListener('pointerup', e => { if (!galX) return; const [g, x, y] = galX, dx = e.clientX - x; galX = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(e.clientY - y)) { GAL.set(g, performance.now()); if (!g.closest('.own-shot')) g.dataset.hold = Date.now(); galGo(g, +g.dataset.i + (dx < 0 ? 1 : -1)); } }, { passive: true });
+/* Cada galería pasa a su ritmo (data-auto = segundos: 3.5 en destacada, 3 en tarjetas y resumen).
+   Ignora prefers-reduced-motion y ahorro de energía para que el autoplay funcione en todos los dispositivos. */
 const GAL = new WeakMap(), galOn = new Set();
-const galIO = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { galOn.add(e.target); if (!GAL.has(e.target)) GAL.set(e.target, performance.now()); } else galOn.delete(e.target); }), { threshold: .35 }) : null;
+const galIO = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { galOn.add(e.target); if (!GAL.has(e.target)) GAL.set(e.target, performance.now()); } else galOn.delete(e.target); }), { threshold: .1 }) : null;
 const galWatch = root => { if (!galIO) return; (root || document).querySelectorAll('[data-gal][data-auto]:not([data-gw])').forEach(g => { g.setAttribute('data-gw', ''); galIO.observe(g); }); };
 new MutationObserver(() => galWatch()).observe(document.body, { childList: true, subtree: true });
 galWatch();
 setInterval(() => {
-  if (galReduce.matches || document.hidden || !galOn.size) return;
+  if (document.hidden) return;
   const now = performance.now();
-  galOn.forEach(g => {
+  const list = new Set(galOn);
+  document.querySelectorAll('.own-shot [data-gal][data-auto]').forEach(g => {
+    const pg = g.closest('.page');
+    if (!pg || !pg.hidden) list.add(g);
+  });
+  if (!list.size) return;
+  list.forEach(g => {
     if (!g.isConnected) { galOn.delete(g); return; }
-    const every = (+g.dataset.auto || 3) * 1000, t0 = GAL.get(g) || now;
-    if (now - t0 < every - 150) return;
+    const every = (+g.dataset.auto || 3) * 1000;
+    if (!GAL.has(g)) { GAL.set(g, now); return; }
+    if (now - GAL.get(g) < every - 150) return;
     GAL.set(g, now);
-    if (Date.now() - (+g.dataset.hold || 0) < 9000 || g.matches(':hover')) return;
+    const isOwn = !!g.closest('.own-shot');
+    if (!isOwn && (Date.now() - (+g.dataset.hold || 0) < 9000 || (matchMedia('(hover: hover)').matches && g.matches(':hover')))) return;
     galGo(g, +g.dataset.i + 1);
   });
 }, 500);
@@ -2288,7 +2327,7 @@ function renderOwnFeature() {
   const el = $('#own-feature'); if (!el || !OWN) return;
   const nf = nextFree(OWN), tr = tripsTxt(OWN);
   el.innerHTML = `<div class="own-card glass-card${hasPics(OWN) ? '' : ' nopic'}">
-    ${hasPics(OWN) ? `<div class="own-shot">${gallery(OWN, { auto: true, label: true, badge: ownBadge(OWN) })}</div>` : ''}
+    ${hasPics(OWN) ? `<div class="own-shot">${gallery(OWN, { auto: 3.5, label: true, badge: ownBadge(OWN), eager: true })}</div>` : ''}
     <div class="own-in">${hasPics(OWN) ? '' : ownBadge(OWN)}<span class="eyebrow own-trips">${tr ? `${tr} exitosos` : 'La más elegida'} · ${(+OWN.rating || 5).toFixed(1)} ★</span><h2>${esc(OWN.name)}</h2><p>${esc(OWN.desc)}</p>
       <div class="meta"><span class="tag">${OWN.type} · ${OWN.ft} pies</span>${featList(OWN).map(a => `<span class="tag">${esc(a)}</span>`).join('')}<button type="button" class="tag more" data-open="${OWN.id}">y más…</button></div>
       ${promoCardHtml(OWN)}
@@ -2864,6 +2903,8 @@ document.addEventListener('click', e => {
   const op = e.target.closest('#open-pool-btn');
   if (op) { const ps = $('#pool-sec'); if (ps) { ps.hidden = !ps.hidden; op.setAttribute('aria-expanded', String(!ps.hidden)); if (!ps.hidden) ps.scrollIntoView({ behavior: 'smooth', block: 'start' }); } return; }
   if (e.target.closest('#close-pool-btn')) { const ps = $('#pool-sec'); if (ps) ps.hidden = true; $('#open-pool-btn')?.setAttribute('aria-expanded', 'false'); return; }
+  const or = e.target.closest('#open-rent-btn');
+  if (or) { const rt = $('#rent'); if (rt) rt.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
   const r = e.target.closest('[data-rent]'); if (r && !r.disabled) { RQ.n[r.dataset.rent] = Math.max(0, Math.min(20, (+RQ.n[r.dataset.rent] || 0) + +r.dataset.d)); return renderRent(); }
   const d = e.target.closest('[data-rdays]'); if (d && !d.disabled) { RQ.days = Math.max(1, Math.min(30, RQ.days + +d.dataset.rdays)); return renderRent(); }
   if (e.target.closest('#rent-go')) {
@@ -2920,7 +2961,10 @@ function renderAllies() {
   if (rb) {
     rb.hidden = !all.length;
     const one = all.map(([n, , u, , logo]) => `<a class="rb-i" href="${allyLink(n, u)}" target="_blank" rel="noopener" title="${esc(n)}">${logo ? `<img src="${esc(logo)}" alt="${esc(n)}" loading="lazy" decoding="async">` : `<span>${esc(n)}</span>`}</a>`).join('');
-    $('#ribbon-in').innerHTML = one + `<span class="rb-dup" aria-hidden="true">${one.replace(/<a /g, '<a tabindex="-1" ')}</span>`;
+    const half = one.repeat(Math.max(1, Math.ceil(8 / Math.max(1, all.length))));
+    const ri = $('#ribbon-in');
+    ri.innerHTML = `<span class="rb-dup">${half}</span><span class="rb-dup" aria-hidden="true">${half.replace(/<a /g, '<a tabindex="-1" ')}</span>`;
+    ri.style.animation = 'none'; void ri.offsetWidth; ri.style.animation = '';
   }
 }
 renderAllies(); renderRent();
@@ -4540,9 +4584,9 @@ function mount(host) {
      La pantalla del frente queda en z = 0 (escala 1, texto nítido); el centro del cilindro está en z = -R. */
   const geo = () => {
     const w = stage.clientWidth, phone = w < 600;
-    const cw = Math.round(phone ? Math.max(112, Math.min(170, w * .33)) : Math.max(170, Math.min(small ? 200 : 250, w * .19)));
+    const cw = Math.round(phone ? Math.max(230, Math.min(300, w * .74)) : Math.max(212, Math.min(small ? 250 : 312, w * .24)));
     const R = N * cw * 1.28 / (2 * Math.PI);
-    return { cw, ch: Math.round(cw * (phone ? 1.5 : 1.42)), R, P: R * 2, w };
+    return { cw, ch: Math.round(cw * (phone ? 1.39 : 1.42)), R, P: R * 2, w };
   };
   let G = geo();
   const SEC_START = SECS.map((_, si) => CARDS.findIndex(c => c.si === si)), SEC_LEN = SECS.map(x => x[2].length);
@@ -4703,7 +4747,8 @@ const IMG = {
   qr: { w: 600, h: 600, min: 250, fit: 'contain', label: 'cuadrada, QR completo', size: '600 × 600 px', png: true },   // PNG sin pérdida para que el QR se pueda escanear
   hero: { w: 1920, h: 1080, min: 1200, fit: 'cover', label: 'horizontal 16:9', size: '1920 × 1080 px' },
   card: { w: 900, h: 1200, min: 600, fit: 'cover', label: 'vertical 3:4', size: '900 × 1200 px' },
-  cover: { w: 1200, h: 800, min: 800, fit: 'cover', label: 'horizontal 3:2', size: '1200 × 800 px' }
+  cover: { w: 1200, h: 800, min: 800, fit: 'cover', label: 'horizontal 3:2', size: '1200 × 800 px' },
+  promo: { w: 800, h: 600, min: 400, fit: 'cover', label: 'horizontal 4:3', size: '800 × 600 px' }
 };
 const DOCS = [['lic', 'Licencia de navegación'], ['radio', 'Licencia de radio'], ['patron', 'Patrón del capitán'], ['fuel', 'Permiso de combustible']];
 const SIZE_L = [['', 'Automático (según tipo y pies)'], ['s', 'Lancha pequeña'], ['m', 'Lancha mediana'], ['my', 'Mini yate'], ['y', 'Yate o barco']];
@@ -4796,6 +4841,10 @@ function fromCat(c) {
   };
   // campos que el editor necesita, listos desde el inicio para que abrir algo no cuente como cambio
   o.boats.forEach(b => { ['photos', 'opt', 'pick', 'rp', 'qty', 'docs'].forEach(k => { if (!b[k] || typeof b[k] !== 'object') b[k] = {}; }); ['inc', 'amen'].forEach(k => { if (!Array.isArray(b[k])) b[k] = []; }); });
+  // mantener sincronizada la imagen de la promo destacada entre la embarcación "De la casa" y home.promoImg
+  const ownBoat = o.boats.find(b => b.own);
+  const pImg = (ownBoat && ownBoat.photos && ownBoat.photos.promo) || o.home.promoImg || '';
+  if (pImg) { o.home.promoImg = pImg; if (ownBoat) ownBoat.photos.promo = pImg; }
   o.docks.forEach(d => { if (d.pickup && !d.cost) d.cost = {}; });
   o.home.exp ||= {}; o.home.expTxt ||= {};
   o.shop.forEach(x => { if (!x.kind) x.kind = T.shopKind(x); });
@@ -4913,6 +4962,7 @@ VIEW.inicio = () => {
     ${!BK.length || demo ? `<div class="panel ad-note"><b>${demo ? 'Datos de ejemplo activados' : '¿Quieres ver cómo se verá con datos?'}</b><span class="rating">${demo ? 'Nada de esto es real ni se guarda. Desactívalo para ver tus números.' : 'Activa los datos de ejemplo para conocer las gráficas. No se guardan ni afectan nada.'}</span><div class="adm-tools"><button class="btn btn-ghost btn-sm" type="button" id="a-demo">${demo ? 'Ver mis datos reales' : 'Ver con datos de ejemplo'}</button></div></div>` : ''}
     ${(() => { const L = W.boats.filter(b => !b.hidden && b.type !== 'Lancha' && !(+b.kts > 0)); return L.length ? `<div class="panel ad-alert"><b>Falta la velocidad de navegación</b><span>${L.map(b => esc(b.name)).join(' · ')}</span><span class="rating">Agrégala en Embarcaciones → Editar → Datos (nudos) para que se vea en la web.</span></div>` : ''; })()}
     ${(() => { const A = docAlerts(); return A.length ? `<div class="panel ad-alert ad-docs"><b>Documentos por vencer</b>${A.map(x => `<span>${esc(x.b)} · ${esc(x.l)}: <b>${x.gone ? 'venció' : 'vence'} el ${esc(fmtD(x.v))}</b></span>`).join('')}<span class="rating">Actualiza la fecha en Embarcaciones → Editar → Documentos.</span></div>` : ''; })()}
+    ${(() => { const own = W.boats.find(b => b.own), hasPromo = !!((own && own.photos && own.photos.promo) || (W.home && W.home.promoImg)); return hasPromo ? '' : `<button type="button" class="panel ad-alert" data-adtab="portada"><b>Falta la imagen de “Promo Six Pack · Cardenal Ultra”</b><span>Súbela en Portada y tienda → Promociones (o en Embarcaciones → Editar la embarcación destacada) →</span></button>`; })()}
     ${nNew && !demo ? `<button type="button" class="panel ad-alert" data-adtab="reservas"><b>${nNew} reserva${nNew > 1 ? 's' : ''} nueva${nNew > 1 ? 's' : ''} por confirmar</b><span>Revísalas y confírmalas en Reservas →</span></button>` : ''}
     <div class="adm-kpis">
       <div class="akpi"><span>Ventas · ${plbl}</span><b>${money(S.rev)}</b>${delta(S.rev, P.rev)}</div>
@@ -5004,7 +5054,7 @@ function pinSheet(b) {
 }
 
 /* ---------------- embarcaciones ---------------- */
-const thumb = b => { const P = b.photos || {}, u = P.proa || P.popa || P.social || Object.values(P).find(Boolean); return u ? `<img src="${esc(u)}" alt="">` : art('drone', b.hue || 200, b.id); };
+const thumb = b => { const P = b.photos || {}, u = P.proa || P.popa || P.social || Object.entries(P).find(([k, v]) => k !== 'promo' && v)?.[1]; return u ? `<img src="${esc(u)}" alt="">` : art('drone', b.hue || 200, b.id); };
 VIEW.flota = () => `<div class="ad-head"><div><h2>Embarcaciones</h2><p class="rating">${W.boats.length} en total · ${W.boats.filter(b => !b.hidden).length} visibles en la web. La primera de la lista es la que destacas como “La más solicitada”.</p></div><div class="adm-tools"><button class="btn btn-sun btn-sm" type="button" data-boat-new>+ Agregar embarcación</button>${helpBtn('flota')}</div></div>
   ${seasonPanel()}
   <div class="ad-boats">${W.boats.map((b, i) => `<article class="ad-boat${b.hidden ? ' off' : ''}" data-i="${i}"><div class="ad-boat-ph">${thumb(b)}${b.own ? '<span class="badge own-badge">De la casa</span>' : ''}${b.hidden ? '<span class="badge">Oculta</span>' : ''}</div>
@@ -5037,6 +5087,7 @@ function boatEditor(i) {
   const okDocks = W.docks.filter(d => !d.off && !d.custom), allow = Array.isArray(b.docks) && b.docks.length ? b.docks : null;
   sheet(`<div class="ad-sheet-h"><h3>${esc(b.name || 'Nueva embarcación')}</h3>${helpBtn('barco', 'Ayuda')}</div>
     <section><h4>Fotos ${helpBtn('fotos', 'Qué fotos subir')}</h4><div class="ad-photos">${T.viewsOf(b).map(([k, l]) => photoSlot(`${p}.photos.${k}`, 'boat', l)).join('')}</div><p class="hint">La primera que tenga foto es la principal. Los espacios sin foto no se muestran en la web; si no hay ninguna, sale una ilustración. ${lancha ? 'Habitación, baño y accesorios aparecen al elegir mini yate, barco o yate.' : ''}</p></section>
+    ${b.own ? `<section class="ad-promo-sec"><h4>Promociones</h4><div class="ad-photos">${photoSlot(`${p}.photos.promo`, 'promo', 'Imagen Promo Six Pack (Cardenal Ultra)')}</div><p class="hint">Se muestra dentro del recuadro azul oscuro de la tarjeta “Promo Six Pack · Cardenal Ultra” en el Home (reemplaza “Imagen lista para cargar”). Acepta JPG, PNG o WebP.</p></section>` : ''}
     <section><h4>Datos</h4><div class="adm-form">${inp(p + '.name', 'Nombre')}${inp(p + '.type', 'Tipo', { sel: TYPES.map(t => [t, t]) })}${inp(p + '.ft', 'Pies', { t: 'num' })}${inp(p + '.size', 'Tamaño (para muelles y recogidas)', { sel: SIZE_L })}${inp(p + '.pax', 'Capacidad (puestos de la licencia)', { t: 'num', min: 1 })}${inp(p + '.kx', 'Niños de 7 años o menos además de esos puestos', { t: 'num', hint: '0 = los niños ocupan puesto. El filtro de la reserva usa los dos números.' })}${lancha ? '' : inp(p + '.kts', 'Velocidad de navegación (nudos)', { t: 'num', ph: '20', hint: 'Se muestra en la tarjeta, el detalle y la reserva de mini yates, barcos y yates.' })}${inp(p + '.trips', 'Viajes realizados', { t: 'num', hint: 'Se muestra como “+N viajes”.' })}${inp(p + '.ownerWa', 'WhatsApp del propietario', { ph: '58414xxxxxxx', hint: 'Para enviarle cada reserva con un toque desde Reservas. No se muestra en la web.' })}${inp(p + '.promo', 'Promoción (opcional)', { ph: 'Ej. 10% de descuento entre semana', cls: 'ad-wide' })}</div>
       <div class="ad-checks">${inp(p + '.cabin', 'Tiene camarote', { t: 'bool' })}<label class="ad-check"><input type="checkbox" data-own="${i}"${b.own ? ' checked' : ''}> Es la más solicitada (sale destacada)</label>${inp(p + '.isNew', 'Resaltar como NEW (embarcación nueva)', { t: 'bool' })}${inp(p + '.hidden', 'Ocultar de la web (no se puede reservar)', { t: 'bool' })}</div></section>
     <section><h4>Precio y horario</h4><div class="adm-form">${inp(p + '.price', 'Tarifa base por día (USD)', { t: 'num' })}${inp(p + '.priceH', 'Tarifa base en temporada alta (USD)', { t: 'numn', ph: W.hiPct ? `Normal + ${W.hiPct}%` : 'Igual que la normal', hint: 'Se usa en las fechas de temporada alta (Embarcaciones → Temporada alta).' })}${inp(p + '.wk', 'Recargo fin de semana (%)', { t: 'num', ph: '10', hint: 'Se suma sábados y domingos en temporada normal. Vacío = 10%.' })}${inp(p + '.late', 'Hora extra', { sel: LATE, t: 'int', def: 0 })}${inp(p + '.hx', 'Costo de cada hora extra (USD)', { t: 'num', hint: 'Se paga en efectivo a bordo.' })}</div></section>
@@ -5190,8 +5241,9 @@ VIEW.aliados = () => `<div class="ad-head"><div><h2>Servicio a bordo</h2><p clas
     <div class="adm-tools"><button type="button" class="ad-add" data-ally-add="${i}">+ Agregar aliado</button>${c.items.length ? '' : `<button type="button" class="icon-btn ad-danger" data-cat-del="${i}">Quitar categoría</button>`}</div></section>`).join('')}`;
 
 /* ---------------- portada y tienda ---------------- */
-VIEW.portada = () => { const C = T.NAV_CARDS || []; return `<div class="ad-head"><div><h2>Portada y tienda</h2><p class="rating">La foto principal de la web, las pantallas del menú giratorio y los accesorios que vendes.</p></div><div class="adm-tools">${helpBtn('portada')}</div></div>
+VIEW.portada = () => { const C = T.NAV_CARDS || [], ownIdx = W.boats.findIndex(b => b.own), promoPath = ownIdx >= 0 ? `boats.${ownIdx}.photos.promo` : 'home.promoImg'; return `<div class="ad-head"><div><h2>Portada y tienda</h2><p class="rating">La foto principal de la web, las promociones, las pantallas del menú giratorio y los accesorios que vendes.</p></div><div class="adm-tools">${helpBtn('portada')}</div></div>
   <section class="panel"><h3>Foto principal <small>la portada muestra el video del dron; esta foto se ve solo si el video no se puede reproducir (ahorro de datos o “reducir movimiento”). Vacía = primer cuadro del video</small></h3><div class="ad-photos">${photoSlot('home.hero', 'hero', 'Portada (Isla de Plata, por ejemplo)')}</div></section>
+  <section class="panel ad-promo-sec"><h3>Promociones <small>tarjeta “Promo Six Pack · Cardenal Ultra” de la embarcación destacada en el Home</small></h3><div class="ad-photos">${photoSlot(promoPath, 'promo', 'Imagen Promo Six Pack (Cardenal Ultra)')}</div><p class="hint">Reemplaza el recuadro “Imagen lista para cargar” en el Home. Formatos aceptados: JPG, PNG o WebP.</p></section>
   <section class="panel"><h3>Menú giratorio <small>${C.filter(c => W.home.cards[c.id]).length} de ${C.length} con foto · las vacías se ven difuminadas</small></h3>
     <p class="rating">La portada de cada pantalla del menú giratorio, agrupadas por sección. Sube cada imagen en <b>${IMG.card.size}</b> (${IMG.card.label}, mínimo ${IMG.card.min} px de ancho) para que se vea nítida, sin recortes ni pixeleo. El panel la ajusta sola a ese tamaño.</p>
     ${[...new Map(C.map(c => [c.secName || '', c])).keys()].map(sec => `<div class="ad-cardsec"><h4>${esc(sec)}</h4><div class="ad-photos ad-cards">${C.filter(c => (c.secName || '') === sec).map(c => photoSlot('home.cards.' + c.id, 'card', esc(c.t), true)).join('')}</div></div>`).join('')}</section>
@@ -5240,7 +5292,7 @@ const HELP = {
   accesorios: ['Accesorios', `<p>Para cada accesorio elige:</p><ul><li><b>No tiene.</b></li><li><b>Incluido:</b> va en el precio.</li><li><b>Con costo:</b> escribe el precio. El cliente lo puede sumar en la reserva y se agrega al total (por ejemplo, parrillera +$20).</li></ul><p>Lo que es igual en todas (tripulación, chalecos, ducha, botiquín) se edita en Ajustes.</p>`],
   textos: ['Texto en inglés', `<p>La web abre siempre en español y tiene un botón para verla en inglés. Los textos que ya existen están traducidos. Si escribes una descripción nueva, agrega su versión en inglés para que los turistas la lean en su idioma. Si la dejas vacía, verán el texto en español.</p>`],
   precios: ['Precio por rumbo', `<p>Cada embarcación puede tener un precio distinto en cada rumbo. No es un recargo: es la tarifa de ese rumbo.</p><ul><li><b>Tarifa base:</b> usa la tarifa por día (más la diferencia del rumbo, si la pusiste en Rumbos).</li><li><b>Precio propio:</b> el precio de esta embarcación en ese rumbo.</li><li><b>Por confirmar:</b> la hace, y el precio se confirma por WhatsApp.</li><li><b>No lo hace:</b> el cliente no ve ese rumbo con esta embarcación.</li></ul>`],
-  portada: ['Portada y tienda', `<ul><li><b>Foto principal:</b> ${IMG.hero.size}, horizontal. Lo importante al centro.</li><li><b>Menú giratorio:</b> ${IMG.card.size}, vertical. Mientras no subas una, se ve una imagen difuminada de relleno.</li><li><b>Tienda:</b> accesorios que tienes en stock (toallas, termos, inflables…). El cliente los suma en el paso de extras. Sin precio no se muestran.</li></ul>`],
+  portada: ['Portada y tienda', `<ul><li><b>Foto principal:</b> ${IMG.hero.size}, horizontal. Lo importante al centro.</li><li><b>Promociones (Promo Six Pack · Cardenal Ultra):</b> ${IMG.promo.size}, horizontal 4:3. Reemplaza el recuadro “Imagen lista para cargar” en el Home.</li><li><b>Menú giratorio:</b> ${IMG.card.size}, vertical. Mientras no subas una, se ve una imagen difuminada de relleno.</li><li><b>Tienda:</b> accesorios que tienes en stock (toallas, termos, inflables…). El cliente los suma en el paso de extras. Sin precio no se muestran.</li></ul>`],
   rumbos: ['Rumbos y playas', `<ul><li><b>Diferencia sobre la tarifa base:</b> solo para las embarcaciones que no tienen precio propio en ese rumbo. Vacío = precio por confirmar.</li><li><b>Millas náuticas:</b> distancia aproximada que ve el cliente.</li><li><b>Solo para embarcaciones que lo hacen:</b> el rumbo solo aparece con las embarcaciones que tienen precio o “por confirmar” en ese rumbo.</li><li><b>Playas:</b> agrega, quita o cambia nombres. El cliente elige entre las playas del rumbo, según el límite de cada embarcación.</li><li><b>Cotización especial:</b> destinos que no se reservan en la app (Píritu, La Tortuga…).</li></ul>`],
   muelles: ['Muelles y recogidas', `<ul><li><b>Muelle sugerido:</b> el servicio por uso de muelle lo cobra el establecimiento y se paga en sitio; escríbelo como quieres que se vea (ej. “$11,6 a tasa BCV”).</li><li><b>Recogida en residencia:</b> costo de Tu Lancha Lechería por buscar al cliente, según el tamaño de la embarcación (vacío = ese tamaño no llega).</li><li><b>Solo lanchas:</b> los yates no pueden llegar por la profundidad.</li><li><b>No habilitado:</b> aparece como no disponible.</li></ul><p class="hint">Por embarcación puedes decir que no llega o que no cobra recargo (en Embarcaciones › Editar).</p>`],
   pagos: ['Datos de pago', `<p>Cuando el cliente confirma su reserva y elige Zelle o Binance, la app le muestra estos datos para pagar el abono del 50% y le pide mandarte la captura por WhatsApp.</p><ul><li><b>Zelle:</b> puedes tener varias cuentas guardadas, pero el cliente ve <b>solo la principal</b>. Para cambiarla, marca otra como principal y toca Publicar cambios.</li><li><b>Binance:</b> el cliente ve tu ID, tu usuario, el código QR y un botón para abrir Binance desde el teléfono.</li><li><b>Código QR:</b> sube la imagen del QR que te da Binance (una captura de pantalla sirve). Se guarda en PNG para que se pueda escanear.</li></ul><p class="hint">Si dejas los datos vacíos, la app le dice al cliente que se los envías por WhatsApp.</p>`],
@@ -5269,7 +5321,7 @@ async function encode(c, spec = {}) {
 }
 const b64 = blob => new Promise(r => { const f = new FileReader(); f.onload = () => r(String(f.result).split(',')[1]); f.readAsDataURL(blob); });
 function pickPhoto(path, kind) {
-  const spec = IMG[kind], f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
+  const spec = IMG[kind], f = document.createElement('input'); f.type = 'file'; f.accept = 'image/jpeg,image/png,image/webp,image/*';
   f.onchange = async () => {
     const file = f.files && f.files[0]; if (!file) return;
     let L; try { L = await loadImg(file); } catch { toast('No se pudo abrir esa imagen. Prueba con una foto JPG o PNG.'); return; }
@@ -5289,8 +5341,13 @@ function pickPhoto(path, kind) {
       const btn = $('#crop-ok'); btn.disabled = true; btn.textContent = 'Subiendo…';
       try {
         const blob = await encode(drawTo(im, spec, pos), spec);
-        const j = await api('upload', { mime: blob.type, data: await b64(blob) });
-        setPath(W, path, j.url); URL.revokeObjectURL(L.u);
+        const j = await api('upload', { mime: blob.type, data: await b64(blob), folder: kind });
+        setPath(W, path, j.url);
+        if (kind === 'promo' || path === 'home.promoImg' || path.endsWith('.photos.promo')) {
+          W.home ||= {}; W.home.promoImg = j.url;
+          const ownB = W.boats.find(b => b.own); if (ownB) { ownB.photos ||= {}; ownB.photos.promo = j.url; }
+        }
+        URL.revokeObjectURL(L.u);
         toast('Foto lista. Publica los cambios para que la vean tus clientes.');
         reopen();
       } catch (e) { btn.disabled = false; btn.textContent = 'Usar esta foto'; toast(errMsg(e)); }
@@ -5324,7 +5381,7 @@ adm.addEventListener('change', e => {
   if (el.dataset.dockok) { const b = W.boats[editing], all = W.docks.filter(d => !d.off && !d.custom).map(d => d.id); const on = $$('[data-dockok]', adm).filter(x => x.checked).map(x => x.dataset.dockok); if (!on.length) { el.checked = true; return toast('Debe poder salir de al menos un muelle'); } if (on.length === all.length) delete b.docks; else b.docks = on; refreshSaveBar(); return; }
   if (el.dataset.rclosed != null) { const r = W.routes[+el.dataset.rclosed]; if (el.checked) r.open = false; else delete r.open; refreshSaveBar(); return; }
   if (el.dataset.pick) { const b = W.boats[editing], k = el.dataset.pick, ip = $(`[data-pickp="${k}"]`, adm); if (el.value === 'std') delete b.pick[k]; else b.pick[k] = el.value === 'no' ? null : el.value === 'own' ? +ip.value || 0 : 0; ip.hidden = el.value !== 'own'; if (el.value === 'own') ip.focus(); refreshSaveBar(); return; }
-  if (el.dataset.own != null) { W.boats.forEach((b, j) => { if (el.checked ? j !== +el.dataset.own : false) delete b.own; }); if (el.checked) { W.boats[+el.dataset.own].own = true; const [b] = W.boats.splice(+el.dataset.own, 1); W.boats.unshift(b); editing = 0; } else delete W.boats[+el.dataset.own].own; refreshSaveBar(); render(); boatEditor(editing); }
+  if (el.dataset.own != null) { W.boats.forEach((b, j) => { if (el.checked ? j !== +el.dataset.own : false) delete b.own; }); if (el.checked) { W.boats[+el.dataset.own].own = true; const [b] = W.boats.splice(+el.dataset.own, 1); b.photos ||= {}; if (W.home && W.home.promoImg && !b.photos.promo) b.photos.promo = W.home.promoImg; W.boats.unshift(b); editing = 0; } else delete W.boats[+el.dataset.own].own; refreshSaveBar(); render(); boatEditor(editing); }
 });
 adm.addEventListener('click', async e => {
   const t = e.target.closest('button,[data-adtab]'); if (!t) { if (e.target.classList.contains('ad-ov')) closeTop(); return; }
@@ -5343,7 +5400,7 @@ adm.addEventListener('click', async e => {
     return;
   }
   if (d.up) return pickPhoto(d.up, d.kind);
-  if (d.rmph) { setPath(W, d.rmph, /^(allies|pay)\./.test(d.rmph) ? '' : undefined); refreshSaveBar(); reopen(); return; }
+  if (d.rmph) { setPath(W, d.rmph, /^(allies|pay)\./.test(d.rmph) ? '' : undefined); if (d.rmph === 'home.promoImg' || d.rmph.endsWith('.photos.promo')) { if (W.home) delete W.home.promoImg; W.boats.forEach(b => { if (b.photos) delete b.photos.promo; }); } refreshSaveBar(); reopen(); return; }
   // reservas
   if (d.bkf) { bkFilter = d.bkf; render(); return; }
   if (d.bkNew != null) return bkForm();

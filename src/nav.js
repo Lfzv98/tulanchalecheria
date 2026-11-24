@@ -81,9 +81,9 @@ function mount(host) {
      La pantalla del frente queda en z = 0 (escala 1, texto nítido); el centro del cilindro está en z = -R. */
   const geo = () => {
     const w = stage.clientWidth, phone = w < 600;
-    const cw = Math.round(phone ? Math.max(112, Math.min(170, w * .33)) : Math.max(170, Math.min(small ? 200 : 250, w * .19)));
+    const cw = Math.round(phone ? Math.max(230, Math.min(300, w * .74)) : Math.max(212, Math.min(small ? 250 : 312, w * .24)));
     const R = N * cw * 1.28 / (2 * Math.PI);
-    return { cw, ch: Math.round(cw * (phone ? 1.5 : 1.42)), R, P: R * 2, w };
+    return { cw, ch: Math.round(cw * (phone ? 1.39 : 1.42)), R, P: R * 2, w };
   };
   let G = geo();
   const SEC_START = SECS.map((_, si) => CARDS.findIndex(c => c.si === si)), SEC_LEN = SECS.map(x => x[2].length);

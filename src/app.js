@@ -132,6 +132,36 @@ function openVideo(k) {
   const v = $('video', d); const p = v.play(); if (p && p.catch) p.catch(() => {});
 }
 document.addEventListener('click', e => { const v = e.target.closest('[data-vid]'); if (v) { e.preventDefault(); openVideo(v.dataset.vid); } });
+const ZOOM_SEL = '.xi-img img,.o-th img,.t-th img,#m-shot img,.own-shot img,.promo-media img,.beach>img.ph,.exp-media img.ph,.exp-pop-img img.ph,.pay-qr img,.ad-ph-img img,.ad-boat-ph img,img[data-zoom]';
+function zoomCap(img) {
+  return (img.dataset.zoomCap || img.alt || img.closest('.xi')?.querySelector('.xi-t b')?.textContent || img.closest('.boat-o')?.querySelector('.o-tx b')?.textContent || img.closest('.t-th')?.querySelector(':scope > span')?.textContent || img.closest('.beach')?.querySelector('h3')?.textContent || img.closest('.ad-boat')?.querySelector('h4')?.textContent || img.closest('.ad-photo')?.querySelector('.ad-ph-lbl,label,b')?.textContent || '').trim();
+}
+function openImgZoom(src, cap = '') {
+  const d = $('#imgdlg'); if (!d || !src) return;
+  if (d.open) d.close();
+  d.innerHTML = `<button class="m-close" type="button" aria-label="Cerrar foto">×</button><div class="img-stage"><img src="${esc(src)}" alt="${esc(cap)}"></div>${cap ? `<p class="img-cap">${esc(cap)}</p>` : ''}`;
+  d.onclick = e => { if (e.target === d || e.target.closest('.m-close')) d.close(); };
+  d.onclose = () => { d.innerHTML = ''; };
+  d.showModal();
+}
+window.openImgZoom = openImgZoom;
+document.addEventListener('click', e => {
+  if (e.target.closest('#imgdlg,.gal-a,.gal-dots,.qty,[data-rent],[data-qty]')) return;
+  let img = e.target.closest(ZOOM_SEL);
+  if (!img) { const xi = e.target.closest('.xi-img'); if (xi) img = $('img', xi); }
+  if (!img) return;
+  const gal = img.closest('.gal');
+  if (gal) img = $('.gal-s.on img', gal) || img;
+  const src = img.currentSrc || img.getAttribute('src');
+  if (!src) return;
+  e.preventDefault();
+  e.stopPropagation();
+  openImgZoom(src, zoomCap(img));
+}, true);
+addEventListener('keydown', e => {
+  const d = $('#imgdlg');
+  if (e.key === 'Escape' && d && d.open) { e.preventDefault(); e.stopPropagation(); d.close(); }
+}, true);
 const CANALES = {
   video: 'https://youtu.be/jVBf_uwYNwc',
   opts: [
@@ -339,16 +369,17 @@ function applyCat(c) {
   if (window.TLL_I18N && TLL_I18N.add) TLL_I18N.add(tr);
 }
 applyCat(store.get('cat', null));
-const ph = (u, alt = '') => `<img class="ph" src="${esc(u)}" alt="${esc(alt)}" loading="lazy" decoding="async">`;
+const ph = (u, alt = '', eager = false) => `<img class="ph" src="${esc(u)}" alt="${esc(alt)}" loading="${eager ? 'eager' : 'lazy'}" decoding="async">`;
 /* Fotos de cada embarcación. Solo se muestran las que Eduardo subió: un espacio sin foto no aparece en la web.
-   Las tres penúltimas solo aplican a mini yates, barcos y yates. 'promo' habilita la imagen promocional (Six Pack Cardenal Ultra) en la embarcación destacada. */
-const VIEWS = [['proa', 'Proa'], ['popa', 'Popa'], ['social', 'Área social'], ['camarote', 'Camarote'], ['habitacion', 'Habitación', 1], ['bano', 'Baño', 1], ['accesorios', 'Accesorios', 1], ['promo', 'Promo Cardenal Ultra']];
-const viewsOf = b => VIEWS.filter(v => (!v[2] || b.type !== 'Lancha') && (v[0] !== 'promo' || b.own));
+   Las tres últimas solo aplican a mini yates, barcos y yates. La imagen promocional (Six Pack Cardenal Ultra) se gestiona aparte en b.photos.promo. */
+const VIEWS = [['proa', 'Proa'], ['popa', 'Popa'], ['social', 'Área social'], ['camarote', 'Camarote'], ['habitacion', 'Habitación', 1], ['bano', 'Baño', 1], ['accesorios', 'Accesorios', 1]];
+const viewsOf = b => VIEWS.filter(v => !v[2] || b.type !== 'Lancha');
 const photosOf = b => viewsOf(b).filter(([k]) => b.photos && b.photos[k]).map(([k, l]) => ({ k, l, u: b.photos[k] }));
 // Bloque promocional (Six Pack de Cardenal Ultra) para la embarcación destacada; muestra la imagen cargada por el admin o un espacio listo para subirla
 function promoCardHtml(b, compact = false) {
   if (!b || !b.own) return '';
-  const img = (b.photos && b.photos.promo) || (CAT.home && CAT.home.promoImg) || '';
+  const foodImg = (FOOD.find(x => x && x.logo && (x.id === 'six' || /cardenal\s*ultra/i.test(x.brand || ''))) || {}).logo || '';
+  const img = (b.photos && b.photos.promo) || (CAT.home && CAT.home.promoImg) || foodImg || '';
   const txt = b.promo || 'Incluye promo Six Pack de Cardenal Ultra en tu salida.';
   return `<div class="promo-slot${compact ? ' compact' : ''}${img ? ' has-img' : ''}">
     <div class="promo-media">${img ? ph(img, 'Promo Six Pack Cardenal Ultra') : `<div class="promo-ph" aria-hidden="true"><span>Promo Cardenal Ultra</span><small>Imagen lista para cargar</small></div>`}</div>
@@ -363,7 +394,7 @@ function gallery(b, o = {}) {
   const l = photosOf(b);
   if (l.length < 2) return `<div class="gal one">${pic(b)}${l[0] && o.label ? `<span class="gal-l">${l[0].l}</span>` : ''}${o.badge || ''}</div>`;
   return `<div class="gal${o.noArrows ? ' no-arrows' : ''}" data-gal${o.auto ? ` data-auto="${o.auto === true ? 3 : +o.auto}"` : ''} data-i="0" role="region" aria-roledescription="carrusel" aria-label="Fotos de ${esc(b.name)}">
-    ${l.map((x, i) => `<figure class="gal-s${i ? '' : ' on'}" data-k="${x.k}" aria-hidden="${i ? 'true' : 'false'}">${ph(x.u, `${b.name} · ${x.l}`)}${o.label ? `<figcaption class="gal-l">${x.l}</figcaption>` : ''}</figure>`).join('')}
+    ${l.map((x, i) => `<figure class="gal-s${i ? '' : ' on'}" data-k="${x.k}" aria-hidden="${i ? 'true' : 'false'}">${ph(x.u, `${b.name} · ${x.l}`, !!o.eager)}${o.label ? `<figcaption class="gal-l">${x.l}</figcaption>` : ''}</figure>`).join('')}
     ${o.badge || ''}<button type="button" class="gal-a prev" data-gal-go="-1" aria-label="Foto anterior"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="gal-a next" data-gal-go="1" aria-label="Foto siguiente"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
     <div class="gal-dots">${l.map((x, i) => `<button type="button" data-gal-to="${i}" aria-label="${x.l}" aria-pressed="${!i}"></button>`).join('')}</div></div>`;
 }
@@ -377,30 +408,38 @@ function galGo(g, to) {
 document.addEventListener('click', e => {
   const a = e.target.closest('[data-gal-go],[data-gal-to]'); if (!a) return;
   const g = a.closest('[data-gal]') || (a.closest('.m-media') && $('[data-gal]', a.closest('.m-media'))); if (!g) return;
-  e.preventDefault(); e.stopPropagation(); g.dataset.hold = Date.now();
+  e.preventDefault(); e.stopPropagation();
+  GAL.set(g, performance.now());
+  if (!g.closest('.own-shot')) g.dataset.hold = Date.now();
   galGo(g, a.dataset.galTo != null ? +a.dataset.galTo : +g.dataset.i + +a.dataset.galGo);
 }, true);
 let galX = null;
 document.addEventListener('pointerdown', e => { const g = e.target.closest('[data-gal]'); galX = g ? [g, e.clientX, e.clientY] : null; }, { passive: true });
-document.addEventListener('pointerup', e => { if (!galX) return; const [g, x, y] = galX, dx = e.clientX - x; galX = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(e.clientY - y)) { g.dataset.hold = Date.now(); galGo(g, +g.dataset.i + (dx < 0 ? 1 : -1)); } }, { passive: true });
-const galReduce = matchMedia('(prefers-reduced-motion: reduce)');
-/* Cada galería pasa a su ritmo (data-auto = segundos: 3 por defecto en tarjetas, destacada y resumen).
-   Rendimiento: solo se cuentan las galerías que están en pantalla (IntersectionObserver), sin leer medidas ni
-   escribir atributos cada segundo, y nada corre con la app en segundo plano. */
+document.addEventListener('pointerup', e => { if (!galX) return; const [g, x, y] = galX, dx = e.clientX - x; galX = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(e.clientY - y)) { GAL.set(g, performance.now()); if (!g.closest('.own-shot')) g.dataset.hold = Date.now(); galGo(g, +g.dataset.i + (dx < 0 ? 1 : -1)); } }, { passive: true });
+/* Cada galería pasa a su ritmo (data-auto = segundos: 3.5 en destacada, 3 en tarjetas y resumen).
+   Ignora prefers-reduced-motion y ahorro de energía para que el autoplay funcione en todos los dispositivos. */
 const GAL = new WeakMap(), galOn = new Set();
-const galIO = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { galOn.add(e.target); if (!GAL.has(e.target)) GAL.set(e.target, performance.now()); } else galOn.delete(e.target); }), { threshold: .35 }) : null;
+const galIO = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { galOn.add(e.target); if (!GAL.has(e.target)) GAL.set(e.target, performance.now()); } else galOn.delete(e.target); }), { threshold: .1 }) : null;
 const galWatch = root => { if (!galIO) return; (root || document).querySelectorAll('[data-gal][data-auto]:not([data-gw])').forEach(g => { g.setAttribute('data-gw', ''); galIO.observe(g); }); };
 new MutationObserver(() => galWatch()).observe(document.body, { childList: true, subtree: true });
 galWatch();
 setInterval(() => {
-  if (galReduce.matches || document.hidden || !galOn.size) return;
+  if (document.hidden) return;
   const now = performance.now();
-  galOn.forEach(g => {
+  const list = new Set(galOn);
+  document.querySelectorAll('.own-shot [data-gal][data-auto]').forEach(g => {
+    const pg = g.closest('.page');
+    if (!pg || !pg.hidden) list.add(g);
+  });
+  if (!list.size) return;
+  list.forEach(g => {
     if (!g.isConnected) { galOn.delete(g); return; }
-    const every = (+g.dataset.auto || 3) * 1000, t0 = GAL.get(g) || now;
-    if (now - t0 < every - 150) return;
+    const every = (+g.dataset.auto || 3) * 1000;
+    if (!GAL.has(g)) { GAL.set(g, now); return; }
+    if (now - GAL.get(g) < every - 150) return;
     GAL.set(g, now);
-    if (Date.now() - (+g.dataset.hold || 0) < 9000 || g.matches(':hover')) return;
+    const isOwn = !!g.closest('.own-shot');
+    if (!isOwn && (Date.now() - (+g.dataset.hold || 0) < 9000 || (matchMedia('(hover: hover)').matches && g.matches(':hover')))) return;
     galGo(g, +g.dataset.i + 1);
   });
 }, 500);
@@ -632,7 +671,7 @@ function renderOwnFeature() {
   const el = $('#own-feature'); if (!el || !OWN) return;
   const nf = nextFree(OWN), tr = tripsTxt(OWN);
   el.innerHTML = `<div class="own-card glass-card${hasPics(OWN) ? '' : ' nopic'}">
-    ${hasPics(OWN) ? `<div class="own-shot">${gallery(OWN, { auto: true, label: true, badge: ownBadge(OWN) })}</div>` : ''}
+    ${hasPics(OWN) ? `<div class="own-shot">${gallery(OWN, { auto: 3.5, label: true, badge: ownBadge(OWN), eager: true })}</div>` : ''}
     <div class="own-in">${hasPics(OWN) ? '' : ownBadge(OWN)}<span class="eyebrow own-trips">${tr ? `${tr} exitosos` : 'La más elegida'} · ${(+OWN.rating || 5).toFixed(1)} ★</span><h2>${esc(OWN.name)}</h2><p>${esc(OWN.desc)}</p>
       <div class="meta"><span class="tag">${OWN.type} · ${OWN.ft} pies</span>${featList(OWN).map(a => `<span class="tag">${esc(a)}</span>`).join('')}<button type="button" class="tag more" data-open="${OWN.id}">y más…</button></div>
       ${promoCardHtml(OWN)}
@@ -1208,6 +1247,8 @@ document.addEventListener('click', e => {
   const op = e.target.closest('#open-pool-btn');
   if (op) { const ps = $('#pool-sec'); if (ps) { ps.hidden = !ps.hidden; op.setAttribute('aria-expanded', String(!ps.hidden)); if (!ps.hidden) ps.scrollIntoView({ behavior: 'smooth', block: 'start' }); } return; }
   if (e.target.closest('#close-pool-btn')) { const ps = $('#pool-sec'); if (ps) ps.hidden = true; $('#open-pool-btn')?.setAttribute('aria-expanded', 'false'); return; }
+  const or = e.target.closest('#open-rent-btn');
+  if (or) { const rt = $('#rent'); if (rt) rt.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
   const r = e.target.closest('[data-rent]'); if (r && !r.disabled) { RQ.n[r.dataset.rent] = Math.max(0, Math.min(20, (+RQ.n[r.dataset.rent] || 0) + +r.dataset.d)); return renderRent(); }
   const d = e.target.closest('[data-rdays]'); if (d && !d.disabled) { RQ.days = Math.max(1, Math.min(30, RQ.days + +d.dataset.rdays)); return renderRent(); }
   if (e.target.closest('#rent-go')) {
@@ -1264,7 +1305,10 @@ function renderAllies() {
   if (rb) {
     rb.hidden = !all.length;
     const one = all.map(([n, , u, , logo]) => `<a class="rb-i" href="${allyLink(n, u)}" target="_blank" rel="noopener" title="${esc(n)}">${logo ? `<img src="${esc(logo)}" alt="${esc(n)}" loading="lazy" decoding="async">` : `<span>${esc(n)}</span>`}</a>`).join('');
-    $('#ribbon-in').innerHTML = one + `<span class="rb-dup" aria-hidden="true">${one.replace(/<a /g, '<a tabindex="-1" ')}</span>`;
+    const half = one.repeat(Math.max(1, Math.ceil(8 / Math.max(1, all.length))));
+    const ri = $('#ribbon-in');
+    ri.innerHTML = `<span class="rb-dup">${half}</span><span class="rb-dup" aria-hidden="true">${half.replace(/<a /g, '<a tabindex="-1" ')}</span>`;
+    ri.style.animation = 'none'; void ri.offsetWidth; ri.style.animation = '';
   }
 }
 renderAllies(); renderRent();

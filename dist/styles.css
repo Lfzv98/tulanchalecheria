@@ -920,6 +920,13 @@ footer.site .num{white-space:normal}
 #vdlg::backdrop{background:rgba(5,8,20,.8)}
 .vrow{flex-wrap:wrap;overflow:visible;justify-self:stretch;min-width:0}
 #vdlg .m-close{position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.92);color:#151a33;font-size:1.5rem;line-height:1;border:0;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+#imgdlg{background:#0f152b;padding:0;border:0;border-radius:18px;overflow:hidden;width:fit-content;max-width:min(760px,calc(100vw - 24px));max-height:calc(100dvh - 24px);box-shadow:0 28px 70px -20px rgba(0,0,0,.65)}
+#imgdlg::backdrop{background:rgba(5,8,20,.82);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+#imgdlg .img-stage{background:#f4f7fb;display:grid;place-items:center;max-height:calc(100dvh - 88px);overflow:hidden}
+#imgdlg .img-stage img{display:block;width:auto;height:auto;max-width:min(760px,calc(100vw - 24px));max-height:calc(100dvh - 88px);object-fit:contain}
+#imgdlg .img-cap{margin:0;color:#fff;font-weight:700;padding:10px 16px;font-size:.92rem;text-align:center;line-height:1.35;background:#141a33}
+#imgdlg .m-close{position:absolute;top:10px;right:10px;z-index:2;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.94);color:#151a33;font-size:1.5rem;line-height:1;border:0;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer}
+.xi-img img,.o-th img,.t-th img,#m-shot img,.own-shot img,.promo-media img,.beach>img.ph,.exp-media img.ph,.exp-pop-img img.ph,.pay-qr img,.ad-ph-img img,.ad-boat-ph img,img[data-zoom]{cursor:zoom-in}
 /* Playas: una sección por rumbo, ordenada en escritorio */
 .rumbos-list{display:grid;gap:56px}
 .rumbos-list .vintro{margin-bottom:0;padding:20px;border-radius:22px;background:var(--card);box-shadow:var(--shadow-sm);flex-wrap:nowrap}
@@ -1687,7 +1694,7 @@ fieldset.pay{min-width:0;max-width:100%}
 .orbit-band{position:relative;padding-block:clamp(36px,6vw,72px) clamp(40px,6vw,80px);overflow:hidden;background:radial-gradient(70% 60% at 50% 55%,#fff 0%,rgba(255,255,255,0) 70%),linear-gradient(180deg,var(--bg),#eaf1f8 60%,var(--bg))}
 .orbit-band .head{margin-bottom:8px;align-items:end}
 .orbit-hint{font:500 .72rem/1.3 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.orbit{--cw:240px;position:relative;user-select:none;-webkit-user-select:none}
+.orbit{--cw:300px;position:relative;user-select:none;-webkit-user-select:none}
 .orb-stage{position:relative;height:calc(var(--cw) * 1.54 + 84px);perspective:1100px;perspective-origin:50% 40%;touch-action:pan-y;cursor:grab;outline:none;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%)}
 .orb-stage:active{cursor:grabbing}
 .orb-stage::after{content:"";position:absolute;left:12%;right:12%;bottom:18px;height:40px;border-radius:50%;background:radial-gradient(closest-side,rgba(21,26,51,.22),transparent);filter:blur(6px);pointer-events:none}
@@ -1718,10 +1725,10 @@ fieldset.pay{min-width:0;max-width:100%}
 .ribbon{padding:4px 0 34px;margin-top:-14px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:34px}
 .ribbon .eyebrow{color:var(--on-sea-muted);margin-bottom:14px}
 .ribbon-track{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
-.ribbon-in{display:flex;width:max-content;animation:rb 38s linear infinite}
-.ribbon-in>.rb-dup{display:flex}
-.ribbon:hover .ribbon-in{animation-play-state:paused}
-@keyframes rb{to{transform:translateX(-50%)}}
+.ribbon-in{display:flex;width:max-content;animation:marquee 20s linear infinite!important;animation-play-state:running!important;will-change:transform}
+.ribbon-in>.rb-dup{display:flex;flex-shrink:0}
+@keyframes marquee{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}
+@keyframes rb{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}
 footer.site .rb-i{display:grid;place-items:center;height:44px;padding:0 26px;flex:none;opacity:.78;transition:opacity .2s}
 footer.site .rb-i:hover{opacity:1}
 .rb-i img{max-height:36px;max-width:120px;width:auto;filter:brightness(0) invert(1)}
@@ -1828,6 +1835,7 @@ dialog.nopic .m-grid{grid-template-columns:1fr}
 .ad-photo.k-card .ad-ph-img{aspect-ratio:3/4}
 .ad-photo.k-hero .ad-ph-img{aspect-ratio:16/9}
 .ad-photo.k-cover .ad-ph-img{aspect-ratio:3/2}
+.ad-photo.k-promo .ad-ph-img{aspect-ratio:4/3}
 .ad-acc.ad-shop{grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;align-items:end}
 @media (max-width:560px){.ad-acc.ad-shop{grid-template-columns:minmax(0,1fr) 90px}.ad-acc.ad-shop .icon-btn{grid-column:1/-1;justify-self:start}}
 .ad-shop .field{min-width:0}.ad-shop input{width:100%;min-width:0}
@@ -1860,7 +1868,7 @@ footer.site .f-brand .brand{display:flex;align-items:center;gap:12px;width:max-c
 .orb-tabs button::before,.orb-tabs button::after{content:"";position:absolute;left:8px;right:8px;bottom:2px;height:2px;border-radius:2px;background:rgba(21,26,51,.14)}
 .orb-tabs button::after{right:auto;width:calc((100% - 16px) * var(--p,0));background:linear-gradient(90deg,#f6e13c,#ff6b4a);transition:width .12s linear}
 .orb-ink{display:none}
-@media (max-width:600px){.orb-stage{height:calc(var(--ch) + 30px)}.orb-tx{padding:9px 9px 10px;gap:3px}.orb-tx small{font-size:.5rem;letter-spacing:.14em}.orb-tx span{font-size:.62rem}.orb-tabs button{min-width:0;padding:12px 12px 13px}}
+@media (max-width:600px){.orb-stage{height:calc(var(--ch) + 32px)}.orb-tx{padding:12px 13px 14px;gap:4px}.orb-tx small{font-size:.58rem;letter-spacing:.15em}.orb-tx span{font-size:.74rem}.orb-tabs button{min-width:0;padding:12px 12px 13px}}
 
 /* menú giratorio: rendimiento (12 nov). Sin blur, sin máscara y sin sombras que cambien por cuadro. */
 .orb-soft{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;filter:none;transform:none}
@@ -1925,7 +1933,7 @@ footer.site .f-brand .brand{display:flex;align-items:center;gap:12px;width:max-c
 
 /* ---------- pie de página v2 (15 nov): contacto con WhatsApp e Instagram, columnas con íconos ---------- */
 footer.site{position:relative;overflow:hidden;background:radial-gradient(120% 80% at 100% 0%,rgba(134,205,228,.09),transparent 55%),radial-gradient(90% 70% at 0% 100%,rgba(246,225,60,.06),transparent 60%),#0a0e21;border-top:0}
-footer.site::before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(134,205,228,.55),rgba(246,225,60,.55),transparent)}
+footer.site::before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(134,205,228,.55),rgba(246,225,60,.55),transparent);pointer-events:none}
 footer.site .wrap.f-grid{display:grid;grid-template-columns:1.25fr 1.35fr .9fr .9fr;gap:clamp(24px,3.4vw,48px);align-items:start}
 footer.site .f-grid>*{min-width:0}
 footer.site h3{font-family:var(--f-mono);font-size:.72rem;font-weight:500;letter-spacing:.18em;color:var(--reef-ink);margin:0 0 16px;display:flex;align-items:center;gap:10px}
@@ -1936,8 +1944,8 @@ footer.site .f-brand p{margin:0;font-size:.93rem;line-height:1.6;max-width:36ch}
 .f-stats span{display:grid;gap:2px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font-size:.74rem;line-height:1.25;color:var(--on-sea-muted)}
 .f-stats b{font-family:var(--f-display);font-size:1.35rem;font-weight:800;color:var(--sun);letter-spacing:.01em;line-height:1}
 /* tarjetas de contacto */
-.f-contact{display:grid;gap:10px;align-content:start}
-footer.site .f-card{display:grid;grid-template-columns:46px minmax(0,1fr) 18px;align-items:center;gap:14px;padding:12px 16px 12px 12px;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.075),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.12);color:var(--on-sea);text-decoration:none;transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .25s,background .25s,box-shadow .25s}
+.f-contact{position:relative;z-index:2;display:grid;gap:10px;align-content:start}
+footer.site .f-card{position:relative;z-index:2;pointer-events:auto;cursor:pointer;display:grid;grid-template-columns:46px minmax(0,1fr) 18px;align-items:center;gap:14px;padding:12px 16px 12px 12px;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.075),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.12);color:var(--on-sea);text-decoration:none;transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .25s,background .25s,box-shadow .25s}
 .f-card i{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:#fff}
 .f-card i svg{width:26px;height:26px}
 .f-wa i{background:linear-gradient(160deg,#5cf38b,#1fae53);box-shadow:0 10px 24px -10px rgba(37,211,102,.75)}
@@ -2028,7 +2036,7 @@ footer.site .wrap.f-bottom{display:flex;align-items:center;justify-content:space
 .own-tag.new-tag{background:#e11d48;color:#fff;margin-left:4px;letter-spacing:.08em}
 .boat .shot[data-shot-open]{cursor:pointer}
 /* celular: sin flechas ni puntos sobre la foto de la tarjeta; se toca para ver el detalle */
-@media (max-width:760px){.boat .gal-a,.boat .gal-dots,.own-card .gal-a,.own-card .gal-dots{display:none!important}}
+@media (max-width:760px){.boat .gal-a,.boat .gal-dots{display:none!important}}
 /* detalle de embarcación: la X siempre visible (sólida, por encima de la foto y fija al hacer scroll en el celular) */
 #dlg>.m-close{width:44px;height:44px;background:#151a33!important;color:#fff!important;font-size:1.6rem;line-height:1;display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.35);border:2px solid #fff;z-index:20}
 @media (max-width:760px){#dlg[open]>.m-close{position:sticky;top:10px;margin:10px 10px -54px auto}}
@@ -2105,9 +2113,16 @@ footer.site .wrap.f-bottom{display:flex;align-items:center;justify-content:space
 .xsec.food{justify-items:stretch;padding:16px}
 .xsec.food>.btn{justify-self:start}
 #b-boats .opts:not(.own-row){grid-template-columns:repeat(auto-fill,minmax(min(270px,100%),1fr))}
-/* cintillo de aliados: también en pantallas táctiles y con “reducir movimiento” (es un movimiento lento) */
-.rb-touch .ribbon:hover .ribbon-in{animation-play-state:running}
-.ribbon .ribbon-in{animation:rb 38s linear infinite!important;will-change:transform}
+/* cintillo de aliados: animación infinita forzada en todos los dispositivos (ignora prefers-reduced-motion y hover táctil) */
+.rb-touch .ribbon:hover .ribbon-in,.ribbon:hover .ribbon-in{animation-play-state:running!important}
+.ribbon .ribbon-in{display:flex;flex-wrap:nowrap;width:max-content;transform:translate3d(0,0,0);-webkit-backface-visibility:hidden;backface-visibility:hidden;animation:marquee 20s linear infinite!important;animation-play-state:running!important;will-change:transform}
+@media (prefers-reduced-motion:reduce){.ribbon .ribbon-in{animation:marquee 20s linear infinite!important;animation-play-state:running!important}.own-card .gal-s{transition:opacity .7s var(--ease)!important}}
+/* Hero Card ("La más solicitada"): swipe táctil y flechas/puntos visibles en todos los dispositivos */
+.own-card .gal{touch-action:pan-y}
+.own-card .gal-a{opacity:.9;display:grid!important}
+.own-card .gal-dots{display:flex!important}
+/* Carrusel 3D ("en un giro"): reducir padding lateral para que las tarjetas ampliadas luzcan grandes y nítidas */
+@media (max-width:600px){.orbit-band .wrap{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px))}.orbit-band .orb-tabs{padding:0 8px}}
 /* ---------- fluidez en el celular ----------
    El desenfoque de fondo (backdrop-filter) sobre el video y al hacer scroll es lo que más cuesta a la tarjeta gráfica
    del teléfono: se recalcula en cada cuadro. En pantallas táctiles se cambia por fondos casi opacos, que se ven igual. */
@@ -2126,8 +2141,7 @@ footer.site .wrap.f-bottom{display:flex;align-items:center;justify-content:space
   /* el zoom lento de las fotos de las galerías se deja solo en computadora */
   .gal-s.on .ph{animation:none}
 }
-/* lo que está fuera de pantalla no se pinta hasta que se acerca */
-footer.site{content-visibility:auto;contain-intrinsic-block-size:auto 900px}
+/* lo que está fuera de pantalla no se pinta hasta que se acerca (footer excluido para que el cintillo animado no se congele en móvil) */
 .rumbo-sec{content-visibility:auto;contain-intrinsic-block-size:auto 420px}
 
 /* encabezado en celulares angostos: marca, idioma y la palabra Menú caben sin desbordar */
@@ -2235,6 +2249,8 @@ footer.site{content-visibility:auto;contain-intrinsic-block-size:auto 900px}
 .own-hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
 .own-hero-top>div:first-child{min-width:0;flex:1 1 320px}
 .own-hero-acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding-top:4px}
+.btn-rent{background:var(--sea-900);color:var(--on-sea)}
+@media (hover:hover){.btn-rent:hover{background:var(--sea-700)}}
 .ally-wrap{position:relative;display:grid;gap:6px}
 .ally-ctrls{display:flex;gap:6px;justify-content:flex-end}
 .ally-ctrls button{border:1px solid var(--line);background:#fff;color:var(--fg);border-radius:8px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:.82rem}
@@ -2264,8 +2280,9 @@ footer.site{content-visibility:auto;contain-intrinsic-block-size:auto 900px}
 #aux .aux-h{position:relative;padding-right:38px}
 #aux .m-close{position:absolute;top:0;right:0}
 #pool-sec{margin-bottom:28px}
+#rent{scroll-margin-top:96px}
 @media (max-width:900px){.ally-grid.owner-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:640px){.ally-grid.owner-grid{grid-template-columns:1fr}.inv-row{grid-template-columns:1fr}.own-hero-acts{width:100%}}
+@media (max-width:640px){.ally-grid.owner-grid{grid-template-columns:1fr}.inv-row{grid-template-columns:1fr}.own-hero-acts{width:100%;gap:8px}.own-hero-acts .btn{padding:10px 13px;font-size:.88rem}}
 
 /* ---------- Bloque 4: Plantillas de mensajería del viaje y resumen al propietario ---------- */
 .trip-comms{margin:18px 0 24px}
