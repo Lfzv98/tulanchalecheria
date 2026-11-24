@@ -316,7 +316,7 @@ const normPay = p => { p = p && typeof p === 'object' ? clone(p) : {}; const o =
   if (!Array.isArray(p.zelles)) { o.zelles = clone(DEF_PAY.zelles); if (p.zelle) { o.zelles.unshift({ name: p.zelleName || '', email: p.zelle }); o.zelleOn = 0; } }
   o.zelles = o.zelles.filter(z => z && z.email); if (!(o.zelleOn >= 0 && o.zelleOn < o.zelles.length)) o.zelleOn = 0;
   const z = o.zelles[o.zelleOn] || {}; o.zelle = z.email || ''; o.zelleName = z.name || ''; return o; };
-const CAT = { pay: {}, beachPhotos: {}, ig: 'tulanchalecheria', home: { hero: '', cards: {}, exp: {} }, seasons: [], hiPct: 0, maxDays: 45 };
+const CAT = { pay: {}, beachPhotos: {}, ig: 'tulanchalecheria', home: { hero: '', cards: {}, exp: {} }, seasons: [], hiPct: 0, maxDays: 45, blocked: {}, t: 0 };
 const SHOP = [], FOOD = [], RENT = [];
 // Inventario compartido (clientes / propietarios / ambos) y disponibilidad persistidos en localStorage
 const INV_CFG = store.get('inv-cfg', {});
@@ -353,6 +353,8 @@ function applyCat(c) {
   CAT.ig = c.ig || 'tulanchalecheria';
   CAT.seasons = (Array.isArray(c.seasons) ? c.seasons : []).filter(x => x && /^\d{4}-\d\d-\d\d$/.test(x.from || ''));
   CAT.hiPct = Math.max(0, +c.hiPct || 0);
+  CAT.blocked = c.blocked && typeof c.blocked === 'object' ? clone(c.blocked) : {};
+  CAT.t = +c.t || 0;
   fill(SHOP, (Array.isArray(c.shop) ? clone(c.shop) : clone(DEF.shop)).filter(x => x && x.name).map(x => ({ ...x, kind: shopKind(x) })));
   fill(FOOD, (Array.isArray(c.food) ? clone(c.food) : clone(DEF.food)).filter(x => x && x.name && !x.off));
   fill(RENT, (Array.isArray(c.rent) ? clone(c.rent) : clone(DEF.rent)).filter(x => x && x.name && !x.off));
@@ -506,11 +508,33 @@ function beachArt(b) {
 const wday = (d, f = 'short') => { const s = dfmt(d, { weekday: f }, 'w' + f).replace(/\.$/, ''); return s.charAt(0).toUpperCase() + s.slice(1); };
 const today = new Date(); today.setHours(0, 0, 0, 0);
 
-/* ---------------- disponibilidad (propietarios) ---------------- */
+/* ---------------- disponibilidad (reservas activas + bloqueos del panel + propietarios) ---------------- */
 const owner = store.get('owner', {}); // {boatId: {rate, wk, busy:{'2026-11-20':true}}}
 const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-function busyDefault(b, d) { const r = rnd(b.id + iso(d)); return r() < .22; }
-function isBusy(b, d) { const o = owner[b.id]?.busy; const k = iso(d); return o && k in o ? o[k] : busyDefault(b, d); }
+function blockedMap() {
+  const loc = store.get('adm-blocked', null);
+  if (loc && typeof loc === 'object' && loc.map && (+loc.t || 0) >= (+CAT.t || 0)) return loc.map;
+  return CAT.blocked || {};
+}
+function bookedOn(b, k) {
+  if (!b || !k) return false;
+  const ab = store.get('adm-booked', null);
+  if (ab && ((ab[b.id] && ab[b.id][k]) || (b.name && ab[b.name] && ab[b.name][k]))) return true;
+  const my = store.get('mine', []);
+  return Array.isArray(my) && my.some(r => r && r.iso === k && r.st !== 'cancelada' && (r.boatId === b.id || r.boat === b.name));
+}
+function dayState(b, d) {
+  if (!b || !d) return 'free';
+  const k = typeof d === 'string' ? d : iso(d);
+  if (bookedOn(b, k)) return 'booked';
+  const bm = blockedMap();
+  if (bm[b.id] && bm[b.id][k]) return 'blocked';
+  const o = owner[b.id]?.busy;
+  if (o && k in o) return o[k] ? 'blocked' : 'free';
+  return 'free';
+}
+function isBusy(b, d) { return dayState(b, d) !== 'free'; }
+function syncAvailability() { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); }
 function rateOf(b) { return owner[b.id]?.rate ?? b.price; }
 function wkOf(b) { return owner[b.id]?.wk ?? b.wk ?? 10; }
 /* Temporada alta: Eduardo marca rangos de fechas en el panel. En esas fechas vale la tarifa de temporada alta
@@ -542,20 +566,24 @@ addEventListener('tll:lang', () => document.querySelectorAll('input[data-nice]')
 const lastDay = () => new Date(today.getTime() + CAT.maxDays * 864e5);
 const tooFar = d => d > lastDay();
 function calendar(el, b, opts) {
-  let view = new Date(today.getFullYear(), today.getMonth(), 1);
+  const minMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const initD = opts.selected && opts.selected >= today ? opts.selected : today;
+  let view = new Date(initD.getFullYear(), initD.getMonth(), 1);
+  if (view < minMonth) view = minMonth;
   const draw = () => {
     const y = view.getFullYear(), m = view.getMonth(), first = (new Date(y, m, 1).getDay() + 6) % 7, n = new Date(y, m + 1, 0).getDate();
     let cells = [0, 1, 2, 3, 4, 5, 6].map(i => `<span class="w" translate="no">${wday(new Date(2024, 0, 1 + i), 'narrow')}</span>`).join('') + '<span></span>'.repeat(first);
     for (let i = 1; i <= n; i++) {
-      const d = new Date(y, m, i), past = d < today || (!opts.owner && tooFar(d)), busy = isBusy(b, d), sel = opts.selected && iso(opts.selected) === iso(d);
+      const d = new Date(y, m, i), past = d < today || (!opts.owner && tooFar(d)), st = dayState(b, d), busy = st !== 'free', sel = opts.selected && iso(opts.selected) === iso(d);
       const wk = d.getDay() === 0 || d.getDay() === 6;
-      cells += `<button type="button" data-d="${iso(d)}" class="${past ? 'past' : ''} ${busy ? 'busy' : ''} ${sel ? 'sel' : ''} ${wk && !busy && !past && !isHigh(d) ? 'promo' : ''} ${isHigh(d) && !past ? 'hi' : ''}" ${past || (busy && !opts.owner) ? 'disabled' : ''} aria-label="${fmtDay(d)}${busy ? ', ocupado' : ', libre'}">${i}</button>`;
+      const stLbl = st === 'booked' ? ', reservado' : st === 'blocked' ? ', bloqueado' : ', disponible';
+      cells += `<button type="button" data-d="${iso(d)}" class="${past ? 'past' : ''} ${busy ? 'busy' : 'free'} st-${st} ${sel ? 'sel' : ''} ${wk && !busy && !past && !isHigh(d) ? 'promo' : ''} ${isHigh(d) && !past ? 'hi' : ''}" ${past || (busy && !opts.owner) ? 'disabled' : ''} aria-label="${fmtDay(d)}${stLbl}">${i}</button>`;
     }
     el.innerHTML = `<div class="cal-h"><button type="button" data-nav="-1" aria-label="Mes anterior">‹</button><span>${view.toLocaleDateString(TLL_I18N.loc(), { month: 'long', year: 'numeric' })}</span><button type="button" data-nav="1" aria-label="Mes siguiente">›</button></div><div class="cal-g">${cells}</div>
-    <div class="legend"><span><i style="background:var(--card);border:1px solid var(--line)"></i>Libre</span><span><i style="background:repeating-linear-gradient(135deg,var(--muted) 0 2px,transparent 2px 4px)"></i>Ocupado</span><span><i style="background:var(--sun);border-radius:50%"></i>Fin de semana${opts.owner ? '' : ` (+${wkOf(b)}%)`}</span>${CAT.seasons.length ? '<span><i class="lg-hi"></i>Temporada alta</span>' : ''}</div>`;
+    <div class="legend"><span><i class="lg-free"></i>Disponible</span><span><i class="lg-busy"></i>Ocupado / bloqueado</span><span><i class="lg-wk"></i>Fin de semana${opts.owner ? '' : ` (+${wkOf(b)}%)`}</span>${CAT.seasons.length ? '<span><i class="lg-hi"></i>Temporada alta</span>' : ''}</div>`;
   };
   el.onclick = e => {
-    const nav = e.target.closest('[data-nav]'); if (nav) { const nv = new Date(view.getFullYear(), view.getMonth() + +nav.dataset.nav, 1); if (nv < new Date(today.getFullYear(), today.getMonth(), 1) || (!opts.owner && nv > lastDay())) return; view = nv; return draw(); }
+    const nav = e.target.closest('[data-nav]'); if (nav) { const nv = new Date(view.getFullYear(), view.getMonth() + +nav.dataset.nav, 1); if (nv < minMonth || (!opts.owner && nv > lastDay())) return; view = nv; return draw(); }
     const btn = e.target.closest('[data-d]'); if (!btn || btn.disabled) return;
     const [yy, mm, dd] = btn.dataset.d.split('-').map(Number); opts.onPick(new Date(yy, mm - 1, dd)); draw();
   };
@@ -717,10 +745,14 @@ function openBoat(id) {
       <details class="pk" open><summary>Equipamiento básico incluido</summary>${basicHtml()}</details>
       <div class="acc">${accHtml(b)}</div>${vlink('accesorios', 'Ver video: accesorios y facilidades')}
       <p class="rating hr-note">Horario: 10:00 am a 6:00 pm. ${b.late ? `Puede quedarse hasta las ${hh(b.late)} con hora extra (${money(b.hx)} c/u, en efectivo a bordo).` : hr.why} ${CAPT_NOTE}${extra.length ? ` También hace ${extra.map(r => `el ${r.name} (${r.zone})`).join(', ')}.` : ''}</p>
-      <div class="cal" id="m-cal"></div>
+      <div class="cal-box"><div class="cal-box-h"><div><h4>Disponibilidad</h4><p class="rating">Elige un día disponible para tu paseo.</p></div><span class="cal-pill" id="m-avail-pill"></span></div><div class="cal" id="m-cal"></div></div>
       <div class="row" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="rating" id="m-when"></div><button class="btn btn-sun" type="button" id="m-book">Reservar esta embarcación</button></div>
     </div></div>`;
-  const upd = () => { $('#m-when', dlg).textContent = pick ? `Fecha elegida: ${fmtDay(pick)}` : 'Elige una fecha'; };
+  const upd = () => {
+    $('#m-when', dlg).textContent = pick ? `Fecha elegida: ${fmtDay(pick)}` : 'Elige una fecha';
+    const pl = $('#m-avail-pill', dlg);
+    if (pl) { const busy = pick ? isBusy(b, pick) : false; pl.className = 'cal-pill ' + (pick ? (busy ? 'busy' : 'free') : ''); pl.textContent = pick ? (busy ? 'Ocupada' : 'Disponible') : 'Sin fecha'; }
+  };
   calendar($('#m-cal', dlg), b, { get selected() { return pick; }, onPick: d => { pick = d; upd(); } });
   dlg.onchange = null;
   dlg.onclick = e => {
@@ -750,8 +782,16 @@ Q.pax = Math.min(30, Math.max(1, Math.round(+Q.pax) || 4)); Q.kids = Math.min(10
 const qDate = () => { const [yy, mm, dd] = Q.date.split('-').map(Number); return new Date(yy, mm - 1, dd); };
 const thumbOf = b => hasPics(b) ? `<span class="o-th">${pic(b)}</span>` : '';
 function boatOpt(b, d) {
-  const busy = isBusy(b, d), r = ROUTES.find(x => x.id === Q.route) || ROUTES[0], rr = routeOk(b, r) ? r : ROUTES[0];
-  return `<button type="button" class="opt boat-o${b.own ? ' own' : ''}${hasPics(b) ? ' has-th' : ''}" data-boat="${b.id}" aria-pressed="${b.id === Q.boat}">${thumbOf(b)}<span class="o-tx">${b.own ? `<span class="own-tag">${OWN_BADGE}</span>` : ''}${b.isNew ? '<span class="own-tag new-tag">NEW</span>' : ''}<b>${esc(b.name)}</b><span>${b.type} · ${b.own ? `${b.ft} pies` : capTxt(b)} · hasta ${b.maxBeaches} playas${speedTxt(b) ? ' · ' + speedTxt(b) : ''}</span>${busy ? '<span class="busy-t">Ocupada ese día</span>' : ''}<span class="p">${routePrice(b, rr).tbd ? 'desde ' : ''}${money(priceOn(b, d, rr))} / día</span></span></button>`;
+  const st = dayState(b, d), busy = st !== 'free', r = ROUTES.find(x => x.id === Q.route) || ROUTES[0], rr = routeOk(b, r) ? r : ROUTES[0];
+  return `<button type="button" class="opt boat-o${b.own ? ' own' : ''}${hasPics(b) ? ' has-th' : ''}${busy ? ' is-busy' : ''}" data-boat="${b.id}" aria-pressed="${b.id === Q.boat}">${thumbOf(b)}<span class="o-tx">${b.own ? `<span class="own-tag">${OWN_BADGE}</span>` : ''}${b.isNew ? '<span class="own-tag new-tag">NEW</span>' : ''}<b>${esc(b.name)}</b><span>${b.type} · ${b.own ? `${b.ft} pies` : capTxt(b)} · hasta ${b.maxBeaches} playas${speedTxt(b) ? ' · ' + speedTxt(b) : ''}</span>${busy ? `<span class="busy-t">${st === 'blocked' ? 'No disponible ese día' : 'Ocupada ese día'}</span>` : '<span class="avail-t">Disponible</span>'}<span class="p">${routePrice(b, rr).tbd ? 'desde ' : ''}${money(priceOn(b, d, rr))} / día</span></span></button>`;
+}
+function renderBuilderCal(host, b, d) {
+  if (!host) return;
+  if (!b) { host.hidden = true; host.innerHTML = ''; return; }
+  host.hidden = false;
+  const st = dayState(b, d), busy = st !== 'free';
+  host.innerHTML = `<div class="cal-box-h"><div><h4>Disponibilidad · ${esc(b.name)}</h4><p class="rating">Toca un día disponible para elegir tu fecha.</p></div><span class="cal-pill ${busy ? 'busy' : 'free'}">${busy ? (st === 'blocked' ? 'No disponible' : 'Ocupada') : 'Disponible'} · ${esc(fmtDay(d))}</span></div><div class="cal"></div>`;
+  calendar($('.cal', host), b, { selected: d, onPick: dt => { Q.date = iso(dt); renderBuilder(); } });
 }
 function renderBuilder() {
   Q.kids = Q.kids || 0;
@@ -768,6 +808,8 @@ function renderBuilder() {
   $('#b-boats').innerHTML = (ownOk ? `<div class="opts own-row">${boatOpt(OWN, d)}</div><h4 class="opts-h">Otras opciones disponibles</h4>` : ownMsg) + `<div class="opts">${others.map(b => boatOpt(b, d)).join('')}</div>`;
   const b = BOATS.find(x => x.id === Q.boat);
   $('#b-date').value = Q.date; $('#b-date').min = iso(today); $('#b-date').max = iso(lastDay()); $('#b-date')._paint?.();
+  renderBuilderCal($('#b-cal-wrap'), b || OWN, d);
+  renderBuilderCal($('#b-boat-cal'), b, d);
   if (b) renderPlan(b);
   renderTicket(); store.set('quote2', Q);
 }
@@ -862,7 +904,7 @@ function renderTicket() {
   const feats = featList(b);
   const prevGal = $('#ticket [data-gal]'), keepI = prevGal && prevGal.dataset.boat === b.id ? +prevGal.dataset.i : 0;
   $('#ticket').innerHTML = `${hasPics(b) ? `<div class="t-th">${gallery(b, { auto: 3, noArrows: true })}<span>${esc(b.name)}</span></div>` : ''}${b.own ? promoCardHtml(b, true) : ''}${feats.length ? `<div class="t-acc"><span>Equipamiento de ${esc(b.name)}</span><div>${feats.map(a => `<i>${esc(a)}</i>`).join('')}</div></div>` : ''}<h3>Tu cotización</h3>
-    ${busy ? `<span class="flag amber"><i></i>${b.name} está ocupada ese día</span>` : `<span class="flag"><i></i>Disponible</span>`}
+    ${busy ? `<span class="flag amber"><i></i>${b.name} ${dayState(b, d) === 'blocked' ? 'no está disponible ese día' : 'está ocupada ese día'}</span>` : `<span class="flag"><i></i>Disponible</span>`}
     <p class="t-pax">${paxTxt()}</p><p class="t-route">${esc(routeTxt)}<br><small>${dk.name} · ${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}</small></p>
     <ul>${lines.map(l => `<li><span>${l[0]}</span><span>${l[2] === 'tbd' ? 'por confirmar' : money(l[1])}</span></li>`).join('')}</ul>
     <div class="total"><span>Total</span><span>${money(total)}</span></div>
@@ -874,7 +916,7 @@ function renderTicket() {
     <p class="note">No pagas nada ahora: te confirmamos disponibilidad y abono. Fines de semana +${wkOf(b)}%.</p>`;
   const g2 = $('#ticket [data-gal]'); if (g2) { g2.dataset.boat = b.id; if (keepI) galGo(g2, keepI); }
   $('#mb-total').textContent = money(total);
-  window.TLL_LAST = { hi: isHigh(d), boat: b.name, type: b.type, route: routeTxt, dock: dk.custom && Q.pin && Q.pin.ref ? `${dk.name} · ${Q.pin.ref}` : dk.name, pin: dk.custom && okPin(Q.pin) ? { lat: +Q.pin.lat, lng: +Q.pin.lng, ref: Q.pin.ref || '' } : null, dockFee: dc.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
+  window.TLL_LAST = { hi: isHigh(d), boatId: b.id, boat: b.name, type: b.type, route: routeTxt, dock: dk.custom && Q.pin && Q.pin.ref ? `${dk.name} · ${Q.pin.ref}` : dk.name, pin: dk.custom && okPin(Q.pin) ? { lat: +Q.pin.lat, lng: +Q.pin.lng, ref: Q.pin.ref || '' } : null, dockFee: dc.fee || '', hours: `${hh(h.start)} a ${hh(h.end + (Q.hx || 0))}`, date: fmtDay(d), iso: Q.date, pax: people(), adults: Q.pax, kids: Q.kids, paxTxt: paxTxt(), lines, total, busy, block, promo: code.kind ? code.code : '' };
 }
 const GIFT_VALUES = { A: 180, B: 320, C: 950, D: 1650 };
 const AL = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -1388,6 +1430,6 @@ loadCatalog();
 // al cambiar de idioma: volver a pintar lo que lleva fechas, días y montos con formato local
 addEventListener('tll:lang', () => { renderBoats(); renderBuilder(); renderOwnFeature(); renderOwner(); window.TLL.renderMine && window.TLL.renderMine(); });
 
-window.TLL = { OFF, FOOD, RENT, DEF_FOOD, DEF_RENT, shopKind, featList, OWNER_PROS, waTo, isHigh, seasonOf, routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
+window.TLL = { OFF, FOOD, RENT, DEF_FOOD, DEF_RENT, shopKind, featList, OWNER_PROS, waTo, isHigh, seasonOf, routePrice, photosOf, hasPics, VIEWS, viewsOf, migrateCat, SHOP, DEF_SHOP, SIZES, sizeOf, accName, PARRILLA_NOTE, CAT_V, gallery, dockFor, tripsTxt, loadLeaflet, baseLayers, pinIcon, gmapsUrl, pinTxt, okPin, PIN_SVG, openPinMap, CAT, applyCat, refreshCatalog, syncAvailability, dayState, isBusy, DEF, normBoat, normPay, pic, ph, MAIN_DOCKS, ALLIES, ROUTES_DEF: DEF.routes, waNum: () => WA, renderBoats, renderTicket, $, $$, wa, art, beachArt, rnd, money, store, toast, esc, Q, renderBuilder, BOATS, ROUTES, DOCKS, EXTRAS, ACC, BASIC, OWN, iso, fmtDay, refCode, codeInfo, GIFT_VALUES, AL, today, priceOn, openBoat, openVideo, VID, currency };
 document.addEventListener('click', e => { const k = e.target.closest('[data-book]'); if (!k) return; const b = BOATS.find(x => x.id === k.dataset.book); if (!b) return; Q.boat = b.id; fitTo(b); renderBuilder(); location.hash = 'reservar'; setTimeout(() => window.TLL.goStep && window.TLL.goStep(0), 0); });
 })();

@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preload" as="image" href="media/hero3-land.webp" fetchpriority="high" media="(min-aspect-ratio: 4/5)"><link rel="preload" as="image" href="media/hero3-port.webp" fetchpriority="high" media="(max-aspect-ratio: 4/5)">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TravelAgency", "name": "Tu Lancha Lechería", "url": "https://tulanchalecheria.vercel.app/", "image": "https://tulanchalecheria.vercel.app/og.jpg", "logo": "https://tulanchalecheria.vercel.app/icons/icon-512.png", "telephone": "+584143083864", "areaServed": ["Lechería", "Parque Nacional Mochima", "Anzoátegui"], "address": {"@type": "PostalAddress", "addressLocality": "Lechería", "addressRegion": "Anzoátegui", "addressCountry": "VE"}, "sameAs": ["https://www.instagram.com/tulanchalecheria/", "https://linktr.ee/Tulanchalecheria"]}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="styles.css?v=144745d2"></head><body><a class="skip" href="#main">Saltar al contenido</a>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="styles.css?v=786f56c9"></head><body><a class="skip" href="#main">Saltar al contenido</a>
 <header class="topbar" id="topbar">
   <div class="wrap">
     <a class="brand" href="#inicio" aria-label="Tu Lancha Lechería, inicio"><img src="icons/logo-128.png" alt="" width="40" height="40"><span>Tu Lancha Lechería<small>Anzoátegui – Venezuela</small></span></a>
@@ -89,13 +89,14 @@
           </div>
           <div class="pax-quick" aria-label="Accesos rápidos de capacidad"><span class="pax-ql">Grupos frecuentes:</span><button type="button" class="pill" data-pax-set="8" aria-pressed="false">8+ personas</button><button type="button" class="pill" data-pax-set="10" aria-pressed="false">10+ personas</button></div>
           <p class="rating s1-note">Te mostramos solo las embarcaciones donde cabe tu grupo y que están libres ese día.</p>
+          <div class="cal-box s1-cal" id="b-cal-wrap"></div>
           <div class="s1-tips">
             <div class="s1-tip s1-tip-p"><span class="s1-tip-ic" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="17" cy="11" r="5"/><path d="M8 40V27a9 9 0 0118 0v13"/><circle cx="34" cy="13" r="4"/><path d="M27 40V29a7 7 0 0114 0v11"/><path d="M41 22h4M43 20v4" class="plus"/></svg></span><p><b>Grupos de gran contextura</b>Nuestro filtro de personas y niños está optimizado con un peso promedio por persona. Si tu grupo es de gran contextura, te recomendamos contemplar un puesto adicional.</p></div>
             <div class="s1-tip s1-tip-d"><span class="s1-tip-ic" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M12 30c0-6 4-10 10-10h8l4-6 3 2-2 6c3 2 5 5 5 9v9h-5v-6H18v6h-5z"/><path d="M34 14l-2-5M37 16l3-3"/><circle cx="36" cy="22" r="1.2" class="dot"/><path d="M6 26l6 2"/></svg></span><p><b>Mascotas: solo perros pequeños (hasta 6 kg)</b>No somos 100% pet friendly por restricciones ambientales del Parque Nacional y por el cuidado de las embarcaciones. No permitimos mascotas de mayor tamaño ni otro tipo de animales.</p></div>
           </div>
           <div id="big-group"></div>
         </div>
-        <div class="step" data-step="1" hidden><h3>Elige tu embarcación</h3><div id="b-boats"></div></div>
+        <div class="step" data-step="1" hidden><h3>Elige tu embarcación</h3><div id="b-boats"></div><div class="cal-box s2-cal" id="b-boat-cal"></div></div>
         <div class="step" data-step="2" hidden><h3>Elige tu rumbo</h3>
           <div class="opts rumbos" id="b-routes"></div>
           <div class="beach-pick" id="b-beaches"></div>
@@ -345,4 +346,4 @@
   </div>
 </dialog>
 <div class="toast" id="toast" role="status"></div>
-<script src="app.js?v=144745d2" defer></script></body></html>
+<script src="app.js?v=786f56c9" defer></script></body></html>

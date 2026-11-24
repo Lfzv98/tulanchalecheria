@@ -37,6 +37,7 @@ const docAlerts = () => { const t = iso(today), lim = iso(new Date(today.getTime
   return out.sort((a, b) => a.v < b.v ? -1 : 1); };
 
 let TOK = null, W = null, PUB = '', BK = [], tab = 'inicio', period = 'mes', demo = false, idleT, bkFilter = 'proximas', bkQuery = '';
+let calBoat = '', calMonth = new Date(today.getFullYear(), today.getMonth(), 1), calDay = iso(today);
 
 /* ---------------- sesión ---------------- */
 const SKEY = 'tll:adm-s';
@@ -116,6 +117,7 @@ function fromCat(c) {
     beachPhotos: c.beachPhotos || {},
     seasons: Array.isArray(c.seasons) ? c.seasons : [],
     hiPct: +c.hiPct || 0,
+    blocked: c.blocked && typeof c.blocked === 'object' ? clone(c.blocked) : {},
     tr: c.tr || []
   };
   // campos que el editor necesita, listos desde el inicio para que abrir algo no cuente como cambio
@@ -135,10 +137,28 @@ async function boot() {
   adm.innerHTML = '<div class="adm-login"><p class="rating" style="color:#fff">Cargando tu panel…</p></div>';
   try {
     const [c, b] = await Promise.all([api('cat', null, true), api('books', null, true)]);
-    W = fromCat(c); PUB = snap(); BK = b.list || [];
+    W = fromCat(c); PUB = snap(); BK = b.list || []; syncBooked();
   } catch (e) { if (e.code !== 'session') showLogin(errMsg(e)); return; }
   render();
   if (!store.get('adm-welcome', false)) help('bienvenida');
+}
+function syncBooked() {
+  const map = {};
+  (BK || []).forEach(b => {
+    if (!b || b.status === 'cancelada') return;
+    const d = dOf(b); if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
+    const boat = W && W.boats.find(x => x.id === b.boat || x.name === b.boat);
+    const key = boat ? boat.id : b.boat;
+    if (!key) return;
+    (map[key] = map[key] || {})[d] = true;
+    if (boat && boat.name) (map[boat.name] = map[boat.name] || {})[d] = true;
+  });
+  store.set('adm-booked', map);
+  T.syncAvailability && T.syncAvailability();
+}
+function syncBlocked() {
+  store.set('adm-blocked', { t: Date.now(), map: W ? clone(W.blocked || {}) : {} });
+  T.syncAvailability && T.syncAvailability();
 }
 
 /* ---------------- utilidades de interfaz ---------------- */
@@ -167,7 +187,7 @@ const photoSlot = (path, kind, label, small) => { const u = getPath(W, path); co
     <div class="ad-ph-b">${label ? `<b>${label}</b>` : ''}${spec ? `<small class="ad-ph-spec" title="Tamaño recomendado para que se vea nítida, sin recortes ni pixeleo">📐 ${spec}</small>` : ''}<div class="adm-tools"><button type="button" class="icon-btn" data-up="${path}" data-kind="${kind}">${u ? 'Cambiar' : 'Subir foto'}</button>${u ? `<button type="button" class="icon-btn" data-rmph="${path}">Quitar</button>` : ''}</div></div></div>`; };
 
 /* ---------------- estructura del panel ---------------- */
-const TABS = [['inicio', 'Resumen'], ['reservas', 'Reservas'], ['flota', 'Embarcaciones'], ['precios', 'Precios'], ['rumbos', 'Rumbos y playas'], ['muelles', 'Muelles'], ['pagos', 'Pagos'], ['aliados', 'Servicio a bordo'], ['portada', 'Portada y tienda'], ['ajustes', 'Ajustes']];
+const TABS = [['inicio', 'Resumen'], ['reservas', 'Reservas'], ['calendario', 'Calendario'], ['flota', 'Embarcaciones'], ['precios', 'Precios'], ['rumbos', 'Rumbos y playas'], ['muelles', 'Muelles'], ['pagos', 'Pagos'], ['aliados', 'Servicio a bordo'], ['portada', 'Portada y tienda'], ['ajustes', 'Ajustes']];
 function render() {
   bump(); adm.hidden = false; lockScroll(true);
   const nNew = BK.filter(b => b.status === 'nueva').length;
@@ -289,7 +309,7 @@ function bkCard(b) {
 const ownerOf = b => { const x = W && W.boats.find(y => y.name === b.boat); const n = x && String(x.ownerWa || '').replace(/\D/g, ''); return n && n.length >= 10 ? n : ''; };
 const ownerMsg = b => `⚓ Reserva ${b.code} · Tu Lancha Lechería\n🚤 ${b.boat || ''}\n📅 ${fmtD(dOf(b))}${b.hours ? ' · ' + b.hours : ''}\n🧭 ${b.route || '—'}\n📍 ${b.dock || '—'}${T.okPin(b.pin) ? ' · ' + T.gmapsUrl(b.pin) : ''}\n👥 ${b.pax || '—'} pers.${+b.kids ? ` + ${b.kids} niños` : ''}\n👤 ${b.name || ''}${b.det ? '\n\nExtras y detalle:\n' + b.det : ''}${b.note ? '\n\n📝 Observaciones: ' + b.note : ''}\n\nEstado: ${ST[b.status || 'nueva'][1]}`;
 const ownerUrl = b => `https://wa.me/${ownerOf(b)}?text=${encodeURIComponent(ownerMsg(b))}`;
-async function saveBk(x) { const j = await api('bk', { booking: x }); const i = BK.findIndex(b => b.code === j.booking.code); if (i >= 0) BK[i] = j.booking; else BK.push(j.booking); return j.booking; }
+async function saveBk(x) { const j = await api('bk', { booking: x }); const i = BK.findIndex(b => b.code === j.booking.code); if (i >= 0) BK[i] = j.booking; else BK.push(j.booking); syncBooked(); return j.booking; }
 function bkForm(b) {
   b = b || { iso: iso(new Date(today.getTime() + 864e5)), pax: 6, total: 0, paid: 0, channel: 'WhatsApp directo', status: 'confirmada', boat: (W.boats.find(x => x.own) || W.boats[0]).name, route: W.routes[0].name, dock: W.docks[0].name };
   sheet(`<h3>${b.code ? 'Editar reserva ' + esc(b.code) : 'Registrar reserva'}</h3><form class="adm-form" id="bk-f">
@@ -331,6 +351,115 @@ function pinSheet(b) {
     setTimeout(() => m.invalidateSize(), 150);
   }).catch(() => { const el = $('#ad-pinmap'); if (el) el.innerHTML = '<p class="rating">No se pudo cargar el mapa. Usa “Abrir en Google Maps”.</p>'; });
 }
+
+/* ---------------- calendario y disponibilidad ---------------- */
+const bkMatchBoat = (bk, b) => bk && b && (bk.boat === b.name || bk.boat === b.id);
+const activeBksOn = (dayIso, boat) => (demo ? sample() : BK).filter(x => x.status !== 'cancelada' && dOf(x) === dayIso && (!boat || bkMatchBoat(x, boat)));
+const isBlockedOn = (boatId, dayIso) => !!(W && W.blocked && W.blocked[boatId] && W.blocked[boatId][dayIso]);
+function toggleBlock(boatId, dayIso) {
+  if (!W || !boatId || !/^\d{4}-\d{2}-\d{2}$/.test(dayIso || '')) return;
+  W.blocked ||= {};
+  W.blocked[boatId] ||= {};
+  const was = !!W.blocked[boatId][dayIso];
+  if (was) {
+    delete W.blocked[boatId][dayIso];
+    if (!Object.keys(W.blocked[boatId]).length) delete W.blocked[boatId];
+  } else {
+    W.blocked[boatId][dayIso] = true;
+  }
+  refreshSaveBar();
+  syncBlocked();
+  toast(was ? 'Día liberado · ya aparece disponible' : 'Día bloqueado · no disponible al reservar');
+  render();
+}
+VIEW.calendario = () => {
+  const boats = W.boats || [];
+  if (!calBoat || (calBoat !== 'all' && !boats.some(b => b.id === calBoat))) {
+    calBoat = (boats.find(b => b.own) || boats[0])?.id || 'all';
+  }
+  const curBoat = calBoat === 'all' ? null : boats.find(b => b.id === calBoat) || null;
+  const visBoats = boats.filter(b => !b.hidden);
+  const y = calMonth.getFullYear(), m = calMonth.getMonth();
+  const first = (new Date(y, m, 1).getDay() + 6) % 7;
+  const nDays = new Date(y, m + 1, 0).getDate();
+  const todayIso = iso(today);
+  const monthLabel = calMonth.toLocaleDateString('es-VE', { month: 'long', year: 'numeric' });
+  const isHi = d => { const k = iso(d); return (W.seasons || []).some(x => x && x.from && k >= x.from && k <= (x.to && x.to >= x.from ? x.to : x.from)); };
+  let mBooked = 0, mBlocked = 0, mFree = 0;
+  let cells = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(w => `<span class="ad-cal-w">${w}</span>`).join('') + '<span class="ad-cal-pad"></span>'.repeat(first);
+  for (let i = 1; i <= nDays; i++) {
+    const d = new Date(y, m, i), dIso = iso(d), past = dIso < todayIso, sel = dIso === calDay, hi = isHi(d);
+    if (curBoat) {
+      const bks = activeBksOn(dIso, curBoat), blk = isBlockedOn(curBoat.id, dIso);
+      const st = bks.length ? 'booked' : blk ? 'blocked' : 'free';
+      if (st === 'booked') mBooked++; else if (st === 'blocked') mBlocked++; else mFree++;
+      const tag = bks.length
+        ? `<span class="ad-cal-tag booked">${esc((bks[0].name || 'Reserva').split(' ')[0])}${bks.length > 1 ? ` +${bks.length - 1}` : ''}</span>`
+        : blk ? '<span class="ad-cal-tag blocked">Bloqueado</span>' : '<span class="ad-cal-tag free">Libre</span>';
+      cells += `<button type="button" class="ad-cal-day st-${st}${past ? ' past' : ''}${dIso === todayIso ? ' today' : ''}${hi ? ' hi' : ''}" data-cal-day="${dIso}" aria-pressed="${sel}" aria-label="${esc(fmtD(dIso))}, ${st === 'booked' ? 'reservado' : st === 'blocked' ? 'bloqueado' : 'disponible'}"><span class="ad-cal-n">${i}</span>${tag}</button>`;
+    } else {
+      const bks = activeBksOn(dIso, null);
+      const nBk = visBoats.filter(b => bks.some(x => bkMatchBoat(x, b))).length;
+      const nBl = visBoats.filter(b => isBlockedOn(b.id, dIso) && !bks.some(x => bkMatchBoat(x, b))).length;
+      const nFr = Math.max(0, visBoats.length - nBk - nBl);
+      const st = nBk ? 'booked' : nBl ? 'blocked' : 'free';
+      if (nBk) mBooked += nBk; if (nBl) mBlocked += nBl; mFree += nFr;
+      cells += `<button type="button" class="ad-cal-day st-${st}${past ? ' past' : ''}${dIso === todayIso ? ' today' : ''}${hi ? ' hi' : ''}" data-cal-day="${dIso}" aria-pressed="${sel}" aria-label="${esc(fmtD(dIso))}, ${nBk} reservadas, ${nBl} bloqueadas, ${nFr} libres"><span class="ad-cal-n">${i}</span><span class="ad-cal-sum">${nBk ? `<i class="bk">${nBk} res</i>` : ''}${nBl ? `<i class="bl">${nBl} blq</i>` : ''}${!nBk && !nBl ? `<i class="fr">${nFr} lib</i>` : ''}</span></button>`;
+    }
+  }
+  const [sy, sm, sd] = String(calDay || todayIso).split('-').map(Number);
+  const selDt = new Date(sy, (sm || 1) - 1, sd || 1);
+  const selHi = isHi(selDt);
+  const selBks = activeBksOn(calDay, curBoat);
+  const bkMini = x => {
+    const s = ST[x.status || 'nueva'] || ST.nueva;
+    const due = Math.max(0, (+x.total || 0) - (+x.paid || 0));
+    return `<div class="ad-cal-bk"><div class="ad-cal-bkh"><span class="mono">${esc(x.code)}</span><span class="st ${s[0]}">${s[1]}</span></div>
+      <b>${esc(x.name || 'Sin nombre')}</b>
+      <span class="rating">${esc(x.boat)} · ${x.pax || '—'} pers.${x.route ? ' · ' + esc(x.route) : ''}</span>
+      <span class="rating">Total ${money(+x.total || 0)} · ${due ? 'Falta ' + money(due) : 'Pagado ✓'}</span>
+      ${x.note ? `<span class="rating">📝 ${esc(x.note)}</span>` : ''}
+      <div class="adm-tools"><button type="button" class="icon-btn" data-cal-editbk="${esc(x.code)}">Editar reserva</button></div></div>`;
+  };
+  let detailHtml = '';
+  if (curBoat) {
+    const blk = isBlockedOn(curBoat.id, calDay);
+    const stCls = selBks.length ? 'booked' : blk ? 'blocked' : 'free';
+    const stLbl = selBks.length ? 'Reservado' : blk ? 'Bloqueado manualmente' : 'Disponible';
+    detailHtml = `<div class="ad-cal-dh"><div><span class="rating">${esc(curBoat.name)} · ${esc(curBoat.type)}</span><h3>${esc(fmtD(calDay))}</h3><span class="mono rating">${esc(calDay)}${selHi ? ' · Temporada alta' : ''}</span></div><span class="ad-cal-pill ${stCls}">${stLbl}</span></div>
+      <div class="adm-tools">
+        <button type="button" class="btn ${blk ? 'btn-sun' : 'btn-ghost ad-danger'} btn-sm" data-cal-toggle="${esc(curBoat.id)}|${esc(calDay)}">${blk ? 'Liberar día' : 'Bloquear día'}</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-cal-newbk="${esc(curBoat.name)}|${esc(calDay)}">+ Registrar reserva</button>
+      </div>
+      ${selBks.length ? `<div class="ad-cal-bks"><h4>Reservas este día (${selBks.length})</h4>${selBks.map(bkMini).join('')}</div>` : `<p class="rating">${blk ? 'Este día está bloqueado manualmente y no se puede reservar en la web.' : 'No hay reservas registradas para esta embarcación en esta fecha.'}</p>`}
+      <div class="ad-cal-kpis"><span><b>${mFree}</b> libres</span><span><b>${mBooked}</b> reservados</span><span><b>${mBlocked}</b> bloqueados</span></div>`;
+  } else {
+    detailHtml = `<div class="ad-cal-dh"><div><span class="rating">Todas las embarcaciones</span><h3>${esc(fmtD(calDay))}</h3><span class="mono rating">${esc(calDay)}${selHi ? ' · Temporada alta' : ''}</span></div></div>
+      ${selBks.length ? `<div class="ad-cal-bks"><h4>Reservas este día (${selBks.length})</h4>${selBks.map(bkMini).join('')}</div>` : '<p class="rating">Sin reservas registradas este día.</p>'}
+      <div class="ad-cal-all"><h4>Estado por embarcación</h4>${boats.map(b => {
+        const bks = activeBksOn(calDay, b), blk = isBlockedOn(b.id, calDay);
+        const stCls = bks.length ? 'booked' : blk ? 'blocked' : 'free';
+        const stLbl = bks.length ? 'Reservado' : blk ? 'Bloqueado' : 'Disponible';
+        return `<div class="ad-cal-row${b.hidden ? ' off' : ''}"><div><b>${esc(b.name)}</b><small class="rating">${esc(b.type)} · ${b.pax} pers.${b.hidden ? ' · oculta' : ''}</small></div>
+          <div class="ad-cal-racts"><span class="ad-cal-pill ${stCls}">${stLbl}</span><button type="button" class="icon-btn" data-cal-toggle="${esc(b.id)}|${esc(calDay)}">${blk ? 'Liberar' : 'Bloquear'}</button><button type="button" class="icon-btn" data-cal-pickboat="${esc(b.id)}" title="Ver mes de ${esc(b.name)}">Mes</button></div></div>`;
+      }).join('')}</div>`;
+  }
+  return `<div class="ad-head"><div><h2>Calendario</h2><p class="rating">Consulta la disponibilidad por embarcación, revisa reservas del día y bloquea o libera fechas manualmente.</p></div><div class="adm-tools">${helpBtn('calendario')}</div></div>
+    <div class="panel ad-cal-bar">
+      <div class="field"><label for="ad-cal-boat">Embarcación</label><select id="ad-cal-boat"><option value="all"${calBoat === 'all' ? ' selected' : ''}>Todas las embarcaciones (${visBoats.length})</option>${boats.map(b => `<option value="${esc(b.id)}"${b.id === calBoat ? ' selected' : ''}>${esc(b.name)} · ${esc(b.type)} (${b.pax}p)${b.hidden ? ' · oculta' : ''}</option>`).join('')}</select></div>
+      <div class="ad-cal-nav" role="group" aria-label="Navegar por mes">
+        <button type="button" class="icon-btn" data-cal-nav="-1" aria-label="Mes anterior">‹</button>
+        <b class="ad-cal-m">${esc(monthLabel)}</b>
+        <button type="button" class="icon-btn" data-cal-nav="1" aria-label="Mes siguiente">›</button>
+        <button type="button" class="icon-btn" data-cal-nav="0">Hoy</button>
+      </div>
+    </div>
+    <div class="ad-cal-leg"><span><i class="dot free"></i>Disponible</span><span><i class="dot booked"></i>Reservado</span><span><i class="dot blocked"></i>Bloqueado manualmente</span>${(W.seasons || []).length ? '<span><i class="dot hi"></i>Temporada alta</span>' : ''}</div>
+    <div class="ad-cal-layout">
+      <section class="panel ad-cal-card"><div class="ad-cal-grid">${cells}</div></section>
+      <aside class="panel ad-cal-det">${detailHtml}</aside>
+    </div>`;
+};
 
 /* ---------------- embarcaciones ---------------- */
 const thumb = b => { const P = b.photos || {}, u = P.proa || P.popa || P.social || Object.entries(P).find(([k, v]) => k !== 'promo' && v)?.[1]; return u ? `<img src="${esc(u)}" alt="">` : art('drone', b.hue || 200, b.id); };
@@ -564,6 +693,7 @@ const HELP = {
     <p class="hint">En cada sección hay un botón <b>?</b> con instrucciones. Si te equivocas, en Ajustes puedes volver a una versión anterior.</p>`],
   inicio: ['El resumen', `<p>Muestra tus números con las reservas registradas (las canceladas no cuentan).</p><ul><li><b>Ventas:</b> suma del total de las reservas del período.</li><li><b>Cobrado:</b> lo que marcaste como pagado.</li><li><b>Por cobrar:</b> la diferencia.</li><li><b>Tu comisión:</b> se calcula con el % que pones en Ajustes.</li></ul><p>Cambia el período arriba (mes, 3 meses o 12 meses). Las flechas comparan con el período anterior.</p>`],
   reservas: ['Las reservas', `<p>Cuando un cliente confirma en la app, la reserva llega aquí con estado <b>Nueva</b>, y a ti te escribe por WhatsApp con el mismo código.</p><p>Si el cliente escogió su propio muelle, la reserva muestra <b>📍 Muelle escogido por el cliente</b>: tócalo para verlo en el mapa satelital, abrirlo en Google Maps o enviárselo al capitán por WhatsApp.</p><ol class="ad-steps"><li>Verifica la disponibilidad y el pago del abono.</li><li>Toca <b>Confirmar</b> y luego <b>Abono 50%</b> o <b>Marcar pagado</b>.</li><li>Si no se da, toca <b>Cancelar</b>: deja de contar en tus números.</li></ol><p>Las reservas que cierras por WhatsApp o Instagram regístralas con <b>+ Registrar reserva</b> para que tus números estén completos.</p>`],
+  calendario: ['Calendario y disponibilidad', `<p>Controla los días libres, reservados y bloqueados de cada embarcación.</p><ul><li><b>Embarcación:</b> elige una embarcación específica o <b>Todas</b> para ver el panorama diario.</li><li><b>Reservado:</b> días con una reserva activa (nueva o confirmada). Toca el día para ver su detalle o editarla.</li><li><b>Bloqueado manualmente:</b> toca un día y pulsa <b>Bloquear día</b> o <b>Liberar día</b> para controlar la disponibilidad (mantenimiento, uso propio o salidas fuera de la app).</li><li><b>Publicar cambios:</b> los bloqueos se aplican al instante en este dispositivo; toca <b>Publicar cambios</b> para que todos los clientes los vean en la web.</li></ul>`],
   flota: ['Tus embarcaciones', `<ul><li>Toca <b>Editar</b> para cambiar fotos, precio, capacidad, accesorios, horario y recogidas.</li><li>Con las flechas <b>↑ ↓</b> cambias el orden en que aparecen en la web.</li><li>La marcada como <b>De la casa</b> sale destacada en la portada y primero en la reserva.</li><li>Si una embarcación no está disponible por un tiempo, márcala como <b>Ocultar de la web</b> en vez de eliminarla.</li></ul><p class="hint">Recuerda tocar Publicar cambios al terminar.</p>`],
   barco: ['Editar una embarcación', `<p>Cada cambio queda en el borrador al momento. Toca <b>Listo</b> para volver y luego <b>Publicar cambios</b>.</p><ul><li><b>Tarifa por día:</b> el precio base en dólares. El recargo de fin de semana se suma solo.</li><li><b>Hora extra:</b> hasta qué hora puede quedarse y cuánto cuesta cada hora. Si no permite, el cliente no la puede pedir.</li><li><b>Playas por salida:</b> cuántas playas puede elegir el cliente.</li><li><b>Recogidas:</b> si por su calado no llega a una residencia, elige “No llega”; si la tienes cerca y no cobras, “Sin recargo”.</li></ul>`],
   fotos: ['Qué fotos subir', `<p>Puedes subirlas directo desde la galería del teléfono. El panel las recorta y las optimiza solo para que la app cargue rápido.</p><ul><li><b>Formato:</b> JPG, PNG o WebP. En iPhone también sirven las fotos normales de la cámara.</li><li><b>Orientación:</b> horizontal (acostada).</li><li><b>Medida ideal:</b> ${IMG.boat.size} (proporción 16:10). Mínimo ${IMG.boat.min} px de ancho para que no se vea borrosa.</li><li><b>Peso:</b> no importa, el panel la reduce a unos 200 a 400 KB.</li></ul><ol class="ad-steps"><li><b>Dron:</b> la principal. La embarcación completa desde arriba, en el agua.</li><li><b>Exterior:</b> de lado, navegando o fondeada.</li><li><b>Interior:</b> la cubierta o el salón, con buena luz.</li><li><b>Camarote:</b> solo si tiene.</li></ol><p class="hint">Consejos: luz de día, sin textos ni marcas de agua, la embarcación centrada. Al subirla verás una vista previa y podrás mover el encuadre.</p>`],
@@ -653,6 +783,7 @@ adm.addEventListener('input', e => {
 });
 adm.addEventListener('change', e => {
   const el = e.target;
+  if (el.id === 'ad-cal-boat') { calBoat = el.value; render(); return; }
   if (el.dataset.k && W && (el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'color')) { setPath(W, el.dataset.k, readVal(el)); refreshSaveBar(); if (el.closest('.ad-sheet') && /\.(hidden|type)$/.test(el.dataset.k)) { const sc = $('.ad-sheet.k-boat', adm), st = sc ? sc.scrollTop : 0; render(); boatEditor(editing); const n = $('.ad-sheet.k-boat', adm); if (n) n.scrollTop = st; } return; }
   if (el.dataset.acc) { const b = W.boats[editing], k = el.dataset.acc, v = el.value; b.inc = b.inc.filter(x => x !== k); delete b.opt[k]; if (v === 'inc') b.inc.push(k); if (v === 'opt') b.opt[k] = 0; const p = $(`[data-accp="${k}"]`, adm); p.hidden = v !== 'opt'; if (v === 'opt') p.focus(); refreshSaveBar(); return; }
   if (el.dataset.zon != null) { W.pay.zelleOn = +el.dataset.zon; refreshSaveBar(); render(); return; }
@@ -671,13 +802,25 @@ adm.addEventListener('click', async e => {
   if (d.p) { period = d.p; render(); return; }
   if (t.id === 'a-out') { if (dirty() && !confirm('Tienes cambios sin publicar. ¿Salir de todas formas?')) return; return logout(); }
   if (t.id === 'a-demo') { demo = !demo; render(); return; }
-  if (t.id === 'a-discard') { if (!confirm('¿Descartar todos los cambios sin publicar?')) return; W = fromCat(JSON.parse(PUB)); render(); toast('Cambios descartados'); return; }
+  if (t.id === 'a-discard') { if (!confirm('¿Descartar todos los cambios sin publicar?')) return; W = fromCat(JSON.parse(PUB)); syncBlocked(); render(); toast('Cambios descartados'); return; }
   if (t.id === 'a-pub') {
     t.disabled = true; t.textContent = 'Publicando…';
-    try { await api('save', { cat: W, note: 'Publicado desde el panel' }); PUB = snap(); store.set('cat', JSON.parse(PUB)); T.refreshCatalog(JSON.parse(PUB)); toast('¡Publicado! Tus clientes ya ven los cambios.'); render(); }
+    try { await api('save', { cat: W, note: 'Publicado desde el panel' }); PUB = snap(); store.set('cat', JSON.parse(PUB)); syncBlocked(); T.refreshCatalog(JSON.parse(PUB)); toast('¡Publicado! Tus clientes ya ven los cambios.'); render(); }
     catch (err) { t.disabled = false; t.textContent = 'Publicar cambios'; toast(errMsg(err)); }
     return;
   }
+  // calendario
+  if (d.calNav != null) {
+    const step = +d.calNav;
+    if (step === 0) { calMonth = new Date(today.getFullYear(), today.getMonth(), 1); calDay = iso(today); }
+    else { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + step, 1); calDay = iso(calMonth); }
+    render(); return;
+  }
+  if (d.calDay) { calDay = d.calDay; render(); return; }
+  if (d.calToggle) { const [bid, dayIso] = d.calToggle.split('|'); toggleBlock(bid, dayIso); return; }
+  if (d.calPickboat) { calBoat = d.calPickboat; render(); return; }
+  if (d.calEditbk) { const b = BK.find(x => x.code === d.calEditbk); if (b) bkForm(b); return; }
+  if (d.calNewbk) { const [boat, dayIso] = d.calNewbk.split('|'); bkForm({ iso: dayIso, pax: 6, total: 0, paid: 0, channel: 'WhatsApp directo', status: 'confirmada', boat, route: W.routes[0].name, dock: W.docks[0].name }); return; }
   if (d.up) return pickPhoto(d.up, d.kind);
   if (d.rmph) { setPath(W, d.rmph, /^(allies|pay)\./.test(d.rmph) ? '' : undefined); if (d.rmph === 'home.promoImg' || d.rmph.endsWith('.photos.promo')) { if (W.home) delete W.home.promoImg; W.boats.forEach(b => { if (b.photos) delete b.photos.promo; }); } refreshSaveBar(); reopen(); return; }
   // reservas
@@ -697,7 +840,7 @@ adm.addEventListener('click', async e => {
       return;
     }
     if (d.bka === 'wa') { const n = String(b.phone).replace(/\D/g, '').replace(/^0/, '58'); window.open(`https://wa.me/${n}?text=${encodeURIComponent(`¡Hola ${b.name}! Te escribo de Tu Lancha Lechería por tu reserva ${b.code}.`)}`, '_blank', 'noopener'); return; }
-    if (d.bka === 'del') { if (!confirm(`¿Borrar la reserva ${code}? No se puede deshacer.`)) return; try { await api('bk', { del: code }); BK = BK.filter(x => x !== b); toast('Reserva borrada'); render(); } catch (err) { toast(errMsg(err)); } return; }
+    if (d.bka === 'del') { if (!confirm(`¿Borrar la reserva ${code}? No se puede deshacer.`)) return; try { await api('bk', { del: code }); BK = BK.filter(x => x !== b); syncBooked(); toast('Reserva borrada'); render(); } catch (err) { toast(errMsg(err)); } return; }
     if (d.bka === 'cancel' && !confirm(`¿Cancelar la reserva ${code}?`)) return;
     const patch = { ok: { status: 'confirmada' }, half: { paid: Math.round((+b.total || 0) / 2) }, paid: { paid: +b.total || 0, status: b.status === 'cancelada' ? b.status : 'confirmada' }, cancel: { status: 'cancelada' } }[d.bka];
     try { await saveBk({ code, ...patch }); toast({ ok: 'Reserva confirmada', half: 'Abono registrado', paid: 'Marcada como pagada', cancel: 'Reserva cancelada' }[d.bka]); render(); } catch (err) { toast(errMsg(err)); }

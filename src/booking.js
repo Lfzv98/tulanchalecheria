@@ -107,6 +107,7 @@ function openBooking() {
     const r = { ...q, code: newCode(), name, phone, pay: payNow(), note: $('#bk-note', dlg).value.trim(), created: Date.now(), accepted: Date.now(), sent: false };
     r.sent = openWa(r);
     saveMine([r, ...mine()].slice(0, 20));
+    window.TLL.syncAvailability && window.TLL.syncAvailability();
     // aviso al panel de Eduardo (si no hay conexión, no pasa nada: la reserva sigue en el teléfono y en WhatsApp)
     try { fetch('/api/admin?a=book', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: r.code, created: r.created, iso: r.iso, date: r.date, boat: r.boat, route: r.route, dock: okPin(r.pin) ? 'Muelle del cliente' + (r.pin.ref ? ' · ' + r.pin.ref : '') : r.dock, pin: okPin(r.pin) ? r.pin : undefined, hours: r.hours, pax: r.pax, kids: r.kids, total: r.total, pay: r.pay, name: r.name, phone: r.phone, note: r.note, det: (r.lines || []).slice(1).map(l => `• ${l[0]}${l[2] === 'tbd' ? ' (por confirmar)' : l[1] ? ': ' + money(l[1]) : ''}`).concat(r.dockFee ? [`• Servicio de muelle ${r.dockFee} (en sitio)`] : []).join('\n'), lang: (window.TLL_I18N && TLL_I18N.lang) || 'es' }) }).then(x => { if (x.ok) saveMine(mine().map(y => y.code === r.code ? { ...y, srv: true } : y)); }).catch(() => {}); } catch {}
     showDone(r); renderMine();
@@ -239,7 +240,7 @@ async function syncMine() {
     const now = Date.now(), cur = mine();
     const keep = cur.filter(r => { if (!(r.code in st)) return true; const v = st[r.code]; if (v === null) return !r.srv && now - (+r.created || 0) < 36e5; return v !== 'cancelada'; })
       .map(r => st[r.code] ? { ...r, st: st[r.code], srv: true } : r);
-    if (JSON.stringify(keep) !== JSON.stringify(cur)) { saveMine(keep); renderMine(); }
+    if (JSON.stringify(keep) !== JSON.stringify(cur)) { saveMine(keep); renderMine(); window.TLL.syncAvailability && window.TLL.syncAvailability(); }
   } catch {} finally { syncing = false; }
 }
 addEventListener('hashchange', () => { if (location.hash === '#mi-viaje') syncMine(); });

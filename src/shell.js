@@ -65,7 +65,7 @@ $('#st-next').onclick = () => {
 $('#reservar').addEventListener('click', e => {
   const o = e.target.closest('.opt');
   if (!o || window.innerWidth > 900) return;
-  if (o.dataset.boat && step === 1) setTimeout(() => goStep(2), 220);
+  if (o.dataset.boat && step === 1 && !o.classList.contains('is-busy')) setTimeout(() => goStep(2), 220);
 });
 goStep(0);
 

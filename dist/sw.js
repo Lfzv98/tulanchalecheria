@@ -1,4 +1,4 @@
-const C='tll-144745d2',A=['./','index.html','styles.css?v=144745d2','app.js?v=144745d2','manifest.webmanifest','favicon.png','icons/icon-192.png','icons/logo-128.png','media/poster.jpg'];
+const C='tll-786f56c9',A=['./','index.html','styles.css?v=786f56c9','app.js?v=786f56c9','manifest.webmanifest','favicon.png','icons/icon-192.png','icons/logo-128.png','media/poster.jpg'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(A)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
 self.addEventListener('fetch',e=>{const r=e.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==location.origin||u.pathname.includes('/api/')||u.pathname.includes('/media/hero')||u.pathname.includes('/media/v/'))return;
