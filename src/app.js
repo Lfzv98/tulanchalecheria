@@ -1373,7 +1373,15 @@ function renderAllies() {
     $('#owner-allies').innerHTML = `<div class="cat"><div class="ally-grid owner-grid">${pros.map((it, i) => allyCard(it, { org: prosOrg, catKey: '__owners__', i, len: pros.length, canDel: true })).join('')}</div>${addForm}</div>`;
   }
   // cintillo de aliados en el pie: logos en un mismo tono (blanco), sin carnaval de colores
-  const all = cats.flatMap(c => sortedItems(catLabel(c.cat), c.items)), rb = $('#ribbon');
+  const regular = cats.flatMap(c => sortedItems(catLabel(c.cat), c.items));
+  const seen = new Set(regular.map(it => String(it && it[0] || '').trim().toLowerCase()).filter(Boolean));
+  const ownerRibbon = pros.filter(it => {
+    const k = String(it && it[0] || '').trim().toLowerCase();
+    if (!k || seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  const all = [...regular, ...ownerRibbon], rb = $('#ribbon');
   if (rb) {
     rb.hidden = !all.length;
     const one = all.map(([n, , u, , logo]) => `<a class="rb-i" href="${allyLink(n, u)}" target="_blank" rel="noopener" title="${esc(n)}">${logo ? `<img src="${esc(logo)}" alt="${esc(n)}" loading="lazy" decoding="async">` : `<span>${esc(n)}</span>`}</a>`).join('');
