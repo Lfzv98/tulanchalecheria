@@ -4508,6 +4508,46 @@ route(); if (!current) show('inicio');
 /* pie de página: año actual y volver arriba dentro de la misma vista */
 { const y = $('#f-year'); if (y) y.textContent = new Date().getFullYear(); }
 $('#f-top')?.addEventListener('click', () => scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' }));
+
+/* ---------- instalación PWA (Android / Desktop + modal iOS) ---------- */
+const installBtn = $('#install'), instDlg = $('#inst-dlg');
+const standaloneMQ = matchMedia('(display-mode: standalone)');
+const isStandalone = () => standaloneMQ.matches || navigator.standalone === true;
+const isIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isMobile = () => isIOS() || /Android|Mobile/i.test(navigator.userAgent) || touchUI.matches;
+let deferredPrompt = null, appInstalled = false;
+function syncInstall() {
+  if (!installBtn) return;
+  if (appInstalled || isStandalone()) { installBtn.hidden = true; return; }
+  installBtn.hidden = !(deferredPrompt || isMobile());
+}
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; syncInstall(); });
+addEventListener('appinstalled', () => { appInstalled = true; deferredPrompt = null; syncInstall(); });
+standaloneMQ.addEventListener?.('change', syncInstall);
+touchUI.addEventListener?.('change', syncInstall);
+if (installBtn) {
+  installBtn.onclick = async () => {
+    if (deferredPrompt) {
+      const p = deferredPrompt;
+      deferredPrompt = null;
+      try {
+        await p.prompt();
+        const res = await p.userChoice;
+        if (res && res.outcome === 'accepted') appInstalled = true;
+      } catch {}
+      syncInstall();
+      return;
+    }
+    if (instDlg && !instDlg.open) instDlg.showModal();
+  };
+}
+if (instDlg) {
+  instDlg.addEventListener('click', e => {
+    if (e.target === instDlg || e.target.closest('.m-close, #inst-ok')) instDlg.close();
+  });
+}
+syncInstall();
+
 window.TLL.goStep = goStep;
 })();
 

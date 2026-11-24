@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preload" as="image" href="media/hero3-land.webp" fetchpriority="high" media="(min-aspect-ratio: 4/5)"><link rel="preload" as="image" href="media/hero3-port.webp" fetchpriority="high" media="(max-aspect-ratio: 4/5)">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TravelAgency", "name": "Tu Lancha Lechería", "url": "https://tulanchalecheria.vercel.app/", "image": "https://tulanchalecheria.vercel.app/og.jpg", "logo": "https://tulanchalecheria.vercel.app/icons/icon-512.png", "telephone": "+584143083864", "areaServed": ["Lechería", "Parque Nacional Mochima", "Anzoátegui"], "address": {"@type": "PostalAddress", "addressLocality": "Lechería", "addressRegion": "Anzoátegui", "addressCountry": "VE"}, "sameAs": ["https://www.instagram.com/tulanchalecheria/", "https://linktr.ee/Tulanchalecheria"]}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="styles.css?v=a7d81173"></head><body><a class="skip" href="#main">Saltar al contenido</a>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="styles.css?v=144745d2"></head><body><a class="skip" href="#main">Saltar al contenido</a>
 <header class="topbar" id="topbar">
   <div class="wrap">
     <a class="brand" href="#inicio" aria-label="Tu Lancha Lechería, inicio"><img src="icons/logo-128.png" alt="" width="40" height="40"><span>Tu Lancha Lechería<small>Anzoátegui – Venezuela</small></span></a>
@@ -324,5 +324,25 @@
 <dialog id="dlg" aria-labelledby="m-title"></dialog>
 <dialog id="vdlg" aria-label="Video"></dialog>
 <dialog id="imgdlg" aria-label="Imagen ampliada"></dialog>
+<dialog class="inst-dlg" id="inst-dlg" aria-labelledby="inst-title">
+  <div class="inst-in">
+    <div class="inst-head">
+      <div><span class="kicker">App web</span><h3 id="inst-title">Instalar Tu Lancha</h3></div>
+      <button type="button" class="m-close" aria-label="Cerrar">×</button>
+    </div>
+    <p class="inst-sub">Agrégala a tu pantalla de inicio para abrirla como una app en un toque.</p>
+    <ol class="inst-steps">
+      <li class="inst-step">
+        <span class="inst-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></span>
+        <span><b>1.</b> Toca el botón <b>Compartir</b> abajo / arriba</span>
+      </li>
+      <li class="inst-step">
+        <span class="inst-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg></span>
+        <span><b>2.</b> Selecciona <b>'Agregar a inicio'</b></span>
+      </li>
+    </ol>
+    <button type="button" class="btn btn-sun inst-ok" id="inst-ok">Entendido</button>
+  </div>
+</dialog>
 <div class="toast" id="toast" role="status"></div>
-<script src="app.js?v=a7d81173" defer></script></body></html>
+<script src="app.js?v=144745d2" defer></script></body></html>

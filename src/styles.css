@@ -298,7 +298,7 @@ footer.site .num{font-family:var(--f-mono);color:var(--on-sea);user-select:all}
   .tabbar a.wa{color:#25d366}
   .tabbar a[aria-current="true"]{color:var(--sun)}
   footer.site{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
-  .install{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .install{left:max(16px,env(safe-area-inset-left,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px))}
   .toast{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
 }
 .minibar{position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:74;background:var(--card);border-top:1px solid var(--line);box-shadow:0 -10px 30px -18px rgba(0,0,0,.5);padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:12px;justify-content:space-between;transform:translateY(130%);transition:transform .25s}
@@ -2296,3 +2296,17 @@ button.exp:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .comm-acts{display:flex;gap:8px;flex-wrap:wrap}
 .bk-owner-bar{font-size:.84rem;color:var(--muted);text-align:center;margin-top:4px}
 @media (max-width:760px){.comms-grid{grid-template-columns:1fr}}
+
+/* ---------- instalación PWA móvil y modal iOS ---------- */
+@media (display-mode:standalone){.install{display:none!important}}
+.inst-dlg{width:min(380px,calc(100vw - 28px));margin:auto;padding:0;border-radius:22px;overflow:hidden}
+.inst-in{padding:20px;display:grid;gap:14px}
+.inst-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.inst-head h3{margin:2px 0 0;font-size:1.35rem;line-height:1.1;color:var(--sea-900)}
+.inst-head .m-close{position:static;flex:none;width:36px;height:36px;font-size:1.25rem;display:grid;place-items:center}
+.inst-sub{margin:0;font-size:.88rem;line-height:1.4;color:var(--muted)}
+.inst-steps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.inst-step{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:#f6f8fc;border:1px solid var(--line);font-size:.9rem;line-height:1.35;color:var(--fg)}
+.inst-ic{width:38px;height:38px;border-radius:11px;background:rgba(246,225,60,.28);color:#151a33;display:grid;place-items:center;flex:none}
+.inst-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.inst-ok{width:100%;justify-content:center}
