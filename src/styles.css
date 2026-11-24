@@ -287,8 +287,6 @@ footer.site h3{color:var(--on-sea);font-size:.95rem;margin-bottom:10px}
 footer.site a{color:var(--on-sea);text-decoration:none;display:block;padding:3px 0}
 footer.site .num{font-family:var(--f-mono);color:var(--on-sea);user-select:all}
 @media (max-width:760px){footer.site .wrap{grid-template-columns:1fr}}
-.fab{position:fixed;right:max(18px,calc(env(safe-area-inset-right,0px) + 12px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:70;width:60px;height:60px;border-radius:50%;background:#25d366;display:grid;place-items:center;box-shadow:0 12px 30px -10px rgba(0,0,0,.5)}
-.fab svg{width:30px;height:30px;color:#05301a}
 .install{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:70}
 
 /* ---------- v2: navegación móvil ---------- */
@@ -299,7 +297,6 @@ footer.site .num{font-family:var(--f-mono);color:var(--on-sea);user-select:all}
   .tabbar a svg{width:22px;height:22px}
   .tabbar a.wa{color:#25d366}
   .tabbar a[aria-current="true"]{color:var(--sun)}
-  .fab{display:none}
   footer.site{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
   .install{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   .toast{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
